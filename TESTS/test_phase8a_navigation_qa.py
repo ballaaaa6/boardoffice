@@ -42,7 +42,7 @@ def test_floor_metrics_include_machine_qa_and_locked_counts():
     expected = {
         'floor00': (4129, 1917, 2212, 12),
         'floor01': (5950, 2817, 3133, 21),
-        'floor02': (7942, 3978, 3964, 28),
+        'floor02': (7774, 3978, 3796, 28),
     }
     for floor_id, counts in expected.items():
         metrics = qa.build_floor_metrics(floor_id)

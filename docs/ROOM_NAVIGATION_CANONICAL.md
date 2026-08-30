@@ -7,7 +7,7 @@ F0 and F1 have unique geometry. F2 is the canonical Room Domain and Portal geome
 Approved room counts:
 - F0: 3939 cells; portal width 12.
 - F1: 6380 cells; portal width 26.
-- F2/F2+: 7884 cells; portal width 28.
+- F2/F2+: 7774 cells; portal width 28.
 
 Object occupancy is a separate layer. Per-floor compiled occupancy/walkability lives under `WORLD/COMPILED_NAV/OCCUPANCY/`, because floor skins may project the shared footprint families differently even when they share F2 room geometry.
 

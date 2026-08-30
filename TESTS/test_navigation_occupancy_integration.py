@@ -40,7 +40,7 @@ def test_approved_f0_f1_f2_counts_are_compiled():
     expected = {
         'floor00': (4129, 1917, 2212, 12),
         'floor01': (5950, 2817, 3133, 21),
-        'floor02': (7942, 3978, 3964, 28),
+        'floor02': (7774, 3978, 3796, 28),
     }
     for floor_id, counts in expected.items():
         compiled = core.resolve_navigation_cells(floor_id)
@@ -84,7 +84,7 @@ def test_f2_plus_reuses_room_and_portal_geometry_but_keeps_per_floor_occupancy()
         assert core.resolve_room_domain(floor_id)['polygon_uv'] == f2_domain
         assert core.resolve_portal(floor_id)['edge_uv'] == f2_portal
         compiled = core.resolve_navigation_cells(floor_id)
-        assert compiled['room_cell_count'] == 7942
+        assert compiled['room_cell_count'] == 7774
         assert compiled['portal_inside_cell_count'] == 28
         assert compiled['floor_id'] == floor_id
 

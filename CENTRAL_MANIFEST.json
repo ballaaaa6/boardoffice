@@ -198,7 +198,8 @@
         "floor00/floor01 CEO desk footprint transform corrected to NORMAL",
         "floor02 canonical Room Domain green-add/red-remove correction",
         "floor02 portal narrowed to 28 fine cells and inherited by F2+",
-        "RoomNavigationCore row_runs compatibility fix"
+        "RoomNavigationCore row_runs compatibility fix",
+        "floor02 lower six-row Room tail trim and portal edge relocation inherited by F2+"
       ],
       "f2_plus_reuses_floor02": true
     },
@@ -214,7 +215,7 @@
       "room_domain_counts": {
         "floor00": 3939,
         "floor01": 6380,
-        "floor02": 7884
+        "floor02": 7774
       }
     },
     "phase7a_world_authoring": {
@@ -297,9 +298,9 @@
           "note": "author-approved lower-left domain/portal move; reception inside room"
         },
         "floor02_family": {
-          "room_cells": 7942,
+          "room_cells": 7774,
           "portal_inside_cells": 28,
-          "note": "author-approved +V2 connector expansion inherited by F2+"
+          "note": "author-approved +V2 connector expansion plus lower-tail trim / portal edge relocation inherited by F2+"
         }
       },
       "full_regression": "114/114 PASS",
@@ -352,12 +353,12 @@
           "portal": 21
         },
         "floor02_family": {
-          "room": 7942,
+          "room": 7774,
           "base": 2083,
           "closure": 220,
           "clearance": 1675,
           "occupied": 3978,
-          "walkable": 3964,
+          "walkable": 3796,
           "portal": 28
         }
       }

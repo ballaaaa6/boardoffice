@@ -31,7 +31,7 @@ canonical gameplay/spatial family for all 23 `layout.floor02.large` floors.
 |---|---:|---:|
 | F0 | 4129 | 12 |
 | F1 | 5950 | 21 |
-| F2 / F2+ | 7942 | 28 |
+| F2 / F2+ | 7774 | 28 |
 
 ## Reception contract
 

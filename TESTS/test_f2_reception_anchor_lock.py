@@ -44,9 +44,9 @@ def test_f2_family_navigation_remains_valid_after_reception_expansion():
     for floor_id in family['family_floor_ids']:
         compiled = core.resolve_navigation_cells(floor_id)
         audit = core.validate_navigation_floor(floor_id)
-        assert compiled['room_cell_count'] == 7942
+        assert compiled['room_cell_count'] == 7774
         assert compiled['base_occupied_cell_count'] == 2083
         assert compiled['occupied_cell_count'] == 3978
-        assert compiled['walkable_cell_count'] == 3964
+        assert compiled['walkable_cell_count'] == 3796
         assert compiled['portal_inside_cell_count'] == 28
         assert audit['valid'] is True

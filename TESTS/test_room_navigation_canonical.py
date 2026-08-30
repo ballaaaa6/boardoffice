@@ -101,8 +101,8 @@ def test_compiled_room_cells_for_f2_plus_reuse_f2_without_duplicate_files():
 def test_floor02_author_patch_updates_canonical_domain_and_narrows_portal_for_f2_plus():
     c = core()
     expected_polygon = [
-        [188,45],[188,123],[217,123],[217,129],[240,157],[240,189],
-        [268,189],[268,159],[271,159],[271,128],[279,128],[279,71],[217,71],[217,45],
+        [188,45],[188,123],[217,123],[217,129],[240,157],[240,183],
+        [268,183],[268,159],[271,159],[271,128],[279,128],[279,71],[217,71],[217,45],
     ]
     f2 = c.resolve_room_domain('floor02')
     f3 = c.resolve_room_domain('floor03')
@@ -110,7 +110,7 @@ def test_floor02_author_patch_updates_canonical_domain_and_narrows_portal_for_f2
     assert f3['polygon_uv'] == expected_polygon
     p2 = c.resolve_portal('floor02')
     p36 = c.resolve_portal('floor36')
-    assert p2['edge_uv'] == [[240,189],[268,189]]
+    assert p2['edge_uv'] == [[240,183],[268,183]]
     assert len(p2['inside_cells_uv']) == 28
     assert len(p2['outside_cells_uv']) == 28
     assert p36['edge_uv'] == p2['edge_uv']
@@ -120,8 +120,8 @@ def test_floor02_author_patch_updates_canonical_domain_and_narrows_portal_for_f2
 def test_floor02_author_plus_v_two_extension_opens_left_connector_without_moving_portal():
     c = core()
     expected_polygon = [
-        [188,45],[188,123],[217,123],[217,129],[240,157],[240,189],
-        [268,189],[268,159],[271,159],[271,128],[279,128],[279,71],[217,71],[217,45],
+        [188,45],[188,123],[217,123],[217,129],[240,157],[240,183],
+        [268,183],[268,159],[271,159],[271,128],[279,128],[279,71],[217,71],[217,45],
     ]
     f2 = c.resolve_room_domain('floor02')
     f36 = c.resolve_room_domain('floor36')
@@ -130,7 +130,7 @@ def test_floor02_author_plus_v_two_extension_opens_left_connector_without_moving
     room = c.room_navigation.room_cell_set('floor02')
     # The two restored +V rows directly below the old v=121 edge are now room.
     assert all((u, v) in room for u in range(188, 217) for v in (121, 122))
-    assert c.resolve_portal('floor02')['edge_uv'] == [[240,189],[268,189]]
+    assert c.resolve_portal('floor02')['edge_uv'] == [[240,183],[268,183]]
 
 
 def test_floor02_compiled_mask_matches_patched_domain_and_f2_plus_reuses_it():
@@ -139,8 +139,8 @@ def test_floor02_compiled_mask_matches_patched_domain_and_f2_plus_reuses_it():
     f8 = c.resolve_room_cells('floor08')
     assert f8['canonical_floor_id'] == 'floor02'
     assert f8['room_cell_count'] == f2['room_cell_count']
-    assert f2['portal_inside_cells_uv'] == [[u,188] for u in range(240,268)]
-    assert f2['portal_outside_cells_uv'] == [[u,189] for u in range(240,268)]
+    assert f2['portal_inside_cells_uv'] == [[u,182] for u in range(240,268)]
+    assert f2['portal_outside_cells_uv'] == [[u,183] for u in range(240,268)]
 
 
 def test_room_cell_set_reads_canonical_row_runs_format_for_f2_plus():
@@ -149,8 +149,8 @@ def test_room_cell_set_reads_canonical_row_runs_format_for_f2_plus():
     f3 = c.room_navigation.room_cell_set('floor03')
     assert len(f2) == c.resolve_room_domain('floor02')['room_cell_count']
     assert f3 == f2
-    assert (240,188) in f2
-    assert (268,188) not in f2
+    assert (240,182) in f2
+    assert (240,183) not in f2
 
 
 def test_floor00_author_entry_wedge_expands_room_domain_without_changing_portal_edge():

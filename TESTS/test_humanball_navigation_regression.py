@@ -18,7 +18,7 @@ def test_humanball_is_visual_only_and_navigation_occupancy_neutral():
     expected = {
         'floor00': (4129, 2212),
         'floor01': (5950, 3133),
-        'floor02': (7942, 3964),
+        'floor02': (7774, 3796),
     }
     before = {}
     for floor_id, (room_count, walkable_count) in expected.items():

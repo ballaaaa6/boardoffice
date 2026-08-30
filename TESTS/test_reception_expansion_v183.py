@@ -35,5 +35,5 @@ def test_floor02_family_expansion_keeps_navigation_valid_and_synchronized():
         assert row['outer_corners_world_px'] == expected_corners
         assert compiled['base_occupied_cell_count'] == 2083
         assert compiled['occupied_cell_count'] == 3978
-        assert compiled['walkable_cell_count'] == 3964
+        assert compiled['walkable_cell_count'] == 3796
         assert audit['valid'] is True

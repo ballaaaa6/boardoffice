@@ -45,7 +45,7 @@ Final author-approved counts:
 |---|---:|---:|
 | F0 | 4129 | 12 |
 | F1 | 5950 | 21 |
-| F2 / F2+ | 7942 | 28 |
+| F2 / F2+ | 7774 | 28 |
 
 Approved geometry refinements:
 

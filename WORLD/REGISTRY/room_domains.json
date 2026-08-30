@@ -125,7 +125,7 @@
     },
     "floor02": {
       "approval_status": "author_approved",
-      "provenance": "GDS_ROOM_DOMAIN_AUTHORING_v0.2.0 + 2026-08-30 author three-area expansion / straight slope correction + red-wedge removal + local +V2 connector expansion",
+      "provenance": "GDS_ROOM_DOMAIN_AUTHORING_v0.2.0 + 2026-08-30 author three-area expansion / straight slope correction + red-wedge removal + local +V2 connector expansion + lower-tail trim / portal edge relocation",
       "grid_profile_id": "grid.iso.occupancy_fine.v1",
       "polygon_uv": [
         [
@@ -150,11 +150,11 @@
         ],
         [
           240,
-          189
+          183
         ],
         [
           268,
-          189
+          183
         ],
         [
           268,
@@ -185,7 +185,7 @@
           45
         ]
       ],
-      "room_cell_count": 7942,
+      "room_cell_count": 7774,
       "portal_id": "floor02.main_exit",
       "canonical_floor_id": "floor02",
       "domain_id": "domain.floor02"

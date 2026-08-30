@@ -21,7 +21,7 @@ Clearance is navigation-only and does not alter base ground/depth anchors.
 |---|---:|---:|
 | F0 | 4129 | 12 |
 | F1 | 5950 | 21 |
-| F2 / F2+ | 7942 | 28 |
+| F2 / F2+ | 7774 | 28 |
 
 F0 and F1 remain unique. All 23 floors using `layout.floor02.large` now resolve gameplay/spatial metadata through the explicit `gameplay.layout.floor02.large` family with `floor02` as canonical.
 
@@ -65,7 +65,7 @@ This is the prior 20×15 reservation expanded **again** by `-U5` and `+U4`. All 
 |---|---:|---:|---:|---:|---:|---:|---:|
 | F0 | 4129 | 710 | 116 | 1091 | 1917 | 2212 | 12 |
 | F1 | 5950 | 1176 | 156 | 1347 | 2679 | 3271 | 21 |
-| F2 / F2+ | 7942 | 2083 | 220 | 1675 | 3978 | 3964 | 28 |
+| F2 / F2+ | 7774 | 2083 | 220 | 1675 | 3978 | 3796 | 28 |
 
 ## Lean release policy
 
