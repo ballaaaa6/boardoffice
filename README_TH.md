@@ -1,5 +1,7 @@
 # GDS CENTRAL GAME CORE v1.8.4
 
+> สถานะ: **Phase 8C ปิดงานแล้วและผู้เขียนอนุมัติภาพตรวจสอบเมื่อ 2026-08-31**; งานถัดไปคือ Phase 8D WorkSeat runtime lifecycle
+
 > v1.8.4 คือรุ่น **Phase 8C Portal Actor Lifecycle** โดยคง navigation foundation ที่อนุมัติแล้วของ Phase 8B และเพิ่ม movement แบบต่อเนื่อง, no-redraw walking depth, reception expansion และ lifecycle ของตัวละครที่เข้า/ออกผ่าน portal แบบ deterministic
 
 สูตร navigation หลักยังเป็น:

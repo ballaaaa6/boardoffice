@@ -4,7 +4,7 @@
 
 ## Current status
 
-**PHASE 8C PORTAL LIFECYCLE / VERIFIED — 2026-08-30**
+**PHASE 8C PORTAL LIFECYCLE / CLOSED — AUTHOR-APPROVED — 2026-08-31**
 
 ## Navigation formula
 

@@ -1,4 +1,6 @@
-# GDS_CENTRAL_GAME_CORE_v1.8.3 — handoff
+# GDS_CENTRAL_GAME_CORE_v1.8.3 — Historical State Snapshot
+
+> Archived context only. The active project handoff is `/HANDOFF.md`.
 
 ## Scope completed
 This pass bundled the requested **3 gates** together in one release:

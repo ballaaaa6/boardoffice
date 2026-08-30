@@ -1,107 +1,72 @@
-# GDS CENTRAL GAME CORE — CURRENT HANDOFF / PHASE 8C
+# GDS Central Game Core — Handoff
 
-**Handoff date:** 2026-08-30  
-**Current release candidate:** `GDS_CENTRAL_GAME_CORE_v1.8.4`  
-**Status:** `PHASE8C_PORTAL_LIFECYCLE_CLOSED`
+**Updated:** 2026-08-31 (Asia/Bangkok)
+**Project root:** `D:\antigravity\board office`
+**Status:** `PHASE8C_PORTAL_LIFECYCLE_CLOSED_AUTHOR_APPROVED`
+**Active handoff:** this file only
 
-## Release summary
+## Source of truth
 
-The Phase 8B foundation is closed and author-approved. It includes the permanent
-fine grid, F0/F1/F2 room and portal geometry, deterministic 4-neighbor A*,
-desk/chair semantic closure and clearance, WorkSeat approach gates, and
-no-redraw walking-depth occlusion.
+- The unpacked project at the root is the active source of truth.
+- `00_STARTING_POINT/` is the immutable four-file archive received at project start.
+- `ROADMAP.md` defines milestone order; `AGENTS.md` defines working rules.
+- `docs/history/` contains state snapshots only. They are not active handoffs.
+- Explicit author acceptance is recorded below; the manifest/report remain machine-checkable evidence, not a substitute for the acceptance record.
+- The original four-file project baseline remains preserved in `00_STARTING_POINT/`. The TV Studio Story archive currently stored there is external research evidence, not project status or a release input.
 
-v1.8.4 adds the continuous movement preview and the production portal actor
-lifecycle. Each character now receives one deterministic movement profile in
-the author-approved 225–250% range, re-rolled with the v3 speed seed. Actors advance independently on a shared
-60 ms tick, keep the shared ground anchor `[16,31]`, scale walk stride with
-travel speed, and stabilize visual facing across A* staircase paths.
+## Where the project is now
 
-## Navigation contract
+- Phase 8B navigation/world foundation is author-approved and remains frozen.
+- Phase 8C portal actor lifecycle is implemented, visually accepted, and closed; it is wired through `RUNTIME/central_core.py`.
+- The lifecycle runs `unspawned → entering → active → exiting → despawned`, keeps deterministic actor identity/movement data, and ends invisible after portal exit.
+- Crowd movement/portal QA support is present.
+- The author approved all five dense visual samples on 2026-08-31. Phase 8C is closed; Phase 8D is the next milestone and has not started.
 
-```text
-FINAL_OCCUPIED = BASE_OBJECT_FOOTPRINTS + SEMANTIC_CLOSURES + NAVIGATION_CLEARANCE
-WALKABLE       = APPROVED_ROOM_DOMAIN - FINAL_OCCUPIED
-```
+## Latest verification
 
-The permanent fine grid is `grid.iso.occupancy_fine.v1` with 4×2 px cells,
-`U=(2,1)`, `V=(-2,1)`, and origin `(28,0)`. F0 and F1 are unique. F2 is the
-canonical gameplay/spatial family for all 23 `layout.floor02.large` floors.
+- Full regression from the new root: `146 passed`.
+- Focused portal/movement/crowd regression: `27 passed`.
+- Focused Portal/Crowd/WorkSeat comparison regression after the TV Studio Story review: `39 passed`.
+- Room Navigation: PASS.
+- Navigation Occupancy: PASS for 25 floors / 219 workstations.
+- WorkSeat: PASS.
+- Phase 6 Spatial: PASS.
+- F2 gameplay-metadata family: PASS.
+- Central integrity: PASS, with `release_clean=false` because the working tree contains ignored caches/review outputs.
+- Historical release candidates are preserved as `releases/GDS_CENTRAL_GAME_CORE_v1.8.4_PRE_CLEAN_CANDIDATE.zip`, `releases/GDS_CENTRAL_GAME_CORE_v1.8.4_PRE_NORMALIZATION_PROMOTED.zip`, and `releases/GDS_CENTRAL_GAME_CORE_v1.8.4_PRE_ACCEPTANCE_TECHNICAL.zip`; the accepted package is promoted at `releases/GDS_CENTRAL_GAME_CORE_v1.8.4.zip`.
+- Fresh dense visual QA is now generated at `LOCAL_REVIEW/PHASE8C_DENSE_10_ACTOR_QA_20260831/`: F0, F1, F2 plus deterministic random floors F14 and F17 (seed `8042`), 10 actors per floor, farthest-point room coverage. The report is PASS with zero active waits, zero collisions, zero static-world diff pixels and all actors despawned.
+- Focused portal/crowd regression: `27 passed`; current full regression: `146 passed`. All seven required root audits pass; root Central reports `pass=true` and `release_clean=false` only because local Python caches exist.
+- Clean release fresh-extraction verification is complete: `146 passed`, all seven audits exit zero, Central `pass=true`, `release_clean=true`, Python cache count `0`, payload mismatches/missing `0`. Accepted package: `releases/GDS_CENTRAL_GAME_CORE_v1.8.4.zip`; SHA-256: `6d2b1920c5b162657ebe57fb29e5973cc870e39402f889c3c68f6c65d5e91d33` (recorded here after packaging so the in-archive handoff is not self-referential).
+- GIF integrity check passed for all five samples: 600×600 canvas, nonzero actual frame counts (`floor00` 674, `floor01` 518, `floor02` 568, `floor14` 568, `floor17` 568), and first/last frames are identical (empty tail/no ghost actor).
+- Author visual acceptance: `APPROVED` on 2026-08-31 for `floor00`, `floor01`, `floor02`, `floor14`, and `floor17`; each sample has 10 actors distributed across the walkable room with no visible collision, wait, static-world diff, or ghost tail.
 
-| Family | Room cells | Portal inside cells |
-|---|---:|---:|
-| F0 | 4129 | 12 |
-| F1 | 5950 | 21 |
-| F2 / F2+ | 7774 | 28 |
+## Most recent project changes
 
-## Reception contract
+- Re-rooted the repository at `D:\antigravity\board office`; the former nested project directory was removed after its contents and `.git` metadata were moved successfully.
+- Archived the four received starter files in `00_STARTING_POINT/` without editing them.
+- Consolidated project status into this single active `HANDOFF.md`.
+- Renamed former handoffs under `docs/history/` as non-authoritative state snapshots.
+- Added the English documentation map at `docs/INDEX.md` and the repeatable release gate at `docs/RELEASE_CHECKLIST.md`.
+- Independently checked the supplied TV Studio Story map, chip and visit-animation evidence against the extracted source package. The evidence supports separated portal semantics and object-owned interaction metadata, but does not expose runtime scheduling/queue algorithms or fully decode the foreign interaction tuple.
+- Added the QA-only `TOOLS/render_phase8c_dense_crowd_qa.py` wrapper. It does not alter runtime behavior; it records the dense five-floor sample, deterministic random seed, room-wide target sampling and actual GIF frame counts.
+- Added the deterministic `TOOLS/build_phase8c_release.py` packer used to produce and validate the clean Phase 8C candidate archive.
+- No runtime logic, registries, world assets or character assets were changed during this organization work.
 
-F1 remains unique at 16U×20V / 320 cells. F2/F2+ use the fixed world ground
-anchor `(259,376)` with origin offset `(-12,-4)` and a 34U×22V reservation:
+## Research input retained for future work
 
-```text
-occupied cells = 748
-corners        = (243,360) (311,394) (267,416) (199,382)
-```
+- The TV reference does not reset Phase 8C: the current GDS portal lifecycle already separates navigation portal data from world art and has explicit inside/outside plus entry/exit rules. Its useful lessons remain recorded for Phase 8D design.
+- A future directional entry/exit lane refinement is optional and should be added only if Phase 8C crowd/portal visual review demonstrates a real bottleneck or crossing defect.
+- The strongest Phase 8D lesson is an object-owned interaction-slot contract layered over the existing WorkSeat geometry, transition gate and pose compositor. Start with one deterministic slot per workstation while keeping the schema extensible to multiple slots.
+- GDS already has the semantic character action registry in `CHARACTER/ACTIONS/gds_standard_v1.json`; Phase 8D should extend/reuse it rather than create a competing registry.
+- No TV tuple values, scheduler behavior or queue policy should be copied as fact without runtime/code evidence.
 
-All 23 F2-family floors must resolve the same F2 reception navigation geometry;
-visual reception padding remains skin-specific. Walking depth is separately bound
-to `walking_depth.reception.f1` on F1 and `walking_depth.reception.f2_plus` on
-the F2 family, using the visible front edge by ground X. F0 remains intentionally
-unbound because its reception is embedded in the floor image.
+## Next exact task
 
-## Portal actor lifecycle
+1. Write the Phase 8D WorkSeat contract and test matrix before changing runtime code.
+2. Reuse the existing pathfinding, reachable WorkSeat transition gates, `WorkSeatCore` composition, character movement profile, and identity rules.
+3. Implement one deterministic actor on F0, F1, and the F2 family first; expand to crowd interaction only after that contract is stable.
+4. Apply the same tests, audits, visual acceptance, and clean-package gate to Phase 8D.
 
-`RUNTIME/portal_actor_lifecycle.py` emits renderer-agnostic, JSON-safe samples
-for the complete deterministic lifecycle:
+## Current blocker
 
-```text
-unspawned → entering → active → exiting → despawned
-```
-
-Entry and exit use the canonical portal inside/outside pair. Normal movement
-uses the existing pathfinding and character movement cores. The final state is
-invisible and despawned, so no translucent actor remains after portal exit.
-
-Every lifecycle record includes its movement profile, shared playback tick,
-raw path direction, and stabilized sprite-facing direction. Speed assignment is
-stable by canonical character ID; an optional actor seed is available through
-the movement-profile API when repeated instances need distinct stable speeds.
-
-## Crowd movement reservation
-
-`RUNTIME/crowd_movement_core.py` adds a renderer-agnostic synchronized-head
-trajectory layer on the same 60 ms tick. It compares continuous closest approach
-of two heads at the same time with a 2 px screen-space clearance; historical
-trails and geometric route lines are not reservations. Static alternate A* route
-options are tried first. If a bottleneck has no safe detour, the actor is shifted
-before it becomes visible (pre-spawn offset), so no `crowd_wait`/idle state is
-inserted after spawn. Actor IDs and character assignments are copied into every
-scheduled state and rejected if a state attempts to change identity. The crowd
-portal renderer is wired to this layer; F2 QA reports include synchronized-head,
-minimum-distance, route-option, pre-spawn-delay, and active-wait metrics. The
-legacy discrete reservation API remains available for older tools.
-
-## Verification and packaging gate
-
-Before publishing a release, run the full test suite and these audits:
-
-- Room Navigation
-- Ground Footprints
-- Navigation Occupancy: 25 floors / 219 workstations
-- WorkSeat
-- Phase 6 Spatial
-- Central package integrity
-- F2 gameplay-metadata/reception family synchronization
-
-The release archive must be freshly extracted and must contain no `PREVIEW/`,
-`LOCAL_REVIEW/`, materialized occupancy cache, Python cache, or pytest cache.
-The final central audit must report `release_clean=true`.
-
-## Next milestone
-
-Phase 8D — WorkSeat runtime lifecycle:
-
-```text
-walking → approach → seated/work → exit seat → walking
-```
+None. Phase 8C is closed and author-approved; Phase 8D is the next planned implementation milestone.
