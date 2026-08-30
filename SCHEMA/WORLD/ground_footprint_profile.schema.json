@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Ground Footprint Profile",
+  "type": "object",
+  "required": [
+    "profile_id",
+    "approval_status",
+    "shape",
+    "author_size_fine_cells",
+    "axes",
+    "origin_asset_edge_px",
+    "transform_policy"
+  ],
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "approval_status": {
+      "const": "author_approved"
+    },
+    "shape": {
+      "const": "filled_iso_rect"
+    },
+    "author_size_fine_cells": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "axes": {
+      "type": "object",
+      "required": [
+        "u_cells",
+        "v_cells"
+      ],
+      "properties": {
+        "u_cells": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "v_cells": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "origin_asset_edge_px": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "transform_policy": {
+      "enum": [
+        "inherit_object_transform"
+      ]
+    },
+    "origin_basis": {
+      "enum": [
+        "asset_canvas",
+        "visual_bounds_top_left"
+      ]
+    }
+  }
+}

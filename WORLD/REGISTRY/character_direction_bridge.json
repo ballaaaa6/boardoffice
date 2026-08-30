@@ -1,0 +1,44 @@
+{
+  "action_families": {
+    "work": {
+      "character_action_id": "work",
+      "direction_mode": "three_way",
+      "mapping": {
+        "NW": "NW",
+        "SE": "SE",
+        "SW": "SW"
+      },
+      "supported_directions": [
+        "SE",
+        "SW",
+        "NW"
+      ],
+      "unsupported_policy": "error_no_fallback",
+      "unsupported_world_directions": [
+        "NE"
+      ]
+    }
+  },
+  "character_direction_vocabulary": [
+    "NE",
+    "SE",
+    "SW",
+    "NW"
+  ],
+  "compatibility_baseline": {
+    "action_registry": "ACTIONS/gds_standard_v1.json",
+    "action_registry_sha256": "501e52a43af974bbcfe795f781b9c0992280561025f8207e64b4027fe7d7889e",
+    "action_set_id": "gds_standard_v1",
+    "package": "GDS_CHARACTER_ACTION_SYSTEM_FINAL_CENTRAL_VFX_v1.3.1",
+    "zip_sha256": "0b36a613529da9cce90d0821d611d781ece8803c9d93ff45c371c3409c9470c0"
+  },
+  "contract_id": "contract.world_to_character_direction.v1",
+  "domain_policy": "metadata_contract_only_character_domain_not_embedded",
+  "schema": "gds.character_direction_bridge.v1",
+  "world_direction_vocabulary": [
+    "NE",
+    "SE",
+    "SW",
+    "NW"
+  ]
+}

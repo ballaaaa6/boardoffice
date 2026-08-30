@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Chair Families v1",
+  "type": "object",
+  "required": ["schema", "source_package", "family_count", "nontransparent_part_count", "transparent_source_part_count", "families"],
+  "properties": {
+    "schema": {"const": "gds.chair_families.v1"},
+    "source_package": {"type": "string"},
+    "family_count": {"const": 30},
+    "nontransparent_part_count": {"const": 115},
+    "transparent_source_part_count": {"const": 5},
+    "families": {
+      "type": "object",
+      "minProperties": 30,
+      "maxProperties": 30,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["family_id", "source_sheet", "source_sheet_sha256", "cell_size_px", "parts"],
+        "properties": {
+          "family_id": {"type": "string", "pattern": "^chair_[0-9]{3}$"},
+          "source_sheet": {"type": "string"},
+          "source_sheet_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "cell_size_px": {"const": [21, 32]},
+          "parts": {
+            "type": "object",
+            "required": ["part_00", "part_01", "part_02", "part_03"],
+            "additionalProperties": false,
+            "properties": {
+              "part_00": {"$ref": "#/$defs/part"},
+              "part_01": {"$ref": "#/$defs/part"},
+              "part_02": {"$ref": "#/$defs/part"},
+              "part_03": {"$ref": "#/$defs/part"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "part": {
+      "type": "object",
+      "required": ["asset_id", "source_status", "source_rect"],
+      "properties": {
+        "asset_id": {"type": ["string", "null"]},
+        "source_status": {"enum": ["present", "transparent_by_source"]},
+        "source_rect": {
+          "type": "array",
+          "items": {"type": "integer"},
+          "minItems": 4,
+          "maxItems": 4
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS World Assets v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "assets"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds_world_assets_v1"
+    },
+    "assets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "asset_id",
+          "semantic_type",
+          "blob_id",
+          "rgba_sha256",
+          "width",
+          "height"
+        ],
+        "properties": {
+          "asset_id": {
+            "type": "string"
+          },
+          "semantic_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_class": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "legacy_shared_path": {
+            "type": "string"
+          },
+          "source_png_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "blob_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "rgba_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "recipe": {
+            "type": "object"
+          },
+          "recipe_validation": {
+            "type": "object"
+          },
+          "legacy_recipe": {
+            "type": "object"
+          },
+          "recipe_correction": {
+            "type": "object",
+            "required": [
+              "issue",
+              "legacy_source_rect",
+              "canonical_source_rect"
+            ],
+            "properties": {
+              "issue": {
+                "const": "bottom_exclusive_off_by_one"
+              },
+              "legacy_source_rect": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "canonical_source_rect": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "minItems": 4,
+                "maxItems": 4
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Work Pose Profiles v1",
+  "type": "object",
+  "required": ["schema", "contract_id", "coordinate_semantics", "supported_directions", "supported_subactions", "profiles"],
+  "properties": {
+    "schema": {"const": "gds.work_pose_profiles.v1"},
+    "contract_id": {"const": "contract.gds.work_pose_profiles.v1"},
+    "coordinate_semantics": {
+      "type": "object",
+      "required": ["visual_offset_reference", "gameplay_anchor_fields_populated"],
+      "properties": {
+        "visual_offset_reference": {"const": "chair_slot_origin_px"},
+        "gameplay_anchor_fields_populated": {"const": false},
+        "note": {"type": "string"}
+      }
+    },
+    "supported_directions": {"const": ["SE", "SW", "NW"]},
+    "supported_subactions": {"const": ["normal_work", "turn_side_a", "turn_side_b", "happy"]},
+    "profiles": {
+      "type": "object",
+      "required": ["SE", "SW", "NW"],
+      "additionalProperties": false,
+      "properties": {
+        "SE": {"type": "object"},
+        "SW": {"type": "object"},
+        "NW": {"type": "object"}
+      }
+    }
+  }
+}

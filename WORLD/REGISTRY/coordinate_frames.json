@@ -1,0 +1,39 @@
+{
+  "coordinate_frames": {
+    "coord.pixel_iso.v1": {
+      "coordinate_frame_id": "coord.pixel_iso.v1",
+      "grid": {
+        "grid_origin": [
+          28,
+          0
+        ],
+        "profile_id": "grid.iso.occupancy_fine.v1",
+        "tile_height_px": 2,
+        "tile_width_px": 4,
+        "u_step_px": [
+          2,
+          1
+        ],
+        "v_step_px": [
+          -2,
+          1
+        ]
+      },
+      "isometric_axes": {
+        "u_negative": "NW",
+        "u_positive": "SE",
+        "v_negative": "NE",
+        "v_positive": "SW"
+      },
+      "pixel_space": {
+        "integer_coordinates": true,
+        "origin": "top_left",
+        "placement_anchor": "sprite_top_left",
+        "unit": "px",
+        "x_positive": "right",
+        "y_positive": "down"
+      }
+    }
+  },
+  "schema": "gds_coordinate_frames_v1"
+}

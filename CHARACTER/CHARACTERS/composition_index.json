@@ -1,0 +1,911 @@
+{
+  "schema": "gds_character_composition_index_v1",
+  "key_format": "<body_asset_id>+<face_asset_id>",
+  "character_count": 302,
+  "unique_composition_count": 300,
+  "duplicate_composition_count": 2,
+  "compositions": {
+    "character.body.000+character.face.000": [
+      "RND_M_001"
+    ],
+    "character.body.000+character.face.001": [
+      "TP_038",
+      "TP_081"
+    ],
+    "character.body.000+character.face.002": [
+      "TP_000"
+    ],
+    "character.body.000+character.face.003": [
+      "RND_M_004"
+    ],
+    "character.body.000+character.face.004": [
+      "RND_M_005"
+    ],
+    "character.body.000+character.face.005": [
+      "RND_M_006"
+    ],
+    "character.body.000+character.face.006": [
+      "RND_M_007"
+    ],
+    "character.body.000+character.face.007": [
+      "TP_079"
+    ],
+    "character.body.000+character.face.016": [
+      "RND_M_009"
+    ],
+    "character.body.000+character.face.017": [
+      "RND_M_010"
+    ],
+    "character.body.000+character.face.018": [
+      "RND_M_011"
+    ],
+    "character.body.000+character.face.020": [
+      "RND_M_012"
+    ],
+    "character.body.000+character.face.021": [
+      "RND_M_013"
+    ],
+    "character.body.000+character.face.022": [
+      "RND_M_014"
+    ],
+    "character.body.000+character.face.023": [
+      "TP_042"
+    ],
+    "character.body.001+character.face.008": [
+      "TP_007"
+    ],
+    "character.body.001+character.face.009": [
+      "TP_071"
+    ],
+    "character.body.001+character.face.010": [
+      "TP_048"
+    ],
+    "character.body.001+character.face.011": [
+      "RND_F_004"
+    ],
+    "character.body.001+character.face.012": [
+      "RND_F_005"
+    ],
+    "character.body.001+character.face.013": [
+      "TP_012"
+    ],
+    "character.body.001+character.face.014": [
+      "RND_F_007"
+    ],
+    "character.body.001+character.face.025": [
+      "RND_F_008"
+    ],
+    "character.body.001+character.face.026": [
+      "RND_F_009"
+    ],
+    "character.body.001+character.face.027": [
+      "RND_F_010"
+    ],
+    "character.body.001+character.face.028": [
+      "RND_F_011"
+    ],
+    "character.body.001+character.face.029": [
+      "RND_F_012"
+    ],
+    "character.body.001+character.face.031": [
+      "TP_033"
+    ],
+    "character.body.002+character.face.008": [
+      "RND_F_014"
+    ],
+    "character.body.002+character.face.009": [
+      "TP_004"
+    ],
+    "character.body.002+character.face.010": [
+      "RND_F_016"
+    ],
+    "character.body.002+character.face.011": [
+      "TP_046",
+      "TP_080"
+    ],
+    "character.body.002+character.face.012": [
+      "RND_F_018"
+    ],
+    "character.body.002+character.face.013": [
+      "RND_F_019"
+    ],
+    "character.body.002+character.face.014": [
+      "TP_016"
+    ],
+    "character.body.002+character.face.025": [
+      "RND_F_021"
+    ],
+    "character.body.002+character.face.026": [
+      "RND_F_022"
+    ],
+    "character.body.002+character.face.027": [
+      "RND_F_023"
+    ],
+    "character.body.002+character.face.028": [
+      "RND_F_024"
+    ],
+    "character.body.002+character.face.029": [
+      "TP_030"
+    ],
+    "character.body.002+character.face.031": [
+      "RND_F_026"
+    ],
+    "character.body.003+character.face.000": [
+      "TP_031"
+    ],
+    "character.body.003+character.face.001": [
+      "RND_M_017"
+    ],
+    "character.body.003+character.face.002": [
+      "RND_M_018"
+    ],
+    "character.body.003+character.face.003": [
+      "RND_M_019"
+    ],
+    "character.body.003+character.face.004": [
+      "TP_006"
+    ],
+    "character.body.003+character.face.005": [
+      "RND_M_021"
+    ],
+    "character.body.003+character.face.006": [
+      "RND_M_022"
+    ],
+    "character.body.003+character.face.007": [
+      "TP_072"
+    ],
+    "character.body.003+character.face.016": [
+      "RND_M_024"
+    ],
+    "character.body.003+character.face.017": [
+      "RND_M_025"
+    ],
+    "character.body.003+character.face.018": [
+      "RND_M_026"
+    ],
+    "character.body.003+character.face.020": [
+      "TP_082"
+    ],
+    "character.body.003+character.face.021": [
+      "RND_M_028"
+    ],
+    "character.body.003+character.face.022": [
+      "RND_M_029"
+    ],
+    "character.body.003+character.face.023": [
+      "RND_M_030"
+    ],
+    "character.body.004+character.face.000": [
+      "RND_M_031"
+    ],
+    "character.body.004+character.face.001": [
+      "RND_M_032"
+    ],
+    "character.body.004+character.face.002": [
+      "RND_M_033"
+    ],
+    "character.body.004+character.face.003": [
+      "RND_M_034"
+    ],
+    "character.body.004+character.face.004": [
+      "TP_070"
+    ],
+    "character.body.004+character.face.005": [
+      "RND_M_036"
+    ],
+    "character.body.004+character.face.006": [
+      "RND_M_037"
+    ],
+    "character.body.004+character.face.007": [
+      "TP_015"
+    ],
+    "character.body.004+character.face.016": [
+      "RND_M_039"
+    ],
+    "character.body.004+character.face.017": [
+      "RND_M_040"
+    ],
+    "character.body.004+character.face.018": [
+      "RND_M_041"
+    ],
+    "character.body.004+character.face.020": [
+      "TP_047"
+    ],
+    "character.body.004+character.face.021": [
+      "RND_M_043"
+    ],
+    "character.body.004+character.face.022": [
+      "RND_M_044"
+    ],
+    "character.body.004+character.face.023": [
+      "RND_M_045"
+    ],
+    "character.body.005+character.face.000": [
+      "RND_M_046"
+    ],
+    "character.body.005+character.face.001": [
+      "RND_M_047"
+    ],
+    "character.body.005+character.face.002": [
+      "RND_M_048"
+    ],
+    "character.body.005+character.face.003": [
+      "RND_M_049"
+    ],
+    "character.body.005+character.face.004": [
+      "RND_M_050"
+    ],
+    "character.body.005+character.face.005": [
+      "TP_091"
+    ],
+    "character.body.005+character.face.006": [
+      "RND_M_052"
+    ],
+    "character.body.005+character.face.007": [
+      "RND_M_053"
+    ],
+    "character.body.005+character.face.016": [
+      "RND_M_054"
+    ],
+    "character.body.005+character.face.017": [
+      "TP_084"
+    ],
+    "character.body.005+character.face.018": [
+      "RND_M_056"
+    ],
+    "character.body.005+character.face.020": [
+      "RND_M_057"
+    ],
+    "character.body.005+character.face.021": [
+      "RND_M_058"
+    ],
+    "character.body.005+character.face.022": [
+      "RND_M_059"
+    ],
+    "character.body.005+character.face.023": [
+      "RND_M_060"
+    ],
+    "character.body.006+character.face.000": [
+      "RND_M_061"
+    ],
+    "character.body.006+character.face.001": [
+      "RND_M_062"
+    ],
+    "character.body.006+character.face.002": [
+      "TP_013"
+    ],
+    "character.body.006+character.face.003": [
+      "RND_M_064"
+    ],
+    "character.body.006+character.face.004": [
+      "TP_005"
+    ],
+    "character.body.006+character.face.005": [
+      "RND_M_066"
+    ],
+    "character.body.006+character.face.006": [
+      "RND_M_067"
+    ],
+    "character.body.006+character.face.007": [
+      "RND_M_068"
+    ],
+    "character.body.006+character.face.016": [
+      "RND_M_069"
+    ],
+    "character.body.006+character.face.017": [
+      "TP_024"
+    ],
+    "character.body.006+character.face.018": [
+      "TP_085"
+    ],
+    "character.body.006+character.face.020": [
+      "RND_M_072"
+    ],
+    "character.body.006+character.face.021": [
+      "RND_M_073"
+    ],
+    "character.body.006+character.face.022": [
+      "RND_M_074"
+    ],
+    "character.body.006+character.face.023": [
+      "TP_073"
+    ],
+    "character.body.007+character.face.000": [
+      "RND_M_076"
+    ],
+    "character.body.007+character.face.001": [
+      "RND_M_077"
+    ],
+    "character.body.007+character.face.002": [
+      "RND_M_078"
+    ],
+    "character.body.007+character.face.003": [
+      "TP_014"
+    ],
+    "character.body.007+character.face.004": [
+      "RND_M_080"
+    ],
+    "character.body.007+character.face.005": [
+      "RND_M_081"
+    ],
+    "character.body.007+character.face.006": [
+      "RND_M_082"
+    ],
+    "character.body.007+character.face.007": [
+      "TP_001"
+    ],
+    "character.body.007+character.face.016": [
+      "RND_M_084"
+    ],
+    "character.body.007+character.face.017": [
+      "RND_M_085"
+    ],
+    "character.body.007+character.face.018": [
+      "RND_M_086"
+    ],
+    "character.body.007+character.face.020": [
+      "RND_M_087"
+    ],
+    "character.body.007+character.face.021": [
+      "RND_M_088"
+    ],
+    "character.body.007+character.face.022": [
+      "RND_M_089"
+    ],
+    "character.body.007+character.face.023": [
+      "RND_M_090"
+    ],
+    "character.body.008+character.face.000": [
+      "RND_M_091"
+    ],
+    "character.body.008+character.face.001": [
+      "RND_M_092"
+    ],
+    "character.body.008+character.face.002": [
+      "RND_M_093"
+    ],
+    "character.body.008+character.face.003": [
+      "RND_M_094"
+    ],
+    "character.body.008+character.face.004": [
+      "RND_M_095"
+    ],
+    "character.body.008+character.face.005": [
+      "RND_M_096"
+    ],
+    "character.body.008+character.face.006": [
+      "RND_M_097"
+    ],
+    "character.body.008+character.face.007": [
+      "RND_M_098"
+    ],
+    "character.body.008+character.face.016": [
+      "RND_M_099"
+    ],
+    "character.body.008+character.face.017": [
+      "TP_002"
+    ],
+    "character.body.008+character.face.018": [
+      "RND_M_101"
+    ],
+    "character.body.008+character.face.020": [
+      "RND_M_102"
+    ],
+    "character.body.008+character.face.021": [
+      "RND_M_103"
+    ],
+    "character.body.008+character.face.022": [
+      "RND_M_104"
+    ],
+    "character.body.008+character.face.023": [
+      "TP_083"
+    ],
+    "character.body.009+character.face.000": [
+      "RND_M_106"
+    ],
+    "character.body.009+character.face.001": [
+      "RND_M_107"
+    ],
+    "character.body.009+character.face.002": [
+      "RND_M_108"
+    ],
+    "character.body.009+character.face.003": [
+      "RND_M_109"
+    ],
+    "character.body.009+character.face.004": [
+      "RND_M_110"
+    ],
+    "character.body.009+character.face.005": [
+      "RND_M_111"
+    ],
+    "character.body.009+character.face.006": [
+      "TP_087"
+    ],
+    "character.body.009+character.face.007": [
+      "RND_M_113"
+    ],
+    "character.body.009+character.face.016": [
+      "TP_043"
+    ],
+    "character.body.009+character.face.017": [
+      "TP_018"
+    ],
+    "character.body.009+character.face.018": [
+      "TP_003"
+    ],
+    "character.body.009+character.face.020": [
+      "TP_074"
+    ],
+    "character.body.009+character.face.021": [
+      "TP_034"
+    ],
+    "character.body.009+character.face.022": [
+      "RND_M_119"
+    ],
+    "character.body.009+character.face.023": [
+      "RND_M_120"
+    ],
+    "character.body.010+character.face.000": [
+      "RND_M_121"
+    ],
+    "character.body.010+character.face.001": [
+      "RND_M_122"
+    ],
+    "character.body.010+character.face.002": [
+      "RND_M_123"
+    ],
+    "character.body.010+character.face.003": [
+      "RND_M_124"
+    ],
+    "character.body.010+character.face.004": [
+      "RND_M_125"
+    ],
+    "character.body.010+character.face.005": [
+      "RND_M_126"
+    ],
+    "character.body.010+character.face.006": [
+      "RND_M_127"
+    ],
+    "character.body.010+character.face.007": [
+      "RND_M_128"
+    ],
+    "character.body.010+character.face.016": [
+      "RND_M_129"
+    ],
+    "character.body.010+character.face.017": [
+      "RND_M_130"
+    ],
+    "character.body.010+character.face.018": [
+      "RND_M_131"
+    ],
+    "character.body.010+character.face.020": [
+      "TP_025"
+    ],
+    "character.body.010+character.face.021": [
+      "RND_M_133"
+    ],
+    "character.body.010+character.face.022": [
+      "RND_M_134"
+    ],
+    "character.body.010+character.face.023": [
+      "RND_M_135"
+    ],
+    "character.body.011+character.face.000": [
+      "RND_M_136"
+    ],
+    "character.body.011+character.face.001": [
+      "RND_M_137"
+    ],
+    "character.body.011+character.face.002": [
+      "RND_M_138"
+    ],
+    "character.body.011+character.face.003": [
+      "TP_077"
+    ],
+    "character.body.011+character.face.004": [
+      "TP_075"
+    ],
+    "character.body.011+character.face.005": [
+      "RND_M_141"
+    ],
+    "character.body.011+character.face.006": [
+      "TP_078"
+    ],
+    "character.body.011+character.face.007": [
+      "RND_M_143"
+    ],
+    "character.body.011+character.face.016": [
+      "RND_M_144"
+    ],
+    "character.body.011+character.face.017": [
+      "RND_M_145"
+    ],
+    "character.body.011+character.face.018": [
+      "RND_M_146"
+    ],
+    "character.body.011+character.face.020": [
+      "RND_M_147"
+    ],
+    "character.body.011+character.face.021": [
+      "RND_M_148"
+    ],
+    "character.body.011+character.face.022": [
+      "RND_M_149"
+    ],
+    "character.body.011+character.face.023": [
+      "RND_M_150"
+    ],
+    "character.body.012+character.face.008": [
+      "RND_F_027"
+    ],
+    "character.body.012+character.face.009": [
+      "RND_F_028"
+    ],
+    "character.body.012+character.face.010": [
+      "RND_F_029"
+    ],
+    "character.body.012+character.face.011": [
+      "RND_F_030"
+    ],
+    "character.body.012+character.face.012": [
+      "RND_F_031"
+    ],
+    "character.body.012+character.face.013": [
+      "RND_F_032"
+    ],
+    "character.body.012+character.face.014": [
+      "RND_F_033"
+    ],
+    "character.body.012+character.face.025": [
+      "RND_F_034"
+    ],
+    "character.body.012+character.face.026": [
+      "TP_008"
+    ],
+    "character.body.012+character.face.027": [
+      "TP_039"
+    ],
+    "character.body.012+character.face.028": [
+      "RND_F_037"
+    ],
+    "character.body.012+character.face.029": [
+      "RND_F_038"
+    ],
+    "character.body.012+character.face.031": [
+      "RND_F_039"
+    ],
+    "character.body.013+character.face.008": [
+      "RND_F_040"
+    ],
+    "character.body.013+character.face.009": [
+      "RND_F_041"
+    ],
+    "character.body.013+character.face.010": [
+      "TP_009"
+    ],
+    "character.body.013+character.face.011": [
+      "RND_F_043"
+    ],
+    "character.body.013+character.face.012": [
+      "RND_F_044"
+    ],
+    "character.body.013+character.face.013": [
+      "RND_F_045"
+    ],
+    "character.body.013+character.face.014": [
+      "RND_F_046"
+    ],
+    "character.body.013+character.face.025": [
+      "TP_019"
+    ],
+    "character.body.013+character.face.026": [
+      "RND_F_048"
+    ],
+    "character.body.013+character.face.027": [
+      "RND_F_049"
+    ],
+    "character.body.013+character.face.028": [
+      "RND_F_050"
+    ],
+    "character.body.013+character.face.029": [
+      "RND_F_051"
+    ],
+    "character.body.013+character.face.031": [
+      "RND_F_052"
+    ],
+    "character.body.014+character.face.008": [
+      "TP_076"
+    ],
+    "character.body.014+character.face.009": [
+      "RND_F_054"
+    ],
+    "character.body.014+character.face.010": [
+      "RND_F_055"
+    ],
+    "character.body.014+character.face.011": [
+      "TP_010"
+    ],
+    "character.body.014+character.face.012": [
+      "RND_F_057"
+    ],
+    "character.body.014+character.face.013": [
+      "RND_F_058"
+    ],
+    "character.body.014+character.face.014": [
+      "RND_F_059"
+    ],
+    "character.body.014+character.face.025": [
+      "TP_027"
+    ],
+    "character.body.014+character.face.026": [
+      "RND_F_061"
+    ],
+    "character.body.014+character.face.027": [
+      "RND_F_062"
+    ],
+    "character.body.014+character.face.028": [
+      "TP_023"
+    ],
+    "character.body.014+character.face.029": [
+      "RND_F_064"
+    ],
+    "character.body.014+character.face.031": [
+      "RND_F_065"
+    ],
+    "character.body.015+character.face.008": [
+      "RND_F_066"
+    ],
+    "character.body.015+character.face.009": [
+      "RND_F_067"
+    ],
+    "character.body.015+character.face.010": [
+      "RND_F_068"
+    ],
+    "character.body.015+character.face.011": [
+      "RND_F_069"
+    ],
+    "character.body.015+character.face.012": [
+      "TP_011"
+    ],
+    "character.body.015+character.face.013": [
+      "RND_F_071"
+    ],
+    "character.body.015+character.face.014": [
+      "RND_F_072"
+    ],
+    "character.body.015+character.face.025": [
+      "RND_F_073"
+    ],
+    "character.body.015+character.face.026": [
+      "RND_F_074"
+    ],
+    "character.body.015+character.face.027": [
+      "RND_F_075"
+    ],
+    "character.body.015+character.face.028": [
+      "RND_F_076"
+    ],
+    "character.body.015+character.face.029": [
+      "RND_F_077"
+    ],
+    "character.body.015+character.face.031": [
+      "RND_F_078"
+    ],
+    "character.body.016+character.face.008": [
+      "RND_F_079"
+    ],
+    "character.body.016+character.face.009": [
+      "RND_F_080"
+    ],
+    "character.body.016+character.face.010": [
+      "RND_F_081"
+    ],
+    "character.body.016+character.face.011": [
+      "RND_F_082"
+    ],
+    "character.body.016+character.face.012": [
+      "RND_F_083"
+    ],
+    "character.body.016+character.face.013": [
+      "RND_F_084"
+    ],
+    "character.body.016+character.face.014": [
+      "TP_036"
+    ],
+    "character.body.016+character.face.025": [
+      "RND_F_086"
+    ],
+    "character.body.016+character.face.026": [
+      "RND_F_087"
+    ],
+    "character.body.016+character.face.027": [
+      "RND_F_088"
+    ],
+    "character.body.016+character.face.028": [
+      "RND_F_089"
+    ],
+    "character.body.016+character.face.029": [
+      "RND_F_090"
+    ],
+    "character.body.016+character.face.031": [
+      "TP_049"
+    ],
+    "character.body.017+character.face.008": [
+      "TP_041"
+    ],
+    "character.body.017+character.face.009": [
+      "RND_F_093"
+    ],
+    "character.body.017+character.face.010": [
+      "RND_F_094"
+    ],
+    "character.body.017+character.face.011": [
+      "RND_F_095"
+    ],
+    "character.body.017+character.face.012": [
+      "RND_F_096"
+    ],
+    "character.body.017+character.face.013": [
+      "RND_F_097"
+    ],
+    "character.body.017+character.face.014": [
+      "RND_F_098"
+    ],
+    "character.body.017+character.face.025": [
+      "RND_F_099"
+    ],
+    "character.body.017+character.face.026": [
+      "RND_F_100"
+    ],
+    "character.body.017+character.face.027": [
+      "RND_F_101"
+    ],
+    "character.body.017+character.face.028": [
+      "RND_F_102"
+    ],
+    "character.body.017+character.face.029": [
+      "RND_F_103"
+    ],
+    "character.body.017+character.face.031": [
+      "RND_F_104"
+    ],
+    "character.body.019+character.face.008": [
+      "RND_F_105"
+    ],
+    "character.body.019+character.face.009": [
+      "RND_F_106"
+    ],
+    "character.body.019+character.face.010": [
+      "RND_F_107"
+    ],
+    "character.body.019+character.face.011": [
+      "RND_F_108"
+    ],
+    "character.body.019+character.face.012": [
+      "TP_088"
+    ],
+    "character.body.019+character.face.013": [
+      "TP_017"
+    ],
+    "character.body.019+character.face.014": [
+      "RND_F_111"
+    ],
+    "character.body.019+character.face.025": [
+      "RND_F_112"
+    ],
+    "character.body.019+character.face.026": [
+      "RND_F_113"
+    ],
+    "character.body.019+character.face.027": [
+      "RND_F_114"
+    ],
+    "character.body.019+character.face.028": [
+      "RND_F_115"
+    ],
+    "character.body.019+character.face.029": [
+      "RND_F_116"
+    ],
+    "character.body.019+character.face.031": [
+      "RND_F_117"
+    ],
+    "character.body.020+character.face.032": [
+      "TP_094"
+    ],
+    "character.body.021+character.face.000": [
+      "RND_M_151"
+    ],
+    "character.body.021+character.face.001": [
+      "RND_M_152"
+    ],
+    "character.body.021+character.face.002": [
+      "RND_M_153"
+    ],
+    "character.body.021+character.face.003": [
+      "RND_M_154"
+    ],
+    "character.body.021+character.face.004": [
+      "RND_M_155"
+    ],
+    "character.body.021+character.face.005": [
+      "RND_M_156"
+    ],
+    "character.body.021+character.face.006": [
+      "RND_M_157"
+    ],
+    "character.body.021+character.face.007": [
+      "RND_M_158"
+    ],
+    "character.body.021+character.face.016": [
+      "RND_M_159"
+    ],
+    "character.body.021+character.face.017": [
+      "RND_M_160"
+    ],
+    "character.body.021+character.face.018": [
+      "RND_M_161"
+    ],
+    "character.body.021+character.face.020": [
+      "RND_M_162"
+    ],
+    "character.body.021+character.face.021": [
+      "TP_026"
+    ],
+    "character.body.021+character.face.022": [
+      "RND_M_164"
+    ],
+    "character.body.021+character.face.023": [
+      "RND_M_165"
+    ],
+    "character.body.022+character.face.000": [
+      "RND_M_166"
+    ],
+    "character.body.022+character.face.001": [
+      "RND_M_167"
+    ],
+    "character.body.022+character.face.002": [
+      "RND_M_168"
+    ],
+    "character.body.022+character.face.003": [
+      "RND_M_169"
+    ],
+    "character.body.022+character.face.004": [
+      "RND_M_170"
+    ],
+    "character.body.022+character.face.005": [
+      "RND_M_171"
+    ],
+    "character.body.022+character.face.006": [
+      "RND_M_172"
+    ],
+    "character.body.022+character.face.007": [
+      "TP_086"
+    ],
+    "character.body.022+character.face.013": [
+      "TP_089"
+    ],
+    "character.body.022+character.face.016": [
+      "RND_M_174"
+    ],
+    "character.body.022+character.face.017": [
+      "RND_M_175"
+    ],
+    "character.body.022+character.face.018": [
+      "RND_M_176"
+    ],
+    "character.body.022+character.face.020": [
+      "RND_M_177"
+    ],
+    "character.body.022+character.face.021": [
+      "RND_M_178"
+    ],
+    "character.body.022+character.face.022": [
+      "TP_022"
+    ],
+    "character.body.022+character.face.023": [
+      "TP_021"
+    ],
+    "character.body.024+character.face.033": [
+      "TP_093"
+    ]
+  }
+}

@@ -1,0 +1,1539 @@
+{
+  "families": {
+    "chair_000": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_000",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_000.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_000.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_000.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_000.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_000.png",
+      "source_sheet_sha256": "92a1800b6bc9d0e1e1fa0e439c9d14dfeaafeb7bad8d4c0353d5ab03029d74c8"
+    },
+    "chair_001": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_001",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_001.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_001.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_001.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_001.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_001.png",
+      "source_sheet_sha256": "6e1ab4537c41ef75688d3adb665ec003a7e85f3af1e51daa7f359aff90ea3028"
+    },
+    "chair_002": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_002",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_002.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_002.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_002.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_002.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_002.png",
+      "source_sheet_sha256": "849e518eaeb77a72734d4784e33ed339af84db8149b08ea897c6721932ec5906"
+    },
+    "chair_003": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_003",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_003.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_003.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_003.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_003.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_003.png",
+      "source_sheet_sha256": "2f255425d4c04768c1493f9c8baaa0eca40ed1dee87a5b691f00e7c349dce66e"
+    },
+    "chair_004": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_004",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_004.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_004.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_004.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": null,
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "transparent_by_source"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_004.png",
+      "source_sheet_sha256": "739be7a5b730ad07b26931877be9b06cb5bb35c324f09632bb77875085e9dd40"
+    },
+    "chair_005": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_005",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_005.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_005.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_005.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": null,
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "transparent_by_source"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_005.png",
+      "source_sheet_sha256": "0149d0440afdb4a05bf6918e7328b921912596622b234cac9e3a020a55c1e8ea"
+    },
+    "chair_006": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_006",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_006.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_006.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_006.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_006.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_006.png",
+      "source_sheet_sha256": "74e2ae46412a73b502445caa6f2369370cbcffc66d1297219580d219c35a52dc"
+    },
+    "chair_007": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_007",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_007.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_007.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_007.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_007.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_007.png",
+      "source_sheet_sha256": "d86c31d826de9f048dadf7309f2deab8c4921133c81558c3a071fdf56bd6c512"
+    },
+    "chair_008": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_008",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_008.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_008.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_008.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_008.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_008.png",
+      "source_sheet_sha256": "b0cb81e5b8186f9e9adb9f64ea16fd2f6a07504c619bc3a55485729e295f556f"
+    },
+    "chair_009": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_009",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_009.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_009.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_009.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_009.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_009.png",
+      "source_sheet_sha256": "c29fa5c7b17c75caec1c2274b3371782b901d8a5115ceb79a1265a4fc97f706a"
+    },
+    "chair_010": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_010",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_010.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_010.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_010.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_010.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_010.png",
+      "source_sheet_sha256": "e8867fd57f404f0d320d03ea374062ac926633a7612366329d3733f7473f3321"
+    },
+    "chair_011": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_011",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_011.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_011.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_011.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_011.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_011.png",
+      "source_sheet_sha256": "e1e4224acaabf20ed5382cca64394efc701d6ef6f39c82799344843287e27473"
+    },
+    "chair_012": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_012",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_012.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_012.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_012.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_012.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_012.png",
+      "source_sheet_sha256": "4eaf9081c06a45ee619b3d484cafd8b94a2428dba1fb4cc058eeb3ecf6c57c4d"
+    },
+    "chair_013": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_013",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_013.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_013.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_013.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_013.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_013.png",
+      "source_sheet_sha256": "c415e5789792fa0471af188248d215e4c30f87a058cbd5a76786ed1ba3871070"
+    },
+    "chair_014": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_014",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_014.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_014.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_014.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_014.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_014.png",
+      "source_sheet_sha256": "d5119c01cfc0e80deadff01085ab21c128899ff484a02832d5bfd3e23f07177f"
+    },
+    "chair_015": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_015",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_015.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_015.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_015.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_015.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_015.png",
+      "source_sheet_sha256": "1572b37fab26979097381083feb760b10233e82a52c8cc44efef520b14796962"
+    },
+    "chair_016": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_016",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_016.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_016.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_016.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_016.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_016.png",
+      "source_sheet_sha256": "1d1a81336ded668fc76d3db3c2e6a16e8e8c683646591d63ccac8b2fe0372a93"
+    },
+    "chair_017": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_017",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_017.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_017.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_017.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_017.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_017.png",
+      "source_sheet_sha256": "e3042f690698f5f173f32f72fc2c853143c3aaf210baa1c465521797c50daea9"
+    },
+    "chair_018": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_018",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_018.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_018.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_018.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_018.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_018.png",
+      "source_sheet_sha256": "7c8e0e6c1f333c9c1926b22e99a6525b1c546f9aa65b6736705d8b9eb4e80ee4"
+    },
+    "chair_019": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_019",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_019.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_019.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_019.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_019.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_019.png",
+      "source_sheet_sha256": "eba472498b0c76948c2c3b5695c9b290e062dd6e01a8022ed15de654ccda1e87"
+    },
+    "chair_020": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_020",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_020.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_020.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_020.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_020.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_020.png",
+      "source_sheet_sha256": "02321f2d815e2870eba123f27fc84fc32c6a18ab34ce09d14e8b349e2e3a35db"
+    },
+    "chair_021": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_021",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_021.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_021.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_021.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_021.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_021.png",
+      "source_sheet_sha256": "1f9733f93492b766117a37ca4ca9decb60c285a9dfcccec989a39be48a965f4f"
+    },
+    "chair_022": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_022",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_022.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_022.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_022.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_022.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_022.png",
+      "source_sheet_sha256": "be349376cd44cf401f75229dff63bf89a84ecdf16360d62aa3bf54f375eb4eca"
+    },
+    "chair_023": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_023",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_023.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_023.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_023.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_023.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_023.png",
+      "source_sheet_sha256": "89b8b936a22b0878a3efcd16071bed87406337766a2f0c37610cad653338ea0c"
+    },
+    "chair_024": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_024",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_024.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_024.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_024.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_024.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_024.png",
+      "source_sheet_sha256": "f9e31526efc93e76afa0ae12feabafa5de79f2a3c22b6663d708309953be644f"
+    },
+    "chair_025": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_025",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_025.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_025.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_025.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": null,
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "transparent_by_source"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_025.png",
+      "source_sheet_sha256": "745908f73f31fe564a927ff907c0e617835ddf2fb510be22d29b377c92a44e1d"
+    },
+    "chair_026": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_026",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_026.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_026.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_026.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": null,
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "transparent_by_source"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_026.png",
+      "source_sheet_sha256": "e9612c1fc5b1a6fce53190cac649afed235fb15fc7f7422b0dd71d8e26770396"
+    },
+    "chair_027": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_027",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_027.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_027.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_027.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": null,
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "transparent_by_source"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_027.png",
+      "source_sheet_sha256": "f8cc3ab32fecf9d553aa0bc6096981e7472e36e5e4ddc48887bef7acc9535948"
+    },
+    "chair_028": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_028",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_028.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_028.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_028.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_028.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_028.png",
+      "source_sheet_sha256": "bd5f910eeddec0c00a7ef09f7676bcdae5a3944447ad22f2b11d16cf5e5bb6ef"
+    },
+    "chair_029": {
+      "cell_size_px": [
+        21,
+        32
+      ],
+      "family_id": "chair_029",
+      "parts": {
+        "part_00": {
+          "asset_id": "chair_029.part_00",
+          "source_rect": [
+            0,
+            0,
+            21,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_01": {
+          "asset_id": "chair_029.part_01",
+          "source_rect": [
+            21,
+            0,
+            42,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_02": {
+          "asset_id": "chair_029.part_02",
+          "source_rect": [
+            42,
+            0,
+            63,
+            32
+          ],
+          "source_status": "present"
+        },
+        "part_03": {
+          "asset_id": "chair_029.part_03",
+          "source_rect": [
+            63,
+            0,
+            84,
+            32
+          ],
+          "source_status": "present"
+        }
+      },
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_029.png",
+      "source_sheet_sha256": "35a62ee2e42287e1e90de641c06930a51d33da96d824ce74bfb4c2b714bb8ad2"
+    }
+  },
+  "family_count": 30,
+  "nontransparent_part_count": 115,
+  "schema": "gds.chair_families.v1",
+  "source_package": "Game_Dev_Story_v2.6.9_EXTRACTED_ASSETS_2",
+  "transparent_source_part_count": 5
+}

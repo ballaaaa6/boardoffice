@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "package","phase","version","source_baseline","source_phase2_zip_sha256","provenance",
+    "counts","layout_usage","coordinate_frame_id","grid_status","resolved_placements_sha256",
+    "floor_reference_rgba_sha256","floor_reference_png_sha256","recipe_validation_counts",
+    "phase1_recipe_corrections","direction_validation","character_direction_bridge","scope"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "package":{"const":"GDS_WORLD_DIRECTION_CORE_v1.0.0"},
+    "phase":{"const":3},
+    "version":{"const":"1.0.0"},
+    "source_baseline":{"const":"GDS_WORLD_LAYOUT_CORE_v1.0.1"},
+    "source_phase2_zip_sha256":{"const":"290fef30764f00e7958b415c8d4585213289fdccc94da2155a5669af161e9408"},
+    "provenance":{
+      "type":"object",
+      "required":["phase1_package","phase1_zip_sha256","phase2_package","phase2_zip_sha256","direction_authoring_package","direction_authoring_zip_sha256","character_compatibility_package","character_compatibility_zip_sha256"],
+      "additionalProperties":false,
+      "properties":{
+        "phase1_package":{"type":"string"},"phase1_zip_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+        "phase2_package":{"const":"GDS_WORLD_LAYOUT_CORE_v1.0.1"},"phase2_zip_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+        "direction_authoring_package":{"type":"string"},"direction_authoring_zip_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+        "character_compatibility_package":{"type":"string"},"character_compatibility_zip_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+      }
+    },
+    "counts":{"type":"object"},
+    "layout_usage":{"type":"object"},
+    "coordinate_frame_id":{"const":"coord.pixel_iso.v1"},
+    "grid_status":{"const":"unset_verified"},
+    "resolved_placements_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "floor_reference_rgba_sha256":{"type":"object","minProperties":25,"maxProperties":25},
+    "floor_reference_png_sha256":{"type":"object","minProperties":25,"maxProperties":25},
+    "recipe_validation_counts":{"type":"object"},
+    "phase1_recipe_corrections":{"type":"array"},
+    "direction_validation":{
+      "type":"object",
+      "required":["direction_vocabulary","authored_direction_set","direction_occurrence_counts","resolution_mode_counts","unresolved_workstation_instances"],
+      "additionalProperties":false,
+      "properties":{
+        "direction_vocabulary":{"type":"array","minItems":4,"maxItems":4},
+        "authored_direction_set":{"type":"array"},
+        "direction_occurrence_counts":{"type":"object"},
+        "resolution_mode_counts":{"type":"object"},
+        "unresolved_workstation_instances":{"const":0}
+      }
+    },
+    "character_direction_bridge":{
+      "type":"object",
+      "required":["contract_id","world_direction_vocabulary","character_direction_vocabulary","work_supported_directions","work_unsupported_world_directions","unsupported_policy","compatibility_action_registry_sha256"],
+      "additionalProperties":false,
+      "properties":{
+        "contract_id":{"const":"contract.world_to_character_direction.v1"},
+        "world_direction_vocabulary":{"type":"array"},
+        "character_direction_vocabulary":{"type":"array"},
+        "work_supported_directions":{"type":"array"},
+        "work_unsupported_world_directions":{"type":"array"},
+        "unsupported_policy":{"const":"error_no_fallback"},
+        "compatibility_action_registry_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+      }
+    },
+    "scope":{"type":"object","required":["included","excluded"],"additionalProperties":false,"properties":{"included":{"type":"array"},"excluded":{"type":"array"}}}
+  }
+}

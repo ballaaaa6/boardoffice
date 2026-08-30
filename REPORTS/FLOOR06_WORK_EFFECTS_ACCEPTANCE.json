@@ -1,0 +1,132 @@
+{
+  "artwork_policy": "project_assets_only_no_generative_image",
+  "assignments": [
+    {
+      "chair_asset_id": "chair_006.part_02",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_000",
+      "character_id": "TP_000",
+      "character_no": 0,
+      "direction": "SW",
+      "effect_id": "static_noise_field",
+      "full_name": "Blake Murray",
+      "workstation_id": "ceo"
+    },
+    {
+      "chair_asset_id": "chair_006.part_01",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_001",
+      "character_id": "TP_001",
+      "character_no": 1,
+      "direction": "SE",
+      "effect_id": "heart_burst",
+      "full_name": "Reese Weaver",
+      "workstation_id": "ws1"
+    },
+    {
+      "chair_asset_id": "chair_006.part_01",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_002",
+      "character_id": "TP_002",
+      "character_no": 2,
+      "direction": "SE",
+      "effect_id": "stock_crash",
+      "full_name": "Ari Torres",
+      "workstation_id": "ws2"
+    },
+    {
+      "chair_asset_id": "chair_006.part_00",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_003",
+      "character_id": "TP_003",
+      "character_no": 3,
+      "direction": "NW",
+      "effect_id": "sunshine_bloom",
+      "full_name": "Spencer Hayes",
+      "workstation_id": "ws3"
+    },
+    {
+      "chair_asset_id": "chair_006.part_00",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_004",
+      "character_id": "TP_004",
+      "character_no": 4,
+      "direction": "NW",
+      "effect_id": "thunder_cloud",
+      "full_name": "Elliot Powell",
+      "workstation_id": "ws4"
+    },
+    {
+      "chair_asset_id": "chair_006.part_01",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_005",
+      "character_id": "TP_005",
+      "character_no": 5,
+      "direction": "SE",
+      "effect_id": "coffee_energy",
+      "full_name": "Lane Spencer",
+      "workstation_id": "ws5"
+    },
+    {
+      "chair_asset_id": "chair_006.part_01",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_006",
+      "character_id": "TP_006",
+      "character_no": 6,
+      "direction": "SE",
+      "effect_id": "fire_original",
+      "full_name": "Harley Gray",
+      "workstation_id": "ws6"
+    },
+    {
+      "chair_asset_id": "chair_006.part_00",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_007",
+      "character_id": "TP_007",
+      "character_no": 7,
+      "direction": "NW",
+      "effect_id": "idea_overclock",
+      "full_name": "Jules Vaughn",
+      "workstation_id": "ws7"
+    },
+    {
+      "chair_asset_id": "chair_006.part_00",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_008",
+      "character_id": "TP_008",
+      "character_no": 8,
+      "direction": "NW",
+      "effect_id": "low_battery_drain",
+      "full_name": "Alex Dawson",
+      "workstation_id": "ws8"
+    }
+  ],
+  "floor_id": "floor06",
+  "frame_count": 10,
+  "frame_duration_ms": 140,
+  "notes": [
+    "Effect is inserted as underlay before authored chair layer.",
+    "GIF export uses one global palette across all frames to avoid static-floor flicker."
+  ],
+  "outputs": {
+    "assignments": "PREVIEW/work_effects/floor06/effect_assignments.png",
+    "frames": [
+      "PREVIEW/work_effects/floor06/frame_00.png",
+      "PREVIEW/work_effects/floor06/frame_01.png",
+      "PREVIEW/work_effects/floor06/frame_02.png",
+      "PREVIEW/work_effects/floor06/frame_03.png",
+      "PREVIEW/work_effects/floor06/frame_04.png",
+      "PREVIEW/work_effects/floor06/frame_05.png",
+      "PREVIEW/work_effects/floor06/frame_06.png",
+      "PREVIEW/work_effects/floor06/frame_07.png",
+      "PREVIEW/work_effects/floor06/frame_08.png",
+      "PREVIEW/work_effects/floor06/frame_09.png"
+    ],
+    "gif": "PREVIEW/work_effects/floor06/floor06_random_work_effects.gif",
+    "preview": "PREVIEW/work_effects/floor06/floor06_random_work_effects_preview.png"
+  },
+  "random_seed": 606406,
+  "schema": "gds.floor06_work_effects_acceptance.v1",
+  "source_core_version": "1.4.2",
+  "visual_approval": "pending_author_review"
+}

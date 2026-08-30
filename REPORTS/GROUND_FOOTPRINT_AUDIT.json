@@ -1,0 +1,25 @@
+{
+  "schema": "gds_ground_footprint_audit_v1",
+  "status": "PASS",
+  "fine_grid_profile": "grid.iso.occupancy_fine.v1",
+  "profile_count": 5,
+  "binding_rule_count": 11,
+  "coverage_counts": {
+    "footprint.chair.standard": 90,
+    "footprint.desk.standard": 66,
+    "footprint.reception.f0": 2,
+    "footprint.reception.f1": 1,
+    "footprint.reception.f2_plus": 23,
+    "visual_only.chair_sub": 25,
+    "visual_only.pc": 50
+  },
+  "variant_coverage_counts": {
+    "footprint.chair.standard": 61,
+    "footprint.desk.standard": 66,
+    "footprint.reception.f1": 1,
+    "footprint.reception.f2_plus": 23,
+    "visual_only.chair_sub": 3,
+    "visual_only.pc": 73
+  },
+  "errors": []
+}

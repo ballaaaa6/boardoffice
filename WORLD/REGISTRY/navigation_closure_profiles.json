@@ -1,0 +1,18 @@
+{
+  "schema": "gds_navigation_closure_profiles_v1",
+  "profile_id": "closure.navigation.default.v1",
+  "rules": {
+    "workstation_desk_chair": {
+      "enabled": true,
+      "max_gap_cells": 5,
+      "min_overlap_cells": 4,
+      "policy": "fill_axis_aligned_gap_between_same_workstation_desk_and_chair"
+    },
+    "desk_desk_seam": {
+      "enabled": true,
+      "max_gap_cells": 1,
+      "min_overlap_cells": 4,
+      "policy": "fill_axis_aligned_gap_between_adjacent_desks"
+    }
+  }
+}

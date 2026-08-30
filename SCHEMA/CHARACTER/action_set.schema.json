@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_action_set_v1",
+  "title": "GDS Unified Action Set",
+  "type": "object",
+  "required": [
+    "schema",
+    "action_set_id",
+    "actions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds_action_set_v1"
+    },
+    "action_set_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actions": {
+      "type": "object",
+      "required": [
+        "idle",
+        "move",
+        "variants",
+        "happy",
+        "sad",
+        "work"
+      ],
+      "properties": {
+        "work": {
+          "type": "object",
+          "required": [
+            "direction_mode",
+            "pose_category",
+            "directions"
+          ],
+          "properties": {
+            "direction_mode": {
+              "const": "three_way"
+            },
+            "pose_category": {
+              "const": "seated"
+            },
+            "directions": {
+              "type": "object"
+            }
+          },
+          "not": {
+            "required": [
+              "interaction_contract"
+            ]
+          },
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

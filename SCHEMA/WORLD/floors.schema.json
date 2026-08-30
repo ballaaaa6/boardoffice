@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema", "floors"],
+  "properties": {
+    "schema": {"const": "gds_floor_layout_bindings_v1"},
+    "floors": {
+      "type": "object",
+      "minProperties": 25,
+      "maxProperties": 25,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["floor_id", "layout_id", "skin_id", "coordinate_frame_id", "canvas", "raw_canvas", "source_floor_json_sha256"],
+        "properties": {
+          "floor_id": {"type": "string", "pattern": "^floor[0-9]+$"},
+          "layout_id": {"type": "string"},
+          "skin_id": {"type": "string"},
+          "coordinate_frame_id": {"const": "coord.pixel_iso.v1"},
+          "canvas": {
+            "type": "object",
+            "required": ["width_px", "height_px"],
+            "properties": {"width_px": {"type": "integer"}, "height_px": {"type": "integer"}},
+            "additionalProperties": false
+          },
+          "raw_canvas": {
+            "type": "object",
+            "required": ["width_px", "height_px"],
+            "properties": {"width_px": {"type": "integer"}, "height_px": {"type": "integer"}},
+            "additionalProperties": false
+          },
+          "source_floor_json_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "gds_navigation_placement_bridges_v1",
+  "policy": {
+    "active_bridges_participate_in_occupancy": true,
+    "inactive_bridges_are_reference_only": true
+  },
+  "bridges": {
+    "floor00.reception": {
+      "floor_id": "floor00",
+      "placement_id": "reception",
+      "object_type": "reception",
+      "asset_id": "floor00.reception",
+      "variant_id": null,
+      "transform": "NORMAL",
+      "x_px": 263,
+      "y_px": 244,
+      "navigation_occupancy_active": false,
+      "placement_source": "author_approved_legacy_placement_bridge",
+      "provenance": {
+        "source": "GDS_PHASE7A_WORLD_AUTHORING_v1.0.0 / archived embedded_solids render placement",
+        "old_object_id": "floor00.embedded.reception_group",
+        "old_collision_role_reused": false,
+        "reason": "visual is baked outside the approved Floor00 room domain; keep footprint provenance without reserving navigation cells"
+      }
+    }
+  }
+}

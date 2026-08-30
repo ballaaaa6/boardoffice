@@ -1,0 +1,194 @@
+{
+  "schema": "gds_room_domain_registry_v2",
+  "approval_status": "author_approved_canonical",
+  "grid_profile_id": "grid.iso.occupancy_fine.v1",
+  "navigation_policy": {
+    "domain_first": true,
+    "embedded_static_floor_solids_used": false,
+    "object_footprints_subtracted_later": true,
+    "f2_plus_reuses_floor02_geometry": true
+  },
+  "domains": {
+    "floor00": {
+      "approval_status": "author_approved",
+      "provenance": "GDS_ROOM_DOMAIN_AUTHORING_v0.2.0 + 2026-08-30 author back-desk access extension + 2026-08-30 author entrance-wedge expansion",
+      "grid_profile_id": "grid.iso.occupancy_fine.v1",
+      "polygon_uv": [
+        [
+          190,
+          84
+        ],
+        [
+          190,
+          106
+        ],
+        [
+          198,
+          106
+        ],
+        [
+          198,
+          124
+        ],
+        [
+          267,
+          124
+        ],
+        [
+          267,
+          101
+        ],
+        [
+          279,
+          101
+        ],
+        [
+          279,
+          153
+        ],
+        [
+          291,
+          153
+        ],
+        [
+          291,
+          94
+        ],
+        [
+          272,
+          94
+        ],
+        [
+          253,
+          75
+        ],
+        [
+          214,
+          75
+        ],
+        [
+          214,
+          84
+        ]
+      ],
+      "room_cell_count": 4129,
+      "portal_id": "floor00.main_exit",
+      "canonical_floor_id": "floor00",
+      "domain_id": "domain.floor00"
+    },
+    "floor01": {
+      "approval_status": "author_approved",
+      "provenance": "GDS_ROOM_DOMAIN_AUTHORING_v0.2.0 + 2026-08-30 author lower-left reception extension / portal relocation",
+      "grid_profile_id": "grid.iso.occupancy_fine.v1",
+      "polygon_uv": [
+        [
+          189,
+          59
+        ],
+        [
+          189,
+          118
+        ],
+        [
+          219,
+          120
+        ],
+        [
+          220,
+          148
+        ],
+        [
+          241,
+          149
+        ],
+        [
+          251,
+          149
+        ],
+        [
+          252,
+          114
+        ],
+        [
+          274,
+          115
+        ],
+        [
+          274,
+          59
+        ]
+      ],
+      "room_cell_count": 5950,
+      "portal_id": "floor01.main_exit",
+      "canonical_floor_id": "floor01",
+      "domain_id": "domain.floor01"
+    },
+    "floor02": {
+      "approval_status": "author_approved",
+      "provenance": "GDS_ROOM_DOMAIN_AUTHORING_v0.2.0 + 2026-08-30 author three-area expansion / straight slope correction + red-wedge removal + local +V2 connector expansion",
+      "grid_profile_id": "grid.iso.occupancy_fine.v1",
+      "polygon_uv": [
+        [
+          188,
+          45
+        ],
+        [
+          188,
+          123
+        ],
+        [
+          217,
+          123
+        ],
+        [
+          217,
+          129
+        ],
+        [
+          240,
+          157
+        ],
+        [
+          240,
+          189
+        ],
+        [
+          268,
+          189
+        ],
+        [
+          268,
+          159
+        ],
+        [
+          271,
+          159
+        ],
+        [
+          271,
+          128
+        ],
+        [
+          279,
+          128
+        ],
+        [
+          279,
+          71
+        ],
+        [
+          217,
+          71
+        ],
+        [
+          217,
+          45
+        ]
+      ],
+      "room_cell_count": 7942,
+      "portal_id": "floor02.main_exit",
+      "canonical_floor_id": "floor02",
+      "domain_id": "domain.floor02"
+    }
+  }
+}

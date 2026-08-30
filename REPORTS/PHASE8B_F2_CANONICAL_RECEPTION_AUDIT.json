@@ -1,0 +1,171 @@
+{
+  "schema": "gds_phase8b_hardened_family_audit_v1",
+  "status": "PASS",
+  "family": {
+    "family_id": "gameplay.layout.floor02.large",
+    "layout_id": "layout.floor02.large",
+    "canonical_floor_id": "floor02",
+    "inheritance_policy": "all_gameplay_spatial_metadata_resolves_from_canonical_floor_and_shared_layout_profiles",
+    "synchronized_domains": [
+      "fine_grid",
+      "room_domain",
+      "portal",
+      "layout_geometry",
+      "workstation_geometry",
+      "workstation_directions",
+      "footprint_policy",
+      "navigation_clearance",
+      "navigation_closure",
+      "navigation_occupancy"
+    ],
+    "skin_only_domains": [
+      "visual_assets",
+      "background_asset",
+      "furniture_asset_family",
+      "reception_visual_asset",
+      "foreground_overlays"
+    ],
+    "placement_overrides": {
+      "reception": {
+        "navigation_ground_anchor_world_px": [
+          259,
+          376
+        ],
+        "footprint_origin_offset_uv_cells": [
+          -13,
+          -4
+        ],
+        "policy": "fixed_world_ground_anchor_independent_of_reception_visual_padding"
+      }
+    },
+    "floor_id": "floor02",
+    "derived_from_canonical": false,
+    "family_floor_ids": [
+      "floor02",
+      "floor03",
+      "floor04",
+      "floor05",
+      "floor06",
+      "floor07",
+      "floor08",
+      "floor09",
+      "floor11",
+      "floor12",
+      "floor13",
+      "floor14",
+      "floor15",
+      "floor16",
+      "floor17",
+      "floor18",
+      "floor19",
+      "floor21",
+      "floor31",
+      "floor33",
+      "floor34",
+      "floor35",
+      "floor36"
+    ],
+    "family_floor_count": 23
+  },
+  "family_audit": {
+    "schema": "gds_gameplay_metadata_family_audit_v1",
+    "status": "PASS",
+    "family_id": "gameplay.layout.floor02.large",
+    "layout_id": "layout.floor02.large",
+    "canonical_floor_id": "floor02",
+    "family_floor_count": 23,
+    "checked_floor_count": 23,
+    "family_floor_ids": [
+      "floor02",
+      "floor03",
+      "floor04",
+      "floor05",
+      "floor06",
+      "floor07",
+      "floor08",
+      "floor09",
+      "floor11",
+      "floor12",
+      "floor13",
+      "floor14",
+      "floor15",
+      "floor16",
+      "floor17",
+      "floor18",
+      "floor19",
+      "floor21",
+      "floor31",
+      "floor33",
+      "floor34",
+      "floor35",
+      "floor36"
+    ],
+    "checks": {
+      "room_cells_exact": true,
+      "portal_geometry_exact": true,
+      "layout_geometry_shared": true,
+      "workstation_directions_exact": true,
+      "base_occupancy_exact": true,
+      "closure_exact": true,
+      "clearance_exact": true,
+      "final_walkable_exact": true,
+      "instance_footprint_geometry_exact": true
+    },
+    "mismatch_count": 0,
+    "mismatches": [],
+    "synchronized_domains": [
+      "fine_grid",
+      "room_domain",
+      "portal",
+      "layout_geometry",
+      "workstation_geometry",
+      "workstation_directions",
+      "footprint_policy",
+      "navigation_clearance",
+      "navigation_closure",
+      "navigation_occupancy"
+    ],
+    "skin_only_domains": [
+      "visual_assets",
+      "background_asset",
+      "furniture_asset_family",
+      "reception_visual_asset",
+      "foreground_overlays"
+    ]
+  },
+  "reception_expected": {
+    "canonical_ground_anchor_world_px": [
+      259,
+      376
+    ],
+    "profile_origin_offset_uv_cells": [
+      -13,
+      -4
+    ],
+    "effective_outer_corners_world_px": [
+      [
+        241,
+        359
+      ],
+      [
+        311,
+        394
+      ],
+      [
+        265,
+        417
+      ],
+      [
+        195,
+        382
+      ]
+    ],
+    "occupied_cell_count": 805,
+    "profile_axes": {
+      "u_cells": 35,
+      "v_cells": 23
+    }
+  },
+  "reception_error_count": 0,
+  "reception_errors": []
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "gds.phase8c.closeout.v1",
+  "release": "GDS_CENTRAL_GAME_CORE_v1.8.4",
+  "status": "PASS",
+  "release_clean": true,
+  "regression": {
+    "pytest_total": 121,
+    "pytest_passed": 121,
+    "pytest_failed": 0
+  },
+  "audits": {
+    "room_navigation": "PASS",
+    "ground_footprints": "PASS",
+    "navigation_occupancy": {
+      "status": "PASS",
+      "floors": 25,
+      "workstations": 219,
+      "failed_floors": 0,
+      "failed_workstations": 0
+    },
+    "work_seat": "PASS",
+    "phase6_spatial": "PASS",
+    "central_integrity": "PASS",
+    "gameplay_metadata_family": "PASS"
+  },
+  "portal_actor_lifecycle": {
+    "schema": "gds.portal_actor_lifecycle.v1",
+    "sample_floor": "floor00",
+    "sample_character": "TP_000",
+    "portal_inside_uv": [284, 152],
+    "portal_outside_uv": [284, 153],
+    "entry_exit_adjacent": true,
+    "target_uv": [226, 97],
+    "phase_order": [
+      "unspawned",
+      "entering",
+      "active",
+      "exiting",
+      "despawned"
+    ],
+    "phase_counts": {
+      "unspawned": 1,
+      "entering": 4,
+      "active": 1391,
+      "exiting": 4,
+      "despawned": 1
+    },
+    "state_count": 1401,
+    "final_state_visible": false,
+    "despawned": true
+  },
+  "lean_package": {
+    "python_cache_path_count": 0,
+    "materialized_occupancy_cache": false,
+    "preview_payload": false,
+    "fresh_extraction_verified": true
+  }
+}

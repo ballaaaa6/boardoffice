@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema",
+    "coordinate_frames"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds_coordinate_frames_v1"
+    },
+    "coordinate_frames": {
+      "type": "object",
+      "required": [
+        "coord.pixel_iso.v1"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "coord.pixel_iso.v1": {
+          "type": "object",
+          "required": [
+            "coordinate_frame_id",
+            "pixel_space",
+            "isometric_axes",
+            "grid"
+          ],
+          "properties": {
+            "coordinate_frame_id": {
+              "const": "coord.pixel_iso.v1"
+            },
+            "pixel_space": {
+              "type": "object",
+              "required": [
+                "origin",
+                "x_positive",
+                "y_positive",
+                "unit",
+                "integer_coordinates",
+                "placement_anchor"
+              ],
+              "properties": {
+                "origin": {
+                  "const": "top_left"
+                },
+                "x_positive": {
+                  "const": "right"
+                },
+                "y_positive": {
+                  "const": "down"
+                },
+                "unit": {
+                  "const": "px"
+                },
+                "integer_coordinates": {
+                  "const": true
+                },
+                "placement_anchor": {
+                  "const": "sprite_top_left"
+                }
+              },
+              "additionalProperties": false
+            },
+            "isometric_axes": {
+              "type": "object",
+              "required": [
+                "u_positive",
+                "u_negative",
+                "v_positive",
+                "v_negative"
+              ],
+              "properties": {
+                "u_positive": {
+                  "const": "SE"
+                },
+                "u_negative": {
+                  "const": "NW"
+                },
+                "v_positive": {
+                  "const": "SW"
+                },
+                "v_negative": {
+                  "const": "NE"
+                }
+              },
+              "additionalProperties": false
+            },
+            "grid": {
+              "type": "object",
+              "required": [
+                "profile_id",
+                "grid_origin",
+                "tile_width_px",
+                "tile_height_px",
+                "u_step_px",
+                "v_step_px"
+              ],
+              "properties": {
+                "profile_id": {
+                  "const": "grid.iso.occupancy_fine.v1"
+                },
+                "grid_origin": {
+                  "const": [
+                    28,
+                    0
+                  ]
+                },
+                "tile_width_px": {
+                  "const": 4
+                },
+                "tile_height_px": {
+                  "const": 2
+                },
+                "u_step_px": {
+                  "const": [
+                    2,
+                    1
+                  ]
+                },
+                "v_step_px": {
+                  "const": [
+                    -2,
+                    1
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

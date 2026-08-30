@@ -1,0 +1,160 @@
+{
+  "direction_semantics": "character interaction/action direction when using the workstation",
+  "direction_vocabulary": [
+    "NE",
+    "SE",
+    "SW",
+    "NW"
+  ],
+  "layout_directions": {
+    "layout.floor00.small": {
+      "authoring_floor_id": "floor00",
+      "inheritance_policy": "all_floors_using_this_layout_resolve_this_profile",
+      "layout_id": "layout.floor00.small",
+      "workstations": {
+        "ceo": {
+          "authoring_source": "floor00.ceo",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor00.ceo__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws1": {
+          "authoring_source": "floor00.ws1",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor00.ws1__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws2": {
+          "authoring_source": "floor00.ws2",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor00.ws2__se.png",
+          "status": "authored_verified"
+        },
+        "ws3": {
+          "authoring_source": "floor00.ws3",
+          "interaction_direction": "NW",
+          "source_filename": "WORKSTATION__floor00.ws3__nw.png",
+          "status": "authored_verified"
+        },
+        "ws4": {
+          "authoring_source": "floor00.ws4",
+          "interaction_direction": "NW",
+          "source_filename": "WORKSTATION__floor00.ws4__DIR_nw.png",
+          "status": "authored_verified"
+        }
+      }
+    },
+    "layout.floor01.medium": {
+      "authoring_floor_id": "floor01",
+      "inheritance_policy": "all_floors_using_this_layout_resolve_this_profile",
+      "layout_id": "layout.floor01.medium",
+      "workstations": {
+        "ceo": {
+          "authoring_source": "floor01.ceo",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor01.ceo__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws1": {
+          "authoring_source": "floor01.ws1",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor01.ws1__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws2": {
+          "authoring_source": "floor01.ws2",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor01.ws2__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws3": {
+          "authoring_source": "floor01.ws3",
+          "interaction_direction": "NW",
+          "source_filename": "WORKSTATION__floor01.ws3__DIR_nw.png",
+          "status": "authored_verified"
+        },
+        "ws4": {
+          "authoring_source": "floor01.ws4",
+          "interaction_direction": "NW",
+          "source_filename": "WORKSTATION__floor01.ws4__DIR_nw.png",
+          "status": "authored_verified"
+        },
+        "ws5": {
+          "authoring_source": "floor01.ws5",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor01.ws5__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws6": {
+          "authoring_source": "floor01.ws6",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor01.ws6__DIR_se.png",
+          "status": "authored_verified"
+        }
+      }
+    },
+    "layout.floor02.large": {
+      "authoring_floor_id": "floor02",
+      "inheritance_policy": "all_floors_using_this_layout_resolve_this_profile",
+      "layout_id": "layout.floor02.large",
+      "workstations": {
+        "ceo": {
+          "authoring_source": "floor02.ceo",
+          "interaction_direction": "SW",
+          "source_filename": "WORKSTATION__floor02.ceo__DIR_sw.png",
+          "status": "authored_verified"
+        },
+        "ws1": {
+          "authoring_source": "floor02.ws1",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor02.ws1__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws2": {
+          "authoring_source": "floor02.ws2",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor02.ws2__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws3": {
+          "authoring_source": "floor02.ws3",
+          "interaction_direction": "NW",
+          "source_filename": "WORKSTATION__floor02.ws3__DIR_nw.png",
+          "status": "authored_verified"
+        },
+        "ws4": {
+          "authoring_source": "floor02.ws4",
+          "interaction_direction": "NW",
+          "source_filename": "WORKSTATION__floor02.ws4__DIR_nw.png",
+          "status": "authored_verified"
+        },
+        "ws5": {
+          "authoring_source": "floor02.ws5",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor02.ws5__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws6": {
+          "authoring_source": "floor02.ws6",
+          "interaction_direction": "SE",
+          "source_filename": "WORKSTATION__floor02.ws6__DIR_se.png",
+          "status": "authored_verified"
+        },
+        "ws7": {
+          "authoring_source": "floor02.ws7",
+          "interaction_direction": "NW",
+          "source_filename": "WORKSTATION__floor02.ws7__DIR_nw.png",
+          "status": "authored_verified"
+        },
+        "ws8": {
+          "authoring_source": "floor02.ws8",
+          "interaction_direction": "NW",
+          "source_filename": "WORKSTATION__floor02.ws8__DIR_nw.png",
+          "status": "authored_verified"
+        }
+      }
+    }
+  },
+  "schema": "gds.workstation_directions.v1",
+  "storage_policy": "layout_profile_only_no_per_floor_direction_copies"
+}

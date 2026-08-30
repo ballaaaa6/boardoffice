@@ -1,0 +1,246 @@
+{
+  "schema": "gds_action_set_v1",
+  "action_set_id": "gds_standard_v1",
+  "frame_id_convention": {
+    "native": "MNN",
+    "derived_mirror_machine": "MpNN",
+    "derived_mirror_display": "M′NN",
+    "mirror_semantics": "horizontal pixel flip across the image Y axis"
+  },
+  "actions": {
+    "idle": {
+      "direction_mode": "four_way",
+      "loop": true,
+      "directions": {
+        "NE": {
+          "frames": [
+            "M0",
+            "M1"
+          ],
+          "legacy_materialized_path": "idle/ne"
+        },
+        "SE": {
+          "frames": [
+            "M4",
+            "M5"
+          ],
+          "legacy_materialized_path": "idle/se"
+        },
+        "SW": {
+          "frames": [
+            "M8",
+            "M9"
+          ],
+          "legacy_materialized_path": "idle/sw"
+        },
+        "NW": {
+          "frames": [
+            "M12",
+            "M13"
+          ],
+          "legacy_materialized_path": "idle/nw"
+        }
+      }
+    },
+    "move": {
+      "direction_mode": "four_way",
+      "loop": true,
+      "directions": {
+        "NE": {
+          "frames": [
+            "M2",
+            "M3"
+          ],
+          "legacy_materialized_path": "move/ne"
+        },
+        "SE": {
+          "frames": [
+            "M6",
+            "M7"
+          ],
+          "legacy_materialized_path": "move/se"
+        },
+        "SW": {
+          "frames": [
+            "M10",
+            "M11"
+          ],
+          "legacy_materialized_path": "move/sw"
+        },
+        "NW": {
+          "frames": [
+            "M14",
+            "M15"
+          ],
+          "legacy_materialized_path": "move/nw"
+        }
+      }
+    },
+    "variants": {
+      "direction_mode": "four_way",
+      "loop": true,
+      "directions": {
+        "NE": {
+          "frames": [
+            "M34",
+            "M35"
+          ],
+          "legacy_materialized_path": "variants/ne"
+        },
+        "SE": {
+          "frames": [
+            "M36",
+            "M37"
+          ],
+          "legacy_materialized_path": "variants/se"
+        },
+        "SW": {
+          "frames": [
+            "M38",
+            "M39"
+          ],
+          "legacy_materialized_path": "variants/sw"
+        },
+        "NW": {
+          "frames": [
+            "M40",
+            "M41"
+          ],
+          "legacy_materialized_path": "variants/nw"
+        }
+      }
+    },
+    "sad": {
+      "direction_mode": "none",
+      "loop": false,
+      "frames": [
+        "M16",
+        "M17",
+        "M18"
+      ],
+      "legacy_materialized_path": "sad"
+    },
+    "happy": {
+      "direction_mode": "none",
+      "loop": false,
+      "frames": [
+        "M16",
+        "M19",
+        "M16"
+      ],
+      "legacy_materialized_path": "happy"
+    },
+    "work": {
+      "direction_mode": "three_way",
+      "directions": {
+        "SE": {
+          "source": "native",
+          "legacy_action_dir": "work_se",
+          "subactions": {
+            "normal_work": {
+              "frames": [
+                "M20",
+                "M21"
+              ],
+              "legacy_materialized_path": "work_se/normal_work"
+            },
+            "turn_side_a": {
+              "frames": [
+                "M20",
+                "M22"
+              ],
+              "legacy_materialized_path": "work_se/turn_side_a"
+            },
+            "turn_side_b": {
+              "frames": [
+                "M20",
+                "M23"
+              ],
+              "legacy_materialized_path": "work_se/turn_side_b"
+            },
+            "happy": {
+              "frames": [
+                "M24"
+              ],
+              "legacy_materialized_path": "work_se/happy"
+            }
+          }
+        },
+        "SW": {
+          "source": "derived",
+          "derived_from": "SE",
+          "transform": "mirror_y",
+          "legacy_action_dir": "work_sw",
+          "subactions": {
+            "normal_work": {
+              "frames": [
+                "Mp20",
+                "Mp21"
+              ],
+              "legacy_materialized_path": "work_sw/normal_work"
+            },
+            "turn_side_a": {
+              "frames": [
+                "Mp20",
+                "Mp22"
+              ],
+              "legacy_materialized_path": "work_sw/turn_side_a"
+            },
+            "turn_side_b": {
+              "frames": [
+                "Mp20",
+                "Mp23"
+              ],
+              "legacy_materialized_path": "work_sw/turn_side_b"
+            },
+            "happy": {
+              "frames": [
+                "Mp24"
+              ],
+              "legacy_materialized_path": "work_sw/happy"
+            }
+          }
+        },
+        "NW": {
+          "source": "native",
+          "legacy_action_dir": "work_nw",
+          "subactions": {
+            "normal_work": {
+              "frames": [
+                "M25",
+                "M26"
+              ],
+              "legacy_materialized_path": "work_nw/normal_work"
+            },
+            "turn_side_a": {
+              "frames": [
+                "M25",
+                "M27"
+              ],
+              "legacy_materialized_path": "work_nw/turn_side_a"
+            },
+            "turn_side_b": {
+              "frames": [
+                "M25",
+                "M28"
+              ],
+              "legacy_materialized_path": "work_nw/turn_side_b"
+            },
+            "happy": {
+              "frames": [
+                "M29"
+              ],
+              "legacy_materialized_path": "work_nw/happy"
+            }
+          }
+        }
+      },
+      "pose_category": "seated"
+    }
+  },
+  "runtime_source_of_truth": {
+    "frames": "FRAME_RULES/frame_registry.json",
+    "shared_assets": "ASSETS/asset_registry.json",
+    "legacy_materialized_paths": "compatibility_and_regression_only"
+  }
+}

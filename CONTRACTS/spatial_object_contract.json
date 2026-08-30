@@ -1,0 +1,50 @@
+{
+  "contract_id": "contract.gds.spatial_objects.v1",
+  "schema": "gds.spatial_object_contract.v1",
+  "scope": {
+    "primary_object_types": ["chair", "desk", "pc", "reception"],
+    "storage": "variant_profile_plus_runtime_derived_instance"
+  },
+  "unknown_policy": "explicit_null_no_guessing",
+  "coordinates": {
+    "coordinate_frame_id": "coord.pixel_iso.v1",
+    "render_anchor": "sprite_top_left",
+    "visual_bounds": "alpha_bbox_measured_after_variant_transform",
+    "world_visual_bounds": "render_top_left_plus_local_alpha_bbox",
+    "semantic_anchor": "only_when_existing_layout_or_placement_evidence_exists"
+  },
+  "known_phase6_fields": [
+    "object identity",
+    "asset and visual variant",
+    "render x/y/layer",
+    "canvas size",
+    "local alpha visual bounds",
+    "world alpha visual bounds",
+    "transparent padding",
+    "workstation membership when present",
+    "workstation component role when present",
+    "workstation direction when present",
+    "existing reception semantic anchor when present",
+    "chair foreground fragment relationship when present"
+  ],
+  "phase6_unknown_fields": [
+    "spatial.footprint",
+    "physics.solid",
+    "physics.collision_shape",
+    "interaction.anchor",
+    "interaction.radius_px"
+  ],
+  "chair_foreground": {
+    "source_object_type": "chair_sub",
+    "primary_spatial_object": false,
+    "relationship": "foreground_fragment",
+    "evidence": "existing layout component_role=chair_foreground and later render layer"
+  },
+  "phase7_excluded": [
+    "walkable grid",
+    "navigation",
+    "pathfinding",
+    "seat snapping",
+    "interaction execution"
+  ]
+}

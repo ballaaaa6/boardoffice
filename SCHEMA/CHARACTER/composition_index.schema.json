@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_character_composition_index_v1",
+  "title": "GDS Character Composition Reverse Index",
+  "type": "object",
+  "required": ["schema", "key_format", "character_count", "unique_composition_count", "duplicate_composition_count", "compositions"],
+  "properties": {
+    "schema": {"const": "gds_character_composition_index_v1"},
+    "key_format": {"const": "<body_asset_id>+<face_asset_id>"},
+    "character_count": {"const": 302},
+    "unique_composition_count": {"const": 300},
+    "duplicate_composition_count": {"const": 2},
+    "compositions": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": true}}
+  },
+  "additionalProperties": false
+}

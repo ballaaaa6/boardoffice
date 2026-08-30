@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Unified Character + VFX Asset Registry v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "asset_count",
+    "alias_count",
+    "assets",
+    "aliases"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds_unified_asset_registry_v1"
+    },
+    "asset_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "alias_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "asset_id",
+          "domain",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "domain": {
+            "enum": [
+              "character",
+              "effect"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "effect_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "aliases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

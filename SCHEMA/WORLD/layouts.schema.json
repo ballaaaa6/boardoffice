@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema",
+    "layouts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds_layout_templates_v1"
+    },
+    "layouts": {
+      "type": "object",
+      "minProperties": 3,
+      "maxProperties": 3,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "layout_id",
+          "coordinate_frame_id",
+          "source_geometry_floor_id",
+          "slots",
+          "semantic_slots",
+          "workstation_groups"
+        ],
+        "properties": {
+          "layout_id": {
+            "type": "string"
+          },
+          "coordinate_frame_id": {
+            "const": "coord.pixel_iso.v1"
+          },
+          "source_geometry_floor_id": {
+            "type": "string",
+            "pattern": "^floor[0-9]+$"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "slot_id",
+                "object_type",
+                "binding_key",
+                "transform",
+                "x_px",
+                "y_px",
+                "layer",
+                "required",
+                "workstation_id",
+                "component_role"
+              ],
+              "properties": {
+                "slot_id": {
+                  "type": "string"
+                },
+                "object_type": {
+                  "enum": [
+                    "chair",
+                    "desk",
+                    "pc",
+                    "chair_sub"
+                  ]
+                },
+                "binding_key": {
+                  "type": "string"
+                },
+                "transform": {
+                  "enum": [
+                    "NORMAL",
+                    "CROP",
+                    "FLIP_X"
+                  ]
+                },
+                "x_px": {
+                  "type": "integer"
+                },
+                "y_px": {
+                  "type": "integer"
+                },
+                "layer": {
+                  "type": "integer"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "workstation_id": {
+                  "type": "string"
+                },
+                "component_role": {
+                  "enum": [
+                    "chair_main",
+                    "chair_foreground",
+                    "desk",
+                    "pc"
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "workstation_groups": {
+            "type": "object"
+          },
+          "semantic_slots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "slot_id",
+                "object_type",
+                "binding_key",
+                "transform",
+                "layer",
+                "required",
+                "anchor"
+              ],
+              "properties": {
+                "slot_id": {
+                  "type": "string"
+                },
+                "object_type": {
+                  "const": "reception"
+                },
+                "binding_key": {
+                  "type": "string"
+                },
+                "transform": {
+                  "enum": [
+                    "NORMAL",
+                    "CROP",
+                    "FLIP_X"
+                  ]
+                },
+                "layer": {
+                  "type": "integer"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "anchor": {
+                  "type": "object",
+                  "required": [
+                    "x_px",
+                    "y_px",
+                    "x_basis",
+                    "y_basis"
+                  ],
+                  "properties": {
+                    "x_px": {
+                      "type": "integer"
+                    },
+                    "y_px": {
+                      "type": "integer"
+                    },
+                    "x_basis": {
+                      "const": "sprite_left"
+                    },
+                    "y_basis": {
+                      "const": "alpha_top"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

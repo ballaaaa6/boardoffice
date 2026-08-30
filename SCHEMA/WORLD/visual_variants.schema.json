@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Visual Variants v1",
+  "type": "object",
+  "required": ["schema", "variants"],
+  "properties": {
+    "schema": {"const": "gds_visual_variants_v1"},
+    "variants": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["variant_id", "asset_id", "transform"],
+        "properties": {
+          "variant_id": {"type": "string"},
+          "asset_id": {"type": "string"},
+          "transform": {"enum": ["NORMAL", "FLIP_X", "CROP"]},
+          "semantic_type": {"type": ["string", "null"]},
+          "recipe": {"type": ["object", "null"]}
+        }
+      }
+    }
+  }
+}

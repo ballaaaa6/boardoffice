@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Spatial Profiles v1",
+  "type": "object",
+  "required": ["schema", "scope", "profile_count", "profiles"],
+  "properties": {
+    "schema": {"const": "gds.spatial_profiles.v1"},
+    "scope": {
+      "type": "object",
+      "required": ["primary_object_types", "chair_foreground_policy", "unknown_value_policy"],
+      "properties": {
+        "primary_object_types": {
+          "type": "array",
+          "prefixItems": [
+            {"const": "chair"}, {"const": "desk"}, {"const": "pc"}, {"const": "reception"}
+          ],
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "chair_foreground_policy": {"type": "string"},
+        "unknown_value_policy": {"const": "explicit_null_no_guessing"}
+      },
+      "additionalProperties": false
+    },
+    "profile_count": {"type": "integer", "minimum": 1},
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["variant_id", "asset_id", "transform", "object_types", "canvas_size_px", "visual_bounds_px", "transparent_padding_px", "spatial", "physics", "interaction", "evidence"],
+        "properties": {
+          "variant_id": {"type": "string"},
+          "asset_id": {"type": "string"},
+          "transform": {"enum": ["NORMAL", "FLIP_X", "CROP"]},
+          "object_types": {
+            "type": "array",
+            "items": {"enum": ["chair", "desk", "pc", "reception"]},
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "canvas_size_px": {
+            "type": "object",
+            "required": ["width", "height"],
+            "properties": {"width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1}},
+            "additionalProperties": false
+          },
+          "visual_bounds_px": {
+            "oneOf": [
+              {"type": "null"},
+              {
+                "type": "object",
+                "required": ["left", "top", "right", "bottom", "width", "height"],
+                "properties": {
+                  "left": {"type": "integer", "minimum": 0}, "top": {"type": "integer", "minimum": 0},
+                  "right": {"type": "integer", "minimum": 0}, "bottom": {"type": "integer", "minimum": 0},
+                  "width": {"type": "integer", "minimum": 0}, "height": {"type": "integer", "minimum": 0}
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "transparent_padding_px": {
+            "type": "object",
+            "required": ["left", "top", "right", "bottom"],
+            "properties": {
+              "left": {"type": "integer", "minimum": 0}, "top": {"type": "integer", "minimum": 0},
+              "right": {"type": "integer", "minimum": 0}, "bottom": {"type": "integer", "minimum": 0}
+            },
+            "additionalProperties": false
+          },
+          "spatial": {
+            "type": "object",
+            "required": ["footprint", "semantic_anchor_policy"],
+            "properties": {"footprint": {"type": "null"}, "semantic_anchor_policy": {"type": "string"}},
+            "additionalProperties": false
+          },
+          "physics": {
+            "type": "object",
+            "required": ["solid", "collision_shape"],
+            "properties": {"solid": {"type": "null"}, "collision_shape": {"type": "null"}},
+            "additionalProperties": false
+          },
+          "interaction": {
+            "type": "object",
+            "required": ["anchor", "radius_px"],
+            "properties": {"anchor": {"type": "null"}, "radius_px": {"type": "null"}},
+            "additionalProperties": false
+          },
+          "evidence": {
+            "type": "object",
+            "required": ["visual_bounds_method", "use_count", "used_floors"],
+            "properties": {
+              "visual_bounds_method": {"const": "alpha_bbox_from_canonical_variant_pixels"},
+              "use_count": {"type": "integer", "minimum": 1},
+              "used_floors": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": true}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

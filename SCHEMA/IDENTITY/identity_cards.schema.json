@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_character_identity_cards_v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "character_count", "serial_range", "generation", "characters"],
+  "properties": {
+    "schema": {"const": "gds_character_identity_cards_v1"},
+    "character_count": {"const": 302},
+    "serial_range": {
+      "type": "array",
+      "prefixItems": [{"const": 0}, {"const": 301}],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "generation": {
+      "type": "object",
+      "required": [
+        "source_registry", "source_registry_sha256", "original_order", "custom_order",
+        "custom_order_seed", "name_source", "name_source_sha256", "name_seed", "name_policy"
+      ],
+      "properties": {
+        "source_registry": {"type": "string", "minLength": 1},
+        "source_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "original_order": {"const": "numeric_tp_id_ascending"},
+        "custom_order": {"const": "sha256_rank"},
+        "custom_order_seed": {"const": "gds-character-custom-order-v1"},
+        "name_source": {"type": "string", "minLength": 1},
+        "name_source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "name_seed": {"const": "gds-character-name-v1"},
+        "name_policy": {"const": "explicit_RND_M_RND_F_else_neutral"}
+      },
+      "additionalProperties": false
+    },
+    "characters": {
+      "type": "array",
+      "minItems": 302,
+      "maxItems": 302,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "character_id", "character_no", "character_code", "first_name", "last_name",
+          "full_name", "nickname", "name_profile", "composition", "origin"
+        ],
+        "properties": {
+          "character_id": {"type": "string", "pattern": "^(TP|RND_[MF])_[0-9]{3}$"},
+          "character_no": {"type": "integer", "minimum": 0, "maximum": 301},
+          "character_code": {"type": "string", "pattern": "^CHAR_[0-9]{3}$"},
+          "first_name": {"type": "string", "minLength": 1},
+          "last_name": {"type": "string", "minLength": 1},
+          "full_name": {"type": "string", "minLength": 3},
+          "nickname": {"type": "string", "minLength": 1},
+          "name_profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["pool", "basis", "source_label"],
+            "properties": {
+              "pool": {"enum": ["neutral", "male", "female"]},
+              "basis": {"enum": ["unknown_neutral", "explicit_source_label"]},
+              "source_label": {"type": ["string", "null"]}
+            }
+          },
+          "composition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["body", "face"],
+            "properties": {
+              "body": {"type": "string", "pattern": "^character\\.body\\.[0-9]{3}$"},
+              "face": {"type": "string", "pattern": "^character\\.face\\.[0-9]{3}$"}
+            }
+          },
+          "origin": {
+            "type": "object",
+            "required": ["type", "collection", "source", "legacy_id"],
+            "properties": {
+              "type": {"enum": ["original", "custom"]},
+              "collection": {"type": "string", "minLength": 1},
+              "source": {"type": "string", "minLength": 1},
+              "legacy_id": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

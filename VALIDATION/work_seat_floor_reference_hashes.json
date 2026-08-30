@@ -1,0 +1,207 @@
+{
+  "floors": {
+    "floor00": {
+      "png_sha256": "0d4dc3371a48d990ad1c9ade93a5578993e54fa0636f53cd1d304ccd0e553589",
+      "rgba_sha256": "957c45f8dc97d22bc2be1e083f8fc8a690f1b9b6de9af508cfc6ba618ed0bf7d",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor01": {
+      "png_sha256": "ea82d7f1ebc7116c0e19f65c50fd01d3f2f05a864dd1cdb7870f93be38414818",
+      "rgba_sha256": "a7a9372b91b3f0431d22d6c5edc8a8ac08e93d884900030d4e8b15e9e7cc206b",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor02": {
+      "png_sha256": "7b588fb50090b065f4854f6c30fc8106a5f13dbb4702887f7285c224d8c522c6",
+      "rgba_sha256": "5a7e121de870c949e8b04f33297e291ae76cef8fbbc265d209b67dfe9a42dd86",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor03": {
+      "png_sha256": "29df0c1a09bad0cfad47a22bd70740f5e4fb9505dd15f0452e9835ec83060761",
+      "rgba_sha256": "8951391af1431a7d8ca28a6abbc63f8c592e5f2bbce1e2b5ba36a957f351498f",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor04": {
+      "png_sha256": "5d14d3dbac5137e39efa65647c41d056c4570a1b9584eb5245d1c36538cab74d",
+      "rgba_sha256": "e8f941e2283a416ddf3320c51ebbc3ebab751fba3306c400c18b4db2e38d3891",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor05": {
+      "png_sha256": "6f76d5a8f59ef74d00f6a3e4f66a2d4bfef38f73a61da707944a7c5c6bba3f25",
+      "rgba_sha256": "16514963834b9cd13ae448a5f8d7ca28690ae8eb4a5c15645bdcc15012b5e01b",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor06": {
+      "png_sha256": "0b485a183c09ec216af704291dab1e2c3b5b335f7ead0569a3215e75af63175f",
+      "rgba_sha256": "0b78e9346b5b68bb8eb958de808d4ea7af44988b67695173574faab9d07476e1",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor07": {
+      "png_sha256": "ced0b40b45471de6e17c88fdcc7374fddf1cb68be9521a0b7b32acf024548914",
+      "rgba_sha256": "3cc181605d522a7459e759ac8c97c6afa996d8ba3938683ec7a088f91b4e3ad6",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor08": {
+      "png_sha256": "c00c11c516651292f3139e3cf67a2addf7716752a6d090a8f15e1bec5b86429e",
+      "rgba_sha256": "e10c874ddbe49cb258445112e1cd5c454b5fc8f9f33ca480317eafafe199bcf1",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor09": {
+      "png_sha256": "89eb4182fc046489d923eded458babfebb405dfbd799712da14081ebec60ab06",
+      "rgba_sha256": "a47f0600799e5600f8dc378ad67cd1b4e122c5a4bd2ddcae33f0a21a4b882887",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor11": {
+      "png_sha256": "3fb0c1639d39557dea830e6ff5ad704c80b2fcbf28ac91fffc62780b6343fafb",
+      "rgba_sha256": "26e4a15ea16b3d716f5d12c668349fc312393c6491c125b48c190db3c33cdc01",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor12": {
+      "png_sha256": "26a5a585fe556401585462026701e23b8aa664a97d6ceff68216419c730a800a",
+      "rgba_sha256": "b6b12433018a1303644e5ff123f474f9f7f08df1f139dbea575222e555ca55f6",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor13": {
+      "png_sha256": "883e5b28167ebf4538654a4260f6f0936fb3aa9dbe3b4cc2032cdd031870a721",
+      "rgba_sha256": "b3b3b3a657619f6295b2e6088aa688f0d307289be3f91858e8e4e4bc673c5bdd",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor14": {
+      "png_sha256": "41b1f8d23607d03756a762c8408661e5b2ad0ca657a54287de1804ffcabfc18a",
+      "rgba_sha256": "3d595cea64fa12572724504d523c3873713b312ca5cc75e6e4149b85ed33d329",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor15": {
+      "png_sha256": "b8cb174f4b467b926166a1204358c7066b27fcba07150ce1f641daa096701ae5",
+      "rgba_sha256": "f8f169f9752153f103c6b359ecce18a01e387951809ed72c1c9344541f878e2c",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor16": {
+      "png_sha256": "42cbb4565bc890fec9c32ebb951fa1bd822b6f963aab6677dcde0e82ae7ca873",
+      "rgba_sha256": "9266c48408f4eeda4ce4b0c8ce93c096c7c1ebbdc8856f2a3661620d7c955096",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor17": {
+      "png_sha256": "ff4ee19aa15db0dd4b9b7d013e28003e59a39c528584b900608a87a2db94bb09",
+      "rgba_sha256": "f7e7033cb4ce11400cf0acf13256bc5a4a9b2a19fba64ace13d27e843868a41f",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor18": {
+      "png_sha256": "2f941cbdbaa8dca15c08d1498a186abd317a51a4785f9d74db03bfdaa7fa5039",
+      "rgba_sha256": "ce38a08fb3dc0b3c672e6977f8848bacf72087bfc749048a4a891b57d4346cd2",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor19": {
+      "png_sha256": "0e25accabfaadcb9ed8aa65a4651f2e2e94a25d78ff655b1add15e58fddfa79e",
+      "rgba_sha256": "2b2d4cee70b51943348be5b3e853500a619ad1701fef5df672508f8295c3b48f",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor21": {
+      "png_sha256": "574b73113d935c1d56e4b31400ef94e98c0a9c5364833be60abdd96410b75423",
+      "rgba_sha256": "67e7e71c9178c2794018815bfbe5d00fd23ad5ab95f250112f5f040d398f8d1e",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor31": {
+      "png_sha256": "0fd82615ac848e62d56ccc1bec7fbf26579707015f528ee158577e08fc50f48b",
+      "rgba_sha256": "160a5a1c8c8a76237a611d82feb87cb369d6ff906cc67a26e8014aecd7c8fc46",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor33": {
+      "png_sha256": "fb57e2d235a6d555ed44b5f650974b7ff1f9b278be4738483f2bbb6a19a4548c",
+      "rgba_sha256": "6182a4996d4bcd5460032b7537a7aa2dade4dfbd740f8609e91e8f38b2afad8d",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor34": {
+      "png_sha256": "ec04a30515aeba3f8b4466e369c3fea69581e73645043d0f64167e7bdecc5157",
+      "rgba_sha256": "bf3d31619fe33299f39d4a1ea5d20314c8cd14fa71bde5265520c3728593854e",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor35": {
+      "png_sha256": "dc68024015a9aaf16a8529c96c3c636cbad728fe19ee5430089fe77189e6ab70",
+      "rgba_sha256": "ed3cfececc5eb0221a022e4e41048ecd219ac0c79ce37e59d8341888e271c3a9",
+      "size": [
+        600,
+        600
+      ]
+    },
+    "floor36": {
+      "png_sha256": "b279c3ef96d5461071046fd31d418e39b240fdfed8c20463e45286678389e0ce",
+      "rgba_sha256": "f10854373feaa76bdc740c23ae51164cdb97bbaf1fe6995687e9c17a6de1d3c1",
+      "size": [
+        600,
+        600
+      ]
+    }
+  },
+  "schema": "gds.work_seat_floor_reference_hashes.v1",
+  "source_package": "GDS_CENTRAL_GAME_CORE_v1.4.0",
+  "source_zip_sha256": "9869e570d801335d2d91337dfbeb55182a52c943b3dc616861742a1e10c46aec"
+}

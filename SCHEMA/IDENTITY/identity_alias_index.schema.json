@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_character_identity_alias_index_v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "character_count", "normalization", "aliases"],
+  "properties": {
+    "schema": {"const": "gds_character_identity_alias_index_v1"},
+    "character_count": {"const": 302},
+    "normalization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "numeric", "fuzzy_matching"],
+      "properties": {
+        "text": {"const": "strip_then_casefold"},
+        "numeric": {"const": "base10_integer"},
+        "fuzzy_matching": {"const": false}
+      }
+    },
+    "aliases": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["character_no", "character_code", "full_name", "nickname", "character_id"],
+      "properties": {
+        "character_no": {"$ref": "#/$defs/aliasMap"},
+        "character_code": {"$ref": "#/$defs/aliasMap"},
+        "full_name": {"$ref": "#/$defs/aliasMap"},
+        "nickname": {"$ref": "#/$defs/aliasMap"},
+        "character_id": {"$ref": "#/$defs/aliasMap"}
+      }
+    }
+  },
+  "$defs": {
+    "aliasMap": {
+      "type": "object",
+      "minProperties": 302,
+      "maxProperties": 302,
+      "additionalProperties": {"type": "string", "pattern": "^(TP|RND_[MF])_[0-9]{3}$"}
+    }
+  }
+}

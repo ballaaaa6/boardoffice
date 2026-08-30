@@ -1,0 +1,1926 @@
+{
+  "parts": {
+    "chair_000.part_00": {
+      "family_id": "chair_000",
+      "height": 32,
+      "rgba_sha256": "536d53887618012f6202f2e6e666b38e12840edbf80e1293cb006f562299e3bc",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_000.png",
+      "source_sheet_sha256": "92a1800b6bc9d0e1e1fa0e439c9d14dfeaafeb7bad8d4c0353d5ab03029d74c8",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_000.part_01": {
+      "family_id": "chair_000",
+      "height": 32,
+      "rgba_sha256": "adc3de37f11ac23521980fc77a4cbc85e8f3932da8ed6eed4407a489c6a0a36c",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_000.png",
+      "source_sheet_sha256": "92a1800b6bc9d0e1e1fa0e439c9d14dfeaafeb7bad8d4c0353d5ab03029d74c8",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_000.part_02": {
+      "family_id": "chair_000",
+      "height": 32,
+      "rgba_sha256": "1332091ae5cbe29b60e0266e1b9456aaf5f31295feee4a6e9a9046f8ca578edf",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_000.png",
+      "source_sheet_sha256": "92a1800b6bc9d0e1e1fa0e439c9d14dfeaafeb7bad8d4c0353d5ab03029d74c8",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_000.part_03": {
+      "family_id": "chair_000",
+      "height": 32,
+      "rgba_sha256": "8d86a1ae664c675c9d454d5218d64ddc0df8748ede67e7d3b226c2bf30c91971",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_000.png",
+      "source_sheet_sha256": "92a1800b6bc9d0e1e1fa0e439c9d14dfeaafeb7bad8d4c0353d5ab03029d74c8",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_001.part_00": {
+      "family_id": "chair_001",
+      "height": 32,
+      "rgba_sha256": "870f786ffd20b12f4f36fd36ca7895e59607ed20fa8f2cd0bf97c5f4e45f3634",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_001.png",
+      "source_sheet_sha256": "6e1ab4537c41ef75688d3adb665ec003a7e85f3af1e51daa7f359aff90ea3028",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_001.part_01": {
+      "family_id": "chair_001",
+      "height": 32,
+      "rgba_sha256": "b31912300058a32dcd179b45c7bc655dff71848947dd0bcca383e11ea4f59bac",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_001.png",
+      "source_sheet_sha256": "6e1ab4537c41ef75688d3adb665ec003a7e85f3af1e51daa7f359aff90ea3028",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_001.part_02": {
+      "family_id": "chair_001",
+      "height": 32,
+      "rgba_sha256": "616dd66c833ca9934070391ad716ef1a152f93505028154907806e1bf41de32c",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_001.png",
+      "source_sheet_sha256": "6e1ab4537c41ef75688d3adb665ec003a7e85f3af1e51daa7f359aff90ea3028",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_001.part_03": {
+      "family_id": "chair_001",
+      "height": 32,
+      "rgba_sha256": "0f072e7ff7b1afd4e12268833038baedd124753cffd3152aeccfa08cc53e9fff",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_001.png",
+      "source_sheet_sha256": "6e1ab4537c41ef75688d3adb665ec003a7e85f3af1e51daa7f359aff90ea3028",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_002.part_00": {
+      "family_id": "chair_002",
+      "height": 32,
+      "rgba_sha256": "54340bef22eb703cdec449bb995a781c4c732fb920b427cb7b6ad7f44af8fc95",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_002.png",
+      "source_sheet_sha256": "849e518eaeb77a72734d4784e33ed339af84db8149b08ea897c6721932ec5906",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_002.part_01": {
+      "family_id": "chair_002",
+      "height": 32,
+      "rgba_sha256": "c5fbc604160c9df6bd16261ac5affad152011d63349371171acd0796aac68001",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_002.png",
+      "source_sheet_sha256": "849e518eaeb77a72734d4784e33ed339af84db8149b08ea897c6721932ec5906",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_002.part_02": {
+      "family_id": "chair_002",
+      "height": 32,
+      "rgba_sha256": "5a7c555a09a2111e7649db3a08ea67741d896b4d715da99c45abdfa8765872fc",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_002.png",
+      "source_sheet_sha256": "849e518eaeb77a72734d4784e33ed339af84db8149b08ea897c6721932ec5906",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_002.part_03": {
+      "family_id": "chair_002",
+      "height": 32,
+      "rgba_sha256": "7315a5ff0322ae68d85a701059b2eb0633ed781f81d8f8e8027ca1591c2045c2",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_002.png",
+      "source_sheet_sha256": "849e518eaeb77a72734d4784e33ed339af84db8149b08ea897c6721932ec5906",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_003.part_00": {
+      "family_id": "chair_003",
+      "height": 32,
+      "rgba_sha256": "efd3fa620dba6ce993fa298dd6dfcd8168059d8f341aa035ed7953c13d0188ce",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_003.png",
+      "source_sheet_sha256": "2f255425d4c04768c1493f9c8baaa0eca40ed1dee87a5b691f00e7c349dce66e",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_003.part_01": {
+      "family_id": "chair_003",
+      "height": 32,
+      "rgba_sha256": "3ed0db8c0c96de1ef8d623137e6809eb6ec316ee94d01600326acae3422a96e9",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_003.png",
+      "source_sheet_sha256": "2f255425d4c04768c1493f9c8baaa0eca40ed1dee87a5b691f00e7c349dce66e",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_003.part_02": {
+      "family_id": "chair_003",
+      "height": 32,
+      "rgba_sha256": "de922a5c8d9d3f1a9a2e03a1167710ab02ee2046273a7387480e0479ee80bf2e",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_003.png",
+      "source_sheet_sha256": "2f255425d4c04768c1493f9c8baaa0eca40ed1dee87a5b691f00e7c349dce66e",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_003.part_03": {
+      "family_id": "chair_003",
+      "height": 32,
+      "rgba_sha256": "fb31e05ac9302c2ec639537fee072b34dc3ced3d4cd6b406cd55ff329a7cb585",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_003.png",
+      "source_sheet_sha256": "2f255425d4c04768c1493f9c8baaa0eca40ed1dee87a5b691f00e7c349dce66e",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_004.part_00": {
+      "family_id": "chair_004",
+      "height": 32,
+      "rgba_sha256": "9519492f32088464239dd56bf0ef52586d19b71b5044ef4782e140e04f9dc9ea",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_004.png",
+      "source_sheet_sha256": "739be7a5b730ad07b26931877be9b06cb5bb35c324f09632bb77875085e9dd40",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_004.part_01": {
+      "family_id": "chair_004",
+      "height": 32,
+      "rgba_sha256": "9c046332670258b8e859b0d7d07ae9c6f1595330be6777195d9a9edb1604f936",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_004.png",
+      "source_sheet_sha256": "739be7a5b730ad07b26931877be9b06cb5bb35c324f09632bb77875085e9dd40",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_004.part_02": {
+      "family_id": "chair_004",
+      "height": 32,
+      "rgba_sha256": "9519492f32088464239dd56bf0ef52586d19b71b5044ef4782e140e04f9dc9ea",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_004.png",
+      "source_sheet_sha256": "739be7a5b730ad07b26931877be9b06cb5bb35c324f09632bb77875085e9dd40",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_004.part_03": {
+      "family_id": "chair_004",
+      "height": 32,
+      "rgba_sha256": "54c839fb6079eb6dbfcbca13283999453abfdc1acd9d62a59b874ca28685ae07",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_004.png",
+      "source_sheet_sha256": "739be7a5b730ad07b26931877be9b06cb5bb35c324f09632bb77875085e9dd40",
+      "transparent": true,
+      "width": 21
+    },
+    "chair_005.part_00": {
+      "family_id": "chair_005",
+      "height": 32,
+      "rgba_sha256": "f244199a7842fb3f11a3eb75a4919e1bb5f50ef5909291bec3beb48ff55f6b4c",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_005.png",
+      "source_sheet_sha256": "0149d0440afdb4a05bf6918e7328b921912596622b234cac9e3a020a55c1e8ea",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_005.part_01": {
+      "family_id": "chair_005",
+      "height": 32,
+      "rgba_sha256": "5db230d38031f9b8d95bc0660ef2c3db4d217d4caad4e550e3966f20681bde0f",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_005.png",
+      "source_sheet_sha256": "0149d0440afdb4a05bf6918e7328b921912596622b234cac9e3a020a55c1e8ea",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_005.part_02": {
+      "family_id": "chair_005",
+      "height": 32,
+      "rgba_sha256": "f1143e205d0d9df2c3882bd2f1772c4d3154e5e5d492ff05469a6a82a3db7433",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_005.png",
+      "source_sheet_sha256": "0149d0440afdb4a05bf6918e7328b921912596622b234cac9e3a020a55c1e8ea",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_005.part_03": {
+      "family_id": "chair_005",
+      "height": 32,
+      "rgba_sha256": "54c839fb6079eb6dbfcbca13283999453abfdc1acd9d62a59b874ca28685ae07",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_005.png",
+      "source_sheet_sha256": "0149d0440afdb4a05bf6918e7328b921912596622b234cac9e3a020a55c1e8ea",
+      "transparent": true,
+      "width": 21
+    },
+    "chair_006.part_00": {
+      "family_id": "chair_006",
+      "height": 32,
+      "rgba_sha256": "5685d42ae9f2c1ee83b06624200549db8e0448c7306a698fe1a058dc9a6c8093",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_006.png",
+      "source_sheet_sha256": "74e2ae46412a73b502445caa6f2369370cbcffc66d1297219580d219c35a52dc",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_006.part_01": {
+      "family_id": "chair_006",
+      "height": 32,
+      "rgba_sha256": "26ae10d170239d622dbe20b4ea01bd9499036c2a98dbce2add985edbee076ba2",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_006.png",
+      "source_sheet_sha256": "74e2ae46412a73b502445caa6f2369370cbcffc66d1297219580d219c35a52dc",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_006.part_02": {
+      "family_id": "chair_006",
+      "height": 32,
+      "rgba_sha256": "4e16a5a93280e216147d55553c214626d44319bc2b671cd8e6f0c50dddcc0a2a",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_006.png",
+      "source_sheet_sha256": "74e2ae46412a73b502445caa6f2369370cbcffc66d1297219580d219c35a52dc",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_006.part_03": {
+      "family_id": "chair_006",
+      "height": 32,
+      "rgba_sha256": "d199336112eb390aac4e80e76dc2675c4d67ab3d382a56b918a6858adac656ac",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_006.png",
+      "source_sheet_sha256": "74e2ae46412a73b502445caa6f2369370cbcffc66d1297219580d219c35a52dc",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_007.part_00": {
+      "family_id": "chair_007",
+      "height": 32,
+      "rgba_sha256": "32d93d4ac976c4f33186de20959d17a1855479dade49fc57f0574f75bc9b4e5d",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_007.png",
+      "source_sheet_sha256": "d86c31d826de9f048dadf7309f2deab8c4921133c81558c3a071fdf56bd6c512",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_007.part_01": {
+      "family_id": "chair_007",
+      "height": 32,
+      "rgba_sha256": "f2e70ba1f1b02c7bb011adf2e12504f56c1c50eafbc9cc4f6917a379c72355b1",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_007.png",
+      "source_sheet_sha256": "d86c31d826de9f048dadf7309f2deab8c4921133c81558c3a071fdf56bd6c512",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_007.part_02": {
+      "family_id": "chair_007",
+      "height": 32,
+      "rgba_sha256": "70aa43b78ee6af04bdba4648e33dfa4e7c72f58b89f5debc62234582a02c9dce",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_007.png",
+      "source_sheet_sha256": "d86c31d826de9f048dadf7309f2deab8c4921133c81558c3a071fdf56bd6c512",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_007.part_03": {
+      "family_id": "chair_007",
+      "height": 32,
+      "rgba_sha256": "7fa9ddc4fe4fa8ece2cabfd12085299f1f7a67a64013b947bcb233079d9cdac1",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_007.png",
+      "source_sheet_sha256": "d86c31d826de9f048dadf7309f2deab8c4921133c81558c3a071fdf56bd6c512",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_008.part_00": {
+      "family_id": "chair_008",
+      "height": 32,
+      "rgba_sha256": "397d01c39c068deac8e0b9c65a5edc3e04fc0dd281747a35360cc0b4bef4b292",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_008.png",
+      "source_sheet_sha256": "b0cb81e5b8186f9e9adb9f64ea16fd2f6a07504c619bc3a55485729e295f556f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_008.part_01": {
+      "family_id": "chair_008",
+      "height": 32,
+      "rgba_sha256": "41b172eb73cef7863fbedaff0bd56800417180217b8b18e60357cbb7550a073c",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_008.png",
+      "source_sheet_sha256": "b0cb81e5b8186f9e9adb9f64ea16fd2f6a07504c619bc3a55485729e295f556f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_008.part_02": {
+      "family_id": "chair_008",
+      "height": 32,
+      "rgba_sha256": "b236a62024191c4e526d6ff7c5f06fc4ff2291c03a9d3b9f1a83dea32f4c1ec7",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_008.png",
+      "source_sheet_sha256": "b0cb81e5b8186f9e9adb9f64ea16fd2f6a07504c619bc3a55485729e295f556f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_008.part_03": {
+      "family_id": "chair_008",
+      "height": 32,
+      "rgba_sha256": "4f19397cf0de4cc16a5bcfbcc4620f292073f230027b05294c68619351b277d4",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_008.png",
+      "source_sheet_sha256": "b0cb81e5b8186f9e9adb9f64ea16fd2f6a07504c619bc3a55485729e295f556f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_009.part_00": {
+      "family_id": "chair_009",
+      "height": 32,
+      "rgba_sha256": "d9f7e68a85b72dfc11f7d1839df4e0725a47335d6d429a7c54aed407f2f03f2d",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_009.png",
+      "source_sheet_sha256": "c29fa5c7b17c75caec1c2274b3371782b901d8a5115ceb79a1265a4fc97f706a",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_009.part_01": {
+      "family_id": "chair_009",
+      "height": 32,
+      "rgba_sha256": "3157439f3cd352ded51beb3d64946f425612d0a7a3aa81403c117cb841d866dd",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_009.png",
+      "source_sheet_sha256": "c29fa5c7b17c75caec1c2274b3371782b901d8a5115ceb79a1265a4fc97f706a",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_009.part_02": {
+      "family_id": "chair_009",
+      "height": 32,
+      "rgba_sha256": "5cfc4c08f257603aae9d082cddbb5fc0b567cd54b2c2020542d7e8d4565ee7c9",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_009.png",
+      "source_sheet_sha256": "c29fa5c7b17c75caec1c2274b3371782b901d8a5115ceb79a1265a4fc97f706a",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_009.part_03": {
+      "family_id": "chair_009",
+      "height": 32,
+      "rgba_sha256": "f79a13fee628454e2078445fa219382692b9a9bc61a994cdcbfe0295fc57c36c",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_009.png",
+      "source_sheet_sha256": "c29fa5c7b17c75caec1c2274b3371782b901d8a5115ceb79a1265a4fc97f706a",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_010.part_00": {
+      "family_id": "chair_010",
+      "height": 32,
+      "rgba_sha256": "4790201bb524ece88b4025986420b1f2245e32af7c79724564db13c957b673df",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_010.png",
+      "source_sheet_sha256": "e8867fd57f404f0d320d03ea374062ac926633a7612366329d3733f7473f3321",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_010.part_01": {
+      "family_id": "chair_010",
+      "height": 32,
+      "rgba_sha256": "1701d79a09c0e63ca48b5d14ad3840e2334154efb0d950592ee94f5334f539d8",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_010.png",
+      "source_sheet_sha256": "e8867fd57f404f0d320d03ea374062ac926633a7612366329d3733f7473f3321",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_010.part_02": {
+      "family_id": "chair_010",
+      "height": 32,
+      "rgba_sha256": "a679e7a74c88c0214ceb1dc1ddda9e2f7fb979da1abc98dabd721b3212060309",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_010.png",
+      "source_sheet_sha256": "e8867fd57f404f0d320d03ea374062ac926633a7612366329d3733f7473f3321",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_010.part_03": {
+      "family_id": "chair_010",
+      "height": 32,
+      "rgba_sha256": "1543e8ca4c792428df413cf4f442d8734dfd956fe9a22297792c83a8b5356e66",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_010.png",
+      "source_sheet_sha256": "e8867fd57f404f0d320d03ea374062ac926633a7612366329d3733f7473f3321",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_011.part_00": {
+      "family_id": "chair_011",
+      "height": 32,
+      "rgba_sha256": "a6448ee286dd0be3dcae2f645a949565bcf00371288eb7a98ab5c5ed0388b529",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_011.png",
+      "source_sheet_sha256": "e1e4224acaabf20ed5382cca64394efc701d6ef6f39c82799344843287e27473",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_011.part_01": {
+      "family_id": "chair_011",
+      "height": 32,
+      "rgba_sha256": "4c3d93de4e1d783a528c7fc3df9ed79c94defcb3f5e7e2e20fcaf65dffc31b44",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_011.png",
+      "source_sheet_sha256": "e1e4224acaabf20ed5382cca64394efc701d6ef6f39c82799344843287e27473",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_011.part_02": {
+      "family_id": "chair_011",
+      "height": 32,
+      "rgba_sha256": "9709642c6c9da8d59ddc580dcb782c14f64bd26fd2baf58ddb156537e3e82cde",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_011.png",
+      "source_sheet_sha256": "e1e4224acaabf20ed5382cca64394efc701d6ef6f39c82799344843287e27473",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_011.part_03": {
+      "family_id": "chair_011",
+      "height": 32,
+      "rgba_sha256": "4b55c2462f012d9e61b14ad31368edb25c9ff7760db9e7abfab364f266f52b5f",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_011.png",
+      "source_sheet_sha256": "e1e4224acaabf20ed5382cca64394efc701d6ef6f39c82799344843287e27473",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_012.part_00": {
+      "family_id": "chair_012",
+      "height": 32,
+      "rgba_sha256": "b47fe31a4c511fc87ba0c5304225b062ebc0ee06abcaa9305ac952c264dc239b",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_012.png",
+      "source_sheet_sha256": "4eaf9081c06a45ee619b3d484cafd8b94a2428dba1fb4cc058eeb3ecf6c57c4d",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_012.part_01": {
+      "family_id": "chair_012",
+      "height": 32,
+      "rgba_sha256": "e2c23ea043c665ec272d70f9ad3b051ff7403439c13f8abf3a3cf1f903cac54d",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_012.png",
+      "source_sheet_sha256": "4eaf9081c06a45ee619b3d484cafd8b94a2428dba1fb4cc058eeb3ecf6c57c4d",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_012.part_02": {
+      "family_id": "chair_012",
+      "height": 32,
+      "rgba_sha256": "01e73d7e5e4b7dbedac95175c4dccba0da83b1fecd26c6218f4ebc8d17b19d4a",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_012.png",
+      "source_sheet_sha256": "4eaf9081c06a45ee619b3d484cafd8b94a2428dba1fb4cc058eeb3ecf6c57c4d",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_012.part_03": {
+      "family_id": "chair_012",
+      "height": 32,
+      "rgba_sha256": "99cd1b3bdac032c92df894ea0360ce3db0ef49e6bf8a73bfa37a1438a90b37d6",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_012.png",
+      "source_sheet_sha256": "4eaf9081c06a45ee619b3d484cafd8b94a2428dba1fb4cc058eeb3ecf6c57c4d",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_013.part_00": {
+      "family_id": "chair_013",
+      "height": 32,
+      "rgba_sha256": "7a788b2535cdd8837c16f9062652c5384e2e4ab91bf9de70af5b35a5da2a38dd",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_013.png",
+      "source_sheet_sha256": "c415e5789792fa0471af188248d215e4c30f87a058cbd5a76786ed1ba3871070",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_013.part_01": {
+      "family_id": "chair_013",
+      "height": 32,
+      "rgba_sha256": "d211a173b371db2b6868f0ed6cf6dbd9b6c7ba78534bf0493b64668fa4737daa",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_013.png",
+      "source_sheet_sha256": "c415e5789792fa0471af188248d215e4c30f87a058cbd5a76786ed1ba3871070",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_013.part_02": {
+      "family_id": "chair_013",
+      "height": 32,
+      "rgba_sha256": "3238fa8872ffd6007bcff759412bd83564434dde5f5b31ae850a9edfac49b10a",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_013.png",
+      "source_sheet_sha256": "c415e5789792fa0471af188248d215e4c30f87a058cbd5a76786ed1ba3871070",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_013.part_03": {
+      "family_id": "chair_013",
+      "height": 32,
+      "rgba_sha256": "aca91a956973479ff218a23abf66217ca295baf75ef9abd5ce703e6451c5ed3a",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_013.png",
+      "source_sheet_sha256": "c415e5789792fa0471af188248d215e4c30f87a058cbd5a76786ed1ba3871070",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_014.part_00": {
+      "family_id": "chair_014",
+      "height": 32,
+      "rgba_sha256": "3dd8dbc98fae30d88aa0ef9dc5df49737c0104489c80b013dd51657a3cac6eba",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_014.png",
+      "source_sheet_sha256": "d5119c01cfc0e80deadff01085ab21c128899ff484a02832d5bfd3e23f07177f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_014.part_01": {
+      "family_id": "chair_014",
+      "height": 32,
+      "rgba_sha256": "a9e31bf1824ab67fcf556e8afb52e6f1d8fdb1a37fe7218d619bcbf309d027b6",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_014.png",
+      "source_sheet_sha256": "d5119c01cfc0e80deadff01085ab21c128899ff484a02832d5bfd3e23f07177f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_014.part_02": {
+      "family_id": "chair_014",
+      "height": 32,
+      "rgba_sha256": "dbbe0c4f965ec05f79ef8f3a913c4fde14092ff2e1611093a95a41de09318117",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_014.png",
+      "source_sheet_sha256": "d5119c01cfc0e80deadff01085ab21c128899ff484a02832d5bfd3e23f07177f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_014.part_03": {
+      "family_id": "chair_014",
+      "height": 32,
+      "rgba_sha256": "16a3f149f076e1d227839f00a17f0f4ddc6c9ba57efc7efbc4fcc991971f88e8",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_014.png",
+      "source_sheet_sha256": "d5119c01cfc0e80deadff01085ab21c128899ff484a02832d5bfd3e23f07177f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_015.part_00": {
+      "family_id": "chair_015",
+      "height": 32,
+      "rgba_sha256": "a9f1c286ede84b7e1d3fe9c262ed5ac8d79aa675e8415e2e3541d81a4f59cdf5",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_015.png",
+      "source_sheet_sha256": "1572b37fab26979097381083feb760b10233e82a52c8cc44efef520b14796962",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_015.part_01": {
+      "family_id": "chair_015",
+      "height": 32,
+      "rgba_sha256": "963fdec2b4eedbbcc14d2cbdd883abd3716cbb68bc7b5337175f7d7e0465db4f",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_015.png",
+      "source_sheet_sha256": "1572b37fab26979097381083feb760b10233e82a52c8cc44efef520b14796962",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_015.part_02": {
+      "family_id": "chair_015",
+      "height": 32,
+      "rgba_sha256": "f8b0ab0744682d40b2cffe2b8cd3217fb0da8daeac8aaf81232de6fc05a0d73f",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_015.png",
+      "source_sheet_sha256": "1572b37fab26979097381083feb760b10233e82a52c8cc44efef520b14796962",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_015.part_03": {
+      "family_id": "chair_015",
+      "height": 32,
+      "rgba_sha256": "5d18a6f841b019aec345c8d41fb101891803dc1d11c1f6516a6a73ac845194cc",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_015.png",
+      "source_sheet_sha256": "1572b37fab26979097381083feb760b10233e82a52c8cc44efef520b14796962",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_016.part_00": {
+      "family_id": "chair_016",
+      "height": 32,
+      "rgba_sha256": "102326653e45f269ccd21f8c2ff5cfd8f81d03c73bafc3d6b185ccc6b87b19fa",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_016.png",
+      "source_sheet_sha256": "1d1a81336ded668fc76d3db3c2e6a16e8e8c683646591d63ccac8b2fe0372a93",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_016.part_01": {
+      "family_id": "chair_016",
+      "height": 32,
+      "rgba_sha256": "06bc702ec4ef68e31c69c7cbf0ff155d3c1c3094bb62237ca995b20dddd3ad5d",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_016.png",
+      "source_sheet_sha256": "1d1a81336ded668fc76d3db3c2e6a16e8e8c683646591d63ccac8b2fe0372a93",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_016.part_02": {
+      "family_id": "chair_016",
+      "height": 32,
+      "rgba_sha256": "806caf77c831d64cc391d1b7444d30d064e4954577089681776ecb8bf45e629c",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_016.png",
+      "source_sheet_sha256": "1d1a81336ded668fc76d3db3c2e6a16e8e8c683646591d63ccac8b2fe0372a93",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_016.part_03": {
+      "family_id": "chair_016",
+      "height": 32,
+      "rgba_sha256": "e70c07c881341109f4d46e41bc74fdd7339a35fc141f60ed6b92a58088afd05e",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_016.png",
+      "source_sheet_sha256": "1d1a81336ded668fc76d3db3c2e6a16e8e8c683646591d63ccac8b2fe0372a93",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_017.part_00": {
+      "family_id": "chair_017",
+      "height": 32,
+      "rgba_sha256": "b7f6aa8933dd99c93452d091312341cd3d6470a4775cc722a55f222e1749861d",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_017.png",
+      "source_sheet_sha256": "e3042f690698f5f173f32f72fc2c853143c3aaf210baa1c465521797c50daea9",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_017.part_01": {
+      "family_id": "chair_017",
+      "height": 32,
+      "rgba_sha256": "134981e4f021b08b855ba16a16dd0fcdcf07d89c52966f8b05f328478df57d54",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_017.png",
+      "source_sheet_sha256": "e3042f690698f5f173f32f72fc2c853143c3aaf210baa1c465521797c50daea9",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_017.part_02": {
+      "family_id": "chair_017",
+      "height": 32,
+      "rgba_sha256": "66ae5ce9f201d491903336b4bdab10746eceb23f76c98843d66026272b599e22",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_017.png",
+      "source_sheet_sha256": "e3042f690698f5f173f32f72fc2c853143c3aaf210baa1c465521797c50daea9",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_017.part_03": {
+      "family_id": "chair_017",
+      "height": 32,
+      "rgba_sha256": "062afeaaff393a5ac2b2294c269e62fddde0cd8adf5ec31cf5b5200012c13686",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_017.png",
+      "source_sheet_sha256": "e3042f690698f5f173f32f72fc2c853143c3aaf210baa1c465521797c50daea9",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_018.part_00": {
+      "family_id": "chair_018",
+      "height": 32,
+      "rgba_sha256": "5ed5257084ce546eac9e3efc4a14e70ad084fd805d2b1cb1019a49fb102727e8",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_018.png",
+      "source_sheet_sha256": "7c8e0e6c1f333c9c1926b22e99a6525b1c546f9aa65b6736705d8b9eb4e80ee4",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_018.part_01": {
+      "family_id": "chair_018",
+      "height": 32,
+      "rgba_sha256": "6c7ad98ee7eb095b3be146e14958169f274b0479e65c611f6cb0071a168664c9",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_018.png",
+      "source_sheet_sha256": "7c8e0e6c1f333c9c1926b22e99a6525b1c546f9aa65b6736705d8b9eb4e80ee4",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_018.part_02": {
+      "family_id": "chair_018",
+      "height": 32,
+      "rgba_sha256": "b88945569917d85672c7dc6ec2c19f3662d8fdf6bde7f2fc171c7428caa1aa8e",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_018.png",
+      "source_sheet_sha256": "7c8e0e6c1f333c9c1926b22e99a6525b1c546f9aa65b6736705d8b9eb4e80ee4",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_018.part_03": {
+      "family_id": "chair_018",
+      "height": 32,
+      "rgba_sha256": "9c3760e6fe23e28b3f02136b7e592c781e9282ed82f638d7cd7a44e9d1c01700",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_018.png",
+      "source_sheet_sha256": "7c8e0e6c1f333c9c1926b22e99a6525b1c546f9aa65b6736705d8b9eb4e80ee4",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_019.part_00": {
+      "family_id": "chair_019",
+      "height": 32,
+      "rgba_sha256": "8395f4cf280ba1834d55b8cff2e14b0a9dd47a9abea13a7d98c4bd1b2f9ef595",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_019.png",
+      "source_sheet_sha256": "eba472498b0c76948c2c3b5695c9b290e062dd6e01a8022ed15de654ccda1e87",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_019.part_01": {
+      "family_id": "chair_019",
+      "height": 32,
+      "rgba_sha256": "e0e54d8841a7d551b6b08dce178177305a276690812b14281c6fecc3f1c512bd",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_019.png",
+      "source_sheet_sha256": "eba472498b0c76948c2c3b5695c9b290e062dd6e01a8022ed15de654ccda1e87",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_019.part_02": {
+      "family_id": "chair_019",
+      "height": 32,
+      "rgba_sha256": "fcd8e0258744d2b72827796639250e3fdbccc9dc3f161b3f248846872d3dfe72",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_019.png",
+      "source_sheet_sha256": "eba472498b0c76948c2c3b5695c9b290e062dd6e01a8022ed15de654ccda1e87",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_019.part_03": {
+      "family_id": "chair_019",
+      "height": 32,
+      "rgba_sha256": "30ffe8933c3239ee58f773b1916a1bd0a1f453d6900b5e0237627a7d13e79f07",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_019.png",
+      "source_sheet_sha256": "eba472498b0c76948c2c3b5695c9b290e062dd6e01a8022ed15de654ccda1e87",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_020.part_00": {
+      "family_id": "chair_020",
+      "height": 32,
+      "rgba_sha256": "16cf803318e6ac594ddcf9b25cf72627d6ac9406753118908354c5ac5f894aad",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_020.png",
+      "source_sheet_sha256": "02321f2d815e2870eba123f27fc84fc32c6a18ab34ce09d14e8b349e2e3a35db",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_020.part_01": {
+      "family_id": "chair_020",
+      "height": 32,
+      "rgba_sha256": "bcb89ad18d39c54d8e49c75797da83c8481594dec572e7bc4b11a6ea39513567",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_020.png",
+      "source_sheet_sha256": "02321f2d815e2870eba123f27fc84fc32c6a18ab34ce09d14e8b349e2e3a35db",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_020.part_02": {
+      "family_id": "chair_020",
+      "height": 32,
+      "rgba_sha256": "a73a2ace818fb6716acb952beeedffafda7083f658f77d383a2cf8d838ccf134",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_020.png",
+      "source_sheet_sha256": "02321f2d815e2870eba123f27fc84fc32c6a18ab34ce09d14e8b349e2e3a35db",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_020.part_03": {
+      "family_id": "chair_020",
+      "height": 32,
+      "rgba_sha256": "a9baba772ab5bdee7d015834672ece6bc480f97241334dad2128e0348ef1552d",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_020.png",
+      "source_sheet_sha256": "02321f2d815e2870eba123f27fc84fc32c6a18ab34ce09d14e8b349e2e3a35db",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_021.part_00": {
+      "family_id": "chair_021",
+      "height": 32,
+      "rgba_sha256": "384bf697fab78ff74fb2b78fc612ca31a5acb9c1de09be542b05449332dfebe2",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_021.png",
+      "source_sheet_sha256": "1f9733f93492b766117a37ca4ca9decb60c285a9dfcccec989a39be48a965f4f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_021.part_01": {
+      "family_id": "chair_021",
+      "height": 32,
+      "rgba_sha256": "d3125828717542a4e70cc5c0533e1132b93c1982df83b6a828a723b75d6acffc",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_021.png",
+      "source_sheet_sha256": "1f9733f93492b766117a37ca4ca9decb60c285a9dfcccec989a39be48a965f4f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_021.part_02": {
+      "family_id": "chair_021",
+      "height": 32,
+      "rgba_sha256": "38cb18a9bdf3c0c8c3d73fee28ccc299707329663637f5ae7a9cdb1d61772a34",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_021.png",
+      "source_sheet_sha256": "1f9733f93492b766117a37ca4ca9decb60c285a9dfcccec989a39be48a965f4f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_021.part_03": {
+      "family_id": "chair_021",
+      "height": 32,
+      "rgba_sha256": "366dbe44e41b3b38188747b52b0550c8a6cf679453d4c6508068d6d01ae7cc37",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_021.png",
+      "source_sheet_sha256": "1f9733f93492b766117a37ca4ca9decb60c285a9dfcccec989a39be48a965f4f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_022.part_00": {
+      "family_id": "chair_022",
+      "height": 32,
+      "rgba_sha256": "6c8b6d7983fb91e7f1ff267fe1a380c6fd28400413f948882b605f40d3c80eac",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_022.png",
+      "source_sheet_sha256": "be349376cd44cf401f75229dff63bf89a84ecdf16360d62aa3bf54f375eb4eca",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_022.part_01": {
+      "family_id": "chair_022",
+      "height": 32,
+      "rgba_sha256": "da200bb94df5a63ce2939f0e3f467e9a88e54b7b19121ab9dd81733641bf0c2b",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_022.png",
+      "source_sheet_sha256": "be349376cd44cf401f75229dff63bf89a84ecdf16360d62aa3bf54f375eb4eca",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_022.part_02": {
+      "family_id": "chair_022",
+      "height": 32,
+      "rgba_sha256": "c272610889f3488673e97cca16956b217f879f3898d5484589bc349cf243631c",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_022.png",
+      "source_sheet_sha256": "be349376cd44cf401f75229dff63bf89a84ecdf16360d62aa3bf54f375eb4eca",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_022.part_03": {
+      "family_id": "chair_022",
+      "height": 32,
+      "rgba_sha256": "f0471d97c750c95a1e042593ff22ad3c15d3b996f5e70120c8e43614e1bc32e6",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_022.png",
+      "source_sheet_sha256": "be349376cd44cf401f75229dff63bf89a84ecdf16360d62aa3bf54f375eb4eca",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_023.part_00": {
+      "family_id": "chair_023",
+      "height": 32,
+      "rgba_sha256": "6b5d726861f7cb34a68e9834b748f6d530a11773900a21d435e5d4c7812f2a0b",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_023.png",
+      "source_sheet_sha256": "89b8b936a22b0878a3efcd16071bed87406337766a2f0c37610cad653338ea0c",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_023.part_01": {
+      "family_id": "chair_023",
+      "height": 32,
+      "rgba_sha256": "514b3fdfa37828a5ba272427606a0949b6b856b97ce7cbbc832271ebb3201284",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_023.png",
+      "source_sheet_sha256": "89b8b936a22b0878a3efcd16071bed87406337766a2f0c37610cad653338ea0c",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_023.part_02": {
+      "family_id": "chair_023",
+      "height": 32,
+      "rgba_sha256": "4f94a5e2cfa792aa078acf633136ea9024afc65fc71ad1099ba9b355072a553e",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_023.png",
+      "source_sheet_sha256": "89b8b936a22b0878a3efcd16071bed87406337766a2f0c37610cad653338ea0c",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_023.part_03": {
+      "family_id": "chair_023",
+      "height": 32,
+      "rgba_sha256": "7c07ba846e79df9adf68b1a9e8b1cbb8b0c8b1b164e8aadce43874c0b2b7ea21",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_023.png",
+      "source_sheet_sha256": "89b8b936a22b0878a3efcd16071bed87406337766a2f0c37610cad653338ea0c",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_024.part_00": {
+      "family_id": "chair_024",
+      "height": 32,
+      "rgba_sha256": "afaf60773d2c0ae2e4c0e4152491f4482fa024e46706e16a3d2a782131a32514",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_024.png",
+      "source_sheet_sha256": "f9e31526efc93e76afa0ae12feabafa5de79f2a3c22b6663d708309953be644f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_024.part_01": {
+      "family_id": "chair_024",
+      "height": 32,
+      "rgba_sha256": "a4fd5a9fdf9cfc117fe91fe8090838e3754a9691e309c40f59e0a2ecd8e0e6be",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_024.png",
+      "source_sheet_sha256": "f9e31526efc93e76afa0ae12feabafa5de79f2a3c22b6663d708309953be644f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_024.part_02": {
+      "family_id": "chair_024",
+      "height": 32,
+      "rgba_sha256": "b3b21ed112601f6d322e0f5d88f3406eb5d04e6b77fb303137ca0ce441b78400",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_024.png",
+      "source_sheet_sha256": "f9e31526efc93e76afa0ae12feabafa5de79f2a3c22b6663d708309953be644f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_024.part_03": {
+      "family_id": "chair_024",
+      "height": 32,
+      "rgba_sha256": "16cf0a329f29ede9497654dbc941835a0a4b46f0f42fd228ecdc4d5fd2cb5b1b",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_024.png",
+      "source_sheet_sha256": "f9e31526efc93e76afa0ae12feabafa5de79f2a3c22b6663d708309953be644f",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_025.part_00": {
+      "family_id": "chair_025",
+      "height": 32,
+      "rgba_sha256": "db376e73703ae0ddc9491887abfa359f66ad01c8fb35e44120c44832540e6183",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_025.png",
+      "source_sheet_sha256": "745908f73f31fe564a927ff907c0e617835ddf2fb510be22d29b377c92a44e1d",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_025.part_01": {
+      "family_id": "chair_025",
+      "height": 32,
+      "rgba_sha256": "d02904782b47c83bb59600481973bb2d5848c25fb35556ae635e6bc4be5ebc9e",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_025.png",
+      "source_sheet_sha256": "745908f73f31fe564a927ff907c0e617835ddf2fb510be22d29b377c92a44e1d",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_025.part_02": {
+      "family_id": "chair_025",
+      "height": 32,
+      "rgba_sha256": "db376e73703ae0ddc9491887abfa359f66ad01c8fb35e44120c44832540e6183",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_025.png",
+      "source_sheet_sha256": "745908f73f31fe564a927ff907c0e617835ddf2fb510be22d29b377c92a44e1d",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_025.part_03": {
+      "family_id": "chair_025",
+      "height": 32,
+      "rgba_sha256": "54c839fb6079eb6dbfcbca13283999453abfdc1acd9d62a59b874ca28685ae07",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_025.png",
+      "source_sheet_sha256": "745908f73f31fe564a927ff907c0e617835ddf2fb510be22d29b377c92a44e1d",
+      "transparent": true,
+      "width": 21
+    },
+    "chair_026.part_00": {
+      "family_id": "chair_026",
+      "height": 32,
+      "rgba_sha256": "b86c6a968fd031ac1e5c00c4c20f296e3db2acb6785db5baecc02b1f4ed06411",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_026.png",
+      "source_sheet_sha256": "e9612c1fc5b1a6fce53190cac649afed235fb15fc7f7422b0dd71d8e26770396",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_026.part_01": {
+      "family_id": "chair_026",
+      "height": 32,
+      "rgba_sha256": "13da3de04e9369efc9dde56e3d18f40e25fa3828d44ffddb8cb53cc4a3710077",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_026.png",
+      "source_sheet_sha256": "e9612c1fc5b1a6fce53190cac649afed235fb15fc7f7422b0dd71d8e26770396",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_026.part_02": {
+      "family_id": "chair_026",
+      "height": 32,
+      "rgba_sha256": "b86c6a968fd031ac1e5c00c4c20f296e3db2acb6785db5baecc02b1f4ed06411",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_026.png",
+      "source_sheet_sha256": "e9612c1fc5b1a6fce53190cac649afed235fb15fc7f7422b0dd71d8e26770396",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_026.part_03": {
+      "family_id": "chair_026",
+      "height": 32,
+      "rgba_sha256": "54c839fb6079eb6dbfcbca13283999453abfdc1acd9d62a59b874ca28685ae07",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_026.png",
+      "source_sheet_sha256": "e9612c1fc5b1a6fce53190cac649afed235fb15fc7f7422b0dd71d8e26770396",
+      "transparent": true,
+      "width": 21
+    },
+    "chair_027.part_00": {
+      "family_id": "chair_027",
+      "height": 32,
+      "rgba_sha256": "29e16d3ce578252b5a1f45dfdd7e71bccf45efdda032787d8b886e4b233fecb9",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_027.png",
+      "source_sheet_sha256": "f8cc3ab32fecf9d553aa0bc6096981e7472e36e5e4ddc48887bef7acc9535948",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_027.part_01": {
+      "family_id": "chair_027",
+      "height": 32,
+      "rgba_sha256": "9afd2fb3a268bdea6e7b1744753a2c93138e16a75d55e31aac867fd80ed8c85d",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_027.png",
+      "source_sheet_sha256": "f8cc3ab32fecf9d553aa0bc6096981e7472e36e5e4ddc48887bef7acc9535948",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_027.part_02": {
+      "family_id": "chair_027",
+      "height": 32,
+      "rgba_sha256": "29e16d3ce578252b5a1f45dfdd7e71bccf45efdda032787d8b886e4b233fecb9",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_027.png",
+      "source_sheet_sha256": "f8cc3ab32fecf9d553aa0bc6096981e7472e36e5e4ddc48887bef7acc9535948",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_027.part_03": {
+      "family_id": "chair_027",
+      "height": 32,
+      "rgba_sha256": "54c839fb6079eb6dbfcbca13283999453abfdc1acd9d62a59b874ca28685ae07",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_027.png",
+      "source_sheet_sha256": "f8cc3ab32fecf9d553aa0bc6096981e7472e36e5e4ddc48887bef7acc9535948",
+      "transparent": true,
+      "width": 21
+    },
+    "chair_028.part_00": {
+      "family_id": "chair_028",
+      "height": 32,
+      "rgba_sha256": "888d841786689f89535266c322ae2f0162067698c0ef63fa674a2e374dd2a263",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_028.png",
+      "source_sheet_sha256": "bd5f910eeddec0c00a7ef09f7676bcdae5a3944447ad22f2b11d16cf5e5bb6ef",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_028.part_01": {
+      "family_id": "chair_028",
+      "height": 32,
+      "rgba_sha256": "b17804740dc90fc3b6f67d7d7d92a907f491ecb3cb4cc53762175669cae3dc14",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_028.png",
+      "source_sheet_sha256": "bd5f910eeddec0c00a7ef09f7676bcdae5a3944447ad22f2b11d16cf5e5bb6ef",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_028.part_02": {
+      "family_id": "chair_028",
+      "height": 32,
+      "rgba_sha256": "888d841786689f89535266c322ae2f0162067698c0ef63fa674a2e374dd2a263",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_028.png",
+      "source_sheet_sha256": "bd5f910eeddec0c00a7ef09f7676bcdae5a3944447ad22f2b11d16cf5e5bb6ef",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_028.part_03": {
+      "family_id": "chair_028",
+      "height": 32,
+      "rgba_sha256": "b5c43f442fd510dfc017512d526dc4edbb7c95852b5dcf541eac0b6b0addcbcd",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_028.png",
+      "source_sheet_sha256": "bd5f910eeddec0c00a7ef09f7676bcdae5a3944447ad22f2b11d16cf5e5bb6ef",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_029.part_00": {
+      "family_id": "chair_029",
+      "height": 32,
+      "rgba_sha256": "32b8d7b659ae2d0a9adc1e4086ebf2360bc43c12ac4d3d0656eb9a73abbb55ac",
+      "role": "part_00",
+      "source_rect": [
+        0,
+        0,
+        21,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_029.png",
+      "source_sheet_sha256": "35a62ee2e42287e1e90de641c06930a51d33da96d824ce74bfb4c2b714bb8ad2",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_029.part_01": {
+      "family_id": "chair_029",
+      "height": 32,
+      "rgba_sha256": "70352ed954a5c2df7eff40bc99d9d0b74f16b65df7f98198f57d73b4fdeffa50",
+      "role": "part_01",
+      "source_rect": [
+        21,
+        0,
+        42,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_029.png",
+      "source_sheet_sha256": "35a62ee2e42287e1e90de641c06930a51d33da96d824ce74bfb4c2b714bb8ad2",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_029.part_02": {
+      "family_id": "chair_029",
+      "height": 32,
+      "rgba_sha256": "c86981a3600a2df37b5796ea982309a7db1a9c8cffde9bed6b8229e17ab554d2",
+      "role": "part_02",
+      "source_rect": [
+        42,
+        0,
+        63,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_029.png",
+      "source_sheet_sha256": "35a62ee2e42287e1e90de641c06930a51d33da96d824ce74bfb4c2b714bb8ad2",
+      "transparent": false,
+      "width": 21
+    },
+    "chair_029.part_03": {
+      "family_id": "chair_029",
+      "height": 32,
+      "rgba_sha256": "88fbbff8b9a044cae98ec6c897d70d9f2455b97bc47e36f0fbf9ef257462947b",
+      "role": "part_03",
+      "source_rect": [
+        63,
+        0,
+        84,
+        32
+      ],
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/chair_029.png",
+      "source_sheet_sha256": "35a62ee2e42287e1e90de641c06930a51d33da96d824ce74bfb4c2b714bb8ad2",
+      "transparent": false,
+      "width": 21
+    }
+  },
+  "schema": "gds.chair_source_reference.v1",
+  "source_package": "Game_Dev_Story_v2.6.9_EXTRACTED_ASSETS_2"
+}

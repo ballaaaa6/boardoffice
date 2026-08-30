@@ -1,0 +1,3576 @@
+{
+  "schema": "gds_floor_skins_v1",
+  "skins": {
+    "skin.floor00": {
+      "base_variant_id": "floor00.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_000.part_01",
+        "ceo.desk": "floor00.ceo_desk",
+        "ceo.pc": "pc_000.slot_00",
+        "work.family_a.chair": "chair_000.part_01",
+        "work.family_a.desk": "desk_000.part_00",
+        "work.family_a.pc": "pc_000.slot_00",
+        "work.family_b.chair": "chair_000.part_00",
+        "work.family_b.chair_sub": "chair_000.part_03",
+        "work.family_b.desk": "desk_000.part_00",
+        "work.family_b.pc": "pc_000.slot_01"
+      },
+      "explicit_placements": [],
+      "floor_id": "floor00",
+      "layout_id": "layout.floor00.small",
+      "legacy_family_mapping": {
+        "chair_family": 0,
+        "desk_family": 0,
+        "pc_family": 0,
+        "reception_family": 0
+      },
+      "placement_legacy_metadata": {
+        "ceo_desk_cell2": {
+          "role": "ceo_desk_cell2"
+        },
+        "ceo_pc": {
+          "role": "ceo_pc"
+        }
+      },
+      "semantic_bindings": {},
+      "skin_id": "skin.floor00"
+    },
+    "skin.floor01": {
+      "base_variant_id": "floor01.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_001.part_01",
+        "ceo.desk": "floor01.ceo_desk",
+        "ceo.pc": "pc_001.slot_00",
+        "work.family_a.chair": "chair_001.part_01",
+        "work.family_a.desk": "desk_001.part_00",
+        "work.family_a.pc": "pc_001.slot_00",
+        "work.family_b.chair": "chair_001.part_00",
+        "work.family_b.chair_sub": "chair_001.part_03",
+        "work.family_b.desk": "desk_001.part_01",
+        "work.family_b.pc": "pc_001.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor01.reception",
+          "layer": 430,
+          "object_type": "reception",
+          "placement_id": "reception",
+          "transform": "NORMAL",
+          "variant_id": "floor01.reception@normal",
+          "x_px": 218,
+          "y_px": 353
+        },
+        {
+          "asset_id": "floor01.boxes",
+          "layer": 460,
+          "object_type": "boxes",
+          "placement_id": "boxes",
+          "transform": "NORMAL",
+          "variant_id": "floor01.boxes@normal",
+          "x_px": 290,
+          "y_px": 370
+        },
+        {
+          "asset_id": "floor01.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor01.overlay.00@crop",
+          "x_px": 79,
+          "y_px": 352
+        }
+      ],
+      "floor_id": "floor01",
+      "layout_id": "layout.floor01.medium",
+      "legacy_family_mapping": {
+        "chair_family": 1,
+        "desk_family": 1,
+        "pc_family": 1,
+        "reception_family": 1
+      },
+      "placement_legacy_metadata": {
+        "ceo_chair": {
+          "role": "management chair"
+        },
+        "ceo_desk_cell2": {
+          "role": "ceo_desk_cell2"
+        },
+        "ceo_pc": {
+          "role": "ceo_pc"
+        }
+      },
+      "semantic_bindings": {},
+      "skin_id": "skin.floor01"
+    },
+    "skin.floor02": {
+      "base_variant_id": "floor02.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_002.part_02",
+        "ceo.desk": "floor02.ceo_desk",
+        "ceo.pc": "pc_002.slot_00",
+        "work.family_a.chair": "chair_002.part_01",
+        "work.family_a.desk": "desk_002.part_00",
+        "work.family_a.pc": "pc_002.slot_00",
+        "work.family_b.chair": "chair_002.part_00",
+        "work.family_b.chair_sub": "chair_002.part_03",
+        "work.family_b.desk": "desk_002.part_01",
+        "work.family_b.pc": "pc_002.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor02.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor02.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor02.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor02.overlay.01@crop",
+          "x_px": 153,
+          "y_px": 311
+        },
+        {
+          "asset_id": "floor02.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor02.overlay.02@crop",
+          "x_px": 345,
+          "y_px": 265
+        }
+      ],
+      "floor_id": "floor02",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 2,
+        "desk_family": 2,
+        "pc_family": 2,
+        "reception_family": 2
+      },
+      "placement_legacy_metadata": {
+        "ceo_chair": {
+          "role": "management chair"
+        },
+        "ceo_desk_cell2": {
+          "role": "ceo_desk_cell2"
+        },
+        "ceo_pc": {
+          "role": "ceo_pc"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "floor02.reception",
+          "variant_id": "floor02.reception@normal",
+          "visual_bounds_px": {
+            "bottom": 55,
+            "left": 0,
+            "right": 78,
+            "top": 0
+          }
+        }
+      },
+      "skin_id": "skin.floor02"
+    },
+    "skin.floor03": {
+      "base_variant_id": "floor03.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_003.part_02",
+        "ceo.desk": "floor03.ceo_desk",
+        "ceo.pc": "pc_003.slot_00",
+        "work.family_a.chair": "chair_003.part_01",
+        "work.family_a.desk": "desk_003.part_00",
+        "work.family_a.pc": "pc_003.slot_00",
+        "work.family_b.chair": "chair_003.part_00",
+        "work.family_b.desk": "desk_003.part_01",
+        "work.family_b.pc": "pc_003.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor03.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor03.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor03.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor03.overlay.01@crop",
+          "x_px": 153,
+          "y_px": 311
+        },
+        {
+          "asset_id": "floor03.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor03.overlay.02@crop",
+          "x_px": 345,
+          "y_px": 363
+        },
+        {
+          "asset_id": "floor03.overlay.03",
+          "layer": 903,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_03",
+          "transform": "CROP",
+          "variant_id": "floor03.overlay.03@crop",
+          "x_px": 352,
+          "y_px": 253
+        },
+        {
+          "asset_id": "floor03.overlay.04",
+          "layer": 904,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_04",
+          "transform": "CROP",
+          "variant_id": "floor03.overlay.04@crop",
+          "x_px": 372,
+          "y_px": 242
+        }
+      ],
+      "floor_id": "floor03",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 3,
+        "desk_family": 3,
+        "pc_family": 3,
+        "reception_family": 3
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_003",
+          "variant_id": "reception_003@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor03"
+    },
+    "skin.floor04": {
+      "base_variant_id": "floor04.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_004.part_02",
+        "ceo.desk": "floor04.ceo_desk",
+        "ceo.pc": "pc_004.slot_00",
+        "work.family_a.chair": "chair_004.part_01",
+        "work.family_a.desk": "desk_004.part_00",
+        "work.family_a.pc": "pc_004.slot_00",
+        "work.family_b.chair": "chair_004.part_00",
+        "work.family_b.desk": "desk_004.part_01",
+        "work.family_b.pc": "pc_004.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor04.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor04.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        }
+      ],
+      "floor_id": "floor04",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 4,
+        "desk_family": 4,
+        "pc_family": 4,
+        "reception_family": 4
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_004",
+          "variant_id": "reception_004@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor04"
+    },
+    "skin.floor05": {
+      "base_variant_id": "floor05.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_005.part_02",
+        "ceo.desk": "floor05.ceo_desk",
+        "ceo.pc": "pc_005.slot_00",
+        "work.family_a.chair": "chair_005.part_01",
+        "work.family_a.desk": "desk_005.part_00",
+        "work.family_a.pc": "pc_005.slot_00",
+        "work.family_b.chair": "chair_005.part_00",
+        "work.family_b.desk": "desk_005.part_01",
+        "work.family_b.pc": "pc_005.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor05.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor05.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor05.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor05.overlay.01@crop",
+          "x_px": 277,
+          "y_px": 371
+        },
+        {
+          "asset_id": "floor05.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor05.overlay.02@crop",
+          "x_px": 346,
+          "y_px": 231
+        }
+      ],
+      "floor_id": "floor05",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 5,
+        "desk_family": 5,
+        "pc_family": 5,
+        "reception_family": 5
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_005",
+          "variant_id": "reception_005@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor05"
+    },
+    "skin.floor06": {
+      "base_variant_id": "floor06.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_006.part_02",
+        "ceo.desk": "floor06.ceo_desk",
+        "ceo.pc": "pc_006.slot_00",
+        "work.family_a.chair": "chair_006.part_01",
+        "work.family_a.desk": "desk_006.part_00",
+        "work.family_a.pc": "pc_006.slot_00",
+        "work.family_b.chair": "chair_006.part_00",
+        "work.family_b.desk": "desk_006.part_01",
+        "work.family_b.pc": "pc_006.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor06.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor06.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor06.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor06.overlay.01@crop",
+          "x_px": 385,
+          "y_px": 328
+        }
+      ],
+      "floor_id": "floor06",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 6,
+        "desk_family": 6,
+        "pc_family": 6,
+        "reception_family": 6
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_006",
+          "variant_id": "reception_006@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor06"
+    },
+    "skin.floor07": {
+      "base_variant_id": "floor07.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_007.part_02",
+        "ceo.desk": "floor07.ceo_desk",
+        "ceo.pc": "pc_007.slot_00",
+        "work.family_a.chair": "chair_007.part_01",
+        "work.family_a.desk": "desk_007.part_00",
+        "work.family_a.pc": "pc_007.slot_00",
+        "work.family_b.chair": "chair_007.part_00",
+        "work.family_b.desk": "desk_007.part_01",
+        "work.family_b.pc": "pc_007.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor07.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor07.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor07.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor07.overlay.01@crop",
+          "x_px": 363,
+          "y_px": 272
+        }
+      ],
+      "floor_id": "floor07",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 7,
+        "desk_family": 7,
+        "pc_family": 7,
+        "reception_family": 7
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_007",
+          "variant_id": "reception_007@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor07"
+    },
+    "skin.floor08": {
+      "base_variant_id": "floor08.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_008.part_02",
+        "ceo.desk": "floor08.ceo_desk",
+        "ceo.pc": "pc_008.slot_00",
+        "work.family_a.chair": "chair_008.part_01",
+        "work.family_a.desk": "desk_008.part_00",
+        "work.family_a.pc": "pc_008.slot_00",
+        "work.family_b.chair": "chair_008.part_00",
+        "work.family_b.desk": "desk_008.part_01",
+        "work.family_b.pc": "pc_008.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor08.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor08.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor08.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor08.overlay.01@crop",
+          "x_px": 365,
+          "y_px": 258
+        }
+      ],
+      "floor_id": "floor08",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 8,
+        "desk_family": 8,
+        "pc_family": 8,
+        "reception_family": 8
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_008",
+          "variant_id": "reception_008@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor08"
+    },
+    "skin.floor09": {
+      "base_variant_id": "floor09.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_009.part_02",
+        "ceo.desk": "floor09.ceo_desk",
+        "ceo.pc": "pc_009.slot_00",
+        "work.family_a.chair": "chair_009.part_01",
+        "work.family_a.desk": "desk_009.part_00",
+        "work.family_a.pc": "pc_009.slot_00",
+        "work.family_b.chair": "chair_009.part_00",
+        "work.family_b.desk": "desk_009.part_01",
+        "work.family_b.pc": "pc_009.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor09.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor09.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor09.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor09.overlay.01@crop",
+          "x_px": 161,
+          "y_px": 315
+        }
+      ],
+      "floor_id": "floor09",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 9,
+        "desk_family": 9,
+        "pc_family": 9,
+        "reception_family": 9
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_009",
+          "variant_id": "reception_009@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 14
+          }
+        }
+      },
+      "skin_id": "skin.floor09"
+    },
+    "skin.floor11": {
+      "base_variant_id": "floor11.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_011.part_02",
+        "ceo.desk": "floor11.ceo_desk",
+        "ceo.pc": "pc_011.slot_00",
+        "work.family_a.chair": "chair_011.part_01",
+        "work.family_a.desk": "desk_011.part_00",
+        "work.family_a.pc": "pc_011.slot_00",
+        "work.family_b.chair": "chair_011.part_00",
+        "work.family_b.desk": "desk_011.part_01",
+        "work.family_b.pc": "pc_011.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor11.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor11.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor11.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor11.overlay.01@crop",
+          "x_px": 355,
+          "y_px": 362
+        },
+        {
+          "asset_id": "floor11.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor11.overlay.02@crop",
+          "x_px": 374,
+          "y_px": 379
+        },
+        {
+          "asset_id": "floor11.overlay.03",
+          "layer": 903,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_03",
+          "transform": "CROP",
+          "variant_id": "floor11.overlay.03@crop",
+          "x_px": 391,
+          "y_px": 353
+        },
+        {
+          "asset_id": "floor11.overlay.04",
+          "layer": 904,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_04",
+          "transform": "CROP",
+          "variant_id": "floor11.overlay.04@crop",
+          "x_px": 153,
+          "y_px": 311
+        }
+      ],
+      "floor_id": "floor11",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 11,
+        "desk_family": 11,
+        "pc_family": 11,
+        "reception_family": 11
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_011",
+          "variant_id": "reception_011@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 5
+          }
+        }
+      },
+      "skin_id": "skin.floor11"
+    },
+    "skin.floor12": {
+      "base_variant_id": "floor12.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_012.part_02",
+        "ceo.desk": "floor12.ceo_desk",
+        "ceo.pc": "pc_012.slot_00",
+        "work.family_a.chair": "chair_012.part_01",
+        "work.family_a.desk": "desk_012.part_00",
+        "work.family_a.pc": "pc_012.slot_00",
+        "work.family_b.chair": "chair_012.part_00",
+        "work.family_b.desk": "desk_012.part_01",
+        "work.family_b.pc": "pc_012.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor12.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor12.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor12.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor12.overlay.01@crop",
+          "x_px": 258,
+          "y_px": 389
+        },
+        {
+          "asset_id": "floor12.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor12.overlay.02@crop",
+          "x_px": 295,
+          "y_px": 375
+        }
+      ],
+      "floor_id": "floor12",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 12,
+        "desk_family": 12,
+        "pc_family": 12,
+        "reception_family": 12
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_012",
+          "variant_id": "reception_012@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 15
+          }
+        }
+      },
+      "skin_id": "skin.floor12"
+    },
+    "skin.floor13": {
+      "base_variant_id": "floor13.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_013.part_02",
+        "ceo.desk": "floor13.ceo_desk",
+        "ceo.pc": "pc_013.slot_00",
+        "work.family_a.chair": "chair_013.part_01",
+        "work.family_a.desk": "desk_013.part_00",
+        "work.family_a.pc": "pc_013.slot_00",
+        "work.family_b.chair": "chair_013.part_00",
+        "work.family_b.desk": "desk_013.part_01",
+        "work.family_b.pc": "pc_013.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor13.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor13.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor13.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor13.overlay.01@crop",
+          "x_px": 153,
+          "y_px": 311
+        }
+      ],
+      "floor_id": "floor13",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 13,
+        "desk_family": 13,
+        "pc_family": 13,
+        "reception_family": 13
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_013",
+          "variant_id": "reception_013@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor13"
+    },
+    "skin.floor14": {
+      "base_variant_id": "floor14.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_014.part_02",
+        "ceo.desk": "floor14.ceo_desk",
+        "ceo.pc": "pc_014.slot_00",
+        "work.family_a.chair": "chair_014.part_01",
+        "work.family_a.desk": "desk_014.part_00",
+        "work.family_a.pc": "pc_014.slot_00",
+        "work.family_b.chair": "chair_014.part_00",
+        "work.family_b.desk": "desk_014.part_01",
+        "work.family_b.pc": "pc_014.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor14.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor14.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor14.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor14.overlay.01@crop",
+          "x_px": 153,
+          "y_px": 311
+        },
+        {
+          "asset_id": "floor14.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor14.overlay.02@crop",
+          "x_px": 358,
+          "y_px": 253
+        }
+      ],
+      "floor_id": "floor14",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 14,
+        "desk_family": 14,
+        "pc_family": 14,
+        "reception_family": 14
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_014",
+          "variant_id": "reception_014@normal",
+          "visual_bounds_px": {
+            "bottom": 79,
+            "left": 1,
+            "right": 74,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor14"
+    },
+    "skin.floor15": {
+      "base_variant_id": "floor15.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_015.part_02",
+        "ceo.desk": "floor15.ceo_desk",
+        "ceo.pc": "pc_015.slot_00",
+        "work.family_a.chair": "chair_015.part_01",
+        "work.family_a.desk": "desk_015.part_00",
+        "work.family_a.pc": "pc_015.slot_00",
+        "work.family_b.chair": "chair_015.part_00",
+        "work.family_b.desk": "desk_015.part_01",
+        "work.family_b.pc": "pc_015.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor15.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor15.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor15.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor15.overlay.01@crop",
+          "x_px": 276,
+          "y_px": 380
+        },
+        {
+          "asset_id": "floor15.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor15.overlay.02@crop",
+          "x_px": 386,
+          "y_px": 367
+        },
+        {
+          "asset_id": "floor15.overlay.03",
+          "layer": 903,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_03",
+          "transform": "CROP",
+          "variant_id": "floor15.overlay.03@crop",
+          "x_px": 398,
+          "y_px": 326
+        }
+      ],
+      "floor_id": "floor15",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 15,
+        "desk_family": 15,
+        "pc_family": 15,
+        "reception_family": 15
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_015",
+          "variant_id": "reception_015@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 19
+          }
+        }
+      },
+      "skin_id": "skin.floor15"
+    },
+    "skin.floor16": {
+      "base_variant_id": "floor16.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_016.part_02",
+        "ceo.desk": "floor16.ceo_desk",
+        "ceo.pc": "pc_016.slot_00",
+        "work.family_a.chair": "chair_016.part_01",
+        "work.family_a.desk": "desk_016.part_00",
+        "work.family_a.pc": "pc_016.slot_00",
+        "work.family_b.chair": "chair_016.part_00",
+        "work.family_b.desk": "desk_016.part_01",
+        "work.family_b.pc": "pc_016.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor16.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor16.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor16.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor16.overlay.01@crop",
+          "x_px": 280,
+          "y_px": 380
+        },
+        {
+          "asset_id": "floor16.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor16.overlay.02@crop",
+          "x_px": 156,
+          "y_px": 314
+        },
+        {
+          "asset_id": "floor16.overlay.03",
+          "layer": 903,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_03",
+          "transform": "CROP",
+          "variant_id": "floor16.overlay.03@crop",
+          "x_px": 152,
+          "y_px": 388
+        }
+      ],
+      "floor_id": "floor16",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 16,
+        "desk_family": 16,
+        "pc_family": 16,
+        "reception_family": 16
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_016",
+          "variant_id": "reception_016@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 21
+          }
+        }
+      },
+      "skin_id": "skin.floor16"
+    },
+    "skin.floor17": {
+      "base_variant_id": "floor17.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_017.part_02",
+        "ceo.desk": "floor17.ceo_desk",
+        "ceo.pc": "pc_017.slot_00",
+        "work.family_a.chair": "chair_017.part_01",
+        "work.family_a.desk": "desk_017.part_00",
+        "work.family_a.pc": "pc_017.slot_00",
+        "work.family_b.chair": "chair_017.part_00",
+        "work.family_b.desk": "desk_017.part_01",
+        "work.family_b.pc": "pc_017.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor17.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor17.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor17.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor17.overlay.01@crop",
+          "x_px": 271,
+          "y_px": 400
+        }
+      ],
+      "floor_id": "floor17",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 17,
+        "desk_family": 17,
+        "pc_family": 17,
+        "reception_family": 17
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_017",
+          "variant_id": "reception_017@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 19
+          }
+        }
+      },
+      "skin_id": "skin.floor17"
+    },
+    "skin.floor18": {
+      "base_variant_id": "floor18.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_018.part_02",
+        "ceo.desk": "floor18.ceo_desk",
+        "ceo.pc": "pc_018.slot_00",
+        "work.family_a.chair": "chair_018.part_01",
+        "work.family_a.desk": "desk_018.part_00",
+        "work.family_a.pc": "pc_018.slot_00",
+        "work.family_b.chair": "chair_018.part_00",
+        "work.family_b.desk": "desk_018.part_01",
+        "work.family_b.pc": "pc_018.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor18.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor18.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor18.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor18.overlay.01@crop",
+          "x_px": 153,
+          "y_px": 310
+        },
+        {
+          "asset_id": "floor18.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor18.overlay.02@crop",
+          "x_px": 302,
+          "y_px": 377
+        },
+        {
+          "asset_id": "floor18.overlay.03",
+          "layer": 903,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_03",
+          "transform": "CROP",
+          "variant_id": "floor18.overlay.03@crop",
+          "x_px": 165,
+          "y_px": 314
+        },
+        {
+          "asset_id": "floor18.overlay.04",
+          "layer": 904,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_04",
+          "transform": "CROP",
+          "variant_id": "floor18.overlay.04@crop",
+          "x_px": 165,
+          "y_px": 314
+        },
+        {
+          "asset_id": "floor18.overlay.05",
+          "layer": 905,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_05",
+          "transform": "CROP",
+          "variant_id": "floor18.overlay.05@crop",
+          "x_px": 165,
+          "y_px": 314
+        },
+        {
+          "asset_id": "floor18.overlay.06",
+          "layer": 906,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_06",
+          "transform": "CROP",
+          "variant_id": "floor18.overlay.06@crop",
+          "x_px": 399,
+          "y_px": 337
+        },
+        {
+          "asset_id": "floor18.overlay.07",
+          "layer": 907,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_07",
+          "transform": "CROP",
+          "variant_id": "floor18.overlay.07@crop",
+          "x_px": 350,
+          "y_px": 242
+        }
+      ],
+      "floor_id": "floor18",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 18,
+        "desk_family": 18,
+        "pc_family": 18,
+        "reception_family": 18
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_018",
+          "variant_id": "reception_018@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 64,
+            "top": 21
+          }
+        }
+      },
+      "skin_id": "skin.floor18"
+    },
+    "skin.floor19": {
+      "base_variant_id": "floor19.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_019.part_02",
+        "ceo.desk": "floor19.ceo_desk",
+        "ceo.pc": "pc_019.slot_00",
+        "work.family_a.chair": "chair_019.part_01",
+        "work.family_a.desk": "desk_019.part_00",
+        "work.family_a.pc": "pc_019.slot_00",
+        "work.family_b.chair": "chair_019.part_00",
+        "work.family_b.desk": "desk_019.part_01",
+        "work.family_b.pc": "pc_019.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor19.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor19.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor19.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor19.overlay.01@crop",
+          "x_px": 163,
+          "y_px": 310
+        },
+        {
+          "asset_id": "floor19.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor19.overlay.02@crop",
+          "x_px": 338,
+          "y_px": 345
+        },
+        {
+          "asset_id": "floor19.overlay.03",
+          "layer": 903,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_03",
+          "transform": "CROP",
+          "variant_id": "floor19.overlay.03@crop",
+          "x_px": 282,
+          "y_px": 384
+        },
+        {
+          "asset_id": "floor19.overlay.04",
+          "layer": 904,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_04",
+          "transform": "CROP",
+          "variant_id": "floor19.overlay.04@crop",
+          "x_px": 301,
+          "y_px": 394
+        },
+        {
+          "asset_id": "floor19.overlay.05",
+          "layer": 905,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_05",
+          "transform": "CROP",
+          "variant_id": "floor19.overlay.05@crop",
+          "x_px": 320,
+          "y_px": 403
+        }
+      ],
+      "floor_id": "floor19",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 19,
+        "desk_family": 19,
+        "pc_family": 19,
+        "reception_family": 19
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_019",
+          "variant_id": "reception_019@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor19"
+    },
+    "skin.floor21": {
+      "base_variant_id": "floor21.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_021.part_02",
+        "ceo.desk": "floor21.ceo_desk",
+        "ceo.pc": "pc_021.slot_00",
+        "work.family_a.chair": "chair_021.part_01",
+        "work.family_a.desk": "desk_021.part_00",
+        "work.family_a.pc": "pc_021.slot_00",
+        "work.family_b.chair": "chair_021.part_00",
+        "work.family_b.desk": "desk_021.part_01",
+        "work.family_b.pc": "pc_021.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor21.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor21.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor21.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor21.overlay.01@crop",
+          "x_px": 267,
+          "y_px": 374
+        }
+      ],
+      "floor_id": "floor21",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 21,
+        "desk_family": 21,
+        "pc_family": 21,
+        "reception_family": 21
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_021",
+          "variant_id": "reception_021@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor21"
+    },
+    "skin.floor31": {
+      "base_variant_id": "floor31.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_015.part_02",
+        "ceo.desk": "floor31.ceo_desk",
+        "ceo.pc": "pc_031.slot_00",
+        "work.family_a.chair": "chair_015.part_01",
+        "work.family_a.desk": "desk_017.part_00",
+        "work.family_a.pc": "pc_031.slot_00",
+        "work.family_b.chair": "chair_015.part_00",
+        "work.family_b.desk": "desk_017.part_01",
+        "work.family_b.pc": "pc_031.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor31.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor31.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor31.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor31.overlay.01@crop",
+          "x_px": 289,
+          "y_px": 392
+        },
+        {
+          "asset_id": "floor31.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor31.overlay.02@crop",
+          "x_px": 355,
+          "y_px": 265
+        }
+      ],
+      "floor_id": "floor31",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 15,
+        "desk_family": 17,
+        "pc_family": 31,
+        "reception_family": 31
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_031",
+          "variant_id": "reception_031@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 24
+          }
+        }
+      },
+      "skin_id": "skin.floor31"
+    },
+    "skin.floor33": {
+      "base_variant_id": "floor33.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_013.part_02",
+        "ceo.desk": "floor33.ceo_desk",
+        "ceo.pc": "pc_033.slot_00",
+        "work.family_a.chair": "chair_013.part_01",
+        "work.family_a.desk": "desk_005.part_00",
+        "work.family_a.pc": "pc_033.slot_00",
+        "work.family_b.chair": "chair_013.part_00",
+        "work.family_b.desk": "desk_005.part_01",
+        "work.family_b.pc": "pc_033.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor33.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor33.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor33.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor33.overlay.01@crop",
+          "x_px": 194,
+          "y_px": 338
+        },
+        {
+          "asset_id": "floor33.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor33.overlay.02@crop",
+          "x_px": 163,
+          "y_px": 317
+        }
+      ],
+      "floor_id": "floor33",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 13,
+        "desk_family": 5,
+        "pc_family": 33,
+        "reception_family": 33
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_033",
+          "variant_id": "reception_033@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 19
+          }
+        }
+      },
+      "skin_id": "skin.floor33"
+    },
+    "skin.floor34": {
+      "base_variant_id": "floor34.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_003.part_02",
+        "ceo.desk": "floor34.ceo_desk",
+        "ceo.pc": "pc_034.slot_00",
+        "work.family_a.chair": "chair_003.part_01",
+        "work.family_a.desk": "desk_021.part_00",
+        "work.family_a.pc": "pc_034.slot_00",
+        "work.family_b.chair": "chair_003.part_00",
+        "work.family_b.desk": "desk_021.part_01",
+        "work.family_b.pc": "pc_034.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor34.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor34.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor34.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor34.overlay.01@crop",
+          "x_px": 131,
+          "y_px": 275
+        }
+      ],
+      "floor_id": "floor34",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 3,
+        "desk_family": 21,
+        "pc_family": 34,
+        "reception_family": 34
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_034",
+          "variant_id": "reception_034@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor34"
+    },
+    "skin.floor35": {
+      "base_variant_id": "floor35.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_023.part_02",
+        "ceo.desk": "floor35.ceo_desk",
+        "ceo.pc": "pc_035.slot_00",
+        "work.family_a.chair": "chair_023.part_01",
+        "work.family_a.desk": "desk_027.part_00",
+        "work.family_a.pc": "pc_035.slot_00",
+        "work.family_b.chair": "chair_023.part_00",
+        "work.family_b.desk": "desk_027.part_01",
+        "work.family_b.pc": "pc_035.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor35.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor35.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor35.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor35.overlay.01@crop",
+          "x_px": 274,
+          "y_px": 354
+        },
+        {
+          "asset_id": "floor35.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor35.overlay.02@crop",
+          "x_px": 337,
+          "y_px": 387
+        },
+        {
+          "asset_id": "floor35.overlay.03",
+          "layer": 903,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_03",
+          "transform": "CROP",
+          "variant_id": "floor35.overlay.03@crop",
+          "x_px": 369,
+          "y_px": 369
+        },
+        {
+          "asset_id": "floor35.overlay.04",
+          "layer": 904,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_04",
+          "transform": "CROP",
+          "variant_id": "floor35.overlay.04@crop",
+          "x_px": 404,
+          "y_px": 351
+        }
+      ],
+      "floor_id": "floor35",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 23,
+        "desk_family": 27,
+        "pc_family": 35,
+        "reception_family": 35
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_035",
+          "variant_id": "reception_035@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 19
+          }
+        }
+      },
+      "skin_id": "skin.floor35"
+    },
+    "skin.floor36": {
+      "base_variant_id": "floor36.base@normal",
+      "bindings": {
+        "ceo.chair": "chair_012.part_02",
+        "ceo.desk": "floor36.ceo_desk",
+        "ceo.pc": "pc_025.slot_00",
+        "work.family_a.chair": "chair_012.part_01",
+        "work.family_a.desk": "desk_016.part_00",
+        "work.family_a.pc": "pc_025.slot_00",
+        "work.family_b.chair": "chair_012.part_00",
+        "work.family_b.desk": "desk_016.part_01",
+        "work.family_b.pc": "pc_025.slot_01"
+      },
+      "explicit_placements": [
+        {
+          "asset_id": "floor36.overlay.00",
+          "layer": 900,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_00",
+          "transform": "CROP",
+          "variant_id": "floor36.overlay.00@crop",
+          "x_px": 70,
+          "y_px": 344
+        },
+        {
+          "asset_id": "floor36.overlay.01",
+          "layer": 901,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_01",
+          "transform": "CROP",
+          "variant_id": "floor36.overlay.01@crop",
+          "x_px": 353,
+          "y_px": 351
+        },
+        {
+          "asset_id": "floor36.overlay.02",
+          "layer": 902,
+          "legacy_metadata": {
+            "role": "top_character_occluder"
+          },
+          "object_type": "foreground_overlay",
+          "placement_id": "foreground_overlay_02",
+          "transform": "CROP",
+          "variant_id": "floor36.overlay.02@crop",
+          "x_px": 352,
+          "y_px": 244
+        }
+      ],
+      "floor_id": "floor36",
+      "layout_id": "layout.floor02.large",
+      "legacy_family_mapping": {
+        "chair_family": 12,
+        "desk_family": 16,
+        "pc_family": 25,
+        "reception_family": 36
+      },
+      "placement_legacy_metadata": {
+        "ws1_chair_main": {
+          "facing": "rear"
+        },
+        "ws1_desk": {
+          "facing": "rear"
+        },
+        "ws1_pc": {
+          "facing": "rear"
+        },
+        "ws2_chair_main": {
+          "facing": "rear"
+        },
+        "ws2_desk": {
+          "facing": "rear"
+        },
+        "ws2_pc": {
+          "facing": "rear"
+        },
+        "ws3_chair_main": {
+          "facing": "front"
+        },
+        "ws3_desk": {
+          "facing": "front"
+        },
+        "ws3_pc": {
+          "facing": "front"
+        },
+        "ws4_chair_main": {
+          "facing": "front"
+        },
+        "ws4_desk": {
+          "facing": "front"
+        },
+        "ws4_pc": {
+          "facing": "front"
+        },
+        "ws5_chair_main": {
+          "facing": "rear"
+        },
+        "ws5_desk": {
+          "facing": "rear"
+        },
+        "ws5_pc": {
+          "facing": "rear"
+        },
+        "ws6_chair_main": {
+          "facing": "rear"
+        },
+        "ws6_desk": {
+          "facing": "rear"
+        },
+        "ws6_pc": {
+          "facing": "rear"
+        },
+        "ws7_chair_main": {
+          "facing": "front"
+        },
+        "ws7_desk": {
+          "facing": "front"
+        },
+        "ws7_pc": {
+          "facing": "front"
+        },
+        "ws8_chair_main": {
+          "facing": "front"
+        },
+        "ws8_desk": {
+          "facing": "front"
+        },
+        "ws8_pc": {
+          "facing": "front"
+        }
+      },
+      "semantic_bindings": {
+        "reception": {
+          "asset_id": "reception_036",
+          "variant_id": "reception_036@normal",
+          "visual_bounds_px": {
+            "bottom": 80,
+            "left": 0,
+            "right": 78,
+            "top": 25
+          }
+        }
+      },
+      "skin_id": "skin.floor36"
+    }
+  }
+}

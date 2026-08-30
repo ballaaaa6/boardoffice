@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema",
+    "skins"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds_floor_skins_v1"
+    },
+    "skins": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "skin_id",
+          "floor_id",
+          "layout_id",
+          "base_variant_id",
+          "bindings",
+          "semantic_bindings",
+          "explicit_placements",
+          "placement_legacy_metadata",
+          "legacy_family_mapping"
+        ],
+        "properties": {
+          "skin_id": {
+            "type": "string"
+          },
+          "floor_id": {
+            "type": "string",
+            "pattern": "^floor[0-9]+$"
+          },
+          "layout_id": {
+            "type": "string"
+          },
+          "base_variant_id": {
+            "type": "string"
+          },
+          "bindings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "explicit_placements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "placement_id",
+                "object_type",
+                "asset_id",
+                "variant_id",
+                "transform",
+                "x_px",
+                "y_px",
+                "layer"
+              ],
+              "properties": {
+                "placement_id": {
+                  "type": "string"
+                },
+                "object_type": {
+                  "enum": [
+                    "reception",
+                    "foreground_overlay",
+                    "boxes"
+                  ]
+                },
+                "asset_id": {
+                  "type": "string"
+                },
+                "variant_id": {
+                  "type": "string"
+                },
+                "transform": {
+                  "enum": [
+                    "NORMAL",
+                    "CROP",
+                    "FLIP_X"
+                  ]
+                },
+                "x_px": {
+                  "type": "integer"
+                },
+                "y_px": {
+                  "type": "integer"
+                },
+                "layer": {
+                  "type": "integer"
+                },
+                "legacy_metadata": {
+                  "type": "object"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "placement_legacy_metadata": {
+            "type": "object"
+          },
+          "legacy_family_mapping": {
+            "type": "object"
+          },
+          "semantic_bindings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "required": [
+                "asset_id",
+                "variant_id",
+                "visual_bounds_px"
+              ],
+              "properties": {
+                "asset_id": {
+                  "type": "string"
+                },
+                "variant_id": {
+                  "type": "string"
+                },
+                "visual_bounds_px": {
+                  "type": "object",
+                  "required": [
+                    "left",
+                    "top",
+                    "right",
+                    "bottom"
+                  ],
+                  "properties": {
+                    "left": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "top": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "right": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "bottom": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

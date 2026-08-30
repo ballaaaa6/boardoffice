@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_frame_registry_v1",
+  "title": "GDS Central Character Frame Registry",
+  "type": "object",
+  "required": ["schema", "render_profile", "frames"],
+  "properties": {
+    "schema": {"const": "gds_frame_registry_v1"},
+    "render_profile": {
+      "type": "object",
+      "required": ["canvas", "origin"],
+      "properties": {
+        "canvas": {"const": [32, 42]},
+        "origin": {"const": [5, 2]}
+      },
+      "additionalProperties": true
+    },
+    "frames": {
+      "type": "object",
+      "minProperties": 47
+    }
+  },
+  "additionalProperties": true
+}

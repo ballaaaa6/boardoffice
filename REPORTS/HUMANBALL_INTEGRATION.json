@@ -1,0 +1,73 @@
+{
+  "integration": {
+    "cell_px": [
+      18,
+      18
+    ],
+    "channel": "work_popup_overlay",
+    "coexists_with_work_vfx": true,
+    "humanball_count": 6,
+    "navigation_cells_reserved": 0,
+    "navigation_occupancy_neutral": true,
+    "static_floor_contract_unchanged": true,
+    "supported_directions": [
+      "NW",
+      "SE",
+      "SW"
+    ],
+    "sw_policy": "derive popup relation from SE without mirroring HumanBall artwork or authored world furniture",
+    "timeline": {
+      "frame_ms": 140,
+      "frames": 12,
+      "hidden": 2,
+      "loop": true,
+      "visible": 10
+    },
+    "work_vfx_count_unchanged": 11,
+    "work_vfx_layer_contract_unchanged": true
+  },
+  "phase8_boundary": "HumanBall is ready for WorkSeat normal_work rendering; Phase 8 navigation/pathfinding order remains unchanged.",
+  "public_api": [
+    "CentralGameCore.list_humanballs()",
+    "CentralGameCore.get_humanball(humanball_id)",
+    "CentralGameCore.render_humanball(humanball_id, direction, human_size=(32,42))",
+    "CentralGameCore.render_floor_with_work_effects(... assignments with optional humanball_id ...)"
+  ],
+  "release": {
+    "baseline_package": "GDS_CENTRAL_GAME_CORE_v1.6.0",
+    "baseline_zip_sha256": "da5282a15924aff989576febb5f85524af343aef3eea73cff6dd97e01ffe3082",
+    "merge_request_status": "author_requested_merge_2026_08_30",
+    "package": "GDS_CENTRAL_GAME_CORE_v1.6.1"
+  },
+  "review_outputs": {
+    "floor06_review_report": "REPORTS/FLOOR06_HUMANBALL_REVIEW.json",
+    "humanball_motion_review": "PREVIEW/humanball/floor06/floor06_humanball_motion_review.png",
+    "humanball_only_gif": "PREVIEW/humanball/floor06/floor06_humanball_only.gif",
+    "vfx_plus_humanball_gif": "PREVIEW/humanball/floor06/floor06_vfx_plus_humanball.gif",
+    "vfx_plus_humanball_review": "PREVIEW/humanball/floor06/floor06_vfx_plus_humanball_review.png"
+  },
+  "schema": "gds.humanball_integration.v1",
+  "source": {
+    "artwork_policy": "source_exact_project_assets_only_no_generative_image",
+    "package": "GDS_NORMAL_WORK_EFFECTS_SUITE",
+    "source_status": "final_locked",
+    "subpackage": "01_HUMANBALL",
+    "zip_sha256": "c93a692823ef8afa4b3bbecd81498b2b89dbc2c54e17498ee59c1cffa79982d3"
+  },
+  "status": "MERGED_VERIFIED",
+  "verification": {
+    "central_audit": "PASS",
+    "global_palette_gif": "PASS",
+    "ground_footprint_audit": "PASS",
+    "humanball_gif_timeline": "12 frames x 140 ms PASS",
+    "navigation_failed_floors": 0,
+    "navigation_failed_workstations": 0,
+    "navigation_floors": 25,
+    "navigation_occupancy_audit": "PASS",
+    "navigation_workstations": 219,
+    "phase6_audit": "PASS",
+    "pytest": "55 passed",
+    "room_navigation_audit": "PASS",
+    "work_seat_audit": "PASS"
+  }
+}

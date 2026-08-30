@@ -1,0 +1,30 @@
+{
+  "schema": "gds_fine_occupancy_grid_v1",
+  "profiles": {
+    "grid.iso.occupancy_fine.v1": {
+      "profile_id": "grid.iso.occupancy_fine.v1",
+      "status": "author_approved_permanent_canonical",
+      "coordinate_frame_id": "coord.pixel_iso.v1",
+      "tile_width_px": 4,
+      "tile_height_px": 2,
+      "u_step_px": [
+        2,
+        1
+      ],
+      "v_step_px": [
+        -2,
+        1
+      ],
+      "grid_origin_px": [
+        28,
+        0
+      ],
+      "purpose": "permanent canonical lattice for room domains, portals, ground footprints, occupancy and navigation",
+      "provenance": {
+        "authoring_package": "GDS_FINE_GRID_FLOOR_AUTHORING_v1.0.1",
+        "room_navigation_package": "GDS_ROOM_NAV_FOUNDATION_v0.1.0",
+        "approval_status": "author_approved"
+      }
+    }
+  }
+}

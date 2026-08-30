@@ -1,0 +1,701 @@
+{
+  "schema": "gds_effect_registry_v1",
+  "effect_count": 11,
+  "effect_order": [
+    "fire_original",
+    "speed_wind",
+    "idea_overclock",
+    "coffee_energy",
+    "sunshine_bloom",
+    "heart_burst",
+    "cherry_blossom_swirl",
+    "thunder_cloud",
+    "stock_crash",
+    "low_battery_drain",
+    "static_noise_field"
+  ],
+  "canonical_effect_id": "fire_original",
+  "fallback_effect_id": "fire_original",
+  "supported_action": {
+    "action": "work",
+    "subaction": "normal_work"
+  },
+  "direction_rules": {
+    "NW": {
+      "source": "native_profile"
+    },
+    "SE": {
+      "source": "native_profile"
+    },
+    "SW": {
+      "source": "derived",
+      "derived_from": "SE",
+      "transform": "mirror_y"
+    }
+  },
+  "work_local_profile": {
+    "canvas": [
+      40,
+      72
+    ],
+    "scale": 1,
+    "NW": {
+      "effect_pos": [
+        0,
+        0
+      ],
+      "character_pos": [
+        1,
+        30
+      ]
+    },
+    "SE": {
+      "effect_pos": [
+        0,
+        0
+      ],
+      "character_pos": [
+        4,
+        27
+      ]
+    },
+    "SW": {
+      "derived_from": "SE",
+      "transform": "mirror_y"
+    },
+    "placement_provenance": "Derived exactly from FIREMATCH approved scene coordinates at source-pixel scale."
+  },
+  "effects": {
+    "fire_original": {
+      "effect_id": "fire_original",
+      "title": "Fire Original",
+      "category": "core",
+      "mood": "core",
+      "intensity": "canonical",
+      "trigger_tags": [
+        "default_power",
+        "canonical",
+        "fallback"
+      ],
+      "role": {
+        "group": "core",
+        "is_canonical": true,
+        "is_fallback": true
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 4,
+        "output_frames": 8,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          0,
+          1,
+          1,
+          2,
+          2,
+          3,
+          3
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.fire_original.frame.00",
+        "effect.fire_original.frame.01",
+        "effect.fire_original.frame.02",
+        "effect.fire_original.frame.03"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "speed_wind": {
+      "effect_id": "speed_wind",
+      "title": "Speed Wind",
+      "category": "boost_performance",
+      "mood": "positive",
+      "intensity": "high",
+      "trigger_tags": [
+        "speed_up",
+        "fast_work"
+      ],
+      "role": {
+        "group": "boost_performance",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.speed_wind.frame.00",
+        "effect.speed_wind.frame.01",
+        "effect.speed_wind.frame.02",
+        "effect.speed_wind.frame.03",
+        "effect.speed_wind.frame.04",
+        "effect.speed_wind.frame.05",
+        "effect.speed_wind.frame.06",
+        "effect.speed_wind.frame.07",
+        "effect.speed_wind.frame.08",
+        "effect.speed_wind.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "idea_overclock": {
+      "effect_id": "idea_overclock",
+      "title": "Idea Overclock",
+      "category": "boost_performance",
+      "mood": "positive",
+      "intensity": "high",
+      "trigger_tags": [
+        "idea_bonus",
+        "creative_focus"
+      ],
+      "role": {
+        "group": "boost_performance",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.idea_overclock.frame.00",
+        "effect.idea_overclock.frame.01",
+        "effect.idea_overclock.frame.02",
+        "effect.idea_overclock.frame.03",
+        "effect.idea_overclock.frame.04",
+        "effect.idea_overclock.frame.05",
+        "effect.idea_overclock.frame.06",
+        "effect.idea_overclock.frame.07",
+        "effect.idea_overclock.frame.08",
+        "effect.idea_overclock.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "coffee_energy": {
+      "effect_id": "coffee_energy",
+      "title": "Coffee Energy",
+      "category": "boost_performance",
+      "mood": "positive",
+      "intensity": "high",
+      "trigger_tags": [
+        "energy_boost",
+        "caffeine"
+      ],
+      "role": {
+        "group": "boost_performance",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.coffee_energy.frame.00",
+        "effect.coffee_energy.frame.01",
+        "effect.coffee_energy.frame.02",
+        "effect.coffee_energy.frame.03",
+        "effect.coffee_energy.frame.04",
+        "effect.coffee_energy.frame.05",
+        "effect.coffee_energy.frame.06",
+        "effect.coffee_energy.frame.07",
+        "effect.coffee_energy.frame.08",
+        "effect.coffee_energy.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "sunshine_bloom": {
+      "effect_id": "sunshine_bloom",
+      "title": "Sunshine Bloom",
+      "category": "positive_morale",
+      "mood": "positive",
+      "intensity": "high",
+      "trigger_tags": [
+        "happy",
+        "morale_up"
+      ],
+      "role": {
+        "group": "positive_morale",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.sunshine_bloom.frame.00",
+        "effect.sunshine_bloom.frame.01",
+        "effect.sunshine_bloom.frame.02",
+        "effect.sunshine_bloom.frame.03",
+        "effect.sunshine_bloom.frame.04",
+        "effect.sunshine_bloom.frame.05",
+        "effect.sunshine_bloom.frame.06",
+        "effect.sunshine_bloom.frame.07",
+        "effect.sunshine_bloom.frame.08",
+        "effect.sunshine_bloom.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "heart_burst": {
+      "effect_id": "heart_burst",
+      "title": "Heart Burst",
+      "category": "positive_morale",
+      "mood": "positive",
+      "intensity": "high",
+      "trigger_tags": [
+        "satisfaction",
+        "love_it"
+      ],
+      "role": {
+        "group": "positive_morale",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.heart_burst.frame.00",
+        "effect.heart_burst.frame.01",
+        "effect.heart_burst.frame.02",
+        "effect.heart_burst.frame.03",
+        "effect.heart_burst.frame.04",
+        "effect.heart_burst.frame.05",
+        "effect.heart_burst.frame.06",
+        "effect.heart_burst.frame.07",
+        "effect.heart_burst.frame.08",
+        "effect.heart_burst.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "cherry_blossom_swirl": {
+      "effect_id": "cherry_blossom_swirl",
+      "title": "Cherry Blossom Swirl",
+      "category": "positive_morale",
+      "mood": "positive",
+      "intensity": "medium",
+      "trigger_tags": [
+        "relax",
+        "pleasant"
+      ],
+      "role": {
+        "group": "positive_morale",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.cherry_blossom_swirl.frame.00",
+        "effect.cherry_blossom_swirl.frame.01",
+        "effect.cherry_blossom_swirl.frame.02",
+        "effect.cherry_blossom_swirl.frame.03",
+        "effect.cherry_blossom_swirl.frame.04",
+        "effect.cherry_blossom_swirl.frame.05",
+        "effect.cherry_blossom_swirl.frame.06",
+        "effect.cherry_blossom_swirl.frame.07",
+        "effect.cherry_blossom_swirl.frame.08",
+        "effect.cherry_blossom_swirl.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "thunder_cloud": {
+      "effect_id": "thunder_cloud",
+      "title": "Thunder Cloud",
+      "category": "negative_pressure",
+      "mood": "negative",
+      "intensity": "high",
+      "trigger_tags": [
+        "heavy_stress",
+        "pressure"
+      ],
+      "role": {
+        "group": "negative_pressure",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.thunder_cloud.frame.00",
+        "effect.thunder_cloud.frame.01",
+        "effect.thunder_cloud.frame.02",
+        "effect.thunder_cloud.frame.03",
+        "effect.thunder_cloud.frame.04",
+        "effect.thunder_cloud.frame.05",
+        "effect.thunder_cloud.frame.06",
+        "effect.thunder_cloud.frame.07",
+        "effect.thunder_cloud.frame.08",
+        "effect.thunder_cloud.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "stock_crash": {
+      "effect_id": "stock_crash",
+      "title": "Stock Crash",
+      "category": "negative_pressure",
+      "mood": "negative",
+      "intensity": "high",
+      "trigger_tags": [
+        "business_loss",
+        "stock_down"
+      ],
+      "role": {
+        "group": "negative_pressure",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.stock_crash.frame.00",
+        "effect.stock_crash.frame.01",
+        "effect.stock_crash.frame.02",
+        "effect.stock_crash.frame.03",
+        "effect.stock_crash.frame.04",
+        "effect.stock_crash.frame.05",
+        "effect.stock_crash.frame.06",
+        "effect.stock_crash.frame.07",
+        "effect.stock_crash.frame.08",
+        "effect.stock_crash.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "low_battery_drain": {
+      "effect_id": "low_battery_drain",
+      "title": "Low Battery Drain",
+      "category": "negative_pressure",
+      "mood": "negative",
+      "intensity": "high",
+      "trigger_tags": [
+        "fatigue",
+        "energy_down"
+      ],
+      "role": {
+        "group": "negative_pressure",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.low_battery_drain.frame.00",
+        "effect.low_battery_drain.frame.01",
+        "effect.low_battery_drain.frame.02",
+        "effect.low_battery_drain.frame.03",
+        "effect.low_battery_drain.frame.04",
+        "effect.low_battery_drain.frame.05",
+        "effect.low_battery_drain.frame.06",
+        "effect.low_battery_drain.frame.07",
+        "effect.low_battery_drain.frame.08",
+        "effect.low_battery_drain.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "static_noise_field": {
+      "effect_id": "static_noise_field",
+      "title": "Static Noise Field",
+      "category": "system_tech",
+      "mood": "negative",
+      "intensity": "medium",
+      "trigger_tags": [
+        "system_error",
+        "network_noise"
+      ],
+      "role": {
+        "group": "system_tech",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 140,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.static_noise_field.frame.00",
+        "effect.static_noise_field.frame.01",
+        "effect.static_noise_field.frame.02",
+        "effect.static_noise_field.frame.03",
+        "effect.static_noise_field.frame.04",
+        "effect.static_noise_field.frame.05",
+        "effect.static_noise_field.frame.06",
+        "effect.static_noise_field.frame.07",
+        "effect.static_noise_field.frame.08",
+        "effect.static_noise_field.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    }
+  }
+}

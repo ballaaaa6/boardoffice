@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_character_action_system_final_manifest_v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "package",
+    "version",
+    "status",
+    "scope",
+    "source_of_truth",
+    "counts",
+    "digests",
+    "runtime_contract",
+    "validation"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds_character_action_system_final_manifest_v1"
+    },
+    "package": {
+      "const": "GDS_CHARACTER_ACTION_SYSTEM_FINAL_CENTRAL_VFX"
+    },
+    "version": {
+      "const": "1.3.1"
+    },
+    "status": {
+      "const": "FINAL_CHARACTER_ACTION_CENTRAL_VFX_CLEAN"
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "characters": {
+          "const": 302
+        },
+        "canonical_assets": {
+          "const": 157
+        },
+        "character_assets": {
+          "const": 53
+        },
+        "effect_assets": {
+          "const": 104
+        },
+        "effects": {
+          "const": 11
+        },
+        "asset_aliases": {
+          "const": 0
+        }
+      }
+    },
+    "runtime_contract": {
+      "type": "object",
+      "properties": {
+        "requires_floor_or_map_package": {
+          "const": false
+        },
+        "work_sw_derivation": {
+          "const": "horizontal pixel mirror of work.SE"
+        },
+        "effect_sw_derivation": {
+          "const": "horizontal pixel mirror of resolved effect.SE"
+        },
+        "effect_whitelist_only": {
+          "const": true
+        }
+      }
+    }
+  }
+}

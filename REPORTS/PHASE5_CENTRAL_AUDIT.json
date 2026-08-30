@@ -1,0 +1,69 @@
+{
+  "checks": {
+    "action_resolution_exact": true,
+    "aliases_complete": true,
+    "characters_302": true,
+    "floors_exact": true,
+    "identity_composition_exact": true,
+    "identity_names_unique": true,
+    "integrated_smoke": true,
+    "no_materialized_floor_cache": true,
+    "payload_files_exact": true,
+    "placements_exact": true,
+    "schemas_valid": true,
+    "workstations_exact": true,
+    "world_raw_omitted": true
+  },
+  "counts": {
+    "action_requests": 7852,
+    "action_resolution_errors": 0,
+    "characters": 302,
+    "composition_exact": 302,
+    "floors": 25,
+    "floors_png_exact": 25,
+    "floors_render_exact": 25,
+    "frame_occurrences": 15402,
+    "identity_full_name_unique": 302,
+    "identity_nickname_unique": 302,
+    "payload_hash_files": 502,
+    "payload_hash_mismatches": 0,
+    "payload_missing": 0,
+    "resolved_placements": 766,
+    "schema_validation_errors": 0,
+    "schemas_validated": 21,
+    "technical_characters": 302,
+    "workstation_errors": 0,
+    "workstations_resolved": 219
+  },
+  "floor_errors": [],
+  "integrated_smoke": {
+    "floor00.ws1": {
+      "direction": "SE",
+      "frame_count": 2,
+      "ok": true
+    },
+    "floor02.ceo": {
+      "direction": "SW",
+      "frame_count": 2,
+      "ok": true
+    },
+    "floor36.ws7": {
+      "direction": "NW",
+      "frame_count": 2,
+      "ok": true
+    }
+  },
+  "lean": {
+    "materialized_floor_cache_present": false,
+    "python_cache_path_count": 0,
+    "world_raw_present": false
+  },
+  "pass": true,
+  "payload_mismatches": [],
+  "payload_missing": [],
+  "release_clean": true,
+  "schema": "gds.phase5.central_audit.v1",
+  "schema_errors": [],
+  "sources": "c77c9f2be6fd5dfb3a368cc4f01e4f1d134313d63b8f9c41e39f144043dd364d",
+  "workstation_errors": []
+}

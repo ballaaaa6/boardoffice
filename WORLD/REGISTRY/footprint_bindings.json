@@ -1,0 +1,101 @@
+{
+  "schema": "gds_ground_footprint_bindings_v1",
+  "rules": [
+    {
+      "rule_id": "desk.standard.parts",
+      "match": {
+        "asset_id_regex": "^desk_\\d+\\.part_(00|01)$"
+      },
+      "profile_id": "footprint.desk.standard",
+      "default_transform": "NORMAL"
+    },
+    {
+      "rule_id": "desk.ceo.floor00.normal",
+      "match": {
+        "asset_id_exact": "floor00.ceo_desk"
+      },
+      "profile_id": "footprint.desk.standard",
+      "default_transform": "NORMAL",
+      "notes": "Floor00 CEO visual is pixel-equivalent to desk_000.part_00; use canonical orientation."
+    },
+    {
+      "rule_id": "desk.ceo.floor01.normal",
+      "match": {
+        "asset_id_exact": "floor01.ceo_desk"
+      },
+      "profile_id": "footprint.desk.standard",
+      "default_transform": "NORMAL",
+      "notes": "Floor01 CEO visual is pixel-equivalent to desk_001.part_00; use canonical orientation."
+    },
+    {
+      "rule_id": "desk.ceo.f2_plus.mirrored",
+      "match": {
+        "asset_id_regex": "^floor(?:0[2-9]|[1-9]\\d+)\\.ceo_desk$"
+      },
+      "profile_id": "footprint.desk.standard",
+      "default_transform": "FLIP_X",
+      "notes": "F2+ CEO desk visual family derives from mirrored canonical desk orientation; no duplicate footprint profile."
+    },
+    {
+      "rule_id": "chair.ground.parts",
+      "match": {
+        "asset_id_regex": "^chair_\\d+\\.part_(00|01|02)$"
+      },
+      "profile_id": "footprint.chair.standard",
+      "default_transform": "NORMAL"
+    },
+    {
+      "rule_id": "chair.part03.visual_only",
+      "match": {
+        "asset_id_regex": "^chair_\\d+\\.part_03$"
+      },
+      "profile_id": null,
+      "render_only": true
+    },
+    {
+      "rule_id": "pc.visual_only",
+      "match": {
+        "asset_id_regex": "^pc_\\d+\\.slot_\\d+$"
+      },
+      "profile_id": null,
+      "render_only": true
+    },
+    {
+      "rule_id": "reception.floor00",
+      "match": {
+        "asset_id_exact": "floor00.reception"
+      },
+      "profile_id": "footprint.reception.f0",
+      "default_transform": "NORMAL"
+    },
+    {
+      "rule_id": "reception.floor01",
+      "match": {
+        "asset_id_exact": "floor01.reception"
+      },
+      "profile_id": "footprint.reception.f1",
+      "default_transform": "NORMAL"
+    },
+    {
+      "rule_id": "reception.floor02",
+      "match": {
+        "asset_id_exact": "floor02.reception"
+      },
+      "profile_id": "footprint.reception.f2_plus",
+      "default_transform": "NORMAL"
+    },
+    {
+      "rule_id": "reception.floor03_plus",
+      "match": {
+        "asset_id_regex": "^reception_\\d+$"
+      },
+      "profile_id": "footprint.reception.f2_plus",
+      "default_transform": "NORMAL"
+    }
+  ],
+  "policy": {
+    "first_matching_rule_wins": true,
+    "unmatched_asset": "no_footprint",
+    "pc_and_chair_part03_are_visual_only": true
+  }
+}

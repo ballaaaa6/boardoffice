@@ -1,0 +1,115 @@
+{
+  "schema": "gds_ground_footprint_profiles_v1",
+  "grid_profile_id": "grid.iso.occupancy_fine.v1",
+  "profiles": {
+    "footprint.desk.standard": {
+      "profile_id": "footprint.desk.standard",
+      "approval_status": "author_approved",
+      "provenance": "GDS_FOOTPRINT_PROTOTYPES_v0.3.0",
+      "shape": "filled_iso_rect",
+      "author_size_fine_cells": [
+        18,
+        7
+      ],
+      "axes": {
+        "u_cells": 7,
+        "v_cells": 18
+      },
+      "origin_asset_edge_px": [
+        36,
+        37
+      ],
+      "transform_policy": "inherit_object_transform",
+      "notes": "single canonical desk footprint; mirrored/reversed result must be derived, never duplicated"
+    },
+    "footprint.chair.standard": {
+      "profile_id": "footprint.chair.standard",
+      "approval_status": "author_approved",
+      "provenance": "GDS_FOOTPRINT_PROTOTYPES_v0.3.0",
+      "shape": "filled_iso_rect",
+      "author_size_fine_cells": [
+        4,
+        4
+      ],
+      "axes": {
+        "u_cells": 4,
+        "v_cells": 4
+      },
+      "origin_asset_edge_px": [
+        13,
+        24
+      ],
+      "transform_policy": "inherit_object_transform",
+      "notes": "shared by chair parts 00-02; part_03 is visual-only"
+    },
+    "footprint.reception.f0": {
+      "profile_id": "footprint.reception.f0",
+      "approval_status": "author_approved",
+      "provenance": "GDS_FOOTPRINT_PROTOTYPES_v0.3.0",
+      "shape": "filled_iso_rect",
+      "author_size_fine_cells": [
+        15,
+        19
+      ],
+      "axes": {
+        "u_cells": 19,
+        "v_cells": 15
+      },
+      "origin_asset_edge_px": [
+        6,
+        15
+      ],
+      "transform_policy": "inherit_object_transform",
+      "notes": "Floor00 reception family; promoted from approved crop, no embedded-solid collision role"
+    },
+    "footprint.reception.f1": {
+      "profile_id": "footprint.reception.f1",
+      "approval_status": "author_approved",
+      "provenance": "GDS_FOOTPRINT_PROTOTYPES_v0.3.0 + 2026-08-30 F1 reception expansion (-U3/-V3/+V3)",
+      "shape": "filled_iso_rect",
+      "author_size_fine_cells": [
+        20,
+        16
+      ],
+      "axes": {
+        "u_cells": 16,
+        "v_cells": 20
+      },
+      "origin_asset_edge_px": [
+        25,
+        9
+      ],
+      "transform_policy": "inherit_object_transform",
+      "notes": "Floor01 reception family; +U wall side remains fixed while the footprint expands by 3 fine cells toward -U and 3 fine cells toward both -V and +V."
+    },
+    "footprint.reception.f2_plus": {
+      "profile_id": "footprint.reception.f2_plus",
+      "approval_status": "author_approved",
+      "provenance": "GDS_FOOTPRINT_PROTOTYPES_v0.3.0 + 2026-08-30 canonical F2-family anchor lock + 2026-08-30 symmetric reception expansion (-U3/+U3/-V4/+V4 from 29x15 baseline)",
+      "shape": "filled_iso_rect",
+      "author_size_fine_cells": [
+        23,
+        35
+      ],
+      "axes": {
+        "u_cells": 35,
+        "v_cells": 23
+      },
+      "origin_asset_edge_px": [
+        20,
+        4
+      ],
+      "transform_policy": "inherit_object_transform",
+      "notes": "F2 canonical reception family shared by all layout.floor02.large floors. Visual-local projection remains alpha-bounds-relative for debugging, while navigation placement is locked to world ground anchor (259,376). Relative to the prior 29x15 reservation, the final navigation footprint expands by 3 cells toward -U, 3 toward +U, 4 toward -V and 4 toward +V, yielding 35x23 / 805 cells.",
+      "origin_basis": "visual_bounds_top_left",
+      "canonical_navigation_ground_anchor_world_px": [
+        259,
+        376
+      ],
+      "canonical_navigation_origin_offset_uv_cells": [
+        -13,
+        -4
+      ]
+    }
+  }
+}

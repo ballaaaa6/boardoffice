@@ -1,0 +1,2992 @@
+{
+  "schema": "gds_visual_variants_v1",
+  "variants": {
+    "chair_000.part_00@normal": {
+      "asset_id": "chair_000.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_000.part_00@normal"
+    },
+    "chair_000.part_01@normal": {
+      "asset_id": "chair_000.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_000.part_01@normal"
+    },
+    "chair_000.part_03@normal": {
+      "asset_id": "chair_000.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_000.part_03@normal"
+    },
+    "chair_001.part_00@normal": {
+      "asset_id": "chair_001.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_001.part_00@normal"
+    },
+    "chair_001.part_01@normal": {
+      "asset_id": "chair_001.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_001.part_01@normal"
+    },
+    "chair_001.part_03@normal": {
+      "asset_id": "chair_001.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_001.part_03@normal"
+    },
+    "chair_002.part_00@normal": {
+      "asset_id": "chair_002.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_002.part_00@normal"
+    },
+    "chair_002.part_01@normal": {
+      "asset_id": "chair_002.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_002.part_01@normal"
+    },
+    "chair_002.part_02@normal": {
+      "asset_id": "chair_002.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_002.part_02@normal"
+    },
+    "chair_002.part_03@normal": {
+      "asset_id": "chair_002.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_002.part_03@normal"
+    },
+    "chair_003.part_00@normal": {
+      "asset_id": "chair_003.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_003.part_00@normal"
+    },
+    "chair_003.part_01@normal": {
+      "asset_id": "chair_003.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_003.part_01@normal"
+    },
+    "chair_003.part_02@normal": {
+      "asset_id": "chair_003.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_003.part_02@normal"
+    },
+    "chair_004.part_00@normal": {
+      "asset_id": "chair_004.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_004.part_00@normal"
+    },
+    "chair_004.part_01@normal": {
+      "asset_id": "chair_004.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_004.part_01@normal"
+    },
+    "chair_004.part_02@normal": {
+      "asset_id": "chair_004.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_004.part_02@normal"
+    },
+    "chair_005.part_00@normal": {
+      "asset_id": "chair_005.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_005.part_00@normal"
+    },
+    "chair_005.part_01@normal": {
+      "asset_id": "chair_005.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_005.part_01@normal"
+    },
+    "chair_005.part_02@normal": {
+      "asset_id": "chair_005.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_005.part_02@normal"
+    },
+    "chair_006.part_00@normal": {
+      "asset_id": "chair_006.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_006.part_00@normal"
+    },
+    "chair_006.part_01@normal": {
+      "asset_id": "chair_006.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_006.part_01@normal"
+    },
+    "chair_006.part_02@normal": {
+      "asset_id": "chair_006.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_006.part_02@normal"
+    },
+    "chair_007.part_00@normal": {
+      "asset_id": "chair_007.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_007.part_00@normal"
+    },
+    "chair_007.part_01@normal": {
+      "asset_id": "chair_007.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_007.part_01@normal"
+    },
+    "chair_007.part_02@normal": {
+      "asset_id": "chair_007.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_007.part_02@normal"
+    },
+    "chair_008.part_00@normal": {
+      "asset_id": "chair_008.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_008.part_00@normal"
+    },
+    "chair_008.part_01@normal": {
+      "asset_id": "chair_008.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_008.part_01@normal"
+    },
+    "chair_008.part_02@normal": {
+      "asset_id": "chair_008.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_008.part_02@normal"
+    },
+    "chair_009.part_00@normal": {
+      "asset_id": "chair_009.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_009.part_00@normal"
+    },
+    "chair_009.part_01@normal": {
+      "asset_id": "chair_009.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_009.part_01@normal"
+    },
+    "chair_009.part_02@normal": {
+      "asset_id": "chair_009.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_009.part_02@normal"
+    },
+    "chair_011.part_00@normal": {
+      "asset_id": "chair_011.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_011.part_00@normal"
+    },
+    "chair_011.part_01@normal": {
+      "asset_id": "chair_011.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_011.part_01@normal"
+    },
+    "chair_011.part_02@normal": {
+      "asset_id": "chair_011.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_011.part_02@normal"
+    },
+    "chair_012.part_00@normal": {
+      "asset_id": "chair_012.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_012.part_00@normal"
+    },
+    "chair_012.part_01@normal": {
+      "asset_id": "chair_012.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_012.part_01@normal"
+    },
+    "chair_012.part_02@normal": {
+      "asset_id": "chair_012.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_012.part_02@normal"
+    },
+    "chair_013.part_00@normal": {
+      "asset_id": "chair_013.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_013.part_00@normal"
+    },
+    "chair_013.part_01@normal": {
+      "asset_id": "chair_013.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_013.part_01@normal"
+    },
+    "chair_013.part_02@normal": {
+      "asset_id": "chair_013.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_013.part_02@normal"
+    },
+    "chair_014.part_00@normal": {
+      "asset_id": "chair_014.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_014.part_00@normal"
+    },
+    "chair_014.part_01@normal": {
+      "asset_id": "chair_014.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_014.part_01@normal"
+    },
+    "chair_014.part_02@normal": {
+      "asset_id": "chair_014.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_014.part_02@normal"
+    },
+    "chair_015.part_00@normal": {
+      "asset_id": "chair_015.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_015.part_00@normal"
+    },
+    "chair_015.part_01@normal": {
+      "asset_id": "chair_015.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_015.part_01@normal"
+    },
+    "chair_015.part_02@normal": {
+      "asset_id": "chair_015.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_015.part_02@normal"
+    },
+    "chair_016.part_00@normal": {
+      "asset_id": "chair_016.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_016.part_00@normal"
+    },
+    "chair_016.part_01@normal": {
+      "asset_id": "chair_016.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_016.part_01@normal"
+    },
+    "chair_016.part_02@normal": {
+      "asset_id": "chair_016.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_016.part_02@normal"
+    },
+    "chair_017.part_00@normal": {
+      "asset_id": "chair_017.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_017.part_00@normal"
+    },
+    "chair_017.part_01@normal": {
+      "asset_id": "chair_017.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_017.part_01@normal"
+    },
+    "chair_017.part_02@normal": {
+      "asset_id": "chair_017.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_017.part_02@normal"
+    },
+    "chair_018.part_00@normal": {
+      "asset_id": "chair_018.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_018.part_00@normal"
+    },
+    "chair_018.part_01@normal": {
+      "asset_id": "chair_018.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_018.part_01@normal"
+    },
+    "chair_018.part_02@normal": {
+      "asset_id": "chair_018.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_018.part_02@normal"
+    },
+    "chair_019.part_00@normal": {
+      "asset_id": "chair_019.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_019.part_00@normal"
+    },
+    "chair_019.part_01@normal": {
+      "asset_id": "chair_019.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_019.part_01@normal"
+    },
+    "chair_019.part_02@normal": {
+      "asset_id": "chair_019.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_019.part_02@normal"
+    },
+    "chair_021.part_00@normal": {
+      "asset_id": "chair_021.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_021.part_00@normal"
+    },
+    "chair_021.part_01@normal": {
+      "asset_id": "chair_021.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_021.part_01@normal"
+    },
+    "chair_021.part_02@normal": {
+      "asset_id": "chair_021.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_021.part_02@normal"
+    },
+    "chair_023.part_00@normal": {
+      "asset_id": "chair_023.part_00",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_023.part_00@normal"
+    },
+    "chair_023.part_01@normal": {
+      "asset_id": "chair_023.part_01",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_023.part_01@normal"
+    },
+    "chair_023.part_02@normal": {
+      "asset_id": "chair_023.part_02",
+      "semantic_type": "chair",
+      "transform": "NORMAL",
+      "variant_id": "chair_023.part_02@normal"
+    },
+    "desk_000.part_00@normal": {
+      "asset_id": "desk_000.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_000.part_00@normal"
+    },
+    "desk_001.part_00@normal": {
+      "asset_id": "desk_001.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_001.part_00@normal"
+    },
+    "desk_001.part_01@normal": {
+      "asset_id": "desk_001.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_001.part_01@normal"
+    },
+    "desk_002.part_00@normal": {
+      "asset_id": "desk_002.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_002.part_00@normal"
+    },
+    "desk_002.part_01@normal": {
+      "asset_id": "desk_002.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_002.part_01@normal"
+    },
+    "desk_003.part_00@normal": {
+      "asset_id": "desk_003.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_003.part_00@normal"
+    },
+    "desk_003.part_01@normal": {
+      "asset_id": "desk_003.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_003.part_01@normal"
+    },
+    "desk_004.part_00@normal": {
+      "asset_id": "desk_004.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_004.part_00@normal"
+    },
+    "desk_004.part_01@normal": {
+      "asset_id": "desk_004.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_004.part_01@normal"
+    },
+    "desk_005.part_00@normal": {
+      "asset_id": "desk_005.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_005.part_00@normal"
+    },
+    "desk_005.part_01@normal": {
+      "asset_id": "desk_005.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_005.part_01@normal"
+    },
+    "desk_006.part_00@normal": {
+      "asset_id": "desk_006.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_006.part_00@normal"
+    },
+    "desk_006.part_01@normal": {
+      "asset_id": "desk_006.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_006.part_01@normal"
+    },
+    "desk_007.part_00@normal": {
+      "asset_id": "desk_007.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_007.part_00@normal"
+    },
+    "desk_007.part_01@normal": {
+      "asset_id": "desk_007.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_007.part_01@normal"
+    },
+    "desk_008.part_00@normal": {
+      "asset_id": "desk_008.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_008.part_00@normal"
+    },
+    "desk_008.part_01@normal": {
+      "asset_id": "desk_008.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_008.part_01@normal"
+    },
+    "desk_009.part_00@normal": {
+      "asset_id": "desk_009.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_009.part_00@normal"
+    },
+    "desk_009.part_01@normal": {
+      "asset_id": "desk_009.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_009.part_01@normal"
+    },
+    "desk_011.part_00@normal": {
+      "asset_id": "desk_011.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_011.part_00@normal"
+    },
+    "desk_011.part_01@normal": {
+      "asset_id": "desk_011.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_011.part_01@normal"
+    },
+    "desk_012.part_00@normal": {
+      "asset_id": "desk_012.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_012.part_00@normal"
+    },
+    "desk_012.part_01@normal": {
+      "asset_id": "desk_012.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_012.part_01@normal"
+    },
+    "desk_013.part_00@normal": {
+      "asset_id": "desk_013.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_013.part_00@normal"
+    },
+    "desk_013.part_01@normal": {
+      "asset_id": "desk_013.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_013.part_01@normal"
+    },
+    "desk_014.part_00@normal": {
+      "asset_id": "desk_014.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_014.part_00@normal"
+    },
+    "desk_014.part_01@normal": {
+      "asset_id": "desk_014.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_014.part_01@normal"
+    },
+    "desk_015.part_00@normal": {
+      "asset_id": "desk_015.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_015.part_00@normal"
+    },
+    "desk_015.part_01@normal": {
+      "asset_id": "desk_015.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_015.part_01@normal"
+    },
+    "desk_016.part_00@normal": {
+      "asset_id": "desk_016.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_016.part_00@normal"
+    },
+    "desk_016.part_01@normal": {
+      "asset_id": "desk_016.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_016.part_01@normal"
+    },
+    "desk_017.part_00@normal": {
+      "asset_id": "desk_017.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_017.part_00@normal"
+    },
+    "desk_017.part_01@normal": {
+      "asset_id": "desk_017.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_017.part_01@normal"
+    },
+    "desk_018.part_00@normal": {
+      "asset_id": "desk_018.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_018.part_00@normal"
+    },
+    "desk_018.part_01@normal": {
+      "asset_id": "desk_018.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_018.part_01@normal"
+    },
+    "desk_019.part_00@normal": {
+      "asset_id": "desk_019.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_019.part_00@normal"
+    },
+    "desk_019.part_01@normal": {
+      "asset_id": "desk_019.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_019.part_01@normal"
+    },
+    "desk_021.part_00@normal": {
+      "asset_id": "desk_021.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_021.part_00@normal"
+    },
+    "desk_021.part_01@normal": {
+      "asset_id": "desk_021.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_021.part_01@normal"
+    },
+    "desk_027.part_00@normal": {
+      "asset_id": "desk_027.part_00",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_027.part_00@normal"
+    },
+    "desk_027.part_01@normal": {
+      "asset_id": "desk_027.part_01",
+      "semantic_type": "desk",
+      "transform": "NORMAL",
+      "variant_id": "desk_027.part_01@normal"
+    },
+    "floor00.base@normal": {
+      "asset_id": "floor00.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor00.base@normal"
+    },
+    "floor00.ceo_desk@crop": {
+      "asset_id": "floor00.ceo_desk",
+      "recipe": {
+        "floor_id": "floor00",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor00.ceo_desk@crop"
+    },
+    "floor01.base@normal": {
+      "asset_id": "floor01.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor01.base@normal"
+    },
+    "floor01.boxes@normal": {
+      "asset_id": "floor01.boxes",
+      "semantic_type": "boxes",
+      "transform": "NORMAL",
+      "variant_id": "floor01.boxes@normal"
+    },
+    "floor01.ceo_desk@crop": {
+      "asset_id": "floor01.ceo_desk",
+      "recipe": {
+        "floor_id": "floor01",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          551,
+          624,
+          599,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor01.ceo_desk@crop"
+    },
+    "floor01.overlay.00@crop": {
+      "asset_id": "floor01.overlay.00",
+      "recipe": {
+        "floor_id": "floor01",
+        "source_rect": [
+          0,
+          600,
+          131,
+          700
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor01.overlay.00@crop"
+    },
+    "floor01.reception@normal": {
+      "asset_id": "floor01.reception",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "floor01.reception@normal"
+    },
+    "floor02.base@normal": {
+      "asset_id": "floor02.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor02.base@normal"
+    },
+    "floor02.ceo_desk@crop": {
+      "asset_id": "floor02.ceo_desk",
+      "recipe": {
+        "floor_id": "floor02",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor02.ceo_desk@crop"
+    },
+    "floor02.overlay.00@crop": {
+      "asset_id": "floor02.overlay.00",
+      "recipe": {
+        "floor_id": "floor02",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor02.overlay.00@crop"
+    },
+    "floor02.overlay.01@crop": {
+      "asset_id": "floor02.overlay.01",
+      "recipe": {
+        "floor_id": "floor02",
+        "source_rect": [
+          83,
+          601,
+          108,
+          619
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor02.overlay.01@crop"
+    },
+    "floor02.overlay.02@crop": {
+      "asset_id": "floor02.overlay.02",
+      "recipe": {
+        "floor_id": "floor02",
+        "source_rect": [
+          208,
+          600,
+          249,
+          630
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor02.overlay.02@crop"
+    },
+    "floor02.reception@normal": {
+      "asset_id": "floor02.reception",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "floor02.reception@normal"
+    },
+    "floor03.base@normal": {
+      "asset_id": "floor03.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor03.base@normal"
+    },
+    "floor03.ceo_desk@crop": {
+      "asset_id": "floor03.ceo_desk",
+      "recipe": {
+        "floor_id": "floor03",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          618,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor03.ceo_desk@crop"
+    },
+    "floor03.overlay.00@crop": {
+      "asset_id": "floor03.overlay.00",
+      "recipe": {
+        "floor_id": "floor03",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor03.overlay.00@crop"
+    },
+    "floor03.overlay.01@crop": {
+      "asset_id": "floor03.overlay.01",
+      "recipe": {
+        "floor_id": "floor03",
+        "source_rect": [
+          83,
+          601,
+          108,
+          619
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor03.overlay.01@crop"
+    },
+    "floor03.overlay.02@crop": {
+      "asset_id": "floor03.overlay.02",
+      "recipe": {
+        "floor_id": "floor03",
+        "source_rect": [
+          208,
+          600,
+          286,
+          649
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor03.overlay.02@crop"
+    },
+    "floor03.overlay.03@crop": {
+      "asset_id": "floor03.overlay.03",
+      "recipe": {
+        "floor_id": "floor03",
+        "source_rect": [
+          287,
+          611,
+          309,
+          644
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor03.overlay.03@crop"
+    },
+    "floor03.overlay.04@crop": {
+      "asset_id": "floor03.overlay.04",
+      "recipe": {
+        "floor_id": "floor03",
+        "source_rect": [
+          307,
+          600,
+          329,
+          633
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor03.overlay.04@crop"
+    },
+    "floor04.base@normal": {
+      "asset_id": "floor04.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor04.base@normal"
+    },
+    "floor04.ceo_desk@crop": {
+      "asset_id": "floor04.ceo_desk",
+      "recipe": {
+        "floor_id": "floor04",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor04.ceo_desk@crop"
+    },
+    "floor04.overlay.00@crop": {
+      "asset_id": "floor04.overlay.00",
+      "recipe": {
+        "floor_id": "floor04",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor04.overlay.00@crop"
+    },
+    "floor05.base@normal": {
+      "asset_id": "floor05.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor05.base@normal"
+    },
+    "floor05.ceo_desk@crop": {
+      "asset_id": "floor05.ceo_desk",
+      "recipe": {
+        "floor_id": "floor05",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor05.ceo_desk@crop"
+    },
+    "floor05.overlay.00@crop": {
+      "asset_id": "floor05.overlay.00",
+      "recipe": {
+        "floor_id": "floor05",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor05.overlay.00@crop"
+    },
+    "floor05.overlay.01@crop": {
+      "asset_id": "floor05.overlay.01",
+      "recipe": {
+        "floor_id": "floor05",
+        "source_rect": [
+          208,
+          600,
+          328,
+          652
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor05.overlay.01@crop"
+    },
+    "floor05.overlay.02@crop": {
+      "asset_id": "floor05.overlay.02",
+      "recipe": {
+        "floor_id": "floor05",
+        "source_rect": [
+          327,
+          600,
+          379,
+          652
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor05.overlay.02@crop"
+    },
+    "floor06.base@normal": {
+      "asset_id": "floor06.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor06.base@normal"
+    },
+    "floor06.ceo_desk@crop": {
+      "asset_id": "floor06.ceo_desk",
+      "recipe": {
+        "floor_id": "floor06",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          621,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor06.ceo_desk@crop"
+    },
+    "floor06.overlay.00@crop": {
+      "asset_id": "floor06.overlay.00",
+      "recipe": {
+        "floor_id": "floor06",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor06.overlay.00@crop"
+    },
+    "floor06.overlay.01@crop": {
+      "asset_id": "floor06.overlay.01",
+      "recipe": {
+        "floor_id": "floor06",
+        "source_rect": [
+          209,
+          600,
+          240,
+          671
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor06.overlay.01@crop"
+    },
+    "floor07.base@normal": {
+      "asset_id": "floor07.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor07.base@normal"
+    },
+    "floor07.ceo_desk@crop": {
+      "asset_id": "floor07.ceo_desk",
+      "recipe": {
+        "floor_id": "floor07",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          553,
+          623,
+          600,
+          662
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor07.ceo_desk@crop"
+    },
+    "floor07.overlay.00@crop": {
+      "asset_id": "floor07.overlay.00",
+      "recipe": {
+        "floor_id": "floor07",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor07.overlay.00@crop"
+    },
+    "floor07.overlay.01@crop": {
+      "asset_id": "floor07.overlay.01",
+      "recipe": {
+        "floor_id": "floor07",
+        "source_rect": [
+          325,
+          600,
+          348,
+          621
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor07.overlay.01@crop"
+    },
+    "floor08.base@normal": {
+      "asset_id": "floor08.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor08.base@normal"
+    },
+    "floor08.ceo_desk@crop": {
+      "asset_id": "floor08.ceo_desk",
+      "recipe": {
+        "floor_id": "floor08",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          621,
+          600,
+          662
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor08.ceo_desk@crop"
+    },
+    "floor08.overlay.00@crop": {
+      "asset_id": "floor08.overlay.00",
+      "recipe": {
+        "floor_id": "floor08",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor08.overlay.00@crop"
+    },
+    "floor08.overlay.01@crop": {
+      "asset_id": "floor08.overlay.01",
+      "recipe": {
+        "floor_id": "floor08",
+        "source_rect": [
+          208,
+          600,
+          226,
+          616
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor08.overlay.01@crop"
+    },
+    "floor09.base@normal": {
+      "asset_id": "floor09.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor09.base@normal"
+    },
+    "floor09.ceo_desk@crop": {
+      "asset_id": "floor09.ceo_desk",
+      "recipe": {
+        "floor_id": "floor09",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          662
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor09.ceo_desk@crop"
+    },
+    "floor09.overlay.00@crop": {
+      "asset_id": "floor09.overlay.00",
+      "recipe": {
+        "floor_id": "floor09",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor09.overlay.00@crop"
+    },
+    "floor09.overlay.01@crop": {
+      "asset_id": "floor09.overlay.01",
+      "recipe": {
+        "floor_id": "floor09",
+        "source_rect": [
+          91,
+          605,
+          102,
+          619
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor09.overlay.01@crop"
+    },
+    "floor11.base@normal": {
+      "asset_id": "floor11.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor11.base@normal"
+    },
+    "floor11.ceo_desk@crop": {
+      "asset_id": "floor11.ceo_desk",
+      "recipe": {
+        "floor_id": "floor11",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          620,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor11.ceo_desk@crop"
+    },
+    "floor11.overlay.00@crop": {
+      "asset_id": "floor11.overlay.00",
+      "recipe": {
+        "floor_id": "floor11",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor11.overlay.00@crop"
+    },
+    "floor11.overlay.01@crop": {
+      "asset_id": "floor11.overlay.01",
+      "recipe": {
+        "floor_id": "floor11",
+        "source_rect": [
+          0,
+          752,
+          21,
+          790
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor11.overlay.01@crop"
+    },
+    "floor11.overlay.02@crop": {
+      "asset_id": "floor11.overlay.02",
+      "recipe": {
+        "floor_id": "floor11",
+        "source_rect": [
+          19,
+          769,
+          46,
+          799
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor11.overlay.02@crop"
+    },
+    "floor11.overlay.03@crop": {
+      "asset_id": "floor11.overlay.03",
+      "recipe": {
+        "floor_id": "floor11",
+        "source_rect": [
+          36,
+          743,
+          83,
+          783
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor11.overlay.03@crop"
+    },
+    "floor11.overlay.04@crop": {
+      "asset_id": "floor11.overlay.04",
+      "recipe": {
+        "floor_id": "floor11",
+        "source_rect": [
+          83,
+          601,
+          108,
+          619
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor11.overlay.04@crop"
+    },
+    "floor12.base@normal": {
+      "asset_id": "floor12.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor12.base@normal"
+    },
+    "floor12.ceo_desk@crop": {
+      "asset_id": "floor12.ceo_desk",
+      "recipe": {
+        "floor_id": "floor12",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor12.ceo_desk@crop"
+    },
+    "floor12.overlay.00@crop": {
+      "asset_id": "floor12.overlay.00",
+      "recipe": {
+        "floor_id": "floor12",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor12.overlay.00@crop"
+    },
+    "floor12.overlay.01@crop": {
+      "asset_id": "floor12.overlay.01",
+      "recipe": {
+        "floor_id": "floor12",
+        "source_rect": [
+          0,
+          755,
+          29,
+          794
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor12.overlay.01@crop"
+    },
+    "floor12.overlay.02@crop": {
+      "asset_id": "floor12.overlay.02",
+      "recipe": {
+        "floor_id": "floor12",
+        "source_rect": [
+          37,
+          741,
+          78,
+          796
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor12.overlay.02@crop"
+    },
+    "floor13.base@normal": {
+      "asset_id": "floor13.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor13.base@normal"
+    },
+    "floor13.ceo_desk@crop": {
+      "asset_id": "floor13.ceo_desk",
+      "recipe": {
+        "floor_id": "floor13",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          624,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor13.ceo_desk@crop"
+    },
+    "floor13.overlay.00@crop": {
+      "asset_id": "floor13.overlay.00",
+      "recipe": {
+        "floor_id": "floor13",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor13.overlay.00@crop"
+    },
+    "floor13.overlay.01@crop": {
+      "asset_id": "floor13.overlay.01",
+      "recipe": {
+        "floor_id": "floor13",
+        "source_rect": [
+          83,
+          601,
+          108,
+          619
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor13.overlay.01@crop"
+    },
+    "floor14.base@normal": {
+      "asset_id": "floor14.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor14.base@normal"
+    },
+    "floor14.ceo_desk@crop": {
+      "asset_id": "floor14.ceo_desk",
+      "recipe": {
+        "floor_id": "floor14",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          621,
+          599,
+          661
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor14.ceo_desk@crop"
+    },
+    "floor14.overlay.00@crop": {
+      "asset_id": "floor14.overlay.00",
+      "recipe": {
+        "floor_id": "floor14",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor14.overlay.00@crop"
+    },
+    "floor14.overlay.01@crop": {
+      "asset_id": "floor14.overlay.01",
+      "recipe": {
+        "floor_id": "floor14",
+        "source_rect": [
+          83,
+          601,
+          108,
+          619
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor14.overlay.01@crop"
+    },
+    "floor14.overlay.02@crop": {
+      "asset_id": "floor14.overlay.02",
+      "recipe": {
+        "floor_id": "floor14",
+        "source_rect": [
+          208,
+          600,
+          235,
+          639
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor14.overlay.02@crop"
+    },
+    "floor15.base@normal": {
+      "asset_id": "floor15.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor15.base@normal"
+    },
+    "floor15.ceo_desk@crop": {
+      "asset_id": "floor15.ceo_desk",
+      "recipe": {
+        "floor_id": "floor15",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          614,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor15.ceo_desk@crop"
+    },
+    "floor15.overlay.00@crop": {
+      "asset_id": "floor15.overlay.00",
+      "recipe": {
+        "floor_id": "floor15",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor15.overlay.00@crop"
+    },
+    "floor15.overlay.01@crop": {
+      "asset_id": "floor15.overlay.01",
+      "recipe": {
+        "floor_id": "floor15",
+        "source_rect": [
+          1,
+          741,
+          73,
+          798
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor15.overlay.01@crop"
+    },
+    "floor15.overlay.02@crop": {
+      "asset_id": "floor15.overlay.02",
+      "recipe": {
+        "floor_id": "floor15",
+        "source_rect": [
+          75,
+          782,
+          110,
+          800
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor15.overlay.02@crop"
+    },
+    "floor15.overlay.03@crop": {
+      "asset_id": "floor15.overlay.03",
+      "recipe": {
+        "floor_id": "floor15",
+        "source_rect": [
+          87,
+          741,
+          147,
+          799
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor15.overlay.03@crop"
+    },
+    "floor16.base@normal": {
+      "asset_id": "floor16.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor16.base@normal"
+    },
+    "floor16.ceo_desk@crop": {
+      "asset_id": "floor16.ceo_desk",
+      "recipe": {
+        "floor_id": "floor16",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor16.ceo_desk@crop"
+    },
+    "floor16.overlay.00@crop": {
+      "asset_id": "floor16.overlay.00",
+      "recipe": {
+        "floor_id": "floor16",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor16.overlay.00@crop"
+    },
+    "floor16.overlay.01@crop": {
+      "asset_id": "floor16.overlay.01",
+      "recipe": {
+        "floor_id": "floor16",
+        "source_rect": [
+          0,
+          741,
+          20,
+          767
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor16.overlay.01@crop"
+    },
+    "floor16.overlay.02@crop": {
+      "asset_id": "floor16.overlay.02",
+      "recipe": {
+        "floor_id": "floor16",
+        "source_rect": [
+          86,
+          604,
+          108,
+          619
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor16.overlay.02@crop"
+    },
+    "floor16.overlay.03@crop": {
+      "asset_id": "floor16.overlay.03",
+      "recipe": {
+        "floor_id": "floor16",
+        "source_rect": [
+          359,
+          600,
+          413,
+          613
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor16.overlay.03@crop"
+    },
+    "floor17.base@normal": {
+      "asset_id": "floor17.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor17.base@normal"
+    },
+    "floor17.ceo_desk@crop": {
+      "asset_id": "floor17.ceo_desk",
+      "recipe": {
+        "floor_id": "floor17",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          551,
+          624,
+          599,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor17.ceo_desk@crop"
+    },
+    "floor17.overlay.00@crop": {
+      "asset_id": "floor17.overlay.00",
+      "recipe": {
+        "floor_id": "floor17",
+        "source_rect": [
+          0,
+          600,
+          206,
+          706
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor17.overlay.00@crop"
+    },
+    "floor17.overlay.01@crop": {
+      "asset_id": "floor17.overlay.01",
+      "recipe": {
+        "floor_id": "floor17",
+        "source_rect": [
+          0,
+          710,
+          80,
+          734
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor17.overlay.01@crop"
+    },
+    "floor18.base@normal": {
+      "asset_id": "floor18.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor18.base@normal"
+    },
+    "floor18.ceo_desk@crop": {
+      "asset_id": "floor18.ceo_desk",
+      "recipe": {
+        "floor_id": "floor18",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          551,
+          619,
+          599,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor18.ceo_desk@crop"
+    },
+    "floor18.overlay.00@crop": {
+      "asset_id": "floor18.overlay.00",
+      "recipe": {
+        "floor_id": "floor18",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor18.overlay.00@crop"
+    },
+    "floor18.overlay.01@crop": {
+      "asset_id": "floor18.overlay.01",
+      "recipe": {
+        "floor_id": "floor18",
+        "source_rect": [
+          83,
+          600,
+          112,
+          620
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor18.overlay.01@crop"
+    },
+    "floor18.overlay.02@crop": {
+      "asset_id": "floor18.overlay.02",
+      "recipe": {
+        "floor_id": "floor18",
+        "source_rect": [
+          208,
+          640,
+          235,
+          677
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor18.overlay.02@crop"
+    },
+    "floor18.overlay.03@crop": {
+      "asset_id": "floor18.overlay.03",
+      "recipe": {
+        "floor_id": "floor18",
+        "source_rect": [
+          244,
+          645,
+          261,
+          672
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor18.overlay.03@crop"
+    },
+    "floor18.overlay.04@crop": {
+      "asset_id": "floor18.overlay.04",
+      "recipe": {
+        "floor_id": "floor18",
+        "source_rect": [
+          264,
+          635,
+          281,
+          662
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor18.overlay.04@crop"
+    },
+    "floor18.overlay.05@crop": {
+      "asset_id": "floor18.overlay.05",
+      "recipe": {
+        "floor_id": "floor18",
+        "source_rect": [
+          285,
+          625,
+          302,
+          652
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor18.overlay.05@crop"
+    },
+    "floor18.overlay.06@crop": {
+      "asset_id": "floor18.overlay.06",
+      "recipe": {
+        "floor_id": "floor18",
+        "source_rect": [
+          305,
+          600,
+          340,
+          642
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor18.overlay.06@crop"
+    },
+    "floor18.overlay.07@crop": {
+      "asset_id": "floor18.overlay.07",
+      "recipe": {
+        "floor_id": "floor18",
+        "source_rect": [
+          340,
+          605,
+          378,
+          644
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor18.overlay.07@crop"
+    },
+    "floor19.base@normal": {
+      "asset_id": "floor19.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor19.base@normal"
+    },
+    "floor19.ceo_desk@crop": {
+      "asset_id": "floor19.ceo_desk",
+      "recipe": {
+        "floor_id": "floor19",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "paste_offset": [
+          0,
+          22
+        ],
+        "source_rect": [
+          550,
+          621,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor19.ceo_desk@crop"
+    },
+    "floor19.overlay.00@crop": {
+      "asset_id": "floor19.overlay.00",
+      "recipe": {
+        "floor_id": "floor19",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor19.overlay.00@crop"
+    },
+    "floor19.overlay.01@crop": {
+      "asset_id": "floor19.overlay.01",
+      "recipe": {
+        "floor_id": "floor19",
+        "source_rect": [
+          93,
+          600,
+          108,
+          620
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor19.overlay.01@crop"
+    },
+    "floor19.overlay.02@crop": {
+      "asset_id": "floor19.overlay.02",
+      "recipe": {
+        "floor_id": "floor19",
+        "source_rect": [
+          265,
+          601,
+          372,
+          680
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor19.overlay.02@crop"
+    },
+    "floor19.overlay.03@crop": {
+      "asset_id": "floor19.overlay.03",
+      "recipe": {
+        "floor_id": "floor19",
+        "source_rect": [
+          209,
+          640,
+          225,
+          670
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor19.overlay.03@crop"
+    },
+    "floor19.overlay.04@crop": {
+      "asset_id": "floor19.overlay.04",
+      "recipe": {
+        "floor_id": "floor19",
+        "source_rect": [
+          228,
+          650,
+          244,
+          680
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor19.overlay.04@crop"
+    },
+    "floor19.overlay.05@crop": {
+      "asset_id": "floor19.overlay.05",
+      "recipe": {
+        "floor_id": "floor19",
+        "source_rect": [
+          247,
+          659,
+          263,
+          689
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor19.overlay.05@crop"
+    },
+    "floor21.base@normal": {
+      "asset_id": "floor21.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor21.base@normal"
+    },
+    "floor21.ceo_desk@crop": {
+      "asset_id": "floor21.ceo_desk",
+      "recipe": {
+        "floor_id": "floor21",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          607,
+          600,
+          662
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor21.ceo_desk@crop"
+    },
+    "floor21.overlay.00@crop": {
+      "asset_id": "floor21.overlay.00",
+      "recipe": {
+        "floor_id": "floor21",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor21.overlay.00@crop"
+    },
+    "floor21.overlay.01@crop": {
+      "asset_id": "floor21.overlay.01",
+      "recipe": {
+        "floor_id": "floor21",
+        "source_rect": [
+          0,
+          741,
+          69,
+          800
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor21.overlay.01@crop"
+    },
+    "floor31.base@normal": {
+      "asset_id": "floor31.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor31.base@normal"
+    },
+    "floor31.ceo_desk@crop": {
+      "asset_id": "floor31.ceo_desk",
+      "recipe": {
+        "floor_id": "floor31",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          614,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor31.ceo_desk@crop"
+    },
+    "floor31.overlay.00@crop": {
+      "asset_id": "floor31.overlay.00",
+      "recipe": {
+        "floor_id": "floor31",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor31.overlay.00@crop"
+    },
+    "floor31.overlay.01@crop": {
+      "asset_id": "floor31.overlay.01",
+      "recipe": {
+        "floor_id": "floor31",
+        "source_rect": [
+          0,
+          751,
+          28,
+          777
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor31.overlay.01@crop"
+    },
+    "floor31.overlay.02@crop": {
+      "asset_id": "floor31.overlay.02",
+      "recipe": {
+        "floor_id": "floor31",
+        "source_rect": [
+          39,
+          747,
+          65,
+          784
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor31.overlay.02@crop"
+    },
+    "floor33.base@normal": {
+      "asset_id": "floor33.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor33.base@normal"
+    },
+    "floor33.ceo_desk@crop": {
+      "asset_id": "floor33.ceo_desk",
+      "recipe": {
+        "floor_id": "floor33",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor33.ceo_desk@crop"
+    },
+    "floor33.overlay.00@crop": {
+      "asset_id": "floor33.overlay.00",
+      "recipe": {
+        "floor_id": "floor33",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor33.overlay.00@crop"
+    },
+    "floor33.overlay.01@crop": {
+      "asset_id": "floor33.overlay.01",
+      "recipe": {
+        "floor_id": "floor33",
+        "source_rect": [
+          1,
+          754,
+          28,
+          796
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor33.overlay.01@crop"
+    },
+    "floor33.overlay.02@crop": {
+      "asset_id": "floor33.overlay.02",
+      "recipe": {
+        "floor_id": "floor33",
+        "source_rect": [
+          93,
+          607,
+          108,
+          619
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor33.overlay.02@crop"
+    },
+    "floor34.base@normal": {
+      "asset_id": "floor34.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor34.base@normal"
+    },
+    "floor34.ceo_desk@crop": {
+      "asset_id": "floor34.ceo_desk",
+      "recipe": {
+        "floor_id": "floor34",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          623,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor34.ceo_desk@crop"
+    },
+    "floor34.overlay.00@crop": {
+      "asset_id": "floor34.overlay.00",
+      "recipe": {
+        "floor_id": "floor34",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor34.overlay.00@crop"
+    },
+    "floor34.overlay.01@crop": {
+      "asset_id": "floor34.overlay.01",
+      "recipe": {
+        "floor_id": "floor34",
+        "source_rect": [
+          0,
+          741,
+          26,
+          787
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor34.overlay.01@crop"
+    },
+    "floor35.base@normal": {
+      "asset_id": "floor35.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor35.base@normal"
+    },
+    "floor35.ceo_desk@crop": {
+      "asset_id": "floor35.ceo_desk",
+      "recipe": {
+        "floor_id": "floor35",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          616,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor35.ceo_desk@crop"
+    },
+    "floor35.overlay.00@crop": {
+      "asset_id": "floor35.overlay.00",
+      "recipe": {
+        "floor_id": "floor35",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor35.overlay.00@crop"
+    },
+    "floor35.overlay.01@crop": {
+      "asset_id": "floor35.overlay.01",
+      "recipe": {
+        "floor_id": "floor35",
+        "source_rect": [
+          209,
+          603,
+          251,
+          673
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor35.overlay.01@crop"
+    },
+    "floor35.overlay.02@crop": {
+      "asset_id": "floor35.overlay.02",
+      "recipe": {
+        "floor_id": "floor35",
+        "source_rect": [
+          272,
+          636,
+          312,
+          661
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor35.overlay.02@crop"
+    },
+    "floor35.overlay.03@crop": {
+      "asset_id": "floor35.overlay.03",
+      "recipe": {
+        "floor_id": "floor35",
+        "source_rect": [
+          304,
+          618,
+          348,
+          644
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor35.overlay.03@crop"
+    },
+    "floor35.overlay.04@crop": {
+      "asset_id": "floor35.overlay.04",
+      "recipe": {
+        "floor_id": "floor35",
+        "source_rect": [
+          339,
+          600,
+          389,
+          627
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor35.overlay.04@crop"
+    },
+    "floor36.base@normal": {
+      "asset_id": "floor36.base",
+      "semantic_type": "floor_base",
+      "transform": "NORMAL",
+      "variant_id": "floor36.base@normal"
+    },
+    "floor36.ceo_desk@crop": {
+      "asset_id": "floor36.ceo_desk",
+      "recipe": {
+        "floor_id": "floor36",
+        "normalize_canvas": [
+          50,
+          64
+        ],
+        "source_rect": [
+          550,
+          616,
+          600,
+          663
+        ]
+      },
+      "semantic_type": "desk_ceo",
+      "transform": "CROP",
+      "variant_id": "floor36.ceo_desk@crop"
+    },
+    "floor36.overlay.00@crop": {
+      "asset_id": "floor36.overlay.00",
+      "recipe": {
+        "floor_id": "floor36",
+        "source_rect": [
+          0,
+          634,
+          206,
+          740
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor36.overlay.00@crop"
+    },
+    "floor36.overlay.01@crop": {
+      "asset_id": "floor36.overlay.01",
+      "recipe": {
+        "floor_id": "floor36",
+        "source_rect": [
+          278,
+          601,
+          353,
+          670
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor36.overlay.01@crop"
+    },
+    "floor36.overlay.02@crop": {
+      "asset_id": "floor36.overlay.02",
+      "recipe": {
+        "floor_id": "floor36",
+        "source_rect": [
+          354,
+          600,
+          390,
+          645
+        ]
+      },
+      "semantic_type": "foreground_overlay",
+      "transform": "CROP",
+      "variant_id": "floor36.overlay.02@crop"
+    },
+    "pc_000.slot_00@normal": {
+      "asset_id": "pc_000.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_000.slot_00@normal"
+    },
+    "pc_000.slot_01@normal": {
+      "asset_id": "pc_000.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_000.slot_01@normal"
+    },
+    "pc_001.slot_00@normal": {
+      "asset_id": "pc_001.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_001.slot_00@normal"
+    },
+    "pc_001.slot_01@normal": {
+      "asset_id": "pc_001.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_001.slot_01@normal"
+    },
+    "pc_002.slot_00@flip_x": {
+      "asset_id": "pc_002.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_002.slot_00@flip_x"
+    },
+    "pc_002.slot_00@normal": {
+      "asset_id": "pc_002.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_002.slot_00@normal"
+    },
+    "pc_002.slot_01@normal": {
+      "asset_id": "pc_002.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_002.slot_01@normal"
+    },
+    "pc_003.slot_00@flip_x": {
+      "asset_id": "pc_003.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_003.slot_00@flip_x"
+    },
+    "pc_003.slot_00@normal": {
+      "asset_id": "pc_003.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_003.slot_00@normal"
+    },
+    "pc_003.slot_01@normal": {
+      "asset_id": "pc_003.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_003.slot_01@normal"
+    },
+    "pc_004.slot_00@flip_x": {
+      "asset_id": "pc_004.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_004.slot_00@flip_x"
+    },
+    "pc_004.slot_00@normal": {
+      "asset_id": "pc_004.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_004.slot_00@normal"
+    },
+    "pc_004.slot_01@normal": {
+      "asset_id": "pc_004.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_004.slot_01@normal"
+    },
+    "pc_005.slot_00@flip_x": {
+      "asset_id": "pc_005.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_005.slot_00@flip_x"
+    },
+    "pc_005.slot_00@normal": {
+      "asset_id": "pc_005.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_005.slot_00@normal"
+    },
+    "pc_005.slot_01@normal": {
+      "asset_id": "pc_005.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_005.slot_01@normal"
+    },
+    "pc_006.slot_00@flip_x": {
+      "asset_id": "pc_006.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_006.slot_00@flip_x"
+    },
+    "pc_006.slot_00@normal": {
+      "asset_id": "pc_006.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_006.slot_00@normal"
+    },
+    "pc_006.slot_01@normal": {
+      "asset_id": "pc_006.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_006.slot_01@normal"
+    },
+    "pc_007.slot_00@flip_x": {
+      "asset_id": "pc_007.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_007.slot_00@flip_x"
+    },
+    "pc_007.slot_00@normal": {
+      "asset_id": "pc_007.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_007.slot_00@normal"
+    },
+    "pc_007.slot_01@normal": {
+      "asset_id": "pc_007.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_007.slot_01@normal"
+    },
+    "pc_008.slot_00@flip_x": {
+      "asset_id": "pc_008.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_008.slot_00@flip_x"
+    },
+    "pc_008.slot_00@normal": {
+      "asset_id": "pc_008.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_008.slot_00@normal"
+    },
+    "pc_008.slot_01@normal": {
+      "asset_id": "pc_008.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_008.slot_01@normal"
+    },
+    "pc_009.slot_00@flip_x": {
+      "asset_id": "pc_009.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_009.slot_00@flip_x"
+    },
+    "pc_009.slot_00@normal": {
+      "asset_id": "pc_009.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_009.slot_00@normal"
+    },
+    "pc_009.slot_01@normal": {
+      "asset_id": "pc_009.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_009.slot_01@normal"
+    },
+    "pc_011.slot_00@flip_x": {
+      "asset_id": "pc_011.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_011.slot_00@flip_x"
+    },
+    "pc_011.slot_00@normal": {
+      "asset_id": "pc_011.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_011.slot_00@normal"
+    },
+    "pc_011.slot_01@normal": {
+      "asset_id": "pc_011.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_011.slot_01@normal"
+    },
+    "pc_012.slot_00@flip_x": {
+      "asset_id": "pc_012.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_012.slot_00@flip_x"
+    },
+    "pc_012.slot_00@normal": {
+      "asset_id": "pc_012.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_012.slot_00@normal"
+    },
+    "pc_012.slot_01@normal": {
+      "asset_id": "pc_012.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_012.slot_01@normal"
+    },
+    "pc_013.slot_00@flip_x": {
+      "asset_id": "pc_013.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_013.slot_00@flip_x"
+    },
+    "pc_013.slot_00@normal": {
+      "asset_id": "pc_013.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_013.slot_00@normal"
+    },
+    "pc_013.slot_01@normal": {
+      "asset_id": "pc_013.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_013.slot_01@normal"
+    },
+    "pc_014.slot_00@flip_x": {
+      "asset_id": "pc_014.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_014.slot_00@flip_x"
+    },
+    "pc_014.slot_00@normal": {
+      "asset_id": "pc_014.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_014.slot_00@normal"
+    },
+    "pc_014.slot_01@normal": {
+      "asset_id": "pc_014.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_014.slot_01@normal"
+    },
+    "pc_015.slot_00@flip_x": {
+      "asset_id": "pc_015.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_015.slot_00@flip_x"
+    },
+    "pc_015.slot_00@normal": {
+      "asset_id": "pc_015.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_015.slot_00@normal"
+    },
+    "pc_015.slot_01@normal": {
+      "asset_id": "pc_015.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_015.slot_01@normal"
+    },
+    "pc_016.slot_00@flip_x": {
+      "asset_id": "pc_016.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_016.slot_00@flip_x"
+    },
+    "pc_016.slot_00@normal": {
+      "asset_id": "pc_016.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_016.slot_00@normal"
+    },
+    "pc_016.slot_01@normal": {
+      "asset_id": "pc_016.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_016.slot_01@normal"
+    },
+    "pc_017.slot_00@flip_x": {
+      "asset_id": "pc_017.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_017.slot_00@flip_x"
+    },
+    "pc_017.slot_00@normal": {
+      "asset_id": "pc_017.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_017.slot_00@normal"
+    },
+    "pc_017.slot_01@normal": {
+      "asset_id": "pc_017.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_017.slot_01@normal"
+    },
+    "pc_018.slot_00@flip_x": {
+      "asset_id": "pc_018.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_018.slot_00@flip_x"
+    },
+    "pc_018.slot_00@normal": {
+      "asset_id": "pc_018.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_018.slot_00@normal"
+    },
+    "pc_018.slot_01@normal": {
+      "asset_id": "pc_018.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_018.slot_01@normal"
+    },
+    "pc_019.slot_00@flip_x": {
+      "asset_id": "pc_019.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_019.slot_00@flip_x"
+    },
+    "pc_019.slot_00@normal": {
+      "asset_id": "pc_019.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_019.slot_00@normal"
+    },
+    "pc_019.slot_01@normal": {
+      "asset_id": "pc_019.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_019.slot_01@normal"
+    },
+    "pc_021.slot_00@flip_x": {
+      "asset_id": "pc_021.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_021.slot_00@flip_x"
+    },
+    "pc_021.slot_00@normal": {
+      "asset_id": "pc_021.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_021.slot_00@normal"
+    },
+    "pc_021.slot_01@normal": {
+      "asset_id": "pc_021.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_021.slot_01@normal"
+    },
+    "pc_025.slot_00@flip_x": {
+      "asset_id": "pc_025.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_025.slot_00@flip_x"
+    },
+    "pc_025.slot_00@normal": {
+      "asset_id": "pc_025.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_025.slot_00@normal"
+    },
+    "pc_025.slot_01@normal": {
+      "asset_id": "pc_025.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_025.slot_01@normal"
+    },
+    "pc_031.slot_00@flip_x": {
+      "asset_id": "pc_031.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_031.slot_00@flip_x"
+    },
+    "pc_031.slot_00@normal": {
+      "asset_id": "pc_031.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_031.slot_00@normal"
+    },
+    "pc_031.slot_01@normal": {
+      "asset_id": "pc_031.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_031.slot_01@normal"
+    },
+    "pc_033.slot_00@flip_x": {
+      "asset_id": "pc_033.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_033.slot_00@flip_x"
+    },
+    "pc_033.slot_00@normal": {
+      "asset_id": "pc_033.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_033.slot_00@normal"
+    },
+    "pc_033.slot_01@normal": {
+      "asset_id": "pc_033.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_033.slot_01@normal"
+    },
+    "pc_034.slot_00@flip_x": {
+      "asset_id": "pc_034.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_034.slot_00@flip_x"
+    },
+    "pc_034.slot_00@normal": {
+      "asset_id": "pc_034.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_034.slot_00@normal"
+    },
+    "pc_034.slot_01@normal": {
+      "asset_id": "pc_034.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_034.slot_01@normal"
+    },
+    "pc_035.slot_00@flip_x": {
+      "asset_id": "pc_035.slot_00",
+      "semantic_type": "pc",
+      "transform": "FLIP_X",
+      "variant_id": "pc_035.slot_00@flip_x"
+    },
+    "pc_035.slot_00@normal": {
+      "asset_id": "pc_035.slot_00",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_035.slot_00@normal"
+    },
+    "pc_035.slot_01@normal": {
+      "asset_id": "pc_035.slot_01",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_035.slot_01@normal"
+    },
+    "reception_003@normal": {
+      "asset_id": "reception_003",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_003@normal"
+    },
+    "reception_004@normal": {
+      "asset_id": "reception_004",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_004@normal"
+    },
+    "reception_005@normal": {
+      "asset_id": "reception_005",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_005@normal"
+    },
+    "reception_006@normal": {
+      "asset_id": "reception_006",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_006@normal"
+    },
+    "reception_007@normal": {
+      "asset_id": "reception_007",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_007@normal"
+    },
+    "reception_008@normal": {
+      "asset_id": "reception_008",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_008@normal"
+    },
+    "reception_009@normal": {
+      "asset_id": "reception_009",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_009@normal"
+    },
+    "reception_011@normal": {
+      "asset_id": "reception_011",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_011@normal"
+    },
+    "reception_012@normal": {
+      "asset_id": "reception_012",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_012@normal"
+    },
+    "reception_013@normal": {
+      "asset_id": "reception_013",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_013@normal"
+    },
+    "reception_014@normal": {
+      "asset_id": "reception_014",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_014@normal"
+    },
+    "reception_015@normal": {
+      "asset_id": "reception_015",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_015@normal"
+    },
+    "reception_016@normal": {
+      "asset_id": "reception_016",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_016@normal"
+    },
+    "reception_017@normal": {
+      "asset_id": "reception_017",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_017@normal"
+    },
+    "reception_018@normal": {
+      "asset_id": "reception_018",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_018@normal"
+    },
+    "reception_019@normal": {
+      "asset_id": "reception_019",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_019@normal"
+    },
+    "reception_021@normal": {
+      "asset_id": "reception_021",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_021@normal"
+    },
+    "reception_031@normal": {
+      "asset_id": "reception_031",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_031@normal"
+    },
+    "reception_033@normal": {
+      "asset_id": "reception_033",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_033@normal"
+    },
+    "reception_034@normal": {
+      "asset_id": "reception_034",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_034@normal"
+    },
+    "reception_035@normal": {
+      "asset_id": "reception_035",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_035@normal"
+    },
+    "reception_036@normal": {
+      "asset_id": "reception_036",
+      "semantic_type": "reception",
+      "transform": "NORMAL",
+      "variant_id": "reception_036@normal"
+    }
+  }
+}

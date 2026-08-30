@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema", "families"],
+  "properties": {
+    "schema": {"const": "gds_gameplay_metadata_families_v1"},
+    "families": {
+      "type": "object",
+      "minProperties": 3,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["family_id", "layout_id", "canonical_floor_id", "inheritance_policy", "synchronized_domains", "skin_only_domains", "placement_overrides"],
+        "properties": {
+          "family_id": {"type": "string"},
+          "layout_id": {"type": "string"},
+          "canonical_floor_id": {"type": "string"},
+          "inheritance_policy": {"type": "string"},
+          "synchronized_domains": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "skin_only_domains": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "placement_overrides": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "gds_humanball_registry_v1",
+  "humanball_count": 6,
+  "humanball_order": [
+    "controller",
+    "coin",
+    "horse",
+    "bench",
+    "purple_bot",
+    "purple_bot_body"
+  ],
+  "supported_action": {
+    "action": "work",
+    "subaction": "normal_work"
+  },
+  "cell": [18, 18],
+  "animation": {
+    "mode": "loop",
+    "total_frames": 12,
+    "visible_frames": 10,
+    "hidden_frames": 2,
+    "frame_ms": 140
+  },
+  "direction_rules": {
+    "NW": {"source": "native_verified"},
+    "SE": {"source": "native_verified"},
+    "SW": {
+      "source": "derived_relation",
+      "derived_from": "SE",
+      "transform": "mirror_relation_x",
+      "mirror_artwork": false
+    }
+  },
+  "motion_offsets_from_character_top_left_px": {
+    "NW": [[7,-21],[8,-23],[7,-25],[6,-26],[7,-28],[8,-29],[7,-31],[6,-32],[7,-34],[7,-35]],
+    "SE": [[5,-13],[6,-15],[5,-17],[4,-18],[5,-20],[6,-21],[5,-23],[4,-24],[5,-26],[5,-27]]
+  },
+  "render": {
+    "anchor": "character_work_origin",
+    "layer_mode": "work_popup_overlay"
+  },
+  "provenance": {
+    "source_package": "GDS_NORMAL_WORK_EFFECTS_SUITE/01_HUMANBALL",
+    "source_status": "final_locked",
+    "normalization": "4x suite canvas positions normalized to native 1x and made relative to verified TP_034 work-character top-left",
+    "verified_example_character": "TP_034",
+    "verified_human_top_left_4x": {
+      "NW": [168,176],
+      "SE": [108,120]
+    },
+    "verified_human_top_left_native": {
+      "NW": [42,44],
+      "SE": [27,30]
+    }
+  },
+  "humanballs": {
+    "controller": {"humanball_id":"controller","asset_id":"humanball.controller","source_index":0},
+    "coin": {"humanball_id":"coin","asset_id":"humanball.coin","source_index":1},
+    "horse": {"humanball_id":"horse","asset_id":"humanball.horse","source_index":2},
+    "bench": {"humanball_id":"bench","asset_id":"humanball.bench","source_index":3},
+    "purple_bot": {"humanball_id":"purple_bot","asset_id":"humanball.purple_bot","source_index":4},
+    "purple_bot_body": {"humanball_id":"purple_bot_body","asset_id":"humanball.purple_bot_body","source_index":5}
+  }
+}

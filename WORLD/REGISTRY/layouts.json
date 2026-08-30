@@ -1,0 +1,1128 @@
+{
+  "layouts": {
+    "layout.floor00.small": {
+      "coordinate_frame_id": "coord.pixel_iso.v1",
+      "layout_id": "layout.floor00.small",
+      "semantic_slots": [],
+      "slots": [
+        {
+          "binding_key": "ceo.chair",
+          "component_role": "chair_main",
+          "layer": 10,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "meeting_chair",
+          "transform": "NORMAL",
+          "workstation_id": "ceo",
+          "x_px": 224,
+          "y_px": 259
+        },
+        {
+          "binding_key": "ceo.desk",
+          "component_role": "desk",
+          "layer": 80,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ceo_desk_cell2",
+          "transform": "CROP",
+          "workstation_id": "ceo",
+          "x_px": 226,
+          "y_px": 251
+        },
+        {
+          "binding_key": "ceo.pc",
+          "component_role": "pc",
+          "layer": 90,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ceo_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ceo",
+          "x_px": 226,
+          "y_px": 262
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 122,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws1_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 291,
+          "y_px": 283
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 140,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws2_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 255,
+          "y_px": 301
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 192,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws1_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 293,
+          "y_px": 275
+        },
+        {
+          "binding_key": "work.family_b.desk",
+          "component_role": "desk",
+          "layer": 200,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws3_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 309,
+          "y_px": 283
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 202,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws1_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 293,
+          "y_px": 286
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 210,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws2_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 257,
+          "y_px": 293
+        },
+        {
+          "binding_key": "work.family_b.pc",
+          "component_role": "pc",
+          "layer": 210,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws3_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 309,
+          "y_px": 294
+        },
+        {
+          "binding_key": "work.family_b.desk",
+          "component_role": "desk",
+          "layer": 218,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws4_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 273,
+          "y_px": 301
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 220,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws2_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 257,
+          "y_px": 304
+        },
+        {
+          "binding_key": "work.family_b.pc",
+          "component_role": "pc",
+          "layer": 228,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws4_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 273,
+          "y_px": 312
+        },
+        {
+          "binding_key": "work.family_b.chair",
+          "component_role": "chair_main",
+          "layer": 400,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws3_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 338,
+          "y_px": 312
+        },
+        {
+          "binding_key": "work.family_b.chair",
+          "component_role": "chair_main",
+          "layer": 418,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws4_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 302,
+          "y_px": 330
+        },
+        {
+          "binding_key": "work.family_b.chair_sub",
+          "component_role": "chair_foreground",
+          "layer": 600,
+          "object_type": "chair_sub",
+          "required": false,
+          "slot_id": "ws3_chair_sub",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 338,
+          "y_px": 312
+        },
+        {
+          "binding_key": "work.family_b.chair_sub",
+          "component_role": "chair_foreground",
+          "layer": 618,
+          "object_type": "chair_sub",
+          "required": false,
+          "slot_id": "ws4_chair_sub",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 302,
+          "y_px": 330
+        }
+      ],
+      "source_geometry_floor_id": "floor00",
+      "workstation_groups": {
+        "ceo": {
+          "component_slots": {
+            "chair_main": "meeting_chair",
+            "desk": "ceo_desk_cell2",
+            "pc": "ceo_pc"
+          },
+          "group_id": "ceo",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws1": {
+          "component_slots": {
+            "chair_main": "ws1_chair_main",
+            "desk": "ws1_desk",
+            "pc": "ws1_pc"
+          },
+          "group_id": "ws1",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws2": {
+          "component_slots": {
+            "chair_main": "ws2_chair_main",
+            "desk": "ws2_desk",
+            "pc": "ws2_pc"
+          },
+          "group_id": "ws2",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws3": {
+          "component_slots": {
+            "chair_main": "ws3_chair_main",
+            "desk": "ws3_desk",
+            "pc": "ws3_pc"
+          },
+          "group_id": "ws3",
+          "group_type": "workstation",
+          "optional_component_slots": {
+            "chair_foreground": "ws3_chair_sub"
+          }
+        },
+        "ws4": {
+          "component_slots": {
+            "chair_main": "ws4_chair_main",
+            "desk": "ws4_desk",
+            "pc": "ws4_pc"
+          },
+          "group_id": "ws4",
+          "group_type": "workstation",
+          "optional_component_slots": {
+            "chair_foreground": "ws4_chair_sub"
+          }
+        }
+      }
+    },
+    "layout.floor01.medium": {
+      "coordinate_frame_id": "coord.pixel_iso.v1",
+      "layout_id": "layout.floor01.medium",
+      "semantic_slots": [],
+      "slots": [
+        {
+          "binding_key": "ceo.chair",
+          "component_role": "chair_main",
+          "layer": 79,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ceo_chair",
+          "transform": "NORMAL",
+          "workstation_id": "ceo",
+          "x_px": 260,
+          "y_px": 236
+        },
+        {
+          "binding_key": "ceo.desk",
+          "component_role": "desk",
+          "layer": 80,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ceo_desk_cell2",
+          "transform": "CROP",
+          "workstation_id": "ceo",
+          "x_px": 261,
+          "y_px": 227
+        },
+        {
+          "binding_key": "ceo.pc",
+          "component_role": "pc",
+          "layer": 90,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ceo_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ceo",
+          "x_px": 261,
+          "y_px": 238
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 112,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws1_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 299,
+          "y_px": 273
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 130,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws2_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 263,
+          "y_px": 291
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 151,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws5_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws5",
+          "x_px": 377,
+          "y_px": 312
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 169,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws6_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws6",
+          "x_px": 341,
+          "y_px": 330
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 182,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws1_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 301,
+          "y_px": 265
+        },
+        {
+          "binding_key": "work.family_b.desk",
+          "component_role": "desk",
+          "layer": 190,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws3_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 317,
+          "y_px": 273
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 192,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws1_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 301,
+          "y_px": 276
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 200,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws2_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 265,
+          "y_px": 283
+        },
+        {
+          "binding_key": "work.family_b.pc",
+          "component_role": "pc",
+          "layer": 200,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws3_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 317,
+          "y_px": 284
+        },
+        {
+          "binding_key": "work.family_b.desk",
+          "component_role": "desk",
+          "layer": 208,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws4_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 281,
+          "y_px": 291
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 210,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws2_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 265,
+          "y_px": 294
+        },
+        {
+          "binding_key": "work.family_b.pc",
+          "component_role": "pc",
+          "layer": 218,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws4_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 281,
+          "y_px": 302
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 221,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws5_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws5",
+          "x_px": 379,
+          "y_px": 304
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 231,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws5_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws5",
+          "x_px": 379,
+          "y_px": 315
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 239,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws6_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws6",
+          "x_px": 343,
+          "y_px": 322
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 249,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws6_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws6",
+          "x_px": 343,
+          "y_px": 333
+        },
+        {
+          "binding_key": "work.family_b.chair",
+          "component_role": "chair_main",
+          "layer": 390,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws3_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 346,
+          "y_px": 302
+        },
+        {
+          "binding_key": "work.family_b.chair",
+          "component_role": "chair_main",
+          "layer": 408,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws4_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 310,
+          "y_px": 320
+        },
+        {
+          "binding_key": "work.family_b.chair_sub",
+          "component_role": "chair_foreground",
+          "layer": 590,
+          "object_type": "chair_sub",
+          "required": false,
+          "slot_id": "ws3_chair_sub",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 346,
+          "y_px": 302
+        },
+        {
+          "binding_key": "work.family_b.chair_sub",
+          "component_role": "chair_foreground",
+          "layer": 608,
+          "object_type": "chair_sub",
+          "required": false,
+          "slot_id": "ws4_chair_sub",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 310,
+          "y_px": 320
+        }
+      ],
+      "source_geometry_floor_id": "floor01",
+      "workstation_groups": {
+        "ceo": {
+          "component_slots": {
+            "chair_main": "ceo_chair",
+            "desk": "ceo_desk_cell2",
+            "pc": "ceo_pc"
+          },
+          "group_id": "ceo",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws1": {
+          "component_slots": {
+            "chair_main": "ws1_chair_main",
+            "desk": "ws1_desk",
+            "pc": "ws1_pc"
+          },
+          "group_id": "ws1",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws2": {
+          "component_slots": {
+            "chair_main": "ws2_chair_main",
+            "desk": "ws2_desk",
+            "pc": "ws2_pc"
+          },
+          "group_id": "ws2",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws3": {
+          "component_slots": {
+            "chair_main": "ws3_chair_main",
+            "desk": "ws3_desk",
+            "pc": "ws3_pc"
+          },
+          "group_id": "ws3",
+          "group_type": "workstation",
+          "optional_component_slots": {
+            "chair_foreground": "ws3_chair_sub"
+          }
+        },
+        "ws4": {
+          "component_slots": {
+            "chair_main": "ws4_chair_main",
+            "desk": "ws4_desk",
+            "pc": "ws4_pc"
+          },
+          "group_id": "ws4",
+          "group_type": "workstation",
+          "optional_component_slots": {
+            "chair_foreground": "ws4_chair_sub"
+          }
+        },
+        "ws5": {
+          "component_slots": {
+            "chair_main": "ws5_chair_main",
+            "desk": "ws5_desk",
+            "pc": "ws5_pc"
+          },
+          "group_id": "ws5",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws6": {
+          "component_slots": {
+            "chair_main": "ws6_chair_main",
+            "desk": "ws6_desk",
+            "pc": "ws6_pc"
+          },
+          "group_id": "ws6",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        }
+      }
+    },
+    "layout.floor02.large": {
+      "coordinate_frame_id": "coord.pixel_iso.v1",
+      "layout_id": "layout.floor02.large",
+      "semantic_slots": [
+        {
+          "anchor": {
+            "x_basis": "sprite_left",
+            "x_px": 221,
+            "y_basis": "alpha_top",
+            "y_px": 355
+          },
+          "binding_key": "reception",
+          "layer": 430,
+          "object_type": "reception",
+          "required": true,
+          "slot_id": "reception",
+          "transform": "NORMAL"
+        }
+      ],
+      "slots": [
+        {
+          "binding_key": "ceo.chair",
+          "component_role": "chair_main",
+          "layer": 79,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ceo_chair",
+          "transform": "NORMAL",
+          "workstation_id": "ceo",
+          "x_px": 328,
+          "y_px": 231
+        },
+        {
+          "binding_key": "ceo.desk",
+          "component_role": "desk",
+          "layer": 80,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ceo_desk_cell2",
+          "transform": "CROP",
+          "workstation_id": "ceo",
+          "x_px": 293,
+          "y_px": 219
+        },
+        {
+          "binding_key": "ceo.pc",
+          "component_role": "pc",
+          "layer": 90,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ceo_pc",
+          "transform": "FLIP_X",
+          "workstation_id": "ceo",
+          "x_px": 293,
+          "y_px": 230
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 92,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws1_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 231,
+          "y_px": 253
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 110,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws2_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 195,
+          "y_px": 271
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 138,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws5_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws5",
+          "x_px": 323,
+          "y_px": 299
+        },
+        {
+          "binding_key": "work.family_a.chair",
+          "component_role": "chair_main",
+          "layer": 156,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws6_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws6",
+          "x_px": 287,
+          "y_px": 317
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 162,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws1_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 233,
+          "y_px": 245
+        },
+        {
+          "binding_key": "work.family_b.desk",
+          "component_role": "desk",
+          "layer": 170,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws3_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 249,
+          "y_px": 253
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 172,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws1_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws1",
+          "x_px": 233,
+          "y_px": 256
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 180,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws2_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 197,
+          "y_px": 263
+        },
+        {
+          "binding_key": "work.family_b.pc",
+          "component_role": "pc",
+          "layer": 180,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws3_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 249,
+          "y_px": 264
+        },
+        {
+          "binding_key": "work.family_b.desk",
+          "component_role": "desk",
+          "layer": 188,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws4_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 213,
+          "y_px": 271
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 190,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws2_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws2",
+          "x_px": 197,
+          "y_px": 274
+        },
+        {
+          "binding_key": "work.family_b.pc",
+          "component_role": "pc",
+          "layer": 198,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws4_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 213,
+          "y_px": 282
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 208,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws5_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws5",
+          "x_px": 325,
+          "y_px": 291
+        },
+        {
+          "binding_key": "work.family_b.desk",
+          "component_role": "desk",
+          "layer": 216,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws7_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws7",
+          "x_px": 341,
+          "y_px": 299
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 218,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws5_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws5",
+          "x_px": 325,
+          "y_px": 302
+        },
+        {
+          "binding_key": "work.family_a.desk",
+          "component_role": "desk",
+          "layer": 226,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws6_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws6",
+          "x_px": 289,
+          "y_px": 309
+        },
+        {
+          "binding_key": "work.family_b.pc",
+          "component_role": "pc",
+          "layer": 226,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws7_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws7",
+          "x_px": 341,
+          "y_px": 310
+        },
+        {
+          "binding_key": "work.family_b.desk",
+          "component_role": "desk",
+          "layer": 234,
+          "object_type": "desk",
+          "required": true,
+          "slot_id": "ws8_desk",
+          "transform": "NORMAL",
+          "workstation_id": "ws8",
+          "x_px": 305,
+          "y_px": 317
+        },
+        {
+          "binding_key": "work.family_a.pc",
+          "component_role": "pc",
+          "layer": 236,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws6_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws6",
+          "x_px": 289,
+          "y_px": 320
+        },
+        {
+          "binding_key": "work.family_b.pc",
+          "component_role": "pc",
+          "layer": 244,
+          "object_type": "pc",
+          "required": true,
+          "slot_id": "ws8_pc",
+          "transform": "NORMAL",
+          "workstation_id": "ws8",
+          "x_px": 305,
+          "y_px": 328
+        },
+        {
+          "binding_key": "work.family_b.chair",
+          "component_role": "chair_main",
+          "layer": 370,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws3_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 278,
+          "y_px": 282
+        },
+        {
+          "binding_key": "work.family_b.chair",
+          "component_role": "chair_main",
+          "layer": 388,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws4_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 242,
+          "y_px": 300
+        },
+        {
+          "binding_key": "work.family_b.chair",
+          "component_role": "chair_main",
+          "layer": 416,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws7_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws7",
+          "x_px": 370,
+          "y_px": 328
+        },
+        {
+          "binding_key": "work.family_b.chair",
+          "component_role": "chair_main",
+          "layer": 434,
+          "object_type": "chair",
+          "required": true,
+          "slot_id": "ws8_chair_main",
+          "transform": "NORMAL",
+          "workstation_id": "ws8",
+          "x_px": 334,
+          "y_px": 346
+        },
+        {
+          "binding_key": "work.family_b.chair_sub",
+          "component_role": "chair_foreground",
+          "layer": 570,
+          "object_type": "chair_sub",
+          "required": false,
+          "slot_id": "ws3_chair_sub",
+          "transform": "NORMAL",
+          "workstation_id": "ws3",
+          "x_px": 278,
+          "y_px": 282
+        },
+        {
+          "binding_key": "work.family_b.chair_sub",
+          "component_role": "chair_foreground",
+          "layer": 588,
+          "object_type": "chair_sub",
+          "required": false,
+          "slot_id": "ws4_chair_sub",
+          "transform": "NORMAL",
+          "workstation_id": "ws4",
+          "x_px": 242,
+          "y_px": 300
+        },
+        {
+          "binding_key": "work.family_b.chair_sub",
+          "component_role": "chair_foreground",
+          "layer": 616,
+          "object_type": "chair_sub",
+          "required": false,
+          "slot_id": "ws7_chair_sub",
+          "transform": "NORMAL",
+          "workstation_id": "ws7",
+          "x_px": 370,
+          "y_px": 328
+        },
+        {
+          "binding_key": "work.family_b.chair_sub",
+          "component_role": "chair_foreground",
+          "layer": 634,
+          "object_type": "chair_sub",
+          "required": false,
+          "slot_id": "ws8_chair_sub",
+          "transform": "NORMAL",
+          "workstation_id": "ws8",
+          "x_px": 334,
+          "y_px": 346
+        }
+      ],
+      "source_geometry_floor_id": "floor02",
+      "workstation_groups": {
+        "ceo": {
+          "component_slots": {
+            "chair_main": "ceo_chair",
+            "desk": "ceo_desk_cell2",
+            "pc": "ceo_pc"
+          },
+          "group_id": "ceo",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws1": {
+          "component_slots": {
+            "chair_main": "ws1_chair_main",
+            "desk": "ws1_desk",
+            "pc": "ws1_pc"
+          },
+          "group_id": "ws1",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws2": {
+          "component_slots": {
+            "chair_main": "ws2_chair_main",
+            "desk": "ws2_desk",
+            "pc": "ws2_pc"
+          },
+          "group_id": "ws2",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws3": {
+          "component_slots": {
+            "chair_main": "ws3_chair_main",
+            "desk": "ws3_desk",
+            "pc": "ws3_pc"
+          },
+          "group_id": "ws3",
+          "group_type": "workstation",
+          "optional_component_slots": {
+            "chair_foreground": "ws3_chair_sub"
+          }
+        },
+        "ws4": {
+          "component_slots": {
+            "chair_main": "ws4_chair_main",
+            "desk": "ws4_desk",
+            "pc": "ws4_pc"
+          },
+          "group_id": "ws4",
+          "group_type": "workstation",
+          "optional_component_slots": {
+            "chair_foreground": "ws4_chair_sub"
+          }
+        },
+        "ws5": {
+          "component_slots": {
+            "chair_main": "ws5_chair_main",
+            "desk": "ws5_desk",
+            "pc": "ws5_pc"
+          },
+          "group_id": "ws5",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws6": {
+          "component_slots": {
+            "chair_main": "ws6_chair_main",
+            "desk": "ws6_desk",
+            "pc": "ws6_pc"
+          },
+          "group_id": "ws6",
+          "group_type": "workstation",
+          "optional_component_slots": {}
+        },
+        "ws7": {
+          "component_slots": {
+            "chair_main": "ws7_chair_main",
+            "desk": "ws7_desk",
+            "pc": "ws7_pc"
+          },
+          "group_id": "ws7",
+          "group_type": "workstation",
+          "optional_component_slots": {
+            "chair_foreground": "ws7_chair_sub"
+          }
+        },
+        "ws8": {
+          "component_slots": {
+            "chair_main": "ws8_chair_main",
+            "desk": "ws8_desk",
+            "pc": "ws8_pc"
+          },
+          "group_id": "ws8",
+          "group_type": "workstation",
+          "optional_component_slots": {
+            "chair_foreground": "ws8_chair_sub"
+          }
+        }
+      }
+    }
+  },
+  "schema": "gds_layout_templates_v1"
+}

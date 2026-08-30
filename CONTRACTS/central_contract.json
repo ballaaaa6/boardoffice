@@ -1,0 +1,162 @@
+{
+  "asset_resolution": {
+    "character_registry": "CHARACTER/ASSETS/asset_registry.json",
+    "cross_domain_id_guessing": false,
+    "entry_point": "RUNTIME.central_core.CentralGameCore.resolve_asset_path",
+    "namespaces": [
+      "character",
+      "world"
+    ],
+    "world_registry": "WORLD/REGISTRY/world_assets.json"
+  },
+  "contract_id": "contract.gds.central_core.v1",
+  "domain_boundaries": {
+    "character": "CHARACTER",
+    "identity": "CHARACTER/IDENTITY",
+    "integration": "RUNTIME/central_core.py",
+    "world": "WORLD"
+  },
+  "identity_resolution": {
+    "accepted_queries": [
+      "character_no",
+      "numeric_string",
+      "character_code",
+      "full_name",
+      "nickname",
+      "character_id"
+    ],
+    "canonical_result": "character_id",
+    "fuzzy_matching": false
+  },
+  "integrated_workflow": "resolve character alias -> resolve workstation direction/chair family -> apply verified visual work-pose contract -> dynamically insert seated character into authored world render stack",
+  "phase_boundaries": {
+    "grid": "permanent_fine_grid_canonical",
+    "room_domain": "author_approved_canonical",
+    "portal": "author_approved_spawn_despawn_edge",
+    "object_occupancy": "active_ground_footprints_compiled_per_floor",
+    "static_floor_solids": "archived_inactive",
+    "walkability": "room_domain_minus_active_object_footprints",
+    "single_character_movement": "phase8b_active"
+  },
+  "schema": "gds.central_contract.v1",
+  "spatial_metadata": {
+    "contract": "CONTRACTS/spatial_object_contract.json",
+    "materialized_per_floor_records": false,
+    "primary_object_types": [
+      "chair",
+      "desk",
+      "pc",
+      "reception"
+    ],
+    "profile_registry": "WORLD/REGISTRY/spatial_profiles.json",
+    "runtime": "WORLD/RUNTIME/spatial_core.py",
+    "unknown_policy": "explicit_null_no_guessing"
+  },
+  "work_seat": {
+    "active_phase_unchanged": "single_character_movement_foundation; WorkSeat visual/gameplay contract preserved and runtime takeover remains Phase 8D",
+    "chair_family_registry": "WORLD/REGISTRY/chair_families.json",
+    "chair_runtime": "WORLD/RUNTIME/chair_family_core.py",
+    "gameplay_anchor_policy": "Phase 7F fields remain separate/unpopulated by visual offsets",
+    "patch_version": "1.5.0-compatible",
+    "profiles": {
+      "NW": {
+        "chair_role": "part_00",
+        "foreground_role": "part_03",
+        "human_offset_px": [
+          -10,
+          -6
+        ],
+        "mode": "native_verified"
+      },
+      "SE": {
+        "chair_role": "part_01",
+        "human_offset_px": [
+          2,
+          2
+        ],
+        "mode": "native_verified"
+      },
+      "SW": {
+        "mode": "derived_from_SE",
+        "standalone_transform": "FLIP_LEFT_RIGHT",
+        "standalone_transform_scope": "final_composite",
+        "world_chair_role": "part_02"
+      }
+    },
+    "runtime": "RUNTIME/work_seat_core.py",
+    "static_floor_rendering_changes": false,
+    "visual_offsets_are_gameplay_anchors": false,
+    "work_pose_contract": "CONTRACTS/work_pose_profiles.json"
+  },
+  "world_to_character_direction": {
+    "registry": "WORLD/REGISTRY/character_direction_bridge.json",
+    "unsupported_policy": "error_no_fallback",
+    "work_supported_directions": [
+      "SE",
+      "SW",
+      "NW"
+    ]
+  },
+  "room_navigation": {
+    "grid_registry": "WORLD/REGISTRY/fine_grid_profiles.json",
+    "domain_registry": "WORLD/REGISTRY/room_domains.json",
+    "portal_registry": "WORLD/REGISTRY/portals.json",
+    "binding_registry": "WORLD/REGISTRY/room_navigation_bindings.json",
+    "compiled_root": "WORLD/COMPILED_NAV",
+    "runtime": "WORLD/RUNTIME/room_navigation_core.py",
+    "family_policy": "floor00->floor00; floor01->floor01; layout.floor02.large->floor02 canonical for F2+",
+    "embedded_static_floor_solids_used": false,
+    "compiled_room_root": "WORLD/COMPILED_NAV",
+    "compiled_occupancy_root": "WORLD/COMPILED_NAV/OCCUPANCY"
+  },
+  "navigation_occupancy": {
+    "runtime": "WORLD/RUNTIME/navigation_occupancy_core.py",
+    "placement_bridge_registry": "WORLD/REGISTRY/navigation_placement_bridges.json",
+    "compiled_root": "WORLD/COMPILED_NAV/OCCUPANCY",
+    "active_object_types": [
+      "desk",
+      "chair",
+      "reception"
+    ],
+    "visual_only_types": [
+      "pc",
+      "chair.part_03"
+    ],
+    "walkability_formula": "room_cells - active_occupied_cells",
+    "rules": {
+      "active_footprints_must_be_inside_room": true,
+      "active_footprints_must_not_overlap_portal": true,
+      "all_walkable_cells_must_reach_portal": true,
+      "workstations_need_reachable_approach_cell": true
+    },
+    "work_seat_transition": "walk to reachable adjacent cell, then WorkSeatCore takes over seated placement"
+  },
+  "single_character_movement": {
+    "pathfinding_runtime": "WORLD/RUNTIME/pathfinding_core.py",
+    "movement_runtime": "RUNTIME/character_movement_core.py",
+    "navigation_source": "NavigationOccupancyCore runtime-derived walkable cells",
+    "neighbor_policy": "4-neighbor_only",
+    "edge_cost": 1,
+    "heuristic": "Manhattan",
+    "deterministic_tie_breaking": true,
+    "direction_mapping": {
+      "+U": "SE",
+      "-U": "NW",
+      "+V": "SW",
+      "-V": "NE"
+    },
+    "ground_anchor_px": [
+      16,
+      31
+    ],
+    "uses_existing_character_actions": [
+      "move",
+      "idle"
+    ],
+    "portal_spawn_fade": "not_in_8b",
+    "portal_exit_despawn": "not_in_8b",
+    "work_seat_takeover": "not_in_8b",
+    "final_depth_occlusion": "not_in_8b",
+    "multi_character_avoidance": "not_in_8b"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS HumanBall Registry v1",
+  "type": "object",
+  "required": [
+    "schema", "humanball_count", "humanball_order", "supported_action", "cell",
+    "animation", "direction_rules", "motion_offsets_from_character_top_left_px",
+    "render", "provenance", "humanballs"
+  ],
+  "properties": {
+    "schema": {"const": "gds_humanball_registry_v1"},
+    "humanball_count": {"const": 6},
+    "humanball_order": {
+      "type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "supported_action": {
+      "type": "object",
+      "required": ["action", "subaction"],
+      "properties": {
+        "action": {"const": "work"},
+        "subaction": {"const": "normal_work"}
+      },
+      "additionalProperties": false
+    },
+    "cell": {
+      "type": "array", "prefixItems": [{"const": 18}, {"const": 18}],
+      "minItems": 2, "maxItems": 2
+    },
+    "animation": {
+      "type": "object",
+      "required": ["mode", "total_frames", "visible_frames", "hidden_frames", "frame_ms"],
+      "properties": {
+        "mode": {"const": "loop"},
+        "total_frames": {"const": 12},
+        "visible_frames": {"const": 10},
+        "hidden_frames": {"const": 2},
+        "frame_ms": {"const": 140}
+      },
+      "additionalProperties": false
+    },
+    "direction_rules": {"type": "object", "required": ["NW", "SE", "SW"]},
+    "motion_offsets_from_character_top_left_px": {
+      "type": "object",
+      "required": ["NW", "SE"],
+      "properties": {
+        "NW": {"$ref": "#/$defs/motion"},
+        "SE": {"$ref": "#/$defs/motion"}
+      },
+      "additionalProperties": false
+    },
+    "render": {
+      "type": "object",
+      "required": ["anchor", "layer_mode"],
+      "properties": {
+        "anchor": {"const": "character_work_origin"},
+        "layer_mode": {"const": "work_popup_overlay"}
+      },
+      "additionalProperties": false
+    },
+    "provenance": {"type": "object"},
+    "humanballs": {
+      "type": "object",
+      "minProperties": 6,
+      "maxProperties": 6,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["humanball_id", "asset_id", "source_index"],
+        "properties": {
+          "humanball_id": {"type": "string", "minLength": 1},
+          "asset_id": {"type": "string", "pattern": "^humanball\\."},
+          "source_index": {"type": "integer", "minimum": 0, "maximum": 5}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "offset": {
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "prefixItems": [{"type": "integer"}, {"type": "integer"}]
+    },
+    "motion": {
+      "type": "array", "minItems": 10, "maxItems": 10,
+      "items": {"$ref": "#/$defs/offset"}
+    }
+  },
+  "additionalProperties": false
+}

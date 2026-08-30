@@ -1,0 +1,25 @@
+{
+  "canonical_png_counts": {
+    "character_and_vfx": 157,
+    "duplicate_file_hash_occurrences": 0,
+    "total": 438,
+    "unique_file_hashes": 438,
+    "world": 281
+  },
+  "central_tree_bytes_before_zip": 8900684,
+  "package": "GDS_CENTRAL_GAME_CORE_v1.0.0",
+  "policy": {
+    "canonical_runtime_assets_preserved": true,
+    "cross_domain_png_dedup_needed": false,
+    "domain_payloads_hash_frozen": true,
+    "world_raw_audit_sources_omitted": true
+  },
+  "schema": "gds.phase5.merge_report.v1",
+  "source_zip_bytes": {
+    "character_vfx": 498847,
+    "combined": 15108192,
+    "identity": 51142,
+    "world": 14558203
+  },
+  "world_raw_bytes_omitted": 7133700
+}

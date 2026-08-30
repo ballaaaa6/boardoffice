@@ -1,0 +1,189 @@
+{
+  "artwork_policy": "project_assets_only_no_generative_image",
+  "assignments": [
+    {
+      "chair_asset_id": "chair_006.part_02",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_000",
+      "character_id": "TP_000",
+      "character_no": 0,
+      "direction": "SW",
+      "foreground_asset_id": null,
+      "foreground_layer": null,
+      "foreground_static_present": false,
+      "full_name": "Blake Murray",
+      "visual_character_offset_from_chair_px": [
+        -13,
+        2
+      ],
+      "workstation_id": "ceo"
+    },
+    {
+      "chair_asset_id": "chair_006.part_01",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_001",
+      "character_id": "TP_001",
+      "character_no": 1,
+      "direction": "SE",
+      "foreground_asset_id": null,
+      "foreground_layer": null,
+      "foreground_static_present": false,
+      "full_name": "Reese Weaver",
+      "visual_character_offset_from_chair_px": [
+        2,
+        2
+      ],
+      "workstation_id": "ws1"
+    },
+    {
+      "chair_asset_id": "chair_006.part_01",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_002",
+      "character_id": "TP_002",
+      "character_no": 2,
+      "direction": "SE",
+      "foreground_asset_id": null,
+      "foreground_layer": null,
+      "foreground_static_present": false,
+      "full_name": "Ari Torres",
+      "visual_character_offset_from_chair_px": [
+        2,
+        2
+      ],
+      "workstation_id": "ws2"
+    },
+    {
+      "chair_asset_id": "chair_006.part_00",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_003",
+      "character_id": "TP_003",
+      "character_no": 3,
+      "direction": "NW",
+      "foreground_asset_id": "chair_006.part_03",
+      "foreground_layer": 570,
+      "foreground_static_present": false,
+      "full_name": "Spencer Hayes",
+      "visual_character_offset_from_chair_px": [
+        -10,
+        -6
+      ],
+      "workstation_id": "ws3"
+    },
+    {
+      "chair_asset_id": "chair_006.part_00",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_004",
+      "character_id": "TP_004",
+      "character_no": 4,
+      "direction": "NW",
+      "foreground_asset_id": "chair_006.part_03",
+      "foreground_layer": 588,
+      "foreground_static_present": false,
+      "full_name": "Elliot Powell",
+      "visual_character_offset_from_chair_px": [
+        -10,
+        -6
+      ],
+      "workstation_id": "ws4"
+    },
+    {
+      "chair_asset_id": "chair_006.part_01",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_005",
+      "character_id": "TP_005",
+      "character_no": 5,
+      "direction": "SE",
+      "foreground_asset_id": null,
+      "foreground_layer": null,
+      "foreground_static_present": false,
+      "full_name": "Lane Spencer",
+      "visual_character_offset_from_chair_px": [
+        2,
+        2
+      ],
+      "workstation_id": "ws5"
+    },
+    {
+      "chair_asset_id": "chair_006.part_01",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_006",
+      "character_id": "TP_006",
+      "character_no": 6,
+      "direction": "SE",
+      "foreground_asset_id": null,
+      "foreground_layer": null,
+      "foreground_static_present": false,
+      "full_name": "Harley Gray",
+      "visual_character_offset_from_chair_px": [
+        2,
+        2
+      ],
+      "workstation_id": "ws6"
+    },
+    {
+      "chair_asset_id": "chair_006.part_00",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_007",
+      "character_id": "TP_007",
+      "character_no": 7,
+      "direction": "NW",
+      "foreground_asset_id": "chair_006.part_03",
+      "foreground_layer": 616,
+      "foreground_static_present": false,
+      "full_name": "Jules Vaughn",
+      "visual_character_offset_from_chair_px": [
+        -10,
+        -6
+      ],
+      "workstation_id": "ws7"
+    },
+    {
+      "chair_asset_id": "chair_006.part_00",
+      "chair_family_id": "chair_006",
+      "character_code": "CHAR_008",
+      "character_id": "TP_008",
+      "character_no": 8,
+      "direction": "NW",
+      "foreground_asset_id": "chair_006.part_03",
+      "foreground_layer": 634,
+      "foreground_static_present": false,
+      "full_name": "Alex Dawson",
+      "visual_character_offset_from_chair_px": [
+        -10,
+        -6
+      ],
+      "workstation_id": "ws8"
+    }
+  ],
+  "floor_id": "floor06",
+  "master_preview": "PREVIEW/work_seat/floor06/all_work_subactions_preview.png",
+  "schema": "gds.floor06_work_seat_acceptance.v1",
+  "source_core_version": "1.4.1",
+  "subactions": {
+    "happy": {
+      "frame_count": 1,
+      "gif": "PREVIEW/work_seat/floor06/happy.gif",
+      "png": "PREVIEW/work_seat/floor06/happy_frame00.png",
+      "sheet": "PREVIEW/work_seat/floor06/happy_sheet.png"
+    },
+    "normal_work": {
+      "frame_count": 2,
+      "gif": "PREVIEW/work_seat/floor06/normal_work.gif",
+      "png": "PREVIEW/work_seat/floor06/normal_work_frame00.png",
+      "sheet": "PREVIEW/work_seat/floor06/normal_work_sheet.png"
+    },
+    "turn_side_a": {
+      "frame_count": 2,
+      "gif": "PREVIEW/work_seat/floor06/turn_side_a.gif",
+      "png": "PREVIEW/work_seat/floor06/turn_side_a_frame00.png",
+      "sheet": "PREVIEW/work_seat/floor06/turn_side_a_sheet.png"
+    },
+    "turn_side_b": {
+      "frame_count": 2,
+      "gif": "PREVIEW/work_seat/floor06/turn_side_b.gif",
+      "png": "PREVIEW/work_seat/floor06/turn_side_b_frame00.png",
+      "sheet": "PREVIEW/work_seat/floor06/turn_side_b_sheet.png"
+    }
+  },
+  "visual_approval": "pending_author_review"
+}

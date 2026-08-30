@@ -1,0 +1,43 @@
+{
+  "schema": "gds_navigation_clearance_profiles_v1",
+  "profile_id": "clearance.navigation.default.v1",
+  "rules": {
+    "desk": {
+      "enabled": true,
+      "object_type": "desk",
+      "expand_cells": {
+        "u_minus": 4,
+        "u_plus": 4,
+        "v_minus": 4,
+        "v_plus": 4
+      },
+      "policy": "navigation_only_clearance_around_authored_desk_footprint_plus4"
+    },
+    "chair": {
+      "enabled": true,
+      "object_type": "chair",
+      "expand_cells": {
+        "u_minus": 4,
+        "u_plus": 4,
+        "v_minus": 4,
+        "v_plus": 4
+      },
+      "preserve_workstation_ingress": true,
+      "ingress_width_cells": 1,
+      "policy": "navigation_only_clearance_around_chair_plus4_with_boundary_relief2_pair_relief1_and_outer_workseat_transition_gate",
+      "boundary_relief_cells": 2,
+      "pair_overlap_relief_cells": 1,
+      "pair_target_corridor_cells": 2
+    }
+  },
+  "placement_overrides": {
+    "floor01": {
+      "ceo_chair": {
+        "expand_cells": {
+          "u_minus": 0
+        },
+        "policy_note": "author-approved CEO chair access exception: disable -U navigation clearance only"
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Workstation Directions v1",
+  "type": "object",
+  "required": ["schema", "direction_semantics", "direction_vocabulary", "storage_policy", "layout_directions"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "gds.workstation_directions.v1"},
+    "direction_semantics": {"type": "string", "minLength": 1},
+    "direction_vocabulary": {
+      "type": "array", "prefixItems": [{"const":"NE"},{"const":"SE"},{"const":"SW"},{"const":"NW"}], "minItems":4, "maxItems":4
+    },
+    "storage_policy": {"const": "layout_profile_only_no_per_floor_direction_copies"},
+    "layout_directions": {
+      "type": "object",
+      "minProperties": 3,
+      "maxProperties": 3,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["layout_id", "authoring_floor_id", "inheritance_policy", "workstations"],
+        "additionalProperties": false,
+        "properties": {
+          "layout_id": {"type":"string"},
+          "authoring_floor_id": {"enum":["floor00","floor01","floor02"]},
+          "inheritance_policy": {"const":"all_floors_using_this_layout_resolve_this_profile"},
+          "workstations": {
+            "type":"object",
+            "minProperties":1,
+            "additionalProperties": {
+              "type":"object",
+              "required":["interaction_direction","authoring_source","source_filename","status"],
+              "additionalProperties": false,
+              "properties": {
+                "interaction_direction":{"enum":["NE","SE","SW","NW"]},
+                "authoring_source":{"type":"string"},
+                "source_filename":{"type":"string"},
+                "status":{"const":"authored_verified"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

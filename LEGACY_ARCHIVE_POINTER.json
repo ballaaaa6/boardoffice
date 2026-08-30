@@ -1,0 +1,10 @@
+{
+  "package": "GDS_LEGACY_FLOOR_SOLID_ARCHIVE_v1.0.0.zip",
+  "zip_sha256": "3e2201ad6068f8e98d56c1ed06658c3a927559ff2d2edc6cde65cfe157a8dc38",
+  "status": "EXTERNAL_ARCHIVE_INACTIVE",
+  "active_runtime": false,
+  "navigation_dependency": false,
+  "embedded_solid_asset_count": 14,
+  "reason": "Phase 7A/7B/7C cropped floor-solid and pixel-alpha collision work was externalized after Room Domain navigation became canonical.",
+  "restore_policy": "Keep externally until final cleanup; restore only by explicit author decision."
+}

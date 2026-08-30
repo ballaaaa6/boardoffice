@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_character_collections_v1",
+  "title": "GDS Character Collections Metadata",
+  "type": "object",
+  "required": ["schema", "collections", "rule"],
+  "properties": {
+    "schema": {"const": "gds_character_collections_v1"},
+    "collections": {"type": "object"},
+    "rule": {"const": "collection/origin never selects a different render path"}
+  }
+}

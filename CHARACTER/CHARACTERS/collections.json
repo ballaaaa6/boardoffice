@@ -1,0 +1,16 @@
+{
+  "schema": "gds_character_collections_v1",
+  "collections": {
+    "gds_custom_randomized": {
+      "origin_type": "custom",
+      "count": 238,
+      "runtime_semantics": "metadata_only"
+    },
+    "gds_original": {
+      "origin_type": "original",
+      "count": 64,
+      "runtime_semantics": "metadata_only"
+    }
+  },
+  "rule": "collection/origin never selects a different render path"
+}

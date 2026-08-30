@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Central Effect Registry v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "effect_count",
+    "effect_order",
+    "canonical_effect_id",
+    "fallback_effect_id",
+    "direction_rules",
+    "work_local_profile",
+    "effects"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds_effect_registry_v1"
+    },
+    "effect_count": {
+      "const": 11
+    },
+    "effect_order": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": {
+        "type": "string"
+      }
+    },
+    "canonical_effect_id": {
+      "const": "fire_original"
+    },
+    "fallback_effect_id": {
+      "const": "fire_original"
+    },
+    "effects": {
+      "type": "object",
+      "minProperties": 11,
+      "maxProperties": 11,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "render"
+        ],
+        "properties": {
+          "render": {
+            "type": "object",
+            "required": [
+              "anchor"
+            ],
+            "properties": {
+              "anchor": {
+                "const": "character_work_origin"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

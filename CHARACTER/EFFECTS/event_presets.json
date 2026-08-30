@@ -1,0 +1,16 @@
+{
+  "schema": "gds_effect_event_presets_v1",
+  "presets": {
+    "default_power": "fire_original",
+    "fast_work": "speed_wind",
+    "idea_bonus": "idea_overclock",
+    "energy_boost": "coffee_energy",
+    "happy": "sunshine_bloom",
+    "satisfaction": "heart_burst",
+    "relax": "cherry_blossom_swirl",
+    "heavy_stress": "thunder_cloud",
+    "business_loss": "stock_crash",
+    "fatigue": "low_battery_drain",
+    "system_error": "static_noise_field"
+  }
+}

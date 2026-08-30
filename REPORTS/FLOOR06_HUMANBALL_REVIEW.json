@@ -1,0 +1,177 @@
+{
+  "artwork_policy": "project_assets_only_no_generative_image",
+  "candidate_feature": "humanball_popup_channel",
+  "combined_assignments": [
+    {
+      "character_code": "CHAR_000",
+      "character_id": "TP_000",
+      "character_no": 0,
+      "direction": "SW",
+      "effect_id": "fire_original",
+      "humanball_id": "controller",
+      "workstation_id": "ceo"
+    },
+    {
+      "character_code": "CHAR_001",
+      "character_id": "TP_001",
+      "character_no": 1,
+      "direction": "SE",
+      "effect_id": "coffee_energy",
+      "humanball_id": "coin",
+      "workstation_id": "ws1"
+    },
+    {
+      "character_code": "CHAR_002",
+      "character_id": "TP_002",
+      "character_no": 2,
+      "direction": "NW",
+      "effect_id": "thunder_cloud",
+      "humanball_id": "horse",
+      "workstation_id": "ws3"
+    }
+  ],
+  "floor_id": "floor06",
+  "frame_count": 12,
+  "frame_duration_ms": 140,
+  "humanball_contract": {
+    "cell_px": [
+      18,
+      18
+    ],
+    "channel": "work_popup_overlay",
+    "directions": [
+      "NW",
+      "SE",
+      "SW"
+    ],
+    "hidden_frames": 2,
+    "sw_policy": "derive relation from SE; do not mirror authored furniture or HumanBall art",
+    "visible_frames": 10
+  },
+  "notes": [
+    "HumanBall is composited after completed work-scene static/human/foreground events.",
+    "Existing Work VFX remains an underlay before authored chair/workstation geometry.",
+    "Frames 10 and 11 intentionally contain no HumanBall popup.",
+    "GIFs use one global palette per complete animation."
+  ],
+  "outputs": {
+    "humanball_only_frames": [
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_00.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_01.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_02.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_03.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_04.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_05.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_06.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_07.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_08.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_09.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_10.png",
+      "PREVIEW/humanball/floor06/humanball_only_frames/frame_11.png"
+    ],
+    "humanball_only_gif": "PREVIEW/humanball/floor06/floor06_humanball_only.gif",
+    "humanball_only_review": "PREVIEW/humanball/floor06/floor06_humanball_motion_review.png",
+    "vfx_plus_humanball_frames": [
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_00.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_01.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_02.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_03.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_04.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_05.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_06.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_07.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_08.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_09.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_10.png",
+      "PREVIEW/humanball/floor06/vfx_plus_humanball_frames/frame_11.png"
+    ],
+    "vfx_plus_humanball_gif": "PREVIEW/humanball/floor06/floor06_vfx_plus_humanball.gif",
+    "vfx_plus_humanball_review": "PREVIEW/humanball/floor06/floor06_vfx_plus_humanball_review.png"
+  },
+  "primary_assignments": [
+    {
+      "character_code": "CHAR_000",
+      "character_id": "TP_000",
+      "character_no": 0,
+      "direction": "SW",
+      "effect_id": null,
+      "humanball_id": "controller",
+      "workstation_id": "ceo"
+    },
+    {
+      "character_code": "CHAR_001",
+      "character_id": "TP_001",
+      "character_no": 1,
+      "direction": "SE",
+      "effect_id": null,
+      "humanball_id": "coin",
+      "workstation_id": "ws1"
+    },
+    {
+      "character_code": "CHAR_002",
+      "character_id": "TP_002",
+      "character_no": 2,
+      "direction": "SE",
+      "effect_id": null,
+      "humanball_id": "horse",
+      "workstation_id": "ws2"
+    },
+    {
+      "character_code": "CHAR_003",
+      "character_id": "TP_003",
+      "character_no": 3,
+      "direction": "NW",
+      "effect_id": null,
+      "humanball_id": "bench",
+      "workstation_id": "ws3"
+    },
+    {
+      "character_code": "CHAR_004",
+      "character_id": "TP_004",
+      "character_no": 4,
+      "direction": "NW",
+      "effect_id": null,
+      "humanball_id": "purple_bot",
+      "workstation_id": "ws4"
+    },
+    {
+      "character_code": "CHAR_005",
+      "character_id": "TP_005",
+      "character_no": 5,
+      "direction": "SE",
+      "effect_id": null,
+      "humanball_id": "purple_bot_body",
+      "workstation_id": "ws5"
+    },
+    {
+      "character_code": "CHAR_006",
+      "character_id": "TP_006",
+      "character_no": 6,
+      "direction": "SE",
+      "effect_id": null,
+      "humanball_id": "controller",
+      "workstation_id": "ws6"
+    },
+    {
+      "character_code": "CHAR_007",
+      "character_id": "TP_007",
+      "character_no": 7,
+      "direction": "NW",
+      "effect_id": null,
+      "humanball_id": "coin",
+      "workstation_id": "ws7"
+    },
+    {
+      "character_code": "CHAR_008",
+      "character_id": "TP_008",
+      "character_no": 8,
+      "direction": "NW",
+      "effect_id": null,
+      "humanball_id": "horse",
+      "workstation_id": "ws8"
+    }
+  ],
+  "schema": "gds.floor06_humanball_review.v1",
+  "source_core_version": "1.6.1",
+  "visual_approval": "author_requested_merge_2026_08_30"
+}

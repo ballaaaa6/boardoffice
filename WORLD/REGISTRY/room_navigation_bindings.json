@@ -1,0 +1,144 @@
+{
+  "schema": "gds_room_navigation_bindings_v1",
+  "grid_profile_id": "grid.iso.occupancy_fine.v1",
+  "policy": {
+    "binding_basis": "layout_id",
+    "floor00_uses": "floor00",
+    "floor01_uses": "floor01",
+    "layout_floor02_large_uses": "floor02",
+    "future_floor_with_layout_floor02_large_reuses_floor02": true,
+    "geometry_is_not_duplicated_per_floor": true
+  },
+  "layout_bindings": {
+    "layout.floor00.small": "floor00",
+    "layout.floor01.medium": "floor01",
+    "layout.floor02.large": "floor02"
+  },
+  "floor_bindings": {
+    "floor00": {
+      "floor_id": "floor00",
+      "layout_id": "layout.floor00.small",
+      "canonical_floor_id": "floor00"
+    },
+    "floor01": {
+      "floor_id": "floor01",
+      "layout_id": "layout.floor01.medium",
+      "canonical_floor_id": "floor01"
+    },
+    "floor02": {
+      "floor_id": "floor02",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor03": {
+      "floor_id": "floor03",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor04": {
+      "floor_id": "floor04",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor05": {
+      "floor_id": "floor05",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor06": {
+      "floor_id": "floor06",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor07": {
+      "floor_id": "floor07",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor08": {
+      "floor_id": "floor08",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor09": {
+      "floor_id": "floor09",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor11": {
+      "floor_id": "floor11",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor12": {
+      "floor_id": "floor12",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor13": {
+      "floor_id": "floor13",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor14": {
+      "floor_id": "floor14",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor15": {
+      "floor_id": "floor15",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor16": {
+      "floor_id": "floor16",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor17": {
+      "floor_id": "floor17",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor18": {
+      "floor_id": "floor18",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor19": {
+      "floor_id": "floor19",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor21": {
+      "floor_id": "floor21",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor31": {
+      "floor_id": "floor31",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor33": {
+      "floor_id": "floor33",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor34": {
+      "floor_id": "floor34",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor35": {
+      "floor_id": "floor35",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    },
+    "floor36": {
+      "floor_id": "floor36",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02"
+    }
+  }
+}

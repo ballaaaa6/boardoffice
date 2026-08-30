@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Character Direction Bridge v1",
+  "type": "object",
+  "required": ["schema","contract_id","world_direction_vocabulary","character_direction_vocabulary","domain_policy","action_families","compatibility_baseline"],
+  "additionalProperties": false,
+  "properties": {
+    "schema":{"const":"gds.character_direction_bridge.v1"},
+    "contract_id":{"const":"contract.world_to_character_direction.v1"},
+    "world_direction_vocabulary":{"type":"array","prefixItems":[{"const":"NE"},{"const":"SE"},{"const":"SW"},{"const":"NW"}],"minItems":4,"maxItems":4},
+    "character_direction_vocabulary":{"type":"array","prefixItems":[{"const":"NE"},{"const":"SE"},{"const":"SW"},{"const":"NW"}],"minItems":4,"maxItems":4},
+    "domain_policy":{"const":"metadata_contract_only_character_domain_not_embedded"},
+    "action_families":{
+      "type":"object",
+      "required":["work"],
+      "additionalProperties": false,
+      "properties": {
+        "work": {
+          "type":"object",
+          "required":["character_action_id","direction_mode","supported_directions","mapping","unsupported_world_directions","unsupported_policy"],
+          "additionalProperties": false,
+          "properties": {
+            "character_action_id":{"const":"work"},
+            "direction_mode":{"const":"three_way"},
+            "supported_directions":{"type":"array","prefixItems":[{"const":"SE"},{"const":"SW"},{"const":"NW"}],"minItems":3,"maxItems":3},
+            "mapping":{"type":"object","required":["SE","SW","NW"],"additionalProperties":false,"properties":{"SE":{"const":"SE"},"SW":{"const":"SW"},"NW":{"const":"NW"}}},
+            "unsupported_world_directions":{"type":"array","prefixItems":[{"const":"NE"}],"minItems":1,"maxItems":1},
+            "unsupported_policy":{"const":"error_no_fallback"}
+          }
+        }
+      }
+    },
+    "compatibility_baseline":{
+      "type":"object",
+      "required":["package","zip_sha256","action_registry","action_registry_sha256","action_set_id"],
+      "additionalProperties":false,
+      "properties":{
+        "package":{"type":"string"},
+        "zip_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+        "action_registry":{"type":"string"},
+        "action_registry_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+        "action_set_id":{"type":"string"}
+      }
+    }
+  }
+}

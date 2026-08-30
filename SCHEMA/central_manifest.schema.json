@@ -1,0 +1,131 @@
+{
+  "$id": "gds.central_game_core.manifest.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "counts": {
+      "properties": {
+        "chair_foreground_fragments": {
+          "const": 8
+        },
+        "characters": {
+          "const": 302
+        },
+        "floors": {
+          "const": 25
+        },
+        "layouts": {
+          "const": 3
+        },
+        "resolved_placements": {
+          "const": 766
+        },
+        "resolved_spatial_objects": {
+          "const": 681
+        },
+        "resolved_workstations": {
+          "const": 219
+        },
+        "spatial_profiles": {
+          "const": 224
+        }
+      },
+      "required": [
+        "characters",
+        "floors",
+        "layouts",
+        "world_logical_assets",
+        "world_blobs",
+        "world_variants",
+        "resolved_placements",
+        "resolved_workstations",
+        "character_canonical_assets",
+        "spatial_profiles",
+        "resolved_spatial_objects",
+        "chair_foreground_fragments"
+      ],
+      "type": "object"
+    },
+    "domains": {
+      "required": [
+        "character",
+        "world",
+        "integration"
+      ],
+      "type": "object"
+    },
+    "lean_policy": {
+      "properties": {
+        "derived_outputs_are_cache": {
+          "const": true
+        },
+        "materialized_action_frames_included": {
+          "const": false
+        },
+        "materialized_floor_renders_included": {
+          "const": false
+        },
+        "world_raw_included": {
+          "const": false
+        }
+      },
+      "required": [
+        "world_raw_included",
+        "materialized_action_frames_included",
+        "materialized_floor_renders_included",
+        "derived_outputs_are_cache"
+      ],
+      "type": "object"
+    },
+    "package": {
+      "const": "GDS_CENTRAL_GAME_CORE"
+    },
+    "phase": {
+      "const": 8
+    },
+    "release_date": {
+      "type": "string"
+    },
+    "runtime": {
+      "required": [
+        "entry_point"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "gds.central_game_core.manifest.v1"
+    },
+    "sources": {
+      "required": [
+        "character_vfx",
+        "identity",
+        "world"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "type": "string"
+    },
+    "validation": {
+      "type": "object"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "package",
+    "version",
+    "release_date",
+    "phase",
+    "status",
+    "sources",
+    "counts",
+    "domains",
+    "lean_policy",
+    "runtime",
+    "validation"
+  ],
+  "type": "object"
+}

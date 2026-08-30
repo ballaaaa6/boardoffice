@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_character_registry_v3",
+  "title": "GDS Unified Character Identity Registry v3",
+  "type": "object",
+  "required": ["schema", "identity_model", "action_set", "asset_registry", "character_count", "characters"],
+  "properties": {
+    "schema": {"const": "gds_character_registry_v3"},
+    "identity_model": {"const": "stable_id_plus_composition_plus_provenance"},
+    "action_set": {"const": "gds_standard_v1"},
+    "asset_registry": {"type": "string"},
+    "character_count": {"const": 302},
+    "compatibility_fields": {"type": "array", "items": {"type": "string"}},
+    "characters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["character_id", "composition", "origin", "action_set", "render_canvas", "package_class", "body_asset_id", "face_asset_id", "legacy_package_path"],
+        "properties": {
+          "character_id": {"type": "string", "minLength": 1},
+          "composition": {
+            "type": "object",
+            "required": ["body", "face"],
+            "properties": {
+              "body": {"type": "string", "pattern": "^character\\.body\\.[0-9]{3}$"},
+              "face": {"type": "string", "pattern": "^character\\.face\\.[0-9]{3}$"}
+            },
+            "additionalProperties": false
+          },
+          "origin": {
+            "type": "object",
+            "required": ["type", "collection", "source", "legacy_id"],
+            "properties": {
+              "type": {"type": "string", "minLength": 1},
+              "collection": {"type": "string", "minLength": 1},
+              "source": {"type": "string", "minLength": 1},
+              "legacy_id": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          },
+          "action_set": {"const": "gds_standard_v1"},
+          "render_canvas": {
+            "type": "array",
+            "prefixItems": [{"const": 32}, {"const": 42}],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "package_class": {"enum": ["original", "custom"]},
+          "body_asset_id": {"type": "string", "pattern": "^character\\.body\\.[0-9]{3}$"},
+          "face_asset_id": {"type": "string", "pattern": "^character\\.face\\.[0-9]{3}$"},
+          "legacy_package_path": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

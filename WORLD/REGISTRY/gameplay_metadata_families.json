@@ -1,0 +1,95 @@
+{
+  "schema": "gds_gameplay_metadata_families_v1",
+  "families": {
+    "gameplay.layout.floor00.small": {
+      "family_id": "gameplay.layout.floor00.small",
+      "layout_id": "layout.floor00.small",
+      "canonical_floor_id": "floor00",
+      "inheritance_policy": "unique_gameplay_spatial_metadata_for_layout",
+      "synchronized_domains": [
+        "fine_grid",
+        "room_domain",
+        "portal",
+        "layout_geometry",
+        "workstation_geometry",
+        "workstation_directions",
+        "footprint_policy",
+        "navigation_clearance",
+        "navigation_closure",
+        "navigation_occupancy"
+      ],
+      "skin_only_domains": [
+        "visual_assets",
+        "background_asset",
+        "furniture_asset_family",
+        "reception_visual_asset",
+        "foreground_overlays"
+      ],
+      "placement_overrides": {}
+    },
+    "gameplay.layout.floor01.medium": {
+      "family_id": "gameplay.layout.floor01.medium",
+      "layout_id": "layout.floor01.medium",
+      "canonical_floor_id": "floor01",
+      "inheritance_policy": "unique_gameplay_spatial_metadata_for_layout",
+      "synchronized_domains": [
+        "fine_grid",
+        "room_domain",
+        "portal",
+        "layout_geometry",
+        "workstation_geometry",
+        "workstation_directions",
+        "footprint_policy",
+        "navigation_clearance",
+        "navigation_closure",
+        "navigation_occupancy"
+      ],
+      "skin_only_domains": [
+        "visual_assets",
+        "background_asset",
+        "furniture_asset_family",
+        "reception_visual_asset",
+        "foreground_overlays"
+      ],
+      "placement_overrides": {}
+    },
+    "gameplay.layout.floor02.large": {
+      "family_id": "gameplay.layout.floor02.large",
+      "layout_id": "layout.floor02.large",
+      "canonical_floor_id": "floor02",
+      "inheritance_policy": "all_gameplay_spatial_metadata_resolves_from_canonical_floor_and_shared_layout_profiles",
+      "synchronized_domains": [
+        "fine_grid",
+        "room_domain",
+        "portal",
+        "layout_geometry",
+        "workstation_geometry",
+        "workstation_directions",
+        "footprint_policy",
+        "navigation_clearance",
+        "navigation_closure",
+        "navigation_occupancy"
+      ],
+      "skin_only_domains": [
+        "visual_assets",
+        "background_asset",
+        "furniture_asset_family",
+        "reception_visual_asset",
+        "foreground_overlays"
+      ],
+      "placement_overrides": {
+        "reception": {
+          "navigation_ground_anchor_world_px": [
+            259,
+            376
+          ],
+          "footprint_origin_offset_uv_cells": [
+            -13,
+            -4
+          ],
+          "policy": "fixed_world_ground_anchor_independent_of_reception_visual_padding"
+        }
+      }
+    }
+  }
+}

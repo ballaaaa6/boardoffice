@@ -1,0 +1,13 @@
+# Python caches and local test tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Generated previews and occupancy exports
+PREVIEW/
+WORLD/COMPILED_NAV/OCCUPANCY/
+
+# Local release staging output
+releases/.staging/

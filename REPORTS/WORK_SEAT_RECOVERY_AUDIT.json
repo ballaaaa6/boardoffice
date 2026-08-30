@@ -1,0 +1,44 @@
+{
+  "chair_hash_errors": [],
+  "checks": {
+    "all_219_workstations_chair_role_consistent": true,
+    "all_876_workstation_subaction_compositions_renderable": true,
+    "chair_catalog_complete": true,
+    "chair_source_hashes_exact": true,
+    "room_navigation_regression_pass": true,
+    "schemas_valid": true,
+    "static_floor_hashes_unchanged": true,
+    "sw_character_mirror_exact": true,
+    "work_pose_profiles_exact": true
+  },
+  "composition_errors": [],
+  "counts": {
+    "chair_families": 30,
+    "chair_nontransparent_parts": 115,
+    "chair_source_parts": 120,
+    "chair_transparent_parts": 5,
+    "characters_checked": 302,
+    "static_floors_checked": 25,
+    "sw_frame_pairs_checked": 2114,
+    "workstation_subaction_compositions_checked": 876,
+    "workstations_checked": 219
+  },
+  "floor_hash_errors": [],
+  "pass": true,
+  "room_navigation": {
+    "checks": {
+      "f2_plus_family": true,
+      "fine_grid_canonical": true,
+      "floor00_family": true,
+      "floor01_family": true,
+      "floor02_family": true,
+      "legacy_grid_removed": true,
+      "legacy_solids_inactive": true
+    },
+    "pass": true
+  },
+  "schema": "gds.work_seat_recovery_audit.v1",
+  "schema_errors": [],
+  "sw_mismatches": [],
+  "workstation_errors": []
+}

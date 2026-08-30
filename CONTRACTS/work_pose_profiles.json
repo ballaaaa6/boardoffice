@@ -1,0 +1,72 @@
+{
+  "schema": "gds.work_pose_profiles.v1",
+  "contract_id": "contract.gds.work_pose_profiles.v1",
+  "coordinate_semantics": {
+    "visual_offset_reference": "chair_slot_origin_px",
+    "gameplay_anchor_fields_populated": false,
+    "note": "Visual character offsets are sprite-composition coordinates, not Phase 7F seat/approach/exit anchors."
+  },
+  "supported_directions": ["SE", "SW", "NW"],
+  "supported_subactions": ["normal_work", "turn_side_a", "turn_side_b", "happy"],
+  "profiles": {
+    "SE": {
+      "direction": "SE",
+      "mode": "native_verified",
+      "source_package": "GDS_WORK_SE_ASSEMBLER",
+      "world_chair_role": "part_01",
+      "visual_character_offset_from_chair_px": [2, 2],
+      "composition_viewport": {
+        "min_x": -4,
+        "min_y": -10,
+        "max_x": 54,
+        "max_y": 54,
+        "width": 58,
+        "height": 64
+      },
+      "world_insertion_rule": "immediately_after_chair_main",
+      "reference_workstation": {
+        "verified": true,
+        "chair_asset_id": "chair_000.part_01",
+        "chair_offset_px": [0, 0],
+        "desk_asset_id": "desk_000.part_00",
+        "desk_offset_px": [2, -8],
+        "pc_asset_id": "pc_000.slot_00",
+        "pc_offset_px": [2, 3],
+        "draw_order": ["chair", "human", "desk", "pc"]
+      }
+    },
+    "NW": {
+      "direction": "NW",
+      "mode": "native_verified",
+      "source_package": "GDS_WORK_NW_ASSEMBLER",
+      "world_chair_role": "part_00",
+      "world_chair_foreground_role": "part_03",
+      "foreground_optional": true,
+      "visual_character_offset_from_chair_px": [-10, -6],
+      "composition_viewport": {
+        "min_x": -16,
+        "min_y": -10,
+        "max_x": 24,
+        "max_y": 44,
+        "width": 40,
+        "height": 54
+      },
+      "world_insertion_rule": "immediately_after_chair_main_then_foreground",
+      "draw_order": ["chair_main", "human", "chair_foreground_if_present"]
+    },
+    "SW": {
+      "direction": "SW",
+      "mode": "derived",
+      "derived_from": "SE",
+      "source_package": "GDS_WORK_DIRECTION_SYSTEM_NW_SE_SW_v1.0.0",
+      "standalone_transform": "FLIP_LEFT_RIGHT",
+      "standalone_transform_scope": "final_composite",
+      "pixel_exact_required": true,
+      "world_chair_role": "part_02",
+      "world_character_frame_direction": "SW",
+      "world_offset_derivation": "mirror_relation_within_chair_canvas",
+      "world_insertion_rule": "immediately_after_chair_main",
+      "never_double_mirror_materialized_character_frames": true
+    }
+  }
+}

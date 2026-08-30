@@ -1,0 +1,33 @@
+{
+  "schema": "gds.room_navigation_audit.v1",
+  "status": "PASS",
+  "pass": true,
+  "checks": {
+    "fine_grid_is_permanent_canonical": true,
+    "only_three_canonical_domains": true,
+    "only_three_canonical_portals": true,
+    "only_three_compiled_masks": true,
+    "all_25_floors_bound": true,
+    "f2_plus_family_count": true,
+    "legacy_active_paths_removed": true,
+    "legacy_solid_archive_externalized": true,
+    "no_resolution_errors": true
+  },
+  "counts": {
+    "floor_count": 25,
+    "f0_family": 1,
+    "f1_family": 1,
+    "f2_plus_family": 23
+  },
+  "canonical_room_cell_counts": {
+    "floor00": 4129,
+    "floor01": 5950,
+    "floor02": 7942
+  },
+  "canonical_portal_widths": {
+    "floor00": 12,
+    "floor01": 21,
+    "floor02": 28
+  },
+  "errors": []
+}

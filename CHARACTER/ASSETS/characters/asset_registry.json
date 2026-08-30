@@ -1,0 +1,645 @@
+{
+  "schema": "gds_character_asset_registry_v1",
+  "character_count_scanned": 302,
+  "asset_count": 53,
+  "body_count": 23,
+  "face_count": 30,
+  "assets": [
+    {
+      "asset_id": "character.body.000",
+      "kind": "body",
+      "index": 0,
+      "path": "body/body_000.png",
+      "sha256": "770150a6d8eda092f95a04600a2b87921c1b89994b9b7871c3e96a655ce0410f",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 16
+    },
+    {
+      "asset_id": "character.body.001",
+      "kind": "body",
+      "index": 1,
+      "path": "body/body_001.png",
+      "sha256": "028772ddbdb146b6a7335c6f9d16e6ffc91c18c9e16876ed5a4d76bf5d74382a",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.body.002",
+      "kind": "body",
+      "index": 2,
+      "path": "body/body_002.png",
+      "sha256": "15e6d975622595514d10b164d6bfd9191527f10f9959e21289986c382056fc37",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 14
+    },
+    {
+      "asset_id": "character.body.003",
+      "kind": "body",
+      "index": 3,
+      "path": "body/body_003.png",
+      "sha256": "d75939388014cdc9b3427c299d4330e7556adecef8758df19cd9ad4cb1229a5f",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.004",
+      "kind": "body",
+      "index": 4,
+      "path": "body/body_004.png",
+      "sha256": "5474eb13c286e1324468133e95c297e0906dcb6b6103b1f099b6c401c9e7b781",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.005",
+      "kind": "body",
+      "index": 5,
+      "path": "body/body_005.png",
+      "sha256": "ef9a93c1afe4ba047a5e646df34d6bc0d16add49a49f2d8715e9cbb6bb79ff54",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.006",
+      "kind": "body",
+      "index": 6,
+      "path": "body/body_006.png",
+      "sha256": "fc5fac9c8e7717113d0f4f557cf98f6fd08d0413beb5b7b2c1f0e996a5895ced",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.007",
+      "kind": "body",
+      "index": 7,
+      "path": "body/body_007.png",
+      "sha256": "19caa0d2320222c223460516e07a86f70789a4ea279b698882cb508999f268a0",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.008",
+      "kind": "body",
+      "index": 8,
+      "path": "body/body_008.png",
+      "sha256": "833d7dced938f46ed68f47329ed8bf46281ccf99c6a5326a0497d29ee714bfa4",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.009",
+      "kind": "body",
+      "index": 9,
+      "path": "body/body_009.png",
+      "sha256": "7066d2c5aebefc58263b82823d02da30d54ea13d5d13bf9f5fdd0ad082635963",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.010",
+      "kind": "body",
+      "index": 10,
+      "path": "body/body_010.png",
+      "sha256": "3987fed8008f8195d05af9a45e06b78ebac870ab6dfc5559eb49382f9edc600b",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.011",
+      "kind": "body",
+      "index": 11,
+      "path": "body/body_011.png",
+      "sha256": "21121f287697fbc6c918b5d1ea5bc1f94204d2aa433fa9273532d2f4e0dfaf63",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.012",
+      "kind": "body",
+      "index": 12,
+      "path": "body/body_012.png",
+      "sha256": "9cd8980c4de23a0bec9b85ae7ee31a74eb16274acd54086dbccd963d90919bbb",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.body.013",
+      "kind": "body",
+      "index": 13,
+      "path": "body/body_013.png",
+      "sha256": "6c5f17c76c50134c8710964fc30303a0417466561403e0070ea98a8f0283fdb5",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.body.014",
+      "kind": "body",
+      "index": 14,
+      "path": "body/body_014.png",
+      "sha256": "98ea75f5b401030d4653469feba9575f9e84700aaf7e12421977cc1a5f71b62c",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.body.015",
+      "kind": "body",
+      "index": 15,
+      "path": "body/body_015.png",
+      "sha256": "44650d5c1a43f8633d2656b755f77da2709db68c2df3c51507b2eafc216dfdb3",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.body.016",
+      "kind": "body",
+      "index": 16,
+      "path": "body/body_016.png",
+      "sha256": "83d757476d0944fe29cb2bfb48497ace2bc69cfaebcf79c1c03b686af5e89253",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.body.017",
+      "kind": "body",
+      "index": 17,
+      "path": "body/body_017.png",
+      "sha256": "19ac73b4a6702dfa124e55ee7ef0992b1baba4a94d12d5e13b4e0bac3d9790ce",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.body.019",
+      "kind": "body",
+      "index": 19,
+      "path": "body/body_019.png",
+      "sha256": "0f3911a34bf7e4907402b65e069d3e38959fd9781adb052fd7d18ca0874c302e",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.body.020",
+      "kind": "body",
+      "index": 20,
+      "path": "body/body_020.png",
+      "sha256": "764e2c039e4cd43bf09608efacbaf36e140c5d4dac442b21cd32b861f1e387d6",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 1
+    },
+    {
+      "asset_id": "character.body.021",
+      "kind": "body",
+      "index": 21,
+      "path": "body/body_021.png",
+      "sha256": "d88739384f3fde775f94cf9c113d0a9cb0de7cd4bf01320c5cb1f797a03786b1",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 15
+    },
+    {
+      "asset_id": "character.body.022",
+      "kind": "body",
+      "index": 22,
+      "path": "body/body_022.png",
+      "sha256": "d1886295c0fe387ee0ac8c6280d1a58957989cb387a9e09dc986607f82441b30",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 16
+    },
+    {
+      "asset_id": "character.body.024",
+      "kind": "body",
+      "index": 24,
+      "path": "body/body_024.png",
+      "sha256": "f555840b27883b7aad4955357c14a5594932c651615eb8d48b52ebf17c9d9f81",
+      "dimensions": [
+        102,
+        66
+      ],
+      "source_reference_count": 1
+    },
+    {
+      "asset_id": "character.face.000",
+      "kind": "face",
+      "index": 0,
+      "path": "face/face_000.png",
+      "sha256": "4dd01e25ab2a4b7ecd036fad6551af0a13b9048ede35519b9474868ffca1bee1",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.001",
+      "kind": "face",
+      "index": 1,
+      "path": "face/face_001.png",
+      "sha256": "61bca5325fa8fbd29339575a5af967f8c6a00ea3b1e6b2fd19409c76135a843f",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 13
+    },
+    {
+      "asset_id": "character.face.002",
+      "kind": "face",
+      "index": 2,
+      "path": "face/face_002.png",
+      "sha256": "ee3df6556e6d0330ac7ad762004d14a3c84f5d95b4dba6e9b14417432c0fe93d",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.003",
+      "kind": "face",
+      "index": 3,
+      "path": "face/face_003.png",
+      "sha256": "72a7f2fc6627899520e0bc88a300a468ccee5da103ebcdc32c5b9c7bbae263f4",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.004",
+      "kind": "face",
+      "index": 4,
+      "path": "face/face_004.png",
+      "sha256": "0ed6a7abae83750cac068a24cd4a6bfc303175dfa11ba8cf25fc3d473097f683",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.005",
+      "kind": "face",
+      "index": 5,
+      "path": "face/face_005.png",
+      "sha256": "c72e5bde3522a89d92b489364c54fb117a71042df78a4fe9388bb798751d8555",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.006",
+      "kind": "face",
+      "index": 6,
+      "path": "face/face_006.png",
+      "sha256": "b04be2a64b87d618ca734ddd4f0e02b0a30422000f4f6251afc42c275572681a",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.007",
+      "kind": "face",
+      "index": 7,
+      "path": "face/face_007.png",
+      "sha256": "35a6c456e2fadc7800e219d73e53c3b91f4eddbb2d7a8ae7e3681ac44ffa391a",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.008",
+      "kind": "face",
+      "index": 8,
+      "path": "face/face_008.png",
+      "sha256": "4cfdcdeccb4eec56e49a3a6d4379d4b21f0947315fe562624d87b72e29762df6",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.009",
+      "kind": "face",
+      "index": 9,
+      "path": "face/face_009.png",
+      "sha256": "d21f7d4a89b7fcbd2cd30dee3f30c7143d32565d9aec5e63fcbfa34ecc8903c8",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.010",
+      "kind": "face",
+      "index": 10,
+      "path": "face/face_010.png",
+      "sha256": "e9224dbd940469763cdb0cb80c8179d80f93f49f1c85e7f20754f80e5378b324",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.011",
+      "kind": "face",
+      "index": 11,
+      "path": "face/face_011.png",
+      "sha256": "0a7b5aff73ca44c1567c16a002e1de82fab456747e1f0945d357fe56135554bf",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 10
+    },
+    {
+      "asset_id": "character.face.012",
+      "kind": "face",
+      "index": 12,
+      "path": "face/face_012.png",
+      "sha256": "3afe0c38051f93f9055ecad6a10daef931f76689a021da78c6ec0dc48374ab8b",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.013",
+      "kind": "face",
+      "index": 13,
+      "path": "face/face_013.png",
+      "sha256": "1f77242d9f35db44c216e8a6cf4d9ffdfcd7075c65d0f30cd199a30fe61a3817",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 10
+    },
+    {
+      "asset_id": "character.face.014",
+      "kind": "face",
+      "index": 14,
+      "path": "face/face_014.png",
+      "sha256": "8bf5595bd1296fac5dd6fc6866f6e8148f64264305e7452c7567eb8ab77af619",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.016",
+      "kind": "face",
+      "index": 16,
+      "path": "face/face_016.png",
+      "sha256": "cc03c4966964d5ad2f239de740e94fd3d36834ccfd06ee8119bdf8015132fe21",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.017",
+      "kind": "face",
+      "index": 17,
+      "path": "face/face_017.png",
+      "sha256": "aea2b9481ce3a0128b45c737c337aaaa355803fa753754626877a41be8c86622",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.018",
+      "kind": "face",
+      "index": 18,
+      "path": "face/face_018.png",
+      "sha256": "1ca4cd345ab7b74c7f99e375dc79584a8e38e728799722fd47bfd6572df1204f",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.020",
+      "kind": "face",
+      "index": 20,
+      "path": "face/face_020.png",
+      "sha256": "0ad0b4d6989d9483987bf098285eaa0a6ca8c2d3a4ecaf42926f099500255449",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.021",
+      "kind": "face",
+      "index": 21,
+      "path": "face/face_021.png",
+      "sha256": "fcf974ff3636b297d50c49189baef59df344a9e14cb23938a6c2fab793c9cd99",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.022",
+      "kind": "face",
+      "index": 22,
+      "path": "face/face_022.png",
+      "sha256": "6f6e9591f3c2d5090f5b2c700f584c0cc861b103dcbe505a8c6a702c8f9f01de",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.023",
+      "kind": "face",
+      "index": 23,
+      "path": "face/face_023.png",
+      "sha256": "431f0557c9b368d60b3c22b5160f8474e8c4a5b5aa3519303e9bd3ccab4acbf5",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 12
+    },
+    {
+      "asset_id": "character.face.025",
+      "kind": "face",
+      "index": 25,
+      "path": "face/face_025.png",
+      "sha256": "3f9bc4c4963faad43d9a65424f71764f4fa68c00d07ec210f42712674dad1356",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.026",
+      "kind": "face",
+      "index": 26,
+      "path": "face/face_026.png",
+      "sha256": "21243670fb8ecf50b1fda1a000550df17027288538e66ae8da8bdc4ee9d5af52",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.027",
+      "kind": "face",
+      "index": 27,
+      "path": "face/face_027.png",
+      "sha256": "57fc65c456d38d27a6fcffdc7a4f6f5cea454f5f23e8318bdebc48316f5f35e0",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.028",
+      "kind": "face",
+      "index": 28,
+      "path": "face/face_028.png",
+      "sha256": "b8f405ab58b08e54531d12ac3d068668fb9cd7a1371cf2455644687bc3223fa2",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.029",
+      "kind": "face",
+      "index": 29,
+      "path": "face/face_029.png",
+      "sha256": "ee11a011dab28ff80ec49e3f94a693384352b5bbf02663cdff73fce95f80759d",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.031",
+      "kind": "face",
+      "index": 31,
+      "path": "face/face_031.png",
+      "sha256": "b2c8ce7cb934a8123b9bd6257bef7459e383a70fe1f0435cb365eaed1b52e6e5",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 9
+    },
+    {
+      "asset_id": "character.face.032",
+      "kind": "face",
+      "index": 32,
+      "path": "face/face_032.png",
+      "sha256": "cb2f6c7d9dfb9548f93a22992f8dcba7d5f8f7c9ae890a6ab90d6a09d5ef809e",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 1
+    },
+    {
+      "asset_id": "character.face.033",
+      "kind": "face",
+      "index": 33,
+      "path": "face/face_033.png",
+      "sha256": "7c41dd411a23f5831a04516b09ae80c978e61fd928eda40e08347781a31c4ec1",
+      "dimensions": [
+        80,
+        30
+      ],
+      "source_reference_count": 1
+    }
+  ]
+}

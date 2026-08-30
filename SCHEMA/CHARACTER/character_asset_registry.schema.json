@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_character_asset_registry_v1",
+  "title": "GDS Shared Character Asset Registry",
+  "type": "object",
+  "required": ["schema", "character_count_scanned", "asset_count", "body_count", "face_count", "assets"],
+  "properties": {
+    "schema": {"const": "gds_character_asset_registry_v1"},
+    "character_count_scanned": {"const": 302},
+    "asset_count": {"const": 53},
+    "body_count": {"const": 23},
+    "face_count": {"const": 30},
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["asset_id", "kind", "index", "path", "sha256", "dimensions", "source_reference_count"],
+        "properties": {
+          "asset_id": {"type": "string", "pattern": "^character\\.(body|face)\\.[0-9]{3}$"},
+          "kind": {"enum": ["body", "face"]},
+          "index": {"type": "integer", "minimum": 0},
+          "path": {"type": "string", "pattern": "^(body/body_|face/face_)[0-9]{3}\\.png$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "dimensions": {
+            "type": "array",
+            "items": {"type": "integer", "minimum": 1},
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "source_reference_count": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

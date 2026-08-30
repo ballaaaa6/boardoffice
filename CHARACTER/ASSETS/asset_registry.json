@@ -1,0 +1,2738 @@
+{
+  "schema": "gds_unified_asset_registry_v1",
+  "asset_count": 163,
+  "alias_count": 0,
+  "assets": [
+    {
+      "asset_id": "character.body.000",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_000.png",
+      "sha256": "770150a6d8eda092f95a04600a2b87921c1b89994b9b7871c3e96a655ce0410f",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.001",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_001.png",
+      "sha256": "028772ddbdb146b6a7335c6f9d16e6ffc91c18c9e16876ed5a4d76bf5d74382a",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.002",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_002.png",
+      "sha256": "15e6d975622595514d10b164d6bfd9191527f10f9959e21289986c382056fc37",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.003",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_003.png",
+      "sha256": "d75939388014cdc9b3427c299d4330e7556adecef8758df19cd9ad4cb1229a5f",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.004",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_004.png",
+      "sha256": "5474eb13c286e1324468133e95c297e0906dcb6b6103b1f099b6c401c9e7b781",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.005",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_005.png",
+      "sha256": "ef9a93c1afe4ba047a5e646df34d6bc0d16add49a49f2d8715e9cbb6bb79ff54",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.006",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_006.png",
+      "sha256": "fc5fac9c8e7717113d0f4f557cf98f6fd08d0413beb5b7b2c1f0e996a5895ced",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.007",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_007.png",
+      "sha256": "19caa0d2320222c223460516e07a86f70789a4ea279b698882cb508999f268a0",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.008",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_008.png",
+      "sha256": "833d7dced938f46ed68f47329ed8bf46281ccf99c6a5326a0497d29ee714bfa4",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.009",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_009.png",
+      "sha256": "7066d2c5aebefc58263b82823d02da30d54ea13d5d13bf9f5fdd0ad082635963",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.010",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_010.png",
+      "sha256": "3987fed8008f8195d05af9a45e06b78ebac870ab6dfc5559eb49382f9edc600b",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.011",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_011.png",
+      "sha256": "21121f287697fbc6c918b5d1ea5bc1f94204d2aa433fa9273532d2f4e0dfaf63",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.012",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_012.png",
+      "sha256": "9cd8980c4de23a0bec9b85ae7ee31a74eb16274acd54086dbccd963d90919bbb",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.013",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_013.png",
+      "sha256": "6c5f17c76c50134c8710964fc30303a0417466561403e0070ea98a8f0283fdb5",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.014",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_014.png",
+      "sha256": "98ea75f5b401030d4653469feba9575f9e84700aaf7e12421977cc1a5f71b62c",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.015",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_015.png",
+      "sha256": "44650d5c1a43f8633d2656b755f77da2709db68c2df3c51507b2eafc216dfdb3",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.016",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_016.png",
+      "sha256": "83d757476d0944fe29cb2bfb48497ace2bc69cfaebcf79c1c03b686af5e89253",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.017",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_017.png",
+      "sha256": "19ac73b4a6702dfa124e55ee7ef0992b1baba4a94d12d5e13b4e0bac3d9790ce",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.019",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_019.png",
+      "sha256": "0f3911a34bf7e4907402b65e069d3e38959fd9781adb052fd7d18ca0874c302e",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.020",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_020.png",
+      "sha256": "764e2c039e4cd43bf09608efacbaf36e140c5d4dac442b21cd32b861f1e387d6",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.021",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_021.png",
+      "sha256": "d88739384f3fde775f94cf9c113d0a9cb0de7cd4bf01320c5cb1f797a03786b1",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.022",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_022.png",
+      "sha256": "d1886295c0fe387ee0ac8c6280d1a58957989cb387a9e09dc986607f82441b30",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.body.024",
+      "domain": "character",
+      "kind": "body",
+      "path": "characters/body/body_024.png",
+      "sha256": "f555840b27883b7aad4955357c14a5594932c651615eb8d48b52ebf17c9d9f81",
+      "dimensions": [
+        102,
+        66
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.000",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_000.png",
+      "sha256": "4dd01e25ab2a4b7ecd036fad6551af0a13b9048ede35519b9474868ffca1bee1",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.001",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_001.png",
+      "sha256": "61bca5325fa8fbd29339575a5af967f8c6a00ea3b1e6b2fd19409c76135a843f",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.002",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_002.png",
+      "sha256": "ee3df6556e6d0330ac7ad762004d14a3c84f5d95b4dba6e9b14417432c0fe93d",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.003",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_003.png",
+      "sha256": "72a7f2fc6627899520e0bc88a300a468ccee5da103ebcdc32c5b9c7bbae263f4",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.004",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_004.png",
+      "sha256": "0ed6a7abae83750cac068a24cd4a6bfc303175dfa11ba8cf25fc3d473097f683",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.005",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_005.png",
+      "sha256": "c72e5bde3522a89d92b489364c54fb117a71042df78a4fe9388bb798751d8555",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.006",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_006.png",
+      "sha256": "b04be2a64b87d618ca734ddd4f0e02b0a30422000f4f6251afc42c275572681a",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.007",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_007.png",
+      "sha256": "35a6c456e2fadc7800e219d73e53c3b91f4eddbb2d7a8ae7e3681ac44ffa391a",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.008",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_008.png",
+      "sha256": "4cfdcdeccb4eec56e49a3a6d4379d4b21f0947315fe562624d87b72e29762df6",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.009",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_009.png",
+      "sha256": "d21f7d4a89b7fcbd2cd30dee3f30c7143d32565d9aec5e63fcbfa34ecc8903c8",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.010",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_010.png",
+      "sha256": "e9224dbd940469763cdb0cb80c8179d80f93f49f1c85e7f20754f80e5378b324",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.011",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_011.png",
+      "sha256": "0a7b5aff73ca44c1567c16a002e1de82fab456747e1f0945d357fe56135554bf",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.012",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_012.png",
+      "sha256": "3afe0c38051f93f9055ecad6a10daef931f76689a021da78c6ec0dc48374ab8b",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.013",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_013.png",
+      "sha256": "1f77242d9f35db44c216e8a6cf4d9ffdfcd7075c65d0f30cd199a30fe61a3817",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.014",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_014.png",
+      "sha256": "8bf5595bd1296fac5dd6fc6866f6e8148f64264305e7452c7567eb8ab77af619",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.016",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_016.png",
+      "sha256": "cc03c4966964d5ad2f239de740e94fd3d36834ccfd06ee8119bdf8015132fe21",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.017",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_017.png",
+      "sha256": "aea2b9481ce3a0128b45c737c337aaaa355803fa753754626877a41be8c86622",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.018",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_018.png",
+      "sha256": "1ca4cd345ab7b74c7f99e375dc79584a8e38e728799722fd47bfd6572df1204f",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.020",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_020.png",
+      "sha256": "0ad0b4d6989d9483987bf098285eaa0a6ca8c2d3a4ecaf42926f099500255449",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.021",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_021.png",
+      "sha256": "fcf974ff3636b297d50c49189baef59df344a9e14cb23938a6c2fab793c9cd99",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.022",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_022.png",
+      "sha256": "6f6e9591f3c2d5090f5b2c700f584c0cc861b103dcbe505a8c6a702c8f9f01de",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.023",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_023.png",
+      "sha256": "431f0557c9b368d60b3c22b5160f8474e8c4a5b5aa3519303e9bd3ccab4acbf5",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.025",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_025.png",
+      "sha256": "3f9bc4c4963faad43d9a65424f71764f4fa68c00d07ec210f42712674dad1356",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.026",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_026.png",
+      "sha256": "21243670fb8ecf50b1fda1a000550df17027288538e66ae8da8bdc4ee9d5af52",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.027",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_027.png",
+      "sha256": "57fc65c456d38d27a6fcffdc7a4f6f5cea454f5f23e8318bdebc48316f5f35e0",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.028",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_028.png",
+      "sha256": "b8f405ab58b08e54531d12ac3d068668fb9cd7a1371cf2455644687bc3223fa2",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.029",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_029.png",
+      "sha256": "ee11a011dab28ff80ec49e3f94a693384352b5bbf02663cdff73fce95f80759d",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.031",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_031.png",
+      "sha256": "b2c8ce7cb934a8123b9bd6257bef7459e383a70fe1f0435cb365eaed1b52e6e5",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.032",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_032.png",
+      "sha256": "cb2f6c7d9dfb9548f93a22992f8dcba7d5f8f7c9ae890a6ab90d6a09d5ef809e",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "character.face.033",
+      "domain": "character",
+      "kind": "face",
+      "path": "characters/face/face_033.png",
+      "sha256": "7c41dd411a23f5831a04516b09ae80c978e61fd928eda40e08347781a31c4ec1",
+      "dimensions": [
+        80,
+        30
+      ],
+      "provenance": {
+        "source": "phase2_character_canonical"
+      }
+    },
+    {
+      "asset_id": "effect.fire_original.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "fire_original",
+      "frame_index": 0,
+      "path": "effects/fire_original/frame_00.png",
+      "sha256": "6f3f71c803cd77808c8e9b84d17791a5e4098bcd80ecad292af62a7d20fc6d6a",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "native_frames"
+      }
+    },
+    {
+      "asset_id": "effect.fire_original.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "fire_original",
+      "frame_index": 1,
+      "path": "effects/fire_original/frame_01.png",
+      "sha256": "acd548ce1beb17dc1d09d7e34143ee6cd4ec6795fe2534a45f9a81ddaabb8cb0",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "native_frames"
+      }
+    },
+    {
+      "asset_id": "effect.fire_original.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "fire_original",
+      "frame_index": 2,
+      "path": "effects/fire_original/frame_02.png",
+      "sha256": "2db5e4282e3e99ce0d34b888d0647219e72ac6060ffa559fc031302352646971",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "native_frames"
+      }
+    },
+    {
+      "asset_id": "effect.fire_original.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "fire_original",
+      "frame_index": 3,
+      "path": "effects/fire_original/frame_03.png",
+      "sha256": "fe995cc6ae5c14a323b72f3692f6042b6d1f0a200c41dd52008eccb263e06868",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "native_frames"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 0,
+      "path": "effects/speed_wind/frame_00.png",
+      "sha256": "a50ae203a0e7e535395425cc661985de6055bdad611a9889d3b50e05d882b6a0",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 1,
+      "path": "effects/speed_wind/frame_01.png",
+      "sha256": "3f1fb73cb17946b69c1795bf0f25e91284a3d06c4cddfd21a995b9b233059875",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 2,
+      "path": "effects/speed_wind/frame_02.png",
+      "sha256": "c9c80d0486e76587256769dff56216e6431123e151d397c0328e807d052daf0f",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 3,
+      "path": "effects/speed_wind/frame_03.png",
+      "sha256": "881fde2b56db2131684a0950b4707d4e485d83dbeee3fd78bbdb284defee7c95",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 4,
+      "path": "effects/speed_wind/frame_04.png",
+      "sha256": "40e75eb013343a25cace8820afcc3e8bb0ac8a59f861a3a845d58946c25a4e87",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 5,
+      "path": "effects/speed_wind/frame_05.png",
+      "sha256": "bdd94d5621ed55fe281faf3755c93899ae2391af6d3a695dfc31cc98b85f2688",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 6,
+      "path": "effects/speed_wind/frame_06.png",
+      "sha256": "50352ab92d73a1cb0f0b6b87b19f12aebf01e33f665df20964addf3924a2b9ac",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 7,
+      "path": "effects/speed_wind/frame_07.png",
+      "sha256": "0289cda6855890f0e98d5e1c106c7097e496b550b70c90cb8c764fd01dec2541",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 8,
+      "path": "effects/speed_wind/frame_08.png",
+      "sha256": "1e9b30b4a6717d9dd0010717af9df595e6642b7568414d5a8a37916f2184e37d",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.speed_wind.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "speed_wind",
+      "frame_index": 9,
+      "path": "effects/speed_wind/frame_09.png",
+      "sha256": "975547bded0b564ff83755f95138cd0d37d2c0d9ad48dd47c2c221a80abc0848",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 0,
+      "path": "effects/idea_overclock/frame_00.png",
+      "sha256": "bd3d19c94fb54300a63fe1bd12c5da5eef1f8c54415395fb3338b50d29a0eff8",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 1,
+      "path": "effects/idea_overclock/frame_01.png",
+      "sha256": "f1a7b144f7f807caed4ffd9414cf4f614ccc8795a3da4d8907e85e449d0dd42f",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 2,
+      "path": "effects/idea_overclock/frame_02.png",
+      "sha256": "578d25f25ace036e4533257a6821b31a9d85c0c63e1b1441a70d9ff6577d4c56",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 3,
+      "path": "effects/idea_overclock/frame_03.png",
+      "sha256": "42db61156eed498a9f59f8075381bfaf2fdddbac2e607b5740445e0a905beab5",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 4,
+      "path": "effects/idea_overclock/frame_04.png",
+      "sha256": "b3354dcb266bfe5095ba8e56888b676b87bb2dec2e068aaa7b9f9f77e2e69785",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 5,
+      "path": "effects/idea_overclock/frame_05.png",
+      "sha256": "9b0eb34a745f7b7341fdd0be10bf2fe3eb11b6d8744385b14d2289e838f78d43",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 6,
+      "path": "effects/idea_overclock/frame_06.png",
+      "sha256": "876eb8c948f74915b431b6f7ff3bcf1644d78255aa75e50282b81b4c634668b3",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 7,
+      "path": "effects/idea_overclock/frame_07.png",
+      "sha256": "23292ba665e7be5e25d003b8e4aaacaab14d5903e09478f44feba3a434356c6d",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 8,
+      "path": "effects/idea_overclock/frame_08.png",
+      "sha256": "983d512910cbb0a30ad10038639643638ddd8181223dc56e371a2b9a18efa015",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.idea_overclock.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "idea_overclock",
+      "frame_index": 9,
+      "path": "effects/idea_overclock/frame_09.png",
+      "sha256": "8cd6d48f51a67045b4b474f6d9ec12be9fe3a8121fc081efd366a5a127f3bbad",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 0,
+      "path": "effects/coffee_energy/frame_00.png",
+      "sha256": "3e4c073c17baa87e1923a1b0beaf082274a800f935eb337bee1cd93eb0e2e1b5",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 1,
+      "path": "effects/coffee_energy/frame_01.png",
+      "sha256": "215e87f20646ec9c4e866ca9dfaa90c3a1ae93042210675a99b92cc110e4820e",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 2,
+      "path": "effects/coffee_energy/frame_02.png",
+      "sha256": "5ad47ba534618e2361313310bba65f303615f3b5847f3c941a10cc3ac48e639d",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 3,
+      "path": "effects/coffee_energy/frame_03.png",
+      "sha256": "b276854b2b183436c61db74f1a33611f41a2ec2ef1aa4a8c7cb12bf5c6899ff7",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 4,
+      "path": "effects/coffee_energy/frame_04.png",
+      "sha256": "c3a92c160d6ca3c7e35fd97e82af5b991d92d1229530b28cb7fccff64e2aeeee",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 5,
+      "path": "effects/coffee_energy/frame_05.png",
+      "sha256": "f646e56064dfa78f9b03b0f6b7e20ee35fba2af46176bda512873db94437693b",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 6,
+      "path": "effects/coffee_energy/frame_06.png",
+      "sha256": "0df39efbeb93a03eb0ede8e5031fe5bee3d7f766d39c972345f848cc14569f8e",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 7,
+      "path": "effects/coffee_energy/frame_07.png",
+      "sha256": "cf999c49d077ad628b19dc46be60536db1b2d22cc0842df1d91902fdae07bd68",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 8,
+      "path": "effects/coffee_energy/frame_08.png",
+      "sha256": "9d9f9245b57898eb0a2b2ef27c341ed8d047cb70ada7bb23ffbbecdc49463d19",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.coffee_energy.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "coffee_energy",
+      "frame_index": 9,
+      "path": "effects/coffee_energy/frame_09.png",
+      "sha256": "c9cb1a9f82fa8063c5c8854d73d4e29425a173647923406d452abd8e6a7fc2a0",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 0,
+      "path": "effects/sunshine_bloom/frame_00.png",
+      "sha256": "822599fc5e7fa061a767e3a45d9fd39292bc45e57f6562b1a47f77fe1bc7aa4f",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 1,
+      "path": "effects/sunshine_bloom/frame_01.png",
+      "sha256": "91c123ba0484497cc2d0fb3bb78961877936de33ec1249110f2c62a671b61f11",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 2,
+      "path": "effects/sunshine_bloom/frame_02.png",
+      "sha256": "7537ac70579148f331357990943742c7fdc8f69528398c33fd7775fbeae4c5f6",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 3,
+      "path": "effects/sunshine_bloom/frame_03.png",
+      "sha256": "6c3a564531db1f12aeeb622099c9943a8591db0df1f056f0b448e597329e5db7",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 4,
+      "path": "effects/sunshine_bloom/frame_04.png",
+      "sha256": "63f50e0a6481527da0c2de5f700db03bfc85cf79bac948afbae8796498ca69a1",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 5,
+      "path": "effects/sunshine_bloom/frame_05.png",
+      "sha256": "3f5a5a3c787666eefefdc2aa68493b6b682630a83aaee0400a10d46b0af0967e",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 6,
+      "path": "effects/sunshine_bloom/frame_06.png",
+      "sha256": "910b30f926bef5bd4ad350d43d0e7369146a031ab626fed22dd3b0b99cb37553",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 7,
+      "path": "effects/sunshine_bloom/frame_07.png",
+      "sha256": "f9bede4d2716a1eaed6b109ba8d46d7dbfe03d71a561cc9de571b39e313ee6d8",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 8,
+      "path": "effects/sunshine_bloom/frame_08.png",
+      "sha256": "c67dd815650f810b501df5b608fe527e22329c35c143719f6c1b55b48f083601",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.sunshine_bloom.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "sunshine_bloom",
+      "frame_index": 9,
+      "path": "effects/sunshine_bloom/frame_09.png",
+      "sha256": "a408c3eeef8619a0a359efaa7fcdbc597a26d071b6fede74490ee5901d7edfcd",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 0,
+      "path": "effects/heart_burst/frame_00.png",
+      "sha256": "24ec6df74286d7d80acfba01ab326d2aa706e2752d8285567231e4be407ae5d0",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 1,
+      "path": "effects/heart_burst/frame_01.png",
+      "sha256": "f4d089891704d2858a5575cbff34c82a143f4f3d3e41fb2dcae71a80f98a4f6e",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 2,
+      "path": "effects/heart_burst/frame_02.png",
+      "sha256": "93558673e6b2ada12706dde54c8ec5d8936e4a446cc8bbc499dc69432ffbf0d6",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 3,
+      "path": "effects/heart_burst/frame_03.png",
+      "sha256": "3a92abf3e86f43cf5eb7b4208263c0a02d116cf6aa11745ace9d59904d3a3b73",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 4,
+      "path": "effects/heart_burst/frame_04.png",
+      "sha256": "de47c2a18e05d7acfd2a7c7b23962d236e4ae39e869d2ec83f66baf0ce8f0596",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 5,
+      "path": "effects/heart_burst/frame_05.png",
+      "sha256": "3e3fd6202b39b87063cbbac422da569267de867d1b828bfa5033963db28962f1",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 6,
+      "path": "effects/heart_burst/frame_06.png",
+      "sha256": "49bd49bcbdcc91c6176880cdd10b28cb0e9fb8eb8de880f866902d632bf4fa7f",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 7,
+      "path": "effects/heart_burst/frame_07.png",
+      "sha256": "8b19254ddbbd7067f71f8743a6e32ae814100b95085a3d0724617a7ac99998e1",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 8,
+      "path": "effects/heart_burst/frame_08.png",
+      "sha256": "a30e6338ce46efcc6b4edda664fc60ed699f56c7960e003064ec288ff956cf8e",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.heart_burst.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "heart_burst",
+      "frame_index": 9,
+      "path": "effects/heart_burst/frame_09.png",
+      "sha256": "20f55c4eb9d1f16b287d1ebc67558f2a3724a01bf667c9d24c47dfa5684652f0",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 0,
+      "path": "effects/cherry_blossom_swirl/frame_00.png",
+      "sha256": "53b4a3683e80f264637985f878ad7d7f85ec5b4d383da1c4de1814e04c421073",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 1,
+      "path": "effects/cherry_blossom_swirl/frame_01.png",
+      "sha256": "53d82451a1239c99c7947312a4b57152fcdc7f1d40d92e16bec8a735b1f65535",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 2,
+      "path": "effects/cherry_blossom_swirl/frame_02.png",
+      "sha256": "c5054f8efb900cd1c80cef79a6ba7eff5ec122c0b2e8c2e23bdf189526075bb5",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 3,
+      "path": "effects/cherry_blossom_swirl/frame_03.png",
+      "sha256": "e322cb1803b3f88bb545af3aa8c695a05cebfb9cbc6d5abdbc8f0e11cbcfeb76",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 4,
+      "path": "effects/cherry_blossom_swirl/frame_04.png",
+      "sha256": "161a5c51d57d38087fe0c5d649003d8f1ab1f0fbc27a837419aa92412e1abc7b",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 5,
+      "path": "effects/cherry_blossom_swirl/frame_05.png",
+      "sha256": "d6fee3079601a5c7bca9ca10b5f4fba02af5a02fa2b999650f11117f201925d4",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 6,
+      "path": "effects/cherry_blossom_swirl/frame_06.png",
+      "sha256": "91c27e0eecb2790002f60e29c29aaf458e1ce69bd0f9c9c38d30509efde669ba",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 7,
+      "path": "effects/cherry_blossom_swirl/frame_07.png",
+      "sha256": "32ddcd3479a416a3834a18518e1c463c0ca9f2cf3842a59099de7f3b0f550aeb",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 8,
+      "path": "effects/cherry_blossom_swirl/frame_08.png",
+      "sha256": "a5c37e4016bc322bbc58b3fd64f6f07ececb23354090156a249aa74cb31e9d85",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.cherry_blossom_swirl.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "cherry_blossom_swirl",
+      "frame_index": 9,
+      "path": "effects/cherry_blossom_swirl/frame_09.png",
+      "sha256": "728ba2ff6dab877bc572fe66a849989c502d455b13a0f35103b1dc815aa89ac1",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 0,
+      "path": "effects/thunder_cloud/frame_00.png",
+      "sha256": "903d68b34596fa684d975cb58de25abb9900ffda7d25848540e8cc4d2b6804c6",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 1,
+      "path": "effects/thunder_cloud/frame_01.png",
+      "sha256": "0c05bfdb38db3b43575fc45d9c68956e65dcff2b434732c53dbd20ddf2456eb9",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 2,
+      "path": "effects/thunder_cloud/frame_02.png",
+      "sha256": "e7e5906832102f1fa7c60f5ac2de2b9c8b7d82826770dbd2ee07df4e360cbd9c",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 3,
+      "path": "effects/thunder_cloud/frame_03.png",
+      "sha256": "7c41d723cb2e1c2c847acca569c011e262f46c7fa07a1c0a9c3677385158ed3d",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 4,
+      "path": "effects/thunder_cloud/frame_04.png",
+      "sha256": "507c67efb3967d5c43d8273990ccde7465995daf0aa7bb793be572e6b3695cd1",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 5,
+      "path": "effects/thunder_cloud/frame_05.png",
+      "sha256": "ef5c164d78443a6e17b42c37160ebeb96ab9af280e1a096d87f2d7a107c88e1b",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 6,
+      "path": "effects/thunder_cloud/frame_06.png",
+      "sha256": "53c0b8100ee2fc3185da424f71109b2fa69701ed2dceab144199d99ee90977ef",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 7,
+      "path": "effects/thunder_cloud/frame_07.png",
+      "sha256": "7b568ec26d28248082f81e8fb2ae92a4961ed73a6ca94b2de4bc674d53b0e419",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 8,
+      "path": "effects/thunder_cloud/frame_08.png",
+      "sha256": "e2f51c48cb52075f842aa1d806fdcd2de3111cd22bc8f646083f2878bc6c1130",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.thunder_cloud.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "thunder_cloud",
+      "frame_index": 9,
+      "path": "effects/thunder_cloud/frame_09.png",
+      "sha256": "2a5af593067e83867700ae30c43912b872cc7f43c9d77a42c60a8307071e9140",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 0,
+      "path": "effects/stock_crash/frame_00.png",
+      "sha256": "977862308edd9aebdc85bd2d12378083ed46bd7d2cc8d481d995ccd059431cc2",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 1,
+      "path": "effects/stock_crash/frame_01.png",
+      "sha256": "44ebd3d3af525996c708c212e0c001697d3251491f461eb89d183ed09f16184c",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 2,
+      "path": "effects/stock_crash/frame_02.png",
+      "sha256": "1c11e2afb352731545089d05ca928a4ef94d69e7dfa819d6a3f9e86b28190e5c",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 3,
+      "path": "effects/stock_crash/frame_03.png",
+      "sha256": "2b73060228e8e7ca85f9dc58ee2cfdaba9ecdf4b9f66b5a398e86b9b92522c95",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 4,
+      "path": "effects/stock_crash/frame_04.png",
+      "sha256": "51f7cc77d2f7c6d0abbc72d9d2a8a7b5d5ce207ca89b01b8e7d769475fc3491b",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 5,
+      "path": "effects/stock_crash/frame_05.png",
+      "sha256": "0fc747b8da8b798ed4ace9c1f6067a0a084ad0cffcd893ccb42d030853c8929d",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 6,
+      "path": "effects/stock_crash/frame_06.png",
+      "sha256": "753300da163d929e92d556f5e7cac839a0d348c529296462216be59dba9dd30a",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 7,
+      "path": "effects/stock_crash/frame_07.png",
+      "sha256": "453f779ed3055a64a78ee3d6a1eec24752e0a41f5c4351fc5f698e1f14d83250",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 8,
+      "path": "effects/stock_crash/frame_08.png",
+      "sha256": "90fd69d5ab0d2fdd467c22fde0fdfd244295162ed94aba1770675f540851cf1a",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.stock_crash.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "stock_crash",
+      "frame_index": 9,
+      "path": "effects/stock_crash/frame_09.png",
+      "sha256": "0d045632a11fd9b80bdeddcbab9636f073a012f3ba12816b3f8a30adbc96d2f3",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 0,
+      "path": "effects/low_battery_drain/frame_00.png",
+      "sha256": "b13e0fa5ac102fa7313a966663c8c53d5d2fc700752b88e48851ad044fc1bedf",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 1,
+      "path": "effects/low_battery_drain/frame_01.png",
+      "sha256": "ba1e93e42e1472dbd78b8aa5e82b72687b5b2fdf6fac093a48c11ed2b38b57d1",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 2,
+      "path": "effects/low_battery_drain/frame_02.png",
+      "sha256": "6c9b52f4c1d44b793727625c27f1ba6e2648db14f2469a9e9e204ae4f1bf4aa4",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 3,
+      "path": "effects/low_battery_drain/frame_03.png",
+      "sha256": "500c87746405e5a9246fb912151dc5abbea5dee9cc24b403e12cce4d13833ac8",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 4,
+      "path": "effects/low_battery_drain/frame_04.png",
+      "sha256": "761e73cf5156e19bf5444278bf9e936cace79eecc507553a727cf0af7586a0cd",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 5,
+      "path": "effects/low_battery_drain/frame_05.png",
+      "sha256": "aea4e464cd57ec97518496d28d9659c570b73c98971216eca467da2ec9c8c138",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 6,
+      "path": "effects/low_battery_drain/frame_06.png",
+      "sha256": "c6f798f02f3ed09868e956feb2986ea5a83b700e32a2b2cca27c31160fb953b1",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 7,
+      "path": "effects/low_battery_drain/frame_07.png",
+      "sha256": "19dbdaa066970ef43038eb8be9b35b734c2913dc85a15dcc75e88cb580d45bd1",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 8,
+      "path": "effects/low_battery_drain/frame_08.png",
+      "sha256": "1fe3699b586359bb87d764d251ad857fd9a9361cd9a2523ec7d63cbc4fc577d6",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.low_battery_drain.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "low_battery_drain",
+      "frame_index": 9,
+      "path": "effects/low_battery_drain/frame_09.png",
+      "sha256": "ff904a7a508a774e057344a7b1561ff1662e31f07969bc7f4d26e527c7ca461c",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.00",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 0,
+      "path": "effects/static_noise_field/frame_00.png",
+      "sha256": "93949fff7de3953d0e316ab1e797bb0c1688a3594a927735c235ce31bbbd343f",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.01",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 1,
+      "path": "effects/static_noise_field/frame_01.png",
+      "sha256": "0204deb2545065e297f6357de2a32615e0c5a30dca0c1dc12f1c3dcfd8722db7",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.02",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 2,
+      "path": "effects/static_noise_field/frame_02.png",
+      "sha256": "36aa7df0d3131fb5d0d8b73ec2cd6b6fdb535243ca6d6b65c2dcc0a105cc4670",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.03",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 3,
+      "path": "effects/static_noise_field/frame_03.png",
+      "sha256": "4245c84cf110fcd7c1533836f0453f57cbbfa5854e9dd0b28257daa75b992f83",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.04",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 4,
+      "path": "effects/static_noise_field/frame_04.png",
+      "sha256": "2fd9532b6358190db85a60fd3fa46f674ff259e2d55a33cd7c237cad9047e909",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.05",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 5,
+      "path": "effects/static_noise_field/frame_05.png",
+      "sha256": "a58e834f5c38cf7a272551f29685aa4e9db1fc5c16c06bf798d38d5870c1f7bd",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.06",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 6,
+      "path": "effects/static_noise_field/frame_06.png",
+      "sha256": "9cf19c212a76d415fa10f64318749cf7f554c906fa6c77379f5347d98ab7c239",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.07",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 7,
+      "path": "effects/static_noise_field/frame_07.png",
+      "sha256": "a156e9eef39625ca3331850bacc26ab5554934c9bd1578243ed2a8841eeadbdc",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.08",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 8,
+      "path": "effects/static_noise_field/frame_08.png",
+      "sha256": "fed851adc8edd0ca7ba856ba14a9128b15f25307788141f0667be84e197431b6",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "effect.static_noise_field.frame.09",
+      "domain": "effect",
+      "kind": "vfx_frame",
+      "effect_id": "static_noise_field",
+      "frame_index": 9,
+      "path": "effects/static_noise_field/frame_09.png",
+      "sha256": "04d9618823b13cfb6b9878fc6cf4a2d8bef6722cfba078acb244b354841c119e",
+      "dimensions": [
+        33,
+        65
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_EFFECT_VFX_FINAL",
+        "source_type": "generated_sheet"
+      }
+    },
+    {
+      "asset_id": "humanball.controller",
+      "domain": "effect",
+      "kind": "humanball_popup",
+      "humanball_id": "controller",
+      "path": "effects/humanball/controller.png",
+      "sha256": "307fe1363d14977edd0568c3cb42c6c6fa239d59a0604a8253098189d78c7ae6",
+      "dimensions": [
+        18,
+        18
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_NORMAL_WORK_EFFECTS_SUITE/01_HUMANBALL",
+        "source_type": "source_exact_cell",
+        "source_file": "assets/popup/humanball_00_controller.png",
+        "source_atlas_reference": "assets/main00.png"
+      }
+    },
+    {
+      "asset_id": "humanball.coin",
+      "domain": "effect",
+      "kind": "humanball_popup",
+      "humanball_id": "coin",
+      "path": "effects/humanball/coin.png",
+      "sha256": "05486b016ef6451d0bbcc2fcd0626ac533f4d0fe1da8a5396455f05a43babf96",
+      "dimensions": [
+        18,
+        18
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_NORMAL_WORK_EFFECTS_SUITE/01_HUMANBALL",
+        "source_type": "source_exact_cell",
+        "source_file": "assets/popup/humanball_01_coin.png",
+        "source_atlas_reference": "assets/main00.png"
+      }
+    },
+    {
+      "asset_id": "humanball.horse",
+      "domain": "effect",
+      "kind": "humanball_popup",
+      "humanball_id": "horse",
+      "path": "effects/humanball/horse.png",
+      "sha256": "af17f27210cffdeb6f4338eed2e60ef6a103d32147b09ffc2faedc5382cc596b",
+      "dimensions": [
+        18,
+        18
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_NORMAL_WORK_EFFECTS_SUITE/01_HUMANBALL",
+        "source_type": "source_exact_cell",
+        "source_file": "assets/popup/humanball_02_horse.png",
+        "source_atlas_reference": "assets/main00.png"
+      }
+    },
+    {
+      "asset_id": "humanball.bench",
+      "domain": "effect",
+      "kind": "humanball_popup",
+      "humanball_id": "bench",
+      "path": "effects/humanball/bench.png",
+      "sha256": "4595aea9b67eb82fe27dfd86c7405ddebd6a3bd437e1b0951cca5dc34c054ce4",
+      "dimensions": [
+        18,
+        18
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_NORMAL_WORK_EFFECTS_SUITE/01_HUMANBALL",
+        "source_type": "source_exact_cell",
+        "source_file": "assets/popup/humanball_03_bench.png",
+        "source_atlas_reference": "assets/main00.png"
+      }
+    },
+    {
+      "asset_id": "humanball.purple_bot",
+      "domain": "effect",
+      "kind": "humanball_popup",
+      "humanball_id": "purple_bot",
+      "path": "effects/humanball/purple_bot.png",
+      "sha256": "61b32f3daa9f66fb529568494fae654a4e6d785c1d750ca745057c81ba0e32f3",
+      "dimensions": [
+        18,
+        18
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_NORMAL_WORK_EFFECTS_SUITE/01_HUMANBALL",
+        "source_type": "source_exact_cell",
+        "source_file": "assets/popup/humanball_04_purple_bot.png",
+        "source_atlas_reference": "assets/main00.png"
+      }
+    },
+    {
+      "asset_id": "humanball.purple_bot_body",
+      "domain": "effect",
+      "kind": "humanball_popup",
+      "humanball_id": "purple_bot_body",
+      "path": "effects/humanball/purple_bot_body.png",
+      "sha256": "e94eb06be4eeb70e5be592780ecc794e5e2fbcf1269c0276c83951124d27a7cf",
+      "dimensions": [
+        18,
+        18
+      ],
+      "mode": "RGBA",
+      "provenance": {
+        "source": "GDS_NORMAL_WORK_EFFECTS_SUITE/01_HUMANBALL",
+        "source_type": "source_exact_cell",
+        "source_file": "assets/popup/humanball_05_purple_bot_body.png",
+        "source_atlas_reference": "assets/main00.png"
+      }
+    }
+  ],
+  "aliases": {},
+  "effect_asset_count": 110,
+  "character_asset_count": 53
+}
