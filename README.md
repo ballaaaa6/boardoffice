@@ -79,6 +79,13 @@ Required release audits cover Room Navigation, Ground Footprints, Navigation Occ
 
 See `HANDOFF.md`, `docs/NAVIGATION_OCCUPANCY_CONTRACT.md`, and the reports under `REPORTS/`.
 
+## Grid Floor Editor
+
+The local MVP editor is at `TOOLS/grid_floor_editor/index.html`. It loads the bundled F2
+room mask, supports click/rectangle selection, opens or closes Room/Portal Inside/Portal
+Outside cells, validates portal pairing/connectivity, and exports a reviewable patch JSON.
+F2 is canonical for 23 F2+ floors, so the editor shows that family impact before export.
+
 ## Next milestone
 
 **Phase 8D — WorkSeat runtime lifecycle:** walking → approach → seated/work → exit seat → walking.

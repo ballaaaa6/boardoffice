@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GDS Grid Floor Editor</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="default_f2_data.js"></script>
+  <script defer src="editor.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>GDS Grid Floor Editor</h1>
+      <p>แก้ Room Grid และ Portal แบบ cell-level สำหรับ floor02 / F2+ โดยไม่แก้ runtime อัตโนมัติ</p>
+    </div>
+    <div class="header-badge">local-first · patch export</div>
+  </header>
+
+  <nav class="toolbar" aria-label="Project actions">
+    <div class="toolbar-group">
+      <label for="floorSelect">Floor</label>
+      <select id="floorSelect">
+        <option value="floor02">F2 / floor02 canonical</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <button id="loadProjectButton" type="button">โหลดจากโปรเจกต์</button>
+      <label class="file-button">
+        นำเข้า Room mask
+        <input id="roomFile" type="file" accept="application/json,.json">
+      </label>
+      <label class="file-button">
+        นำเข้า Portal
+        <input id="portalFile" type="file" accept="application/json,.json">
+      </label>
+      <label class="file-button">
+        นำเข้า Occupancy
+        <input id="occupancyFile" type="file" accept="application/json,.json">
+      </label>
+    </div>
+    <div class="toolbar-group">
+      <button id="undoButton" type="button" title="Ctrl/Cmd+Z">ย้อนกลับ</button>
+      <button id="redoButton" type="button" title="Ctrl/Cmd+Shift+Z">ทำซ้ำ</button>
+      <button id="resetButton" type="button">คืนค่าเริ่มต้น</button>
+    </div>
+  </nav>
+
+  <main class="workspace">
+    <aside class="panel" aria-label="Editing tools">
+      <section class="section">
+        <h2>1. เลือกชั้นข้อมูล</h2>
+        <div class="segmented" id="layerButtons">
+          <button type="button" data-layer="room" class="active">Room Grid</button>
+          <button type="button" data-layer="portalInside">Portal Inside</button>
+          <button type="button" data-layer="portalOutside">Portal Outside</button>
+        </div>
+        <div class="hint" id="layerHint">เลือก cell ใน Room Grid แล้วกดเปิดหรือปิด</div>
+      </section>
+
+      <section class="section">
+        <h2>2. วิธีเลือก cell</h2>
+        <div class="segmented" id="toolButtons">
+          <button type="button" data-tool="cell" class="active">คลิกทีละช่อง</button>
+          <button type="button" data-tool="rectangle">คลุมเป็นกรอบ</button>
+          <button type="button" data-tool="pan">เลื่อนแผนที่</button>
+        </div>
+        <div class="hint">กด Shift เพื่อเพิ่ม selection · กด Ctrl/Cmd เพื่อลบออกจาก selection</div>
+      </section>
+
+      <section class="section">
+        <h2>3. การแก้ไข</h2>
+        <div class="operation-row">
+          <button id="openButton" class="primary" type="button">เปิด</button>
+          <button id="closeButton" class="danger" type="button">ปิด</button>
+        </div>
+        <div class="button-row" style="margin-top: 7px">
+          <button id="clearSelectionButton" class="small" type="button">ล้าง selection</button>
+        </div>
+        <div class="hint">การเปิด/ปิดจะทำกับ layer ที่เลือกเท่านั้น ยังไม่เขียนทับไฟล์ canonical</div>
+      </section>
+
+      <section class="section">
+        <h2>Viewport UV</h2>
+        <div class="viewport-grid">
+          <label>min U <input id="minU" type="number"></label>
+          <label>max U <input id="maxU" type="number"></label>
+          <label>min V <input id="minV" type="number"></label>
+          <label>max V <input id="maxV" type="number"></label>
+        </div>
+        <div class="button-row" style="margin-top: 7px">
+          <button id="applyViewportButton" class="small" type="button">ใช้ขอบเขต</button>
+          <button id="fitContentButton" class="small" type="button">Fit เนื้อหา</button>
+        </div>
+        <label class="field-label" style="display:flex; align-items:center; justify-content:space-between; margin-top:9px">
+          ขยายรอบข้อมูล
+          <input id="viewportMargin" type="number" min="0" max="100" value="8">
+        </label>
+        <button id="expandViewportButton" class="small" style="width:100%; margin-top:7px" type="button">ขยาย viewport</button>
+      </section>
+
+      <section class="section">
+        <h2>Legend</h2>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch room"></span>Room เปิดอยู่</div>
+          <div class="legend-item"><span class="swatch inside"></span>Portal Inside</div>
+          <div class="legend-item"><span class="swatch outside"></span>Portal Outside</div>
+          <div class="legend-item"><span class="swatch occupied"></span>Occupancy (ถ้ามีข้อมูล)</div>
+          <div class="legend-item"><span class="swatch selected"></span>Selection</div>
+        </div>
+      </section>
+    </aside>
+
+    <section class="canvas-panel" aria-label="Grid canvas">
+      <div class="canvas-toolbar">
+        <span id="coordinateReadout" class="coordinate-readout">UV: —</span>
+        <span id="selectionReadout">เลือกแล้ว 0 cells</span>
+        <span class="spacer"></span>
+        <span>Zoom</span>
+        <input id="zoomRange" type="range" min="0.5" max="3" step="0.1" value="1">
+        <button id="zoomOutButton" class="small" type="button">−</button>
+        <button id="zoomInButton" class="small" type="button">+</button>
+        <button id="centerButton" class="small" type="button">จัดกลาง</button>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="gridCanvas" aria-label="Interactive isometric grid"></canvas>
+        <div class="canvas-help">คลิกเลือก · คลุมเพื่อเลือกกรอบ · ใช้ปุ่ม เปิด/ปิด ด้านซ้าย</div>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Validation and export">
+      <section class="section">
+        <h2 id="dataTitle">F2 / floor02</h2>
+        <div id="overallStatus" class="status-card">
+          <div class="status-title"><span>สถานะข้อมูล</span><span id="overallStatusLabel">กำลังโหลด</span></div>
+          <div id="overallStatusDetail" class="status-detail">กำลังเตรียมข้อมูลเริ่มต้น</div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h3>จำนวน cell ปัจจุบัน</h3>
+        <dl class="metric-grid">
+          <dt>Room</dt><dd id="roomCount">0</dd>
+          <dt>Portal Inside</dt><dd id="portalInsideCount">0</dd>
+          <dt>Portal Outside</dt><dd id="portalOutsideCount">0</dd>
+          <dt>Occupancy</dt><dd id="occupancyCount">ไม่ได้โหลด</dd>
+          <dt>Selection</dt><dd id="selectedCount">0</dd>
+        </dl>
+      </section>
+
+      <section class="section">
+        <h3>Diff จากค่าเริ่มต้น</h3>
+        <div id="diffSummary" class="diff-box">ยังไม่มีการเปลี่ยนแปลง</div>
+      </section>
+
+      <section class="section">
+        <h3>Validation</h3>
+        <div id="checkList" class="check-list"></div>
+      </section>
+
+      <section class="section">
+        <h3>Export</h3>
+        <p>แนะนำให้ export เป็น patch ก่อน แล้วค่อยนำไป apply กับ canonical files หลังตรวจ diff</p>
+        <div class="button-row">
+          <button id="exportPatchButton" class="primary" type="button">Export Patch JSON</button>
+          <button id="exportSnapshotButton" type="button">Export Snapshot</button>
+        </div>
+        <label class="file-button" style="width:100%; justify-content:center; margin-top:7px">
+          Import Patch JSON
+          <input id="patchFile" type="file" accept="application/json,.json">
+        </label>
+        <details>
+          <summary>ดู portal edge ปัจจุบัน</summary>
+          <pre id="portalEdgePreview">ยังไม่มีข้อมูล</pre>
+        </details>
+      </section>
+    </aside>
+  </main>
+
+  <footer id="footerStatus" class="footer-status">พร้อมใช้งาน</footer>
+</body>
+</html>

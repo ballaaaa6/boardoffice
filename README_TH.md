@@ -16,6 +16,7 @@
 - `RUNTIME/portal_actor_lifecycle.py` — lifecycle `unspawned → entering → active → exiting → despawned`
 - Floor00 ผ่าน proof 3 แบบ: near target / distant target / workstation approach และ smoke test ผ่านบน F0/F1/F2/F36
 - reception F1 = 16×20 / 320 cells และ F2/F2+ = 35×23 / 805 cells โดยใช้ world ground anchor คงที่ `[259,376]`
+- `TOOLS/grid_floor_editor/index.html` — local editor สำหรับคลิก/คลุมแล้วเปิดหรือปิด Room Grid และ Portal Inside/Outside พร้อม validation และ export patch JSON
 
 กฎ Lean Release ยังเหมือนเดิม:
 
