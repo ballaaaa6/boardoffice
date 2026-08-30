@@ -35,15 +35,17 @@ def test_depth_resolver_derives_footprint_depth_and_visual_inheritance():
     assert chair_sub['foreground_fragment'] is True
 
 
-def test_reception_uses_ground_footprint_and_top_character_overlay_is_always_foreground():
+def test_reception_uses_independent_front_envelope_and_overlay_is_always_foreground():
     depth = WalkingDepthCore(ROOT / 'WORLD')
     rows = _by_id(depth.resolve_occluders('floor01'))
 
     reception = rows['reception']
     overlay = rows['foreground_overlay_00']
 
-    assert reception['depth_mode'] == 'ground_footprint'
-    assert reception['depth_anchor_y_px'] == max(y for _, y in reception['footprint_corners_world_px'])
+    assert reception['depth_mode'] == 'ground_front_envelope'
+    assert reception['depth_profile_id'] == 'walking_depth.reception.f1'
+    assert reception['depth_anchor_y_px'] == 395
+    assert reception['depth_anchor_y_px'] != max(y for _, y in reception['footprint_corners_world_px'])
     assert overlay['depth_mode'] == 'always_foreground'
     assert overlay['always_foreground'] is True
 

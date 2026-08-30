@@ -1,0 +1,61 @@
+{
+  "$id": "gds.walking_depth_profiles.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "gds_walking_depth_profiles_v1"
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "profile_id",
+          "object_type",
+          "depth_test",
+          "navigation_independent",
+          "outer_corners_world_px",
+          "front_edge_world_px"
+        ],
+        "properties": {
+          "profile_id": {"type": "string"},
+          "object_type": {"const": "reception"},
+          "depth_test": {"const": "front_edge_by_ground_x"},
+          "navigation_independent": {"const": true},
+          "outer_corners_world_px": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {"$ref": "#/$defs/point"}
+          },
+          "front_edge_world_px": {
+            "type": "array",
+            "minItems": 2,
+            "items": {"$ref": "#/$defs/point"}
+          }
+        }
+      }
+    },
+    "floor_bindings": {"$ref": "#/$defs/bindings"},
+    "layout_bindings": {"$ref": "#/$defs/bindings"}
+  },
+  "required": ["schema", "profiles", "floor_bindings", "layout_bindings"],
+  "type": "object",
+  "$defs": {
+    "point": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"type": "integer"}
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {"type": "string"}
+      }
+    }
+  }
+}

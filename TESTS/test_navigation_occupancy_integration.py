@@ -40,7 +40,7 @@ def test_approved_f0_f1_f2_counts_are_compiled():
     expected = {
         'floor00': (4129, 1917, 2212, 12),
         'floor01': (5950, 2817, 3133, 21),
-        'floor02': (7774, 3978, 3796, 28),
+        'floor02': (7774, 3921, 3853, 28),
     }
     for floor_id, counts in expected.items():
         compiled = core.resolve_navigation_cells(floor_id)
@@ -125,6 +125,6 @@ def test_f2_plus_reception_world_footprint_tracks_visible_reception_base():
         top = int(placement['visual_bounds_px']['top'])
         local = core.resolve_ground_footprint_variant(placement['variant_id'])
         assert local['outer_corners_asset_px'][0] == [20 + left, 4 + top], floor_id
-        assert inst['outer_corners_world_px'][0] == [241, 359], floor_id
+        assert inst['outer_corners_world_px'][0] == [243, 360], floor_id
         checked.append(floor_id)
     assert 'floor02' in checked and len(checked) > 3

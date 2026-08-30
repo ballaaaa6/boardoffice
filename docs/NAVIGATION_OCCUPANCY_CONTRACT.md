@@ -68,9 +68,25 @@ Visual-only / zero occupancy:
 - HumanBall
 - Work VFX
 
-F2-family Reception visual-local debug projection remains `visual_bounds_top_left`, but **world navigation no longer derives from visual padding**. Navigation is locked to canonical ground anchor `(259,376)` with origin offset `-13U,-4V`. The prior reservation is expanded again by `-U5/+U4`, yielding `35×23 = 805` cells and exact world corners `(241,359) (311,394) (265,417) (195,382)` on all 23 F2-family floors.
+F2-family Reception visual-local debug projection remains `visual_bounds_top_left`, but **world navigation no longer derives from visual padding**. Navigation is locked to canonical ground anchor `(259,376)` with origin offset `-12U,-4V`. The approved reservation is expanded by `-U4/+U4/-V4/+V3`, yielding `34×22 = 748` cells and exact world corners `(243,360) (311,394) (267,416) (199,382)` on all 23 F2-family floors. The `+V` and final `-U1` retractions are navigation-only; walking depth uses the independent visible front-edge profiles for F1/F2+.
 
-## 5. Semantic Occupancy Closure
+## 5. Dynamic actor occupancy
+
+Static object occupancy above remains the only input to primary A*. Runtime crowd
+motion uses `RUNTIME/crowd_movement_core.py` as a separate time-layer. Production
+playback samples every visible actor on the shared 60 ms tick and compares the
+continuous closest approach of their ground-anchor heads at the same normalized
+time, using the default 2 px clearance. Historical trails and geometric route
+lines are not reservations, so a line may be reused or crossed when the heads
+arrive at different times. Static alternate A* routes are tried first; if no
+detour can resolve a bottleneck, the launch is shifted before spawn. No active
+`crowd_wait`/idle state is inserted after visibility begins, and actor ID,
+character identity, speed, and goal remain immutable. Planning is deterministic:
+longer trajectories claim lanes first, then priority and input order break ties.
+No authored furniture footprint or walking-depth profile is mutated. The legacy
+discrete reservation API is retained only for older tools.
+
+## 6. Semantic Occupancy Closure
 
 Closure is derived supplemental occupancy and preserves provenance separately from base footprints.
 
@@ -81,7 +97,7 @@ Required closure kinds:
 
 Closure cells are solid. Relief is not allowed to remove base footprints or semantic closure cells.
 
-## 6. Navigation Clearance
+## 7. Navigation Clearance
 
 Default profile `clearance.navigation.default.v1`:
 
@@ -99,7 +115,7 @@ chair:
   +V 4
 ```
 
-### 6.1 Chair boundary relief
+### 7.1 Chair boundary relief
 
 If chair clearance touches/exceeds the Room Domain boundary:
 
@@ -109,7 +125,7 @@ If chair clearance touches/exceeds the Room Domain boundary:
 
 Desk clearance is only clipped to Room Domain; it receives no additional boundary relief.
 
-### 6.2 Chair↔chair pair relief
+### 7.2 Chair↔chair pair relief
 
 If chair clearances from **separate furniture islands** touch/overlap and would close a valid corridor:
 
@@ -117,7 +133,7 @@ If chair clearances from **separate furniture islands** touch/overlap and would 
 - target a 2-fine-cell corridor
 - never cut base footprint or semantic closure
 
-### 6.3 F1 CEO chair exception
+### 7.3 F1 CEO chair exception
 
 Author-approved placement override:
 
@@ -127,7 +143,7 @@ floor01 / ceo_chair / -U clearance = 0
 
 All other chair directions keep the default profile.
 
-## 7. WorkSeat transition contract
+## 8. WorkSeat transition contract
 
 Normal pathfinding remains outside the furniture island.
 
@@ -140,7 +156,7 @@ normal walk
 
 A transition gate must be portal-reachable after all closure/clearance/relief rules have been applied. It is not a tunnel through the chair buffer.
 
-## 8. Required invariants
+## 9. Required invariants
 
 1. Every active base footprint is fully contained in its Room Domain.
 2. Base footprints and semantic closures do not occupy Portal inside cells.
@@ -152,7 +168,7 @@ A transition gate must be portal-reachable after all closure/clearance/relief ru
 8. Every `layout.floor02.large` floor resolves the F2 canonical gameplay metadata family; Room/Portal, workstation geometry/directions, base footprint geometry, closure, clearance and final walkability must match F2 exactly. Visual skins may differ.
 9. HumanBall remains navigation-neutral.
 
-## 9. Lean derivation policy
+## 10. Lean derivation policy
 
 Only three canonical Room masks are materialized in the release:
 
@@ -162,13 +178,19 @@ Only three canonical Room masks are materialized in the release:
 
 `WORLD/COMPILED_NAV/OCCUPANCY/` is optional derived cache and is not canonical release payload.
 
-## 10. Phase 8B/8C closeout verification
+## 11. Phase 8B/8C closeout verification
 
 - Phase 8B full regression: 114/114 PASS
-- Phase 8C full regression: 121/121 PASS
+- Phase 8C lifecycle baseline regression: 121/121 PASS
+- Reception depth/`+V` retraction regression: 133/133 PASS
+- Crowd reservation regression: swept-segment crossing, actor-identity lock, and
+  alternate-route selection covered by the dedicated crowd tests
+- Synchronized-head trajectory regression: asynchronous line crossing is allowed,
+  head-on motion is resolved before spawn, and active `crowd_wait` remains zero
 - navigation audit: 25 floors / 219 workstations / 0 failures
 - F0/F1/F2 final grid/clearance/portal visual QA: author approved
 - F2 gameplay metadata family: 23 floors / 0 exact-cell mismatches
-- F2-family Reception: 805 cells / fixed anchor `(259,376)` / identical world corners across all 23 floors
+- F2-family Reception: 748 cells / fixed anchor `(259,376)` / identical world corners across all 23 floors
+- F1/F2+ Reception walking depth: independent front-edge-by-ground-X profiles; F0 Reception remains embedded and unbound
 - no-redraw walking depth: static world outside actor bounds remains byte-stable
 - portal actor lifecycle: deterministic `unspawned → entering → active → exiting → despawned`, final state invisible and despawned

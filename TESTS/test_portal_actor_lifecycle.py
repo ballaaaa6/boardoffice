@@ -19,7 +19,7 @@ def test_portal_actor_cycle_is_deterministic_and_ends_despawned():
     assert first == second
     assert first['schema'] == 'gds.portal_actor_lifecycle.v1'
     assert first['playback_tick_ms'] == 60
-    assert 125 <= first['movement_profile']['speed_percent'] <= 175
+    assert 225 <= first['movement_profile']['speed_percent'] <= 250
     assert first['portal']['entry_exit_adjacent'] is True
     assert first['target_uv'] == list(target)
     assert first['outward_path_cells_uv'][0] == list(start)
@@ -76,8 +76,14 @@ def test_faster_portal_actor_uses_fewer_shared_tick_move_states_for_same_route()
     core = CentralGameCore(ROOT)
     start = tuple(core.resolve_portal_navigation_start('floor00'))
     target = tuple(core.pathfinding.resolve_near_target('floor00', start, min_distance=12))
-    fast = core.resolve_portal_actor_cycle(1, 'floor00', target)
-    slow = core.resolve_portal_actor_cycle(6, 'floor00', target)
+    profiles = {
+        query: core.resolve_character_movement_profile(query)
+        for query in range(20)
+    }
+    fast_query = max(profiles, key=lambda query: profiles[query]['speed_percent'])
+    slow_query = min(profiles, key=lambda query: profiles[query]['speed_percent'])
+    fast = core.resolve_portal_actor_cycle(fast_query, 'floor00', target)
+    slow = core.resolve_portal_actor_cycle(slow_query, 'floor00', target)
 
     assert fast['movement_profile']['speed_percent'] > slow['movement_profile']['speed_percent']
     fast_move_count = sum(

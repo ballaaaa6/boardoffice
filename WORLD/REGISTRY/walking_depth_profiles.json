@@ -1,0 +1,55 @@
+{
+  "schema": "gds_walking_depth_profiles_v1",
+  "profiles": {
+    "walking_depth.reception.f1": {
+      "profile_id": "walking_depth.reception.f1",
+      "approval_status": "author_requested_2026-08-30",
+      "object_type": "reception",
+      "depth_test": "front_edge_by_ground_x",
+      "navigation_independent": true,
+      "outer_corners_world_px": [
+        [243, 368],
+        [269, 381],
+        [241, 395],
+        [215, 382]
+      ],
+      "front_edge_world_px": [
+        [215, 382],
+        [241, 395],
+        [269, 381]
+      ],
+      "provenance": "F1 pre-clearance-expansion 13U x 14V visual ground footprint",
+      "notes": "Render-only depth geometry. Navigation keeps the independently expanded F1 reservation."
+    },
+    "walking_depth.reception.f2_plus": {
+      "profile_id": "walking_depth.reception.f2_plus",
+      "approval_status": "author_requested_2026-08-30",
+      "object_type": "reception",
+      "depth_test": "front_edge_by_ground_x",
+      "navigation_independent": true,
+      "outer_corners_world_px": [
+        [239, 366],
+        [297, 395],
+        [267, 410],
+        [209, 381]
+      ],
+      "front_edge_world_px": [
+        [209, 381],
+        [267, 410],
+        [297, 395]
+      ],
+      "provenance": "F2-family pre-clearance-expansion 29U x 15V visual ground footprint",
+      "notes": "Canonical render-only depth geometry shared by all layout.floor02.large skins and independent of visual padding and navigation reservation changes."
+    }
+  },
+  "floor_bindings": {
+    "floor01": {
+      "reception": "walking_depth.reception.f1"
+    }
+  },
+  "layout_bindings": {
+    "layout.floor02.large": {
+      "reception": "walking_depth.reception.f2_plus"
+    }
+  }
+}

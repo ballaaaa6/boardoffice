@@ -98,8 +98,8 @@ def test_f2_plus_reception_footprint_origin_tracks_visual_content_padding():
     f11 = c.resolve_ground_footprint_variant('reception_011@normal')
 
     assert f2['profile_id'] == f3['profile_id'] == f9['profile_id'] == f11['profile_id'] == 'footprint.reception.f2_plus'
-    assert f2['axes'] == {'u_cells': 35, 'v_cells': 23}
-    assert f2['author_size_fine_cells'] == [23, 35]
+    assert f2['axes'] == {'u_cells': 34, 'v_cells': 22}
+    assert f2['author_size_fine_cells'] == [22, 34]
     assert f2['outer_corners_asset_px'][0] == [20, 4]
     assert f3['outer_corners_asset_px'][0] == [20, 29]  # 4 + 25px transparent top
     assert f9['outer_corners_asset_px'][0] == [20, 18]  # 4 + 14px transparent top

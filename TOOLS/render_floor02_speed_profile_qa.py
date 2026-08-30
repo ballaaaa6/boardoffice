@@ -206,7 +206,7 @@ class Floor02SpeedProfileQA:
         panel = Image.new('RGBA', (self.SIDEBAR_WIDTH, 600), (12, 20, 32, 255))
         draw = ImageDraw.Draw(panel)
         draw.text((14, 14), 'F2 MOVEMENT PROFILE', fill=(240, 246, 255, 255))
-        draw.text((14, 34), 'stable random 125-175%', fill=(151, 177, 207, 255))
+        draw.text((14, 34), 'stable random 225-250%', fill=(151, 177, 207, 255))
         draw.text((14, 54), 'shared tick: 60 ms', fill=(151, 177, 207, 255))
         draw.text((14, 74), f'frame {frame_index + 1}/{total_frames}', fill=(151, 177, 207, 255))
         y = 112
@@ -309,7 +309,7 @@ class Floor02SpeedProfileQA:
                 )
             frames.append(paletted)
 
-        gif_path = output_root / 'floor02_random_speed_125_175.gif'
+        gif_path = output_root / 'floor02_random_speed_225_250.gif'
         frames[0].save(
             gif_path,
             save_all=True,
@@ -337,18 +337,18 @@ class Floor02SpeedProfileQA:
             'visual_direction_changes': agent['visual_direction_changes'],
         } for agent in agents]
         status = 'PASS'
-        if not all(125 <= row['speed_percent'] <= 175 for row in agent_rows):
+        if not all(225 <= row['speed_percent'] <= 250 for row in agent_rows):
             status = 'FAIL'
         if not all(row['visual_direction_changes'] <= row['raw_direction_changes'] for row in agent_rows):
             status = 'FAIL'
         report = {
-            'schema': 'gds_floor02_movement_profile_qa_v1',
+            'schema': 'gds_floor02_movement_profile_qa_v3',
             'status': status,
             'floor_id': self.FLOOR_ID,
             'frame_ms': self.renderer.FRAME_MS,
             'frame_count': total_frames,
             'duration_ms': total_frames * self.renderer.FRAME_MS,
-            'speed_range_percent': [125, 175],
+            'speed_range_percent': [225, 250],
             'assignment_policy': 'stable_sha256_per_character',
             'route_distance_cells': self.ROUTE_DISTANCE_CELLS,
             'agents': agent_rows,
@@ -368,7 +368,7 @@ class Floor02SpeedProfileQA:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description='Render the F2 stable random 125-175% movement profile QA.',
+        description='Render the F2 stable random 225-250% movement profile QA.',
     )
     parser.add_argument(
         '--output',

@@ -22,6 +22,10 @@ from WORLD.RUNTIME.gameplay_metadata_family_core import GameplayMetadataFamilyCo
 from RUNTIME.work_seat_core import WorkSeatCore, WorkSeatError
 from RUNTIME.character_movement_core import CharacterMovementCore, CharacterMovementError
 from RUNTIME.portal_actor_lifecycle import PortalActorLifecycle, PortalActorLifecycleError
+from RUNTIME.crowd_movement_core import (
+    CrowdMovementReservationError,
+    DynamicActorReservationCore,
+)
 
 
 class CentralGameCoreError(ValueError):
@@ -50,6 +54,7 @@ class CentralGameCore:
         self.pathfinding = PathfindingCore(self.world_root, occupancy=self.navigation_occupancy)
         self.character_movement = CharacterMovementCore(self.root, pathfinding=self.pathfinding)
         self.portal_lifecycle = PortalActorLifecycle(self.root, movement=self.character_movement)
+        self.crowd_movement = DynamicActorReservationCore()
         self.walking_depth = WalkingDepthCore(
             self.world_root,
             layout=self.world,
@@ -294,6 +299,42 @@ class CentralGameCore:
         except PathfindingError as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
+    def find_alternate_navigation_path(
+        self,
+        floor_id: str,
+        start_uv,
+        goal_uv,
+        *,
+        max_candidates: int = 8,
+    ) -> dict[str, Any] | None:
+        try:
+            return self.pathfinding.find_alternate_path(
+                floor_id,
+                start_uv,
+                goal_uv,
+                max_candidates=max_candidates,
+            )
+        except PathfindingError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def find_alternate_navigation_paths(
+        self,
+        floor_id: str,
+        start_uv,
+        goal_uv,
+        *,
+        max_candidates: int = 8,
+    ) -> list[dict[str, Any]]:
+        try:
+            return self.pathfinding.find_alternate_paths(
+                floor_id,
+                start_uv,
+                goal_uv,
+                max_candidates=max_candidates,
+            )
+        except PathfindingError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
     def resolve_portal_navigation_start(self, floor_id: str) -> list[int]:
         try:
             return list(self.pathfinding.resolve_portal_start(floor_id))
@@ -335,6 +376,20 @@ class CentralGameCore:
         try:
             return self.portal_lifecycle.build_cycle(query, floor_id, goal_uv)
         except PortalActorLifecycleError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_crowd_movement_schedule(self, actors) -> dict[str, Any]:
+        """Resolve the production no-wait synchronized-head crowd plan."""
+        try:
+            return self.crowd_movement.schedule_trajectories(actors)
+        except CrowdMovementReservationError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_legacy_crowd_movement_schedule(self, actors) -> dict[str, Any]:
+        """Resolve the legacy discrete reservation schedule for old tools."""
+        try:
+            return self.crowd_movement.schedule(actors)
+        except CrowdMovementReservationError as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
     def render_floor_with_work_effects(

@@ -84,7 +84,7 @@
             376
           ],
           "footprint_origin_offset_uv_cells": [
-            -13,
+            -12,
             -4
           ],
           "policy": "fixed_world_ground_anchor_independent_of_reception_visual_padding"

@@ -32,7 +32,7 @@
           376
         ],
         "footprint_origin_offset_uv_cells": [
-          -13,
+          -12,
           -4
         ],
         "policy": "fixed_world_ground_anchor_independent_of_reception_visual_padding"
@@ -139,31 +139,31 @@
       376
     ],
     "profile_origin_offset_uv_cells": [
-      -13,
+      -12,
       -4
     ],
     "effective_outer_corners_world_px": [
       [
-        241,
-        359
+        243,
+        360
       ],
       [
         311,
         394
       ],
       [
-        265,
-        417
+        267,
+        416
       ],
       [
-        195,
+        199,
         382
       ]
     ],
-    "occupied_cell_count": 805,
+    "occupied_cell_count": 748,
     "profile_axes": {
-      "u_cells": 35,
-      "v_cells": 23
+      "u_cells": 34,
+      "v_cells": 22
     }
   },
   "reception_error_count": 0,

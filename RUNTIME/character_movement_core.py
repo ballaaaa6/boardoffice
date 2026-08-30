@@ -31,9 +31,9 @@ class CharacterMovementCore:
     GROUND_ANCHOR_PX = (16, 31)
     DEFAULT_SUBSTEPS_PER_CELL = 4
     DEFAULT_PLAYBACK_TICK_MS = 60
-    MIN_MOVE_SPEED_PERCENT = 125
-    MAX_MOVE_SPEED_PERCENT = 175
-    MOVEMENT_PROFILE_SEED = 'gds-character-movement-speed-v1'
+    MIN_MOVE_SPEED_PERCENT = 225
+    MAX_MOVE_SPEED_PERCENT = 250
+    MOVEMENT_PROFILE_SEED = 'gds-character-movement-speed-v3-225-250'
     DEFAULT_WALK_FRAME_DISTANCE_CELLS = 0.65
     DEFAULT_DIRECTION_LOOKAHEAD_CELLS = 3
     DEFAULT_DIRECTION_CONFIRM_STEPS = 2
@@ -106,7 +106,7 @@ class CharacterMovementCore:
     ) -> dict:
         """Return one deterministic movement profile for a character/actor.
 
-        Speed is sampled once from the author-approved 125-175% range.  SHA-256
+        Speed is sampled once from the author-approved 225-250% range.  SHA-256
         keeps the assignment stable across processes and independent of actor
         creation order; an optional actor seed can intentionally vary repeated
         instances of the same character without re-rolling every frame.

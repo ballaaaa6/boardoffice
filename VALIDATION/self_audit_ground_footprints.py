@@ -81,7 +81,7 @@ approved={
  'footprint.chair.standard':[4,4],
  'footprint.reception.f0':[15,19],
  'footprint.reception.f1':[20,16],
- 'footprint.reception.f2_plus':[23,35],
+ 'footprint.reception.f2_plus':[22,34],
 }
 for pid,size in approved.items():
     if fp.profiles[pid]['author_size_fine_cells']!=size:
@@ -93,7 +93,7 @@ if fp.profiles['footprint.reception.f2_plus'].get('origin_basis') != 'visual_bou
 profile = fp.profiles['footprint.reception.f2_plus']
 if profile.get('canonical_navigation_ground_anchor_world_px') != [259,376]:
     errors.append('footprint.reception.f2_plus: canonical navigation ground anchor drift')
-if profile.get('canonical_navigation_origin_offset_uv_cells') != [-13,-4]:
+if profile.get('canonical_navigation_origin_offset_uv_cells') != [-12,-4]:
     errors.append('footprint.reception.f2_plus: canonical navigation origin offset drift')
 
 report={

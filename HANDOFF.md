@@ -13,7 +13,7 @@ no-redraw walking-depth occlusion.
 
 v1.8.4 adds the continuous movement preview and the production portal actor
 lifecycle. Each character now receives one deterministic movement profile in
-the author-approved 125–175% range. Actors advance independently on a shared
+the author-approved 225–250% range, re-rolled with the v3 speed seed. Actors advance independently on a shared
 60 ms tick, keep the shared ground anchor `[16,31]`, scale walk stride with
 travel speed, and stabilize visual facing across A* staircase paths.
 
@@ -37,15 +37,18 @@ canonical gameplay/spatial family for all 23 `layout.floor02.large` floors.
 ## Reception contract
 
 F1 remains unique at 16U×20V / 320 cells. F2/F2+ use the fixed world ground
-anchor `(259,376)` with origin offset `(-13,-4)` and a 35U×23V reservation:
+anchor `(259,376)` with origin offset `(-12,-4)` and a 34U×22V reservation:
 
 ```text
-occupied cells = 805
-corners        = (241,359) (311,394) (265,417) (195,382)
+occupied cells = 748
+corners        = (243,360) (311,394) (267,416) (199,382)
 ```
 
 All 23 F2-family floors must resolve the same F2 reception navigation geometry;
-visual reception padding remains skin-specific.
+visual reception padding remains skin-specific. Walking depth is separately bound
+to `walking_depth.reception.f1` on F1 and `walking_depth.reception.f2_plus` on
+the F2 family, using the visible front edge by ground X. F0 remains intentionally
+unbound because its reception is embedded in the floor image.
 
 ## Portal actor lifecycle
 
@@ -64,6 +67,20 @@ Every lifecycle record includes its movement profile, shared playback tick,
 raw path direction, and stabilized sprite-facing direction. Speed assignment is
 stable by canonical character ID; an optional actor seed is available through
 the movement-profile API when repeated instances need distinct stable speeds.
+
+## Crowd movement reservation
+
+`RUNTIME/crowd_movement_core.py` adds a renderer-agnostic synchronized-head
+trajectory layer on the same 60 ms tick. It compares continuous closest approach
+of two heads at the same time with a 2 px screen-space clearance; historical
+trails and geometric route lines are not reservations. Static alternate A* route
+options are tried first. If a bottleneck has no safe detour, the actor is shifted
+before it becomes visible (pre-spawn offset), so no `crowd_wait`/idle state is
+inserted after spawn. Actor IDs and character assignments are copied into every
+scheduled state and rejected if a state attempts to change identity. The crowd
+portal renderer is wired to this layer; F2 QA reports include synchronized-head,
+minimum-distance, route-option, pre-spawn-delay, and active-wait metrics. The
+legacy discrete reservation API remains available for older tools.
 
 ## Verification and packaging gate
 

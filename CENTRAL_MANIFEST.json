@@ -34,7 +34,8 @@
     "world_variants": 329,
     "navigation_occupancy_materialized_cache_floors": 0,
     "navigation_occupancy_runtime_derivable_floors": 25,
-    "gameplay_metadata_families": 3
+    "gameplay_metadata_families": 3,
+    "walking_depth_profiles": 2
   },
   "domains": {
     "character": {
@@ -120,12 +121,31 @@
     "four_neighbor_astar": true,
     "movement_speed_assignment": "stable_sha256_per_character_or_actor_seed",
     "movement_speed_range_percent": [
-      125,
-      175
+      225,
+      250
     ],
+    "movement_speed_profile_seed": "gds-character-movement-speed-v3-225-250",
+    "movement_speed_profiles_rerolled": true,
     "movement_shared_playback_tick_ms": 60,
     "movement_walk_frame_distance_base_cells": 0.65,
     "movement_walk_frame_distance_policy": "base_cells_multiplied_by_actor_speed",
+    "crowd_movement_runtime": "RUNTIME/crowd_movement_core.py",
+    "dynamic_actor_reservation": true,
+    "crowd_reservation_tick_ms": 60,
+    "crowd_reservation_radius_cells": 1,
+    "crowd_ground_clearance_px": 2.0,
+    "crowd_collision_policy": "synchronized_head_trajectory_conflict_only",
+    "crowd_swept_segment_blocking": false,
+    "crowd_synchronized_head_blocking": true,
+    "crowd_trail_overlap_allowed": true,
+    "crowd_active_wait_forbidden": true,
+    "crowd_pre_spawn_offset_fallback": true,
+    "crowd_max_pre_spawn_delay_ticks": 480,
+    "crowd_planning_order": "longest_trajectory_first_then_priority_then_input",
+    "crowd_actor_identity_lock": true,
+    "crowd_route_option_selection": true,
+    "crowd_alternate_path_runtime": "WORLD/RUNTIME/pathfinding_core.py:find_alternate_path",
+    "crowd_alternate_paths_runtime": "WORLD/RUNTIME/pathfinding_core.py:find_alternate_paths",
     "movement_visual_direction_policy": "three_cell_path_lookahead_with_confirmation_and_hold_hysteresis",
     "movement_direction_mapping": {
       "+U": "SE",
@@ -143,6 +163,8 @@
     "portal_actor_lifecycle_verified": true,
     "walking_depth_runtime": "WORLD/RUNTIME/walking_depth_core.py",
     "walking_depth_compositor": "completed_floor_once_then_per_actor_world_occlusion_alpha_mask_no_world_redraw",
+    "walking_depth_profile_registry": "WORLD/REGISTRY/walking_depth_profiles.json",
+    "walking_depth_reception_policy": "F1/F2 reception use independent ground-front-edge depth profiles; F0 remains embedded and unbound",
     "crowd_walking_no_world_redraw": true,
     "gameplay_metadata_family_runtime": "WORLD/RUNTIME/gameplay_metadata_family_core.py",
     "f2_gameplay_metadata_canonical_floor_id": "floor02",
@@ -153,14 +175,14 @@
       376
     ],
     "f2_reception_navigation_origin_offset_uv_cells": [
-      -13,
+      -12,
       -4
     ],
     "f2_reception_footprint_axes": {
-      "u_cells": 35,
-      "v_cells": 23
+      "u_cells": 34,
+      "v_cells": 22
     },
-    "f2_reception_occupied_cells": 805
+    "f2_reception_occupied_cells": 748
   },
   "schema": "gds.central_game_core.manifest.v1",
   "sources": {
@@ -277,7 +299,7 @@
     "phase8b_single_character_movement_2026_08_30": {
       "base_package": "GDS_CENTRAL_GAME_CORE_v1.7.0",
       "approval_status": "author_approved_phase8b_closed",
-      "reception_adjustment": "F2/F2+ reception navigation anchor locked to world (259,376); v1.8.3 symmetric expansion from 29x15 to 35x23 / 805 cells",
+      "reception_adjustment": "F2/F2+ reception navigation anchor locked to world (259,376); v1.8.3 symmetric expansion from 29x15 to 35x23 / 805 cells (historical baseline); v1.8.4 retracts +V by one row, and the current approved patch retracts -U by one row to 34x22 / 748 cells",
       "pathfinding": "deterministic 4-neighbor A* over runtime-derived final walkability",
       "movement": "UV cell-center projection + existing move/idle actions + shared ground anchor",
       "floor00_proofs": [
@@ -320,28 +342,32 @@
         376
       ],
       "f2_reception_profile_origin_offset_uv_cells": [
-        -13,
+        -12,
         -4
       ],
       "f2_reception_effective_outer_corners_world_px": [
         [
-          241,
-          359
+          243,
+          360
         ],
         [
           311,
           394
         ],
         [
-          265,
-          417
+          267,
+          416
         ],
         [
-          195,
+          199,
           382
         ]
       ],
-      "f2_reception_occupied_cell_count": 805,
+      "f2_reception_occupied_cell_count": 748,
+      "walking_depth_profiles": {
+        "floor01": "walking_depth.reception.f1",
+        "layout.floor02.large": "walking_depth.reception.f2_plus"
+      },
       "final_navigation_state": {
         "floor00": {
           "room": 4129,
@@ -363,11 +389,11 @@
         },
         "floor02_family": {
           "room": 7774,
-          "base": 2083,
+          "base": 2026,
           "closure": 220,
           "clearance": 1675,
-          "occupied": 3978,
-          "walkable": 3796,
+          "occupied": 3921,
+          "walkable": 3853,
           "portal": 28
         }
       }
@@ -428,13 +454,35 @@
     "phase8b_f2_reception_fixed_ground_anchor_verified": true,
     "phase8b_f2_reception_additional_minus_u5_plus_u4_verified": true,
     "phase8b_f2_reception_805_cells_verified": true,
+    "phase8c_f2_reception_plus_v_retraction_verified": true,
+    "phase8c_f2_reception_770_cells_verified": true,
+    "phase8d_f2_reception_minus_u1_retraction_verified": true,
+    "phase8d_f2_reception_748_cells_verified": true,
+    "phase8c_reception_visual_depth_profiles_verified": true,
+    "phase8c_f0_reception_intentionally_unbound": true,
+    "phase8c_full_regression_133_pass": true,
     "phase8c_full_regression_121_pass": true,
     "phase8c_full_regression_127_pass": true,
     "phase8c_portal_actor_lifecycle_verified": true,
     "phase8c_stable_character_speed_profiles_verified": true,
     "phase8c_shared_tick_per_actor_timing_verified": true,
     "phase8c_speed_scaled_walk_stride_verified": true,
-    "phase8c_visual_direction_stabilization_verified": true
+    "phase8c_visual_direction_stabilization_verified": true,
+    "phase8d_speed_range_175_200_verified": true,
+    "phase8d_speed_profiles_rerolled_verified": true,
+    "phase8e_speed_range_225_250_verified": true,
+    "phase8e_speed_profiles_rerolled_verified": true,
+      "phase8e_dynamic_actor_reservation_verified": true,
+      "phase8e_actor_edge_swap_blocking_verified": true,
+      "phase8e_crowd_renderer_collision_free_verified": true,
+      "phase8e_crowd_swept_segment_blocking_verified": true,
+      "phase8e_crowd_ground_clearance_verified": true,
+      "phase8e_crowd_actor_identity_lock_verified": true,
+      "phase8e_crowd_route_option_selection_verified": true,
+      "phase8f_synchronized_head_trajectory_verified": true,
+      "phase8f_crowd_trail_overlap_allowed_verified": true,
+      "phase8f_crowd_active_wait_zero_verified": true,
+      "phase8f_crowd_pre_spawn_offset_fallback_verified": true
   },
   "version": "1.8.4"
 }

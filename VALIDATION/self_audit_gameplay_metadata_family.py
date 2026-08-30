@@ -14,7 +14,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict:
     core = CentralGameCore(root)
     family = core.resolve_gameplay_metadata_family('floor02')
     family_audit = core.audit_gameplay_metadata_family('floor02')
-    expected_corners = [[241, 359], [311, 394], [265, 417], [195, 382]]
+    expected_corners = [[243, 360], [311, 394], [267, 416], [199, 382]]
     reception_errors = []
     for floor_id in family['family_floor_ids']:
         compiled = core.resolve_navigation_cells(floor_id)
@@ -25,7 +25,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict:
         row = receptions[0]
         if row['outer_corners_world_px'] != expected_corners:
             reception_errors.append({'floor_id': floor_id, 'error': 'world corners drift'})
-        if len(row['occupied_cells_uv']) != 805:
+        if len(row['occupied_cells_uv']) != 748:
             reception_errors.append({'floor_id': floor_id, 'error': 'occupied cell count drift'})
         if row.get('canonical_ground_anchor_world_px') != [259, 376]:
             reception_errors.append({'floor_id': floor_id, 'error': 'ground anchor drift'})
@@ -40,10 +40,10 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict:
         'family_audit': family_audit,
         'reception_expected': {
             'canonical_ground_anchor_world_px': [259, 376],
-            'profile_origin_offset_uv_cells': [-13, -4],
+            'profile_origin_offset_uv_cells': [-12, -4],
             'effective_outer_corners_world_px': expected_corners,
-            'occupied_cell_count': 805,
-            'profile_axes': {'u_cells': 35, 'v_cells': 23}
+            'occupied_cell_count': 748,
+            'profile_axes': {'u_cells': 34, 'v_cells': 22}
         },
         'reception_error_count': len(reception_errors),
         'reception_errors': reception_errors,

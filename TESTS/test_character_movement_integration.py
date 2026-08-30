@@ -48,8 +48,8 @@ def test_movement_profile_is_stable_per_character_and_stays_in_approved_range():
     canonical = core.resolve_character_movement_profile('TP_000')
 
     assert numeric == canonical
-    assert numeric['speed_range_percent'] == [125, 175]
-    assert 125 <= numeric['speed_percent'] <= 175
+    assert numeric['speed_range_percent'] == [225, 250]
+    assert 225 <= numeric['speed_percent'] <= 250
     assert numeric['speed_multiplier'] == numeric['speed_percent'] / 100
     assert numeric['walk_frame_distance_cells'] == pytest.approx(
         0.65 * numeric['speed_multiplier']
@@ -57,7 +57,7 @@ def test_movement_profile_is_stable_per_character_and_stays_in_approved_range():
 
     profiles = [core.resolve_character_movement_profile(index) for index in range(20)]
     assert len({row['speed_percent'] for row in profiles}) >= 10
-    assert all(125 <= row['speed_percent'] <= 175 for row in profiles)
+    assert all(225 <= row['speed_percent'] <= 250 for row in profiles)
 
 
 def test_actor_seed_can_vary_an_instance_without_rerolling_between_calls():
@@ -72,8 +72,8 @@ def test_actor_seed_can_vary_an_instance_without_rerolling_between_calls():
 def test_shared_tick_timeline_moves_faster_profiles_farther_and_finishes_earlier():
     movement = CharacterMovementCore(ROOT)
     path = [(10, 10), (11, 10), (11, 11), (12, 11), (12, 12)]
-    slow = movement.sample_path_timeline(path, speed_multiplier=1.25)
-    fast = movement.sample_path_timeline(path, speed_multiplier=1.75)
+    slow = movement.sample_path_timeline(path, speed_multiplier=2.25)
+    fast = movement.sample_path_timeline(path, speed_multiplier=2.5)
 
     assert len(fast) < len(slow)
     assert fast[0]['distance_cells'] > slow[0]['distance_cells']

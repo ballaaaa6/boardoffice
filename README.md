@@ -36,11 +36,13 @@ F0 and F1 remain unique. All 23 floors using `layout.floor02.large` now resolve 
 - **no-redraw walking depth:** completed world is rendered once; foreground world geometry masks actor alpha instead of redrawing furniture over actors
 - explicit F2 gameplay metadata family audit/runtime
 - F2-family Reception fixed navigation ground anchor independent of transparent visual padding
+- independent reception render-depth profiles for F1/F2+ use the visible ground front edge; F0 remains embedded and unbound
 - deterministic portal actor lifecycle: unspawned → entering → active → exiting → despawned
-- stable per-character movement profiles sampled once from the approved 125–175% range
+- stable per-character movement profiles sampled once from the approved 225–250% range (re-rolled with the v3 speed seed)
 - independent per-actor travel on a shared 60 ms tick; optional actor seeds support repeated instances
 - distance-driven walk animation with a speed-scaled stride (`0.65 × speed` cells per frame step)
 - visual-facing lookahead/hysteresis to suppress rapid direction flips on A* staircase paths
+- deterministic crowd movement planning from synchronized head trajectories; trail overlap is allowed, alternate routes are tried, and no actor waits after spawn
 
 ## F2/F2+ Reception lock
 
@@ -55,13 +57,17 @@ Navigation reference:
 
 ```text
 canonical ground anchor = (259,376)
-profile origin offset   = -13U, -4V
-axes                    = 35U × 23V
-occupied cells          = 805
-world corners           = (241,359) (311,394) (265,417) (195,382)
+profile origin offset   = -12U, -4V
+axes                    = 34U × 22V
+occupied cells          = 748
+world corners           = (243,360) (311,394) (267,416) (199,382)
 ```
 
-This is the prior 20×15 reservation expanded **again** by `-U5` and `+U4`. All 23 F2-family floors produce identical Reception navigation geometry.
+This is the prior 20×15 reservation expanded by `-U4`, `+U4`, `-V4`, and `+V3` (the approved `+V` retraction and final `-U1` retraction). All 23 F2-family floors produce identical Reception navigation geometry. Render depth is independent: the visible front edge is used for the F1/F2+ occlusion test instead of the expanded navigation envelope.
+
+## Crowd movement reservation
+
+`RUNTIME/crowd_movement_core.py` schedules renderer-agnostic actor states on the shared 60 ms tick. Production playback uses synchronized continuous head trajectories with a 2 px ground-clearance threshold: only the heads' closest approach at the same time is a conflict. Historical trails and geometric lines may overlap when their heads arrive at different times. Route alternatives are tried first; if a bottleneck has no detour, the actor receives an invisible pre-spawn offset. No `crowd_wait`/idle state is inserted after spawn, and actor identity, speed, and goal remain immutable. Static authored-object occupancy remains unchanged. The legacy discrete reservation API remains available for older tools.
 
 ## Final navigation state
 
@@ -69,7 +75,7 @@ This is the prior 20×15 reservation expanded **again** by `-U5` and `+U4`. All 
 |---|---:|---:|---:|---:|---:|---:|---:|
 | F0 | 4129 | 710 | 116 | 1091 | 1917 | 2212 | 12 |
 | F1 | 5950 | 1176 | 156 | 1347 | 2679 | 3271 | 21 |
-| F2 / F2+ | 7774 | 2083 | 220 | 1675 | 3978 | 3796 | 28 |
+| F2 / F2+ | 7774 | 2026 | 220 | 1675 | 3921 | 3853 | 28 |
 
 ## Lean release policy
 

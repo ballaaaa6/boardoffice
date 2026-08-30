@@ -24,16 +24,16 @@ def test_floor01_reception_expansion_keeps_navigation_valid():
     assert audit['valid'] is True
 
 
-def test_floor02_family_expansion_keeps_navigation_valid_and_synchronized():
+def test_floor02_family_minus_u1_retraction_keeps_navigation_valid_and_synchronized():
     core = CentralGameCore(ROOT)
     family = core.resolve_gameplay_metadata_family('floor02')
-    expected_corners = [[241, 359], [311, 394], [265, 417], [195, 382]]
+    expected_corners = [[243, 360], [311, 394], [267, 416], [199, 382]]
     for floor_id in family['family_floor_ids']:
         row, compiled = _reception(core, floor_id)
         audit = core.validate_navigation_floor(floor_id)
-        assert len(row['occupied_cells_uv']) == 805
+        assert len(row['occupied_cells_uv']) == 748
         assert row['outer_corners_world_px'] == expected_corners
-        assert compiled['base_occupied_cell_count'] == 2083
-        assert compiled['occupied_cell_count'] == 3978
-        assert compiled['walkable_cell_count'] == 3796
+        assert compiled['base_occupied_cell_count'] == 2026
+        assert compiled['occupied_cell_count'] == 3921
+        assert compiled['walkable_cell_count'] == 3853
         assert audit['valid'] is True

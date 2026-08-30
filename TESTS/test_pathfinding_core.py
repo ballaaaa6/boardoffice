@@ -112,3 +112,32 @@ def test_portal_start_and_distant_target_are_deterministic_and_valid_across_floo
         assert target == target2
         assert target in walkable
         assert target != start
+
+
+def test_alternate_path_helper_keeps_endpoints_and_changes_route_when_available():
+    p = PathfindingCore(WORLD_ROOT)
+    start = p.resolve_portal_start('floor00')
+    goal = p.resolve_distant_target('floor00', start)
+    primary = p.find_path('floor00', start, goal)
+    alternate = p.find_alternate_path('floor00', start, goal, max_candidates=6)
+
+    assert alternate is not None
+    assert alternate['start_uv'] == list(start)
+    assert alternate['goal_uv'] == list(goal)
+    assert alternate['path_cells_uv'] != primary['path_cells_uv']
+    for cur, nxt in zip(alternate['path_cells_uv'], alternate['path_cells_uv'][1:]):
+        assert abs(nxt[0] - cur[0]) + abs(nxt[1] - cur[1]) == 1
+
+
+def test_alternate_path_collection_is_deterministic_and_unique():
+    p = PathfindingCore(WORLD_ROOT)
+    start = p.resolve_portal_start('floor02')
+    goal = p.resolve_near_target('floor02', start, min_distance=10)
+
+    first = p.find_alternate_paths('floor02', start, goal, max_candidates=3)
+    second = p.find_alternate_paths('floor02', start, goal, max_candidates=3)
+
+    assert first == second
+    paths = [tuple(tuple(cell) for cell in row['path_cells_uv']) for row in first]
+    assert len(paths) == len(set(paths))
+    assert all(row['start_uv'] == list(start) and row['goal_uv'] == list(goal) for row in first)

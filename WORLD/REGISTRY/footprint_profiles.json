@@ -85,29 +85,29 @@
     "footprint.reception.f2_plus": {
       "profile_id": "footprint.reception.f2_plus",
       "approval_status": "author_approved",
-      "provenance": "GDS_FOOTPRINT_PROTOTYPES_v0.3.0 + 2026-08-30 canonical F2-family anchor lock + 2026-08-30 symmetric reception expansion (-U3/+U3/-V4/+V4 from 29x15 baseline)",
+      "provenance": "GDS_FOOTPRINT_PROTOTYPES_v0.3.0 + 2026-08-30 canonical F2-family anchor lock + 2026-08-30 reception expansion (-U3/+U3/-V4/+V3 from 29x15 baseline; author-approved +V retraction by one fine row) + author-approved -U retraction by one fine row",
       "shape": "filled_iso_rect",
       "author_size_fine_cells": [
-        23,
-        35
+        22,
+        34
       ],
       "axes": {
-        "u_cells": 35,
-        "v_cells": 23
+        "u_cells": 34,
+        "v_cells": 22
       },
       "origin_asset_edge_px": [
         20,
         4
       ],
       "transform_policy": "inherit_object_transform",
-      "notes": "F2 canonical reception family shared by all layout.floor02.large floors. Visual-local projection remains alpha-bounds-relative for debugging, while navigation placement is locked to world ground anchor (259,376). Relative to the prior 29x15 reservation, the final navigation footprint expands by 3 cells toward -U, 3 toward +U, 4 toward -V and 4 toward +V, yielding 35x23 / 805 cells.",
+      "notes": "F2 canonical reception family shared by all layout.floor02.large floors. Visual-local projection remains alpha-bounds-relative for debugging, while navigation placement is locked to world ground anchor (259,376). Relative to the prior 29x15 reservation, the final navigation footprint expands by 4 cells toward -U, 4 toward +U, 4 toward -V and 3 toward +V, yielding 34x22 / 748 cells. Walking depth is resolved from the independent walking_depth.reception.f2_plus profile.",
       "origin_basis": "visual_bounds_top_left",
       "canonical_navigation_ground_anchor_world_px": [
         259,
         376
       ],
       "canonical_navigation_origin_offset_uv_cells": [
-        -13,
+        -12,
         -4
       ]
     }

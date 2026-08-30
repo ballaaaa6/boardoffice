@@ -19,8 +19,10 @@ class CrowdPortalRenderer:
     """Render crowd portal QA loops.
 
     Movement-profile changes:
-    - assigns a stable 125-175% travel speed to each character
+    - assigns a stable 225-250% travel speed to each character
     - samples every actor independently on one shared 60 ms playback tick
+    - compares synchronized head trajectories so actors never wait after spawn
+    - allows trail overlap while selecting detours or invisible pre-spawn offsets
     - stabilizes visual facing across A* staircase paths
     - scales walk-frame distance with travel speed to avoid fast leg pedalling
     - reduces peak memory during GIF rendering by quantizing frames eagerly,
@@ -35,6 +37,7 @@ class CrowdPortalRenderer:
         self.core = CentralGameCore(self.root)
         self.depth = self.core.walking_depth
         self.move = self.core.character_movement
+        self.crowd = self.core.crowd_movement
         self._sprite_cache: dict[tuple[int, str, str], list[Image.Image]] = {}
 
     def uvxy(self, cell: tuple[int, int]) -> tuple[float, float]:
@@ -167,6 +170,8 @@ class CrowdPortalRenderer:
         phase: str,
         alphas: list[float],
         *,
+        start_uv: tuple[int, int] | None = None,
+        end_uv: tuple[int, int] | None = None,
         distance_offset_px: float,
         movement_profile: dict[str, Any],
     ) -> tuple[list[dict[str, Any]], float]:
@@ -179,15 +184,29 @@ class CrowdPortalRenderer:
                 start_xy[0] + (end_xy[0] - start_xy[0]) * t,
                 start_xy[1] + (end_xy[1] - start_xy[1]) * t,
             )
+            previous_t = (idx - 1) / count
+            previous_xy = (
+                start_xy[0] + (end_xy[0] - start_xy[0]) * previous_t,
+                start_xy[1] + (end_xy[1] - start_xy[1]) * previous_t,
+            )
             cumulative = distance_offset_px + segment_distance * t
             states.append({
                 'ground_xy': xy,
+                'previous_ground_xy': previous_xy,
                 'direction': direction,
                 'raw_direction': direction,
                 'action': 'move',
                 'cumulative_distance_px': cumulative,
                 'alpha': alpha,
                 'phase': phase,
+                'current_uv': (
+                    list(end_uv if t >= 0.5 else start_uv)
+                    if start_uv is not None and end_uv is not None
+                    else None
+                ),
+                'from_uv': list(start_uv) if start_uv is not None else None,
+                'to_uv': list(end_uv) if end_uv is not None else None,
+                'progress_t': round(t, 4),
                 'speed_percent': movement_profile['speed_percent'],
                 'speed_multiplier': movement_profile['speed_multiplier'],
             })
@@ -208,11 +227,13 @@ class CrowdPortalRenderer:
         )
         states = []
         last_distance = distance_offset_px
+        previous_xy = self.uvxy(path[0]) if path else None
         for sample in raw:
             xy = tuple(map(float, sample['ground_xy']))
             cumulative = distance_offset_px + float(sample['cumulative_distance_px'])
             states.append({
                 'ground_xy': xy,
+                'previous_ground_xy': previous_xy,
                 'direction': sample['direction'],
                 'raw_direction': sample['raw_direction'],
                 'action': 'move',
@@ -221,9 +242,14 @@ class CrowdPortalRenderer:
                 'phase': phase,
                 'step_index': sample['step_index'],
                 'tick_index': sample['tick_index'],
+                'current_uv': list(sample['to_uv']),
+                'from_uv': list(sample['from_uv']),
+                'to_uv': list(sample['to_uv']),
+                'progress_t': sample['progress_t'],
                 'speed_percent': movement_profile['speed_percent'],
                 'speed_multiplier': movement_profile['speed_multiplier'],
             })
+            previous_xy = xy
             last_distance = cumulative
         return states, last_distance
 
@@ -233,13 +259,28 @@ class CrowdPortalRenderer:
         query: int,
         start_uv: tuple[int, int],
         target_uv: tuple[int, int],
+        *,
+        out_path: list[tuple[int, int]] | None = None,
+        back_path: list[tuple[int, int]] | None = None,
     ) -> tuple[list[dict[str, Any]], tuple[int, int], dict[str, Any]]:
         movement_profile = self.core.resolve_character_movement_profile(query)
         outside_uv = self.adjacent_outside(floor_id, start_uv)
         entry_dir = self.move.direction_for_step(outside_uv, start_uv)
         exit_dir = self.move.direction_for_step(start_uv, outside_uv)
-        out_path = [tuple(cell) for cell in self.core.find_navigation_path(floor_id, start_uv, target_uv)['path_cells_uv']]
-        back_path = [tuple(cell) for cell in self.core.find_navigation_path(floor_id, target_uv, start_uv)['path_cells_uv']]
+        if out_path is None:
+            out_path = [
+                tuple(cell)
+                for cell in self.core.find_navigation_path(
+                    floor_id, start_uv, target_uv
+                )['path_cells_uv']
+            ]
+        if back_path is None:
+            back_path = [
+                tuple(cell)
+                for cell in self.core.find_navigation_path(
+                    floor_id, target_uv, start_uv
+                )['path_cells_uv']
+            ]
 
         states: list[dict[str, Any]] = []
         cumulative = 0.0
@@ -254,6 +295,8 @@ class CrowdPortalRenderer:
             'entry',
             [0.25, 0.5, 0.75, 1.0],
             distance_offset_px=cumulative,
+            start_uv=outside_uv,
+            end_uv=start_uv,
             movement_profile=movement_profile,
         )
         states.extend(entry_states)
@@ -271,11 +314,13 @@ class CrowdPortalRenderer:
         for i in range(4):
             states.append({
                 'ground_xy': goal_xy,
+                'previous_ground_xy': goal_xy,
                 'direction': goal_dir,
                 'action': 'idle',
                 'idle_frame_index': i % idle_frames,
                 'alpha': 1.0,
                 'phase': 'goal_hold',
+                'current_uv': list(target_uv),
                 'speed_percent': movement_profile['speed_percent'],
                 'speed_multiplier': movement_profile['speed_multiplier'],
             })
@@ -293,11 +338,13 @@ class CrowdPortalRenderer:
         for i in range(3):
             states.append({
                 'ground_xy': start_xy,
+                'previous_ground_xy': start_xy,
                 'direction': arrival_dir,
                 'action': 'idle',
                 'idle_frame_index': i % arrival_idle_frames,
                 'alpha': 1.0,
                 'phase': 'portal_hold',
+                'current_uv': list(start_uv),
                 'speed_percent': movement_profile['speed_percent'],
                 'speed_multiplier': movement_profile['speed_multiplier'],
             })
@@ -309,11 +356,88 @@ class CrowdPortalRenderer:
             'exit',
             [1.0, 0.75, 0.5, 0.25],
             distance_offset_px=cumulative,
+            start_uv=start_uv,
+            end_uv=outside_uv,
             movement_profile=movement_profile,
         )
         states.extend(exit_states)
 
         return states, outside_uv, movement_profile
+
+    def route_options_for(
+        self,
+        floor_id: str,
+        query: int,
+        start_uv: tuple[int, int],
+        target_uv: tuple[int, int],
+    ) -> tuple[
+        list[dict[str, Any]],
+        tuple[int, int],
+        dict[str, Any],
+        list[list[dict[str, Any]]],
+    ]:
+        """Build the primary cycle plus deterministic static detour options."""
+        primary_out = [
+            tuple(cell)
+            for cell in self.core.find_navigation_path(
+                floor_id, start_uv, target_uv
+            )['path_cells_uv']
+        ]
+        primary_back = [
+            tuple(cell)
+            for cell in self.core.find_navigation_path(
+                floor_id, target_uv, start_uv
+            )['path_cells_uv']
+        ]
+        options: list[list[dict[str, Any]]] = []
+        seen: set[tuple[tuple[tuple[int, int], ...], tuple[tuple[int, int], ...]]] = set()
+        primary: tuple[list[dict[str, Any]], tuple[int, int], dict[str, Any]] | None = None
+
+        alternate_out_payloads = self.core.find_alternate_navigation_paths(
+            floor_id, start_uv, target_uv, max_candidates=3
+        )
+        alternate_back_payloads = self.core.find_alternate_navigation_paths(
+            floor_id, target_uv, start_uv, max_candidates=3
+        )
+        alternate_outs = [
+            [tuple(cell) for cell in payload['path_cells_uv']]
+            for payload in alternate_out_payloads
+        ]
+        alternate_backs = [
+            [tuple(cell) for cell in payload['path_cells_uv']]
+            for payload in alternate_back_payloads
+        ]
+        # Keep the option set bounded: primary, each one-way detour, then a
+        # deterministic prefix of paired detours.  The trajectory planner can
+        # choose among these without creating a combinatorial GIF workload.
+        path_pairs = [(primary_out, primary_back)]
+        path_pairs.extend((candidate, primary_back) for candidate in alternate_outs)
+        path_pairs.extend((primary_out, candidate) for candidate in alternate_backs)
+        path_pairs.extend(
+            (out_candidate, back_candidate)
+            for out_candidate in alternate_outs
+            for back_candidate in alternate_backs
+        )
+        path_pairs = path_pairs[:12]
+        for candidate_out, candidate_back in path_pairs:
+            key = (tuple(candidate_out), tuple(candidate_back))
+            if key in seen:
+                continue
+            seen.add(key)
+            states, outside_uv, profile = self.states_for(
+                floor_id,
+                query,
+                start_uv,
+                target_uv,
+                out_path=candidate_out,
+                back_path=candidate_back,
+            )
+            if primary is None:
+                primary = (states, outside_uv, profile)
+            else:
+                options.append(states)
+        assert primary is not None
+        return primary[0], primary[1], primary[2], options
 
     def changed_outside_actor_bboxes(self, base: Image.Image, frame: Image.Image, bboxes: list[tuple[int, int, int, int]]) -> int:
         diff = ImageChops.difference(base, frame).convert('RGBA')
@@ -327,11 +451,53 @@ class CrowdPortalRenderer:
         targets = self.distributed_targets(floor_id, agent_count)
         agent_specs = []
         for query, (start_uv, target_uv) in enumerate(zip(starts, targets)):
-            states, outside_uv, movement_profile = self.states_for(floor_id, query, start_uv, target_uv)
+            states, outside_uv, movement_profile, route_options = self.route_options_for(
+                floor_id, query, start_uv, target_uv
+            )
             start_delay = query * 8
-            agent_specs.append((query, start_uv, target_uv, outside_uv, start_delay, movement_profile, states))
+            agent_specs.append(
+                (
+                    query,
+                    start_uv,
+                    target_uv,
+                    outside_uv,
+                    start_delay,
+                    movement_profile,
+                    states,
+                    route_options,
+                )
+            )
 
-        total_frames = max(start_delay + len(states) for *_head, start_delay, _profile, states in agent_specs) + self.EMPTY_TAIL_FRAMES
+        reservation = self.core.resolve_crowd_movement_schedule([
+            {
+                'actor_id': f'{floor_id}:crowd:{query}',
+                'priority': query,
+                'start_delay': start_delay,
+                'states': states,
+                'route_options': route_options,
+            }
+            for query, _start_uv, _target_uv, _outside_uv, start_delay, _profile, states, route_options in agent_specs
+        ])
+        scheduled_by_actor = {row['actor_id']: row for row in reservation['actors']}
+        agent_specs = [
+            (
+                query,
+                start_uv,
+                target_uv,
+                outside_uv,
+                scheduled_by_actor[f'{floor_id}:crowd:{query}']['start_delay'],
+                movement_profile,
+                scheduled_by_actor[f'{floor_id}:crowd:{query}']['states'],
+                route_options,
+            )
+            for query, start_uv, target_uv, outside_uv, _start_delay, movement_profile, _states, route_options in agent_specs
+        ]
+
+        total_frames = max(
+            start_delay + len(states)
+            for _query, _start_uv, _target_uv, _outside_uv, start_delay, _profile, states, _route_options
+            in agent_specs
+        ) + self.EMPTY_TAIL_FRAMES
         base = self.core.render_floor(floor_id).convert('RGBA')
 
         sampled_checks = {0, total_frames // 3, (2 * total_frames) // 3, total_frames - 1}
@@ -344,7 +510,7 @@ class CrowdPortalRenderer:
         for frame_idx in range(total_frames):
             actors = []
             bboxes = []
-            for query, start_uv, target_uv, outside_uv, start_delay, movement_profile, states in agent_specs:
+            for query, start_uv, target_uv, outside_uv, start_delay, movement_profile, states, _route_options in agent_specs:
                 local = frame_idx - start_delay
                 if local < 0 or local >= len(states):
                     continue
@@ -361,6 +527,7 @@ class CrowdPortalRenderer:
                 sprite = self.with_alpha(self.sprite(query, state['action'], state['direction'], sprite_idx), state['alpha'])
                 xy = tuple(map(float, state['ground_xy']))
                 actors.append({
+                    'actor_id': f'{floor_id}:crowd:{query}',
                     'sprite': sprite,
                     'ground_xy': xy,
                     'ground_anchor_px': tuple(self.move.GROUND_ANCHOR_PX),
@@ -386,7 +553,7 @@ class CrowdPortalRenderer:
             (92, 255, 170, 180), (255, 115, 196, 180), (212, 255, 119, 180), (125, 167, 255, 180),
         ]
         summary_agents = []
-        for idx, (query, start_uv, target_uv, outside_uv, start_delay, movement_profile, states) in enumerate(agent_specs):
+        for idx, (query, start_uv, target_uv, outside_uv, start_delay, movement_profile, states, _route_options) in enumerate(agent_specs):
             color = colors[idx % len(colors)]
             pts = [state['ground_xy'] for state in states if state['phase'] in {'outward', 'return'}]
             if len(pts) >= 2:
@@ -404,6 +571,13 @@ class CrowdPortalRenderer:
                 'state_count': len(states),
                 'speed_percent': movement_profile['speed_percent'],
                 'walk_frame_distance_cells': movement_profile['walk_frame_distance_cells'],
+                'wait_ticks': scheduled_by_actor[f'{floor_id}:crowd:{query}']['wait_ticks'],
+                'max_wait_ticks': scheduled_by_actor[f'{floor_id}:crowd:{query}']['max_wait_ticks'],
+                'route_option_index': scheduled_by_actor[f'{floor_id}:crowd:{query}']['route_option_index'],
+                'route_option_count': scheduled_by_actor[f'{floor_id}:crowd:{query}']['route_option_count'],
+                'active_wait_ticks': scheduled_by_actor[f'{floor_id}:crowd:{query}']['active_wait_ticks'],
+                'pre_spawn_delay_ticks': scheduled_by_actor[f'{floor_id}:crowd:{query}']['pre_spawn_delay_ticks'],
+                'collision_resolution': scheduled_by_actor[f'{floor_id}:crowd:{query}']['collision_resolution'],
             })
         overlay_path = output_root / f'{floor_id}_crowd_routes_overlay_v184.png'
         overlay.save(overlay_path)
@@ -421,8 +595,33 @@ class CrowdPortalRenderer:
                 self.move.MAX_MOVE_SPEED_PERCENT,
             ],
             'walk_frame_distance_policy': '0.65 cells multiplied by actor speed',
+            'collision_policy': reservation['policy'],
+            'reservation_radius_cells': reservation['reservation_radius_cells'],
+            'ground_clearance_px': reservation['ground_clearance_px'],
+            'edge_swap_blocking': reservation['edge_swap_blocking'],
+            'swept_segment_blocking': reservation['swept_segment_blocking'],
+            'collision_free': reservation['collision_free'],
+            'same_cell_conflicts': reservation['same_cell_conflicts'],
+            'edge_swap_conflicts': reservation['edge_swap_conflicts'],
+            'swept_segment_conflicts': reservation['swept_segment_conflicts'],
+            'ground_clearance_conflicts': reservation['ground_clearance_conflicts'],
+            'head_collision_conflicts': reservation['head_collision_conflicts'],
+            'head_clearance_conflicts': reservation['head_clearance_conflicts'],
+            'min_ground_distance_px': reservation['min_ground_distance_px'],
+            'min_synchronized_distance_px': reservation['min_synchronized_distance_px'],
+            'route_option_count': max((a['route_option_count'] for a in summary_agents), default=1),
+            'route_options_selected': [a['route_option_index'] for a in summary_agents],
+            'wait_ticks_total': reservation['wait_ticks_total'],
+            'max_actor_wait_ticks': reservation['max_actor_wait_ticks'],
+            'active_wait_ticks_total': reservation['active_wait_ticks_total'],
+            'max_pre_spawn_delay_ticks': reservation['max_pre_spawn_delay_ticks'],
+            'pre_spawn_delay_ticks_total': reservation['pre_spawn_delay_ticks_total'],
+            'trail_overlap_allowed': reservation['trail_overlap_allowed'],
             'static_world_changed_pixels_outside_actor_bounds': max_static,
-            'portal_entry_exit_adjacent': all(abs(outside_uv[0] - start_uv[0]) + abs(outside_uv[1] - start_uv[1]) == 1 for _, start_uv, _, outside_uv, _, _, _ in agent_specs),
+            'portal_entry_exit_adjacent': all(
+                abs(outside_uv[0] - start_uv[0]) + abs(outside_uv[1] - start_uv[1]) == 1
+                for _, start_uv, _, outside_uv, _, _, _, _ in agent_specs
+            ),
             'empty_tail_frames': self.EMPTY_TAIL_FRAMES,
             'agents': summary_agents,
         }
@@ -435,11 +634,16 @@ class CrowdPortalRenderer:
             self.render_floor('floor02', 8, output_root),
         ]
         report = {
-            'schema': 'gds_phase8b_v184_crowd_portal_qa_v1',
+            'schema': 'gds_phase8b_v184_crowd_portal_qa_v4',
             'status': 'PASS',
             'notes': [
-                'Each character gets one deterministic movement speed from 125-175%.',
+                'Each character gets one deterministic movement speed from 225-250%.',
                 'All actors use one 60ms playback tick and advance by their own speed.',
+                'Only synchronized head distance is treated as a collision; trail overlap is allowed.',
+                'Continuous closest-approach checks catch head-on, crossing, and fast catch-up conflicts.',
+                'Actors never receive active crowd_wait states after spawning.',
+                'Static alternate A* routes are selected before applying an invisible pre-spawn offset.',
+                'Longer trajectories are planned first so short portal trips can fit around shared lanes.',
                 'Walk cadence is distance-driven with a speed-scaled stride distance.',
                 'Visual direction uses path lookahead and hysteresis to suppress A* staircase flicker.',
                 'Actors despawn completely after exit fade-out.',
@@ -447,7 +651,12 @@ class CrowdPortalRenderer:
             'floors': results,
         }
         for row in results:
-            if row['static_world_changed_pixels_outside_actor_bounds'] != 0 or not row['portal_entry_exit_adjacent']:
+            if (
+                row['static_world_changed_pixels_outside_actor_bounds'] != 0
+                or not row['portal_entry_exit_adjacent']
+                or not row['collision_free']
+                or row['active_wait_ticks_total'] != 0
+            ):
                 report['status'] = 'FAIL'
         report_path = output_root / 'PHASE8B_V184_CROWD_PORTAL_QA.json'
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
@@ -468,11 +677,15 @@ class CrowdPortalRenderer:
                 agent_count = 5
             results.append(self.render_floor(floor_id, agent_count, output_root))
         report = {
-            'schema': 'gds_phase8c_v184_all_floor_crowd_qa_v1',
+            'schema': 'gds_phase8c_v184_all_floor_crowd_qa_v4',
             'status': 'PASS',
             'notes': [
-                'All registered floors rendered with stable per-character 125-175% movement profiles.',
+                'All registered floors rendered with stable per-character 225-250% movement profiles.',
                 'Each actor advances independently on a shared 60ms playback tick.',
+                'Synchronized head trajectories prevent collisions without reserving historical trails.',
+                'No active crowd_wait states are inserted after an actor becomes visible.',
+                'Static alternate A* route options are evaluated before invisible pre-spawn timing offsets.',
+                'Longer trajectories claim shared lanes first; priority and input order remain deterministic tie-breaks.',
                 'Walk stride and stabilized facing are sourced from CharacterMovementCore.',
                 'GIF rendering quantizes frames eagerly to lower peak memory during full-bundle export.',
             ],
@@ -480,7 +693,12 @@ class CrowdPortalRenderer:
             'floors': results,
         }
         for row in results:
-            if row['static_world_changed_pixels_outside_actor_bounds'] != 0 or not row['portal_entry_exit_adjacent']:
+            if (
+                row['static_world_changed_pixels_outside_actor_bounds'] != 0
+                or not row['portal_entry_exit_adjacent']
+                or not row['collision_free']
+                or row['active_wait_ticks_total'] != 0
+            ):
                 report['status'] = 'FAIL'
         report_path = output_root / 'PHASE8C_V184_ALL_FLOOR_CROWD_QA.json'
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

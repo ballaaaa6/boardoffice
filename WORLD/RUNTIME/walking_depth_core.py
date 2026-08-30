@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -36,6 +37,14 @@ class WalkingDepthCore:
         self.layout = layout or LayoutCore(self.root)
         self.occupancy = occupancy or NavigationOccupancyCore(self.root)
         self.floor_renderer = floor_renderer or FloorRenderer(self.root)
+        depth_registry_path = self.root / 'REGISTRY' / 'walking_depth_profiles.json'
+        if depth_registry_path.is_file():
+            depth_registry = json.loads(depth_registry_path.read_text(encoding='utf-8'))
+        else:
+            depth_registry = {}
+        self.depth_profiles = depth_registry.get('profiles', {})
+        self.depth_floor_bindings = depth_registry.get('floor_bindings', {})
+        self.depth_layout_bindings = depth_registry.get('layout_bindings', {})
         self._occluder_cache: dict[str, list[dict[str, Any]]] = {}
         self._occluder_visual_cache: dict[tuple[str, bool], Image.Image] = {}
 
@@ -51,11 +60,57 @@ class WalkingDepthCore:
             if rec['object_type'] in self.FOOTPRINT_TYPES
         }
 
-    @staticmethod
-    def _footprint_record(placement: dict[str, Any], instance: dict[str, Any]) -> dict[str, Any]:
+    def _depth_profile(self, floor_id: str, placement_id: str) -> dict[str, Any] | None:
+        profile_id = self.depth_floor_bindings.get(floor_id, {}).get(placement_id)
+        if profile_id is None:
+            layout_id = self.layout.floor_record(floor_id)['layout_id']
+            profile_id = self.depth_layout_bindings.get(layout_id, {}).get(placement_id)
+        if profile_id is None:
+            return None
+        try:
+            profile = deepcopy(self.depth_profiles[profile_id])
+        except KeyError as exc:
+            raise WalkingDepthError(
+                f'{floor_id}.{placement_id}: unknown walking depth profile {profile_id}'
+            ) from exc
+        if profile.get('profile_id') != profile_id:
+            raise WalkingDepthError(
+                f'{floor_id}.{placement_id}: walking depth profile id mismatch for {profile_id}'
+            )
+        return profile
+
+    def _footprint_record(
+        self,
+        placement: dict[str, Any],
+        instance: dict[str, Any],
+    ) -> dict[str, Any]:
         corners = [list(pt) for pt in instance['outer_corners_world_px']]
         if not corners:
             raise WalkingDepthError(f"Missing footprint corners for {placement['canonical_placement_id']}")
+        depth_profile = self._depth_profile(placement['floor_id'], placement['placement_id'])
+        if depth_profile is None:
+            depth_mode = 'ground_footprint'
+            depth_profile_id = None
+            depth_corners = deepcopy(corners)
+            front_edge = None
+        else:
+            if depth_profile.get('object_type') != placement['object_type']:
+                raise WalkingDepthError(
+                    f"{placement['canonical_placement_id']}: depth profile object type mismatch"
+                )
+            if depth_profile.get('depth_test') != 'front_edge_by_ground_x':
+                raise WalkingDepthError(
+                    f"{placement['canonical_placement_id']}: unsupported depth test "
+                    f"{depth_profile.get('depth_test')!r}"
+                )
+            depth_mode = 'ground_front_envelope'
+            depth_profile_id = depth_profile['profile_id']
+            depth_corners = [list(pt) for pt in depth_profile['outer_corners_world_px']]
+            front_edge = [list(pt) for pt in depth_profile['front_edge_world_px']]
+            if len(front_edge) < 2:
+                raise WalkingDepthError(
+                    f"{placement['canonical_placement_id']}: depth front edge requires two points"
+                )
         return {
             'floor_id': placement['floor_id'],
             'placement_id': placement['placement_id'],
@@ -63,10 +118,13 @@ class WalkingDepthCore:
             'asset_id': placement['asset_id'],
             'variant_id': placement['variant_id'],
             'authored_layer': int(placement['layer']),
-            'depth_mode': 'ground_footprint',
-            'depth_anchor_y_px': max(int(y) for _, y in corners),
+            'depth_mode': depth_mode,
+            'depth_profile_id': depth_profile_id,
+            'depth_anchor_y_px': max(int(y) for _, y in depth_corners),
             'depth_source_placement_id': placement['placement_id'],
             'footprint_corners_world_px': corners,
+            'depth_footprint_corners_world_px': depth_corners,
+            'depth_front_edge_world_px': front_edge,
             'foreground_fragment': False,
             'always_foreground': False,
             'placement': deepcopy(placement),
@@ -114,9 +172,12 @@ class WalkingDepthCore:
                     'variant_id': placement['variant_id'],
                     'authored_layer': int(placement['layer']),
                     'depth_mode': 'inherit_workstation_desk',
+                    'depth_profile_id': source.get('depth_profile_id'),
                     'depth_anchor_y_px': int(source['depth_anchor_y_px']),
                     'depth_source_placement_id': source_id,
                     'footprint_corners_world_px': deepcopy(source['footprint_corners_world_px']),
+                    'depth_footprint_corners_world_px': deepcopy(source.get('depth_footprint_corners_world_px')),
+                    'depth_front_edge_world_px': deepcopy(source.get('depth_front_edge_world_px')),
                     'foreground_fragment': False,
                     'always_foreground': False,
                     'placement': deepcopy(placement),
@@ -139,9 +200,12 @@ class WalkingDepthCore:
                     'variant_id': placement['variant_id'],
                     'authored_layer': int(placement['layer']),
                     'depth_mode': 'inherit_workstation_chair',
+                    'depth_profile_id': source.get('depth_profile_id'),
                     'depth_anchor_y_px': int(source['depth_anchor_y_px']),
                     'depth_source_placement_id': source_id,
                     'footprint_corners_world_px': deepcopy(source['footprint_corners_world_px']),
+                    'depth_footprint_corners_world_px': deepcopy(source.get('depth_footprint_corners_world_px')),
+                    'depth_front_edge_world_px': deepcopy(source.get('depth_front_edge_world_px')),
                     'foreground_fragment': True,
                     'always_foreground': False,
                     'placement': deepcopy(placement),
@@ -158,9 +222,12 @@ class WalkingDepthCore:
                     'variant_id': placement['variant_id'],
                     'authored_layer': int(placement['layer']),
                     'depth_mode': 'always_foreground',
+                    'depth_profile_id': None,
                     'depth_anchor_y_px': None,
                     'depth_source_placement_id': None,
                     'footprint_corners_world_px': None,
+                    'depth_footprint_corners_world_px': None,
+                    'depth_front_edge_world_px': None,
                     'foreground_fragment': True,
                     'always_foreground': True,
                     'placement': deepcopy(placement),
@@ -173,14 +240,46 @@ class WalkingDepthCore:
         self._occluder_cache[floor_id] = deepcopy(rows)
         return deepcopy(rows)
 
-    def occluders_in_front(self, floor_id: str, character_ground_y_px: float) -> list[dict[str, Any]]:
-        depth_y = float(character_ground_y_px)
+    @staticmethod
+    def _front_edge_y_at_x(front_edge: list[list[int]], world_x: float) -> float:
+        points = sorted(
+            ((float(x), float(y)) for x, y in front_edge),
+            key=lambda point: (point[0], point[1]),
+        )
+        x = min(max(float(world_x), points[0][0]), points[-1][0])
+        for (x0, y0), (x1, y1) in zip(points, points[1:]):
+            if x0 <= x <= x1:
+                if x1 == x0:
+                    return max(y0, y1)
+                progress = (x - x0) / (x1 - x0)
+                return y0 + (y1 - y0) * progress
+        return points[-1][1]
+
+    def occluders_in_front(
+        self,
+        floor_id: str,
+        character_ground: float | tuple[float, float] | list[float],
+    ) -> list[dict[str, Any]]:
+        if isinstance(character_ground, (tuple, list)):
+            if len(character_ground) != 2:
+                raise WalkingDepthError('character ground position requires x and y')
+            depth_x = float(character_ground[0])
+            depth_y = float(character_ground[1])
+        else:
+            # Backward-compatible scalar query for callers that only need the
+            # legacy max-Y approximation. Runtime composition always supplies X/Y.
+            depth_x = None
+            depth_y = float(character_ground)
         selected = []
         for row in self.resolve_occluders(floor_id):
             if row['always_foreground']:
                 selected.append(row)
                 continue
-            anchor_y = row['depth_anchor_y_px']
+            front_edge = row.get('depth_front_edge_world_px')
+            if front_edge is not None and depth_x is not None:
+                anchor_y = self._front_edge_y_at_x(front_edge, depth_x)
+            else:
+                anchor_y = row['depth_anchor_y_px']
             if anchor_y is not None and float(anchor_y) > depth_y:
                 selected.append(row)
         return selected
@@ -214,9 +313,7 @@ class WalkingDepthCore:
         actor = sprite.convert('RGBA').copy()
         actor_alpha = actor.getchannel('A')
         ax0, ay0, ax1, ay1 = self._actor_bbox(actor, ground_xy, ground_anchor_px)
-        character_ground_y = float(ground_xy[1])
-
-        for row in self.occluders_in_front(floor_id, character_ground_y):
+        for row in self.occluders_in_front(floor_id, ground_xy):
             placement = row['placement']
             occluder = self._load_occluder_visual(row)
             ox0 = int(placement['x_px'])

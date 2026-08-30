@@ -73,11 +73,28 @@ class PathfindingCore:
                     queue.append(nxt)
         return distances
 
-    def find_path(self, floor_id: str, start_uv: tuple[int, int] | list[int], goal_uv: tuple[int, int] | list[int]) -> dict:
+    def find_path(
+        self,
+        floor_id: str,
+        start_uv: tuple[int, int] | list[int],
+        goal_uv: tuple[int, int] | list[int],
+        *,
+        blocked_cells: Iterable[tuple[int, int] | list[int]] | None = None,
+    ) -> dict:
         compiled = self._compiled(floor_id)
         walkable = self._walkable_set(compiled)
         start = self._normalize_uv(start_uv)
         goal = self._normalize_uv(goal_uv)
+        blocked = {
+            self._normalize_uv(cell)
+            for cell in (blocked_cells or ())
+        }
+        # A constraint is allowed to target only an interior cell.  Keeping the
+        # endpoints available makes the alternate-route helper deterministic
+        # and gives callers a useful PathNotFound result for impossible detours.
+        blocked.discard(start)
+        blocked.discard(goal)
+        walkable.difference_update(blocked)
         if start not in walkable:
             raise InvalidStart(f'{floor_id}: start is not a walkable cell: {start}')
         if goal not in walkable:
@@ -144,6 +161,92 @@ class PathfindingCore:
             'compressed_waypoints_uv': self.compress_path(out),
             'reachable': True,
         }
+
+    def find_alternate_path(
+        self,
+        floor_id: str,
+        start_uv: tuple[int, int] | list[int],
+        goal_uv: tuple[int, int] | list[int],
+        *,
+        max_candidates: int = 8,
+    ) -> dict | None:
+        """Return one deterministic detour around a base A* route, if any.
+
+        The crowd scheduler operates on already sampled motion states, so it
+        needs a small set of static alternatives to choose from when two
+        actors would otherwise share a bottleneck.  Banning each interior
+        compressed waypoint is inexpensive on the canonical room graph and
+        produces a real route change without perturbing the canonical primary
+        A* tie-breaks.
+        """
+        candidates = self.find_alternate_paths(
+            floor_id,
+            start_uv,
+            goal_uv,
+            max_candidates=max_candidates,
+        )
+        return candidates[0] if candidates else None
+
+    def find_alternate_paths(
+        self,
+        floor_id: str,
+        start_uv: tuple[int, int] | list[int],
+        goal_uv: tuple[int, int] | list[int],
+        *,
+        max_candidates: int = 8,
+    ) -> list[dict]:
+        """Return several deterministic static detours around the base route.
+
+        Each candidate bans a different interior point from the canonical A*
+        path.  The result is intentionally small and deterministic: the crowd
+        planner can evaluate a few route lanes without changing the primary
+        path tie-break or materializing a time-dependent occupancy cache.
+        """
+        max_candidates = int(max_candidates)
+        if max_candidates <= 0:
+            raise ValueError('max_candidates must be >= 1')
+        base = self.find_path(floor_id, start_uv, goal_uv)
+        base_cells = [self._normalize_uv(cell) for cell in base['path_cells_uv']]
+        waypoints = [self._normalize_uv(cell) for cell in base['compressed_waypoints_uv']]
+        # Prefer authored turn points, then sample additional interior cells so
+        # long straight corridors can still produce more than one lane choice.
+        blockers: list[tuple[int, int]] = []
+        for cell in waypoints[1:-1]:
+            if cell not in blockers:
+                blockers.append(cell)
+        for cell in base_cells[1:-1]:
+            if cell not in blockers:
+                blockers.append(cell)
+
+        candidates: list[dict] = []
+        seen_paths = {tuple(base_cells)}
+        for blocker in blockers:
+            if len(candidates) >= max_candidates:
+                break
+            try:
+                candidate = self.find_path(
+                    floor_id,
+                    start_uv,
+                    goal_uv,
+                    blocked_cells=[blocker],
+                )
+            except PathfindingError:
+                continue
+            candidate_cells = tuple(
+                self._normalize_uv(cell)
+                for cell in candidate['path_cells_uv']
+            )
+            if candidate_cells in seen_paths:
+                continue
+            seen_paths.add(candidate_cells)
+            candidates.append(candidate)
+        return sorted(
+            candidates,
+            key=lambda item: (
+                int(item['path_cell_count']),
+                tuple(tuple(cell) for cell in item['path_cells_uv']),
+            ),
+        )
 
     def compress_path(self, path_cells_uv: Iterable[list[int] | tuple[int, int]]) -> list[list[int]]:
         path = [self._normalize_uv(cell) for cell in path_cells_uv]
