@@ -25,9 +25,9 @@ def test_work_seat_audit_passes():
 def test_manifest_exposes_work_seat_patch_with_room_navigation_canonical():
     import json
     manifest = json.loads((ROOT / 'CENTRAL_MANIFEST.json').read_text(encoding='utf-8'))
-    assert manifest['version'] == '1.8.4'
-    assert manifest['active_phase'] == 'PHASE8C_PORTAL_LIFECYCLE'
-    assert manifest['status'] == 'PHASE8C_PORTAL_LIFECYCLE_CLOSED'
+    assert manifest['version'] == '1.8.5'
+    assert manifest['active_phase'] == 'PHASE8D_WORKSEAT_LIFECYCLE'
+    assert manifest['status'] == 'PHASE8D_WORKSEAT_LIFECYCLE_CLOSED_AUTHOR_APPROVED_CLEAN_PACKAGED'
     assert manifest['runtime']['work_seat_queries'] is True
     assert manifest['runtime']['room_navigation_queries'] is True
     assert manifest['runtime']['f2_plus_room_navigation_reuses_floor02'] is True

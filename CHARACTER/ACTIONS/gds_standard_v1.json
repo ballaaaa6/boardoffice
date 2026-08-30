@@ -7,6 +7,43 @@
     "derived_mirror_display": "M′NN",
     "mirror_semantics": "horizontal pixel flip across the image Y axis"
   },
+  "action_semantics": {
+    "primary_groups": ["idle", "move", "work"],
+    "event_groups": ["sad", "happy"],
+    "idle": {
+      "group": "stand",
+      "directional": true,
+      "usage": "stand_still_and_face_other_characters_for_conversation"
+    },
+    "move": {
+      "group": "walk",
+      "directional": true,
+      "usage": "navigate_between_walkable_cells"
+    },
+    "work": {
+      "group": "seated_work",
+      "directional": true,
+      "usage": "allowed_only_after_work_seat_takeover",
+      "pose_category": "seated"
+    },
+    "sad": {
+      "group": "event_emotion",
+      "directional": false,
+      "usage": "event_failure_or_negative_result",
+      "direction_source": "none"
+    },
+    "happy": {
+      "group": "event_emotion",
+      "directional": false,
+      "usage": "event_success_or_positive_result",
+      "direction_source": "none"
+    },
+    "variants": {
+      "group": "optional_directional_pose_variant",
+      "directional": true,
+      "usage": "optional_external_standing_variant"
+    }
+  },
   "actions": {
     "idle": {
       "direction_mode": "four_way",

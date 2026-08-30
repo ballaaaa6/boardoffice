@@ -1,0 +1,51 @@
+{
+  "schema": "gds.phase8d.work_seat_lifecycle_audit.v1",
+  "pass": true,
+  "checks": {
+    "contract_schema_valid": true,
+    "all_219_slots_runtime_derived": true,
+    "per_character_speed_metadata_302": true,
+    "action_semantics_locked": true,
+    "canonical_single_actor_cycles": true,
+    "exclusive_render_channels": true
+  },
+  "counts": {
+    "floor_count": 25,
+    "workstation_count": 219,
+    "slot_count": 219,
+    "character_count": 302,
+    "canonical_cycles_checked": 9
+  },
+  "slot_audit": {
+    "schema": "gds.work_seat_lifecycle_slot_audit.v1",
+    "floor_count": 25,
+    "workstation_count": 219,
+    "slot_count": 219,
+    "unique_slot_id_count": 219,
+    "capacity_values": [
+      1
+    ],
+    "direction_counts": {
+      "SE": 100,
+      "NW": 96,
+      "SW": 23
+    },
+    "all_ready": true,
+    "duplicate_slot_ids": [],
+    "errors": [],
+    "pass": true
+  },
+  "schema_errors": [],
+  "cycle_errors": [],
+  "speed_profile_contract": {
+    "schema": "gds.character_movement_profile.v1",
+    "speed_range_percent": [
+      225,
+      250
+    ],
+    "assignment_policy": "embedded_character_metadata",
+    "profile_seed": "gds-character-movement-speed-v4-225-250-reroll-20260831",
+    "spawn_policy": "read_once_from_character_metadata"
+  },
+  "acceptance": "visual_author_acceptance_pending"
+}

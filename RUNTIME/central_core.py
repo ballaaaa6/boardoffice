@@ -20,6 +20,7 @@ from WORLD.RUNTIME.pathfinding_core import PathfindingCore, PathfindingError
 from WORLD.RUNTIME.walking_depth_core import WalkingDepthCore
 from WORLD.RUNTIME.gameplay_metadata_family_core import GameplayMetadataFamilyCore
 from RUNTIME.work_seat_core import WorkSeatCore, WorkSeatError
+from RUNTIME.work_seat_lifecycle import WorkSeatLifecycle, WorkSeatLifecycleError
 from RUNTIME.character_movement_core import CharacterMovementCore, CharacterMovementError
 from RUNTIME.portal_actor_lifecycle import PortalActorLifecycle, PortalActorLifecycleError
 from RUNTIME.crowd_movement_core import (
@@ -70,6 +71,14 @@ class CentralGameCore:
         )
         self.work_seats = WorkSeatCore(
             self.root, characters=self.characters, world=self.world, directions=self.directions
+        )
+        self.work_seat_lifecycle = WorkSeatLifecycle(
+            self.root,
+            movement=self.character_movement,
+            navigation=self.navigation_occupancy,
+            pathfinding=self.pathfinding,
+            work_seats=self.work_seats,
+            characters=self.characters,
         )
 
     def resolve_asset_path(self, domain: str, asset_id: str) -> Path:
@@ -248,6 +257,105 @@ class CentralGameCore:
         except (WorkSeatError, KeyError, ValueError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
+    def resolve_work_seat_interaction_slot(
+        self, floor_id: str, workstation_id: str
+    ) -> dict[str, Any]:
+        try:
+            return self.work_seat_lifecycle.resolve_interaction_slot(floor_id, workstation_id)
+        except WorkSeatLifecycleError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_work_seat_interaction_slots(self, floor_id: str) -> list[dict[str, Any]]:
+        try:
+            return self.work_seat_lifecycle.resolve_interaction_slots(floor_id)
+        except WorkSeatLifecycleError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def audit_work_seat_interaction_slots(self) -> dict[str, Any]:
+        try:
+            return self.work_seat_lifecycle.audit_all_interaction_slots()
+        except WorkSeatLifecycleError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_work_seat_actor_cycle(
+        self,
+        query: int | str,
+        floor_id: str,
+        workstation_id: str,
+        start_uv,
+        exit_goal_uv=None,
+        work_ticks: int = WorkSeatLifecycle.DEFAULT_WORK_TICKS,
+        subaction: str = 'normal_work',
+        effect_id: str | None = None,
+        humanball_id: str | None = None,
+    ) -> dict[str, Any]:
+        try:
+            return self.work_seat_lifecycle.resolve_actor_cycle(
+                query,
+                floor_id,
+                workstation_id,
+                start_uv,
+                exit_goal_uv=exit_goal_uv,
+                work_ticks=work_ticks,
+                subaction=subaction,
+                effect_id=effect_id,
+                humanball_id=humanball_id,
+            )
+        except WorkSeatLifecycleError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def render_work_seat_lifecycle_state(
+        self,
+        floor_id: str,
+        workstation_id: str,
+        query: int | str,
+        *,
+        subaction: str = 'normal_work',
+        effect_id: str | None = None,
+        humanball_id: str | None = None,
+        character_frame_index: int = 0,
+        effect_frame_index: int | None = None,
+        humanball_frame_index: int | None = None,
+    ):
+        try:
+            return self.work_seat_lifecycle.render_seated_state(
+                floor_id=floor_id,
+                workstation_id=workstation_id,
+                character_query=query,
+                subaction=subaction,
+                effect_id=effect_id,
+                humanball_id=humanball_id,
+                character_frame_index=character_frame_index,
+                effect_frame_index=effect_frame_index,
+                humanball_frame_index=humanball_frame_index,
+            )
+        except WorkSeatLifecycleError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_character_event_action(self, query: int | str, event: str) -> dict[str, Any]:
+        """Resolve directionless sad/happy event animation outside work mode."""
+        event_key = str(event).strip().casefold()
+        if event_key not in {'sad', 'happy'}:
+            raise CentralGameCoreError(
+                f'Unknown character event: {event!r}; expected sad or happy'
+            )
+        character_id = self.resolve_character_id(query)
+        try:
+            result = self.characters.render(character_id, event_key, None, None)
+        except CharacterSystemError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+        return {
+            'character_id': character_id,
+            'action': event_key,
+            'direction': None,
+            'subaction': None,
+            'frame_ids': list(result.frame_ids),
+            'frame_count': len(result.frames),
+            'loop': bool(result.loop),
+            'semantic_group': 'event_emotion',
+            'direction_source': 'none',
+        }
+
     def compose_work_seat(
         self,
         query: int | str,
@@ -270,6 +378,9 @@ class CentralGameCore:
         assignments: list[dict[str, Any]],
         *,
         frame_index: int = 0,
+        character_frame_index: int | None = None,
+        effect_frame_index: int | None = None,
+        humanball_frame_index: int | None = None,
     ):
         normalized: list[dict[str, Any]] = []
         for assignment in assignments:
@@ -287,7 +398,12 @@ class CentralGameCore:
             normalized.append(item)
         try:
             return self.work_seats.render_floor_with_work(
-                floor_id, normalized, frame_index=frame_index
+                floor_id,
+                normalized,
+                frame_index=frame_index,
+                character_frame_index=character_frame_index,
+                effect_frame_index=effect_frame_index,
+                humanball_frame_index=humanball_frame_index,
             )
         except (WorkSeatError, KeyError, ValueError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -398,6 +514,9 @@ class CentralGameCore:
         assignments: list[dict[str, Any]],
         *,
         frame_index: int = 0,
+        character_frame_index: int | None = None,
+        effect_frame_index: int | None = None,
+        humanball_frame_index: int | None = None,
     ):
         normalized: list[dict[str, Any]] = []
         for assignment in assignments:
@@ -415,7 +534,12 @@ class CentralGameCore:
             normalized.append(item)
         try:
             return self.work_seats.render_floor_with_work_effects(
-                floor_id, normalized, frame_index=frame_index
+                floor_id,
+                normalized,
+                frame_index=frame_index,
+                character_frame_index=character_frame_index,
+                effect_frame_index=effect_frame_index,
+                humanball_frame_index=humanball_frame_index,
             )
         except (WorkSeatError, KeyError, ValueError) as exc:
             raise CentralGameCoreError(str(exc)) from exc

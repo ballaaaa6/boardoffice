@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import hashlib
+import json
 import math
 from pathlib import Path
 from typing import Iterable
@@ -9,6 +9,7 @@ from CHARACTER.IDENTITY.RUNTIME.identity_resolver import (
     CharacterIdentityLookupError,
     CharacterIdentityResolver,
 )
+from CHARACTER.RUNTIME.character_identity import CharacterIdentityError, CharacterIdentityRegistry
 from CHARACTER.RUNTIME.character_system import CharacterSystem, CharacterSystemError
 from WORLD.RUNTIME.pathfinding_core import PathfindingCore
 from WORLD.RUNTIME.room_navigation_core import RoomNavigationCore
@@ -33,7 +34,7 @@ class CharacterMovementCore:
     DEFAULT_PLAYBACK_TICK_MS = 60
     MIN_MOVE_SPEED_PERCENT = 225
     MAX_MOVE_SPEED_PERCENT = 250
-    MOVEMENT_PROFILE_SEED = 'gds-character-movement-speed-v3-225-250'
+    MOVEMENT_PROFILE_SEED = 'gds-character-movement-speed-v4-225-250-reroll-20260831'
     DEFAULT_WALK_FRAME_DISTANCE_CELLS = 0.65
     DEFAULT_DIRECTION_LOOKAHEAD_CELLS = 3
     DEFAULT_DIRECTION_CONFIRM_STEPS = 2
@@ -60,6 +61,23 @@ class CharacterMovementCore:
         self.pathfinding = pathfinding or PathfindingCore(self.world_root)
         self.characters = CharacterSystem(self.character_root)
         self.identity = CharacterIdentityResolver(self.identity_root)
+        self.character_metadata = CharacterIdentityRegistry(self.character_root)
+        try:
+            registry = json.loads(
+                (self.character_root / 'CHARACTERS' / 'characters.json').read_text(encoding='utf-8')
+            )
+            self.movement_profile_contract = dict(registry['movement_profile_contract'])
+        except (OSError, KeyError, TypeError, ValueError) as exc:
+            raise CharacterMovementError(
+                'Character registry is missing movement_profile_contract metadata'
+            ) from exc
+        if self.movement_profile_contract.get('schema') != 'gds.character_movement_profile.v1':
+            raise CharacterMovementError('Unsupported character movement profile contract')
+        if self.movement_profile_contract.get('speed_range_percent') != [
+            self.MIN_MOVE_SPEED_PERCENT,
+            self.MAX_MOVE_SPEED_PERCENT,
+        ]:
+            raise CharacterMovementError('Character movement profile contract has an invalid speed range')
 
     @staticmethod
     def _normalize_uv(uv: tuple[int, int] | list[int]) -> tuple[int, int]:
@@ -104,26 +122,36 @@ class CharacterMovementCore:
         *,
         actor_seed: str | None = None,
     ) -> dict:
-        """Return one deterministic movement profile for a character/actor.
+        """Return the permanent movement profile embedded in the character metadata.
 
-        Speed is sampled once from the author-approved 225-250% range.  SHA-256
-        keeps the assignment stable across processes and independent of actor
-        creation order; an optional actor seed can intentionally vary repeated
-        instances of the same character without re-rolling every frame.
+        ``actor_seed`` remains accepted as a compatibility argument for older
+        callers, but it is intentionally ignored. A character's speed is an
+        identity-level value and may not change between spawns or instances.
         """
         try:
             character_id = self.identity.resolve_character_id(character_query)
         except CharacterIdentityLookupError as exc:
             raise CharacterMovementError(str(exc)) from exc
-        key_parts = [self.MOVEMENT_PROFILE_SEED, character_id]
-        if actor_seed is not None:
-            key_parts.append(str(actor_seed))
-        digest = hashlib.sha256('|'.join(key_parts).encode('utf-8')).digest()
-        span = self.MAX_MOVE_SPEED_PERCENT - self.MIN_MOVE_SPEED_PERCENT + 1
-        speed_percent = (
-            self.MIN_MOVE_SPEED_PERCENT
-            + int.from_bytes(digest[:8], 'big') % span
-        )
+        try:
+            metadata = self.character_metadata.get(character_id)
+        except CharacterIdentityError as exc:
+            raise CharacterMovementError(str(exc)) from exc
+        embedded = metadata.get('movement_profile')
+        if not isinstance(embedded, dict) or isinstance(embedded.get('speed_percent'), bool):
+            raise CharacterMovementError(
+                f'{character_id}: missing embedded movement_profile.speed_percent'
+            )
+        try:
+            speed_percent = int(embedded['speed_percent'])
+        except (TypeError, ValueError, KeyError) as exc:
+            raise CharacterMovementError(
+                f'{character_id}: movement_profile.speed_percent must be an integer'
+            ) from exc
+        if not self.MIN_MOVE_SPEED_PERCENT <= speed_percent <= self.MAX_MOVE_SPEED_PERCENT:
+            raise CharacterMovementError(
+                f'{character_id}: embedded speed {speed_percent}% is outside '
+                f'{self.MIN_MOVE_SPEED_PERCENT}-{self.MAX_MOVE_SPEED_PERCENT}%'
+            )
         speed_multiplier = speed_percent / 100.0
         return {
             'character_id': character_id,
@@ -135,11 +163,9 @@ class CharacterMovementCore:
             'direction_lookahead_cells': self.DEFAULT_DIRECTION_LOOKAHEAD_CELLS,
             'direction_confirm_steps': self.DEFAULT_DIRECTION_CONFIRM_STEPS,
             'direction_min_hold_cells': self.DEFAULT_DIRECTION_MIN_HOLD_CELLS,
-            'assignment_policy': (
-                'stable_sha256_per_character'
-                if actor_seed is None
-                else 'stable_sha256_per_actor_seed'
-            ),
+            'assignment_policy': 'embedded_character_metadata',
+            'profile_seed': self.movement_profile_contract['profile_seed'],
+            'spawn_policy': self.movement_profile_contract['spawn_policy'],
         }
 
     @classmethod

@@ -3,7 +3,7 @@
   "$id": "gds_character_identity_cards_v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "character_count", "serial_range", "generation", "characters"],
+  "required": ["schema", "character_count", "serial_range", "generation", "movement_profile_contract", "characters"],
   "properties": {
     "schema": {"const": "gds_character_identity_cards_v1"},
     "character_count": {"const": 302},
@@ -32,6 +32,23 @@
       },
       "additionalProperties": false
     },
+    "movement_profile_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "speed_range_percent", "assignment_policy", "profile_seed", "spawn_policy"],
+      "properties": {
+        "schema": {"const": "gds.character_movement_profile.v1"},
+        "speed_range_percent": {
+          "type": "array",
+          "prefixItems": [{"const": 225}, {"const": 250}],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "assignment_policy": {"const": "embedded_character_metadata"},
+        "profile_seed": {"type": "string", "minLength": 1},
+        "spawn_policy": {"const": "read_once_from_character_metadata"}
+      }
+    },
     "characters": {
       "type": "array",
       "minItems": 302,
@@ -41,7 +58,7 @@
         "additionalProperties": false,
         "required": [
           "character_id", "character_no", "character_code", "first_name", "last_name",
-          "full_name", "nickname", "name_profile", "composition", "origin"
+          "full_name", "nickname", "name_profile", "composition", "origin", "movement_profile"
         ],
         "properties": {
           "character_id": {"type": "string", "pattern": "^(TP|RND_[MF])_[0-9]{3}$"},
@@ -80,6 +97,14 @@
               "legacy_id": {"type": "string", "minLength": 1}
             },
             "additionalProperties": true
+          },
+          "movement_profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["speed_percent"],
+            "properties": {
+              "speed_percent": {"type": "integer", "minimum": 225, "maximum": 250}
+            }
           }
         }
       }

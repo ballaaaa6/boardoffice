@@ -1,5 +1,5 @@
 {
-  "active_phase": "PHASE8C_PORTAL_LIFECYCLE",
+  "active_phase": "PHASE8D_WORKSEAT_LIFECYCLE",
   "counts": {
     "archived_embedded_solid_assets": 14,
     "chair_families": 30,
@@ -45,7 +45,9 @@
     },
     "integration": {
       "contract": "CONTRACTS/central_contract.json",
-      "root": "RUNTIME"
+      "root": "RUNTIME",
+      "work_seat_lifecycle_contract": "CONTRACTS/work_seat_lifecycle.json",
+      "work_seat_lifecycle_runtime": "RUNTIME/work_seat_lifecycle.py"
     },
     "world": {
       "direction_runtime": "WORLD/RUNTIME/direction_core.py",
@@ -77,9 +79,9 @@
     "canonical_checksums_scope": "canonical_runtime_payload_only"
   },
   "package": "GDS_CENTRAL_GAME_CORE",
-  "patch_status": "PHASE8C_PORTAL_LIFECYCLE_V1_8_4",
+  "patch_status": "PHASE8D_WORKSEAT_LIFECYCLE_V1_8_5_CLOSED_AUTHOR_APPROVED",
   "phase": 8,
-  "release_date": "2026-08-30",
+  "release_date": "2026-08-31",
   "runtime": {
     "asset_namespaces": [
       "character",
@@ -119,13 +121,15 @@
     "character_movement_runtime": "RUNTIME/character_movement_core.py",
     "single_character_pathfinding": true,
     "four_neighbor_astar": true,
-    "movement_speed_assignment": "stable_sha256_per_character_or_actor_seed",
+    "movement_speed_assignment": "embedded_character_metadata_permanent_per_character",
     "movement_speed_range_percent": [
       225,
       250
     ],
-    "movement_speed_profile_seed": "gds-character-movement-speed-v3-225-250",
+    "movement_speed_profile_seed": "gds-character-movement-speed-v4-225-250-reroll-20260831",
     "movement_speed_profiles_rerolled": true,
+    "movement_speed_profiles_embedded": true,
+    "movement_speed_spawn_policy": "read_once_from_character_metadata",
     "movement_shared_playback_tick_ms": 60,
     "movement_walk_frame_distance_base_cells": 0.65,
     "movement_walk_frame_distance_policy": "base_cells_multiplied_by_actor_speed",
@@ -161,6 +165,18 @@
     "arrival_idle_transition": true,
     "portal_actor_lifecycle_runtime": "RUNTIME/portal_actor_lifecycle.py",
     "portal_actor_lifecycle_verified": true,
+    "work_seat_lifecycle_runtime": "RUNTIME/work_seat_lifecycle.py",
+    "work_seat_lifecycle_contract": "CONTRACTS/work_seat_lifecycle.json",
+    "work_seat_lifecycle_schema": "SCHEMA/work_seat_lifecycle.schema.json",
+    "work_seat_interaction_slot_runtime_derived": true,
+    "work_seat_interaction_slot_capacity": 1,
+    "work_seat_interaction_slots_validated": 219,
+    "work_seat_single_actor_cycle_runtime": true,
+    "work_seat_lifecycle_visual_qa_tool": "TOOLS/render_work_seat_lifecycle_qa.py",
+    "work_seat_lifecycle_visual_qa_report": "LOCAL_REVIEW/PHASE8D_WORKSTATION_CAPACITY_QA_20260831/report.json",
+    "work_seat_lifecycle_author_acceptance_pending": false,
+    "work_seat_lifecycle_author_acceptance_date": "2026-08-31",
+    "character_event_emotions_directionless": true,
     "walking_depth_runtime": "WORLD/RUNTIME/walking_depth_core.py",
     "walking_depth_compositor": "completed_floor_once_then_per_actor_world_occlusion_alpha_mask_no_world_redraw",
     "walking_depth_profile_registry": "WORLD/REGISTRY/walking_depth_profiles.json",
@@ -313,7 +329,7 @@
         "floor02",
         "floor36"
       ],
-      "release_package": "GDS_CENTRAL_GAME_CORE_v1.8.4",
+      "release_package": "GDS_CENTRAL_GAME_CORE_v1.8.5",
       "walking_depth": "no-redraw dynamic occlusion: completed world rendered once, actor alpha masked by foreground occluders; static world pixels remain byte-stable",
       "occupancy_closure": "desk-chair connectors + adjacent desk seam closure",
       "navigation_clearance": "desk/chair +4, chair boundary relief2, separate-island chair pair relief1+1, F1 CEO chair -U override0",
@@ -399,7 +415,7 @@
       }
     }
   },
-  "status": "PHASE8C_PORTAL_LIFECYCLE_CLOSED",
+  "status": "PHASE8D_WORKSEAT_LIFECYCLE_CLOSED_AUTHOR_APPROVED_CLEAN_PACKAGED",
   "validation": {
     "active_coordinate_frame_uses_fine_grid": true,
     "active_footprints_contained_in_room_required": true,
@@ -468,8 +484,20 @@
     "phase8c_shared_tick_per_actor_timing_verified": true,
     "phase8c_speed_scaled_walk_stride_verified": true,
     "phase8c_visual_direction_stabilization_verified": true,
-    "phase8d_speed_range_175_200_verified": true,
-    "phase8d_speed_profiles_rerolled_verified": true,
+    "phase8d_speed_range_175_200_verified": false,
+    "phase8d_speed_range_225_250_embedded_verified": true,
+    "phase8d_speed_profiles_rerolled_embedded_verified": true,
+    "phase8d_workseat_contract_verified": true,
+    "phase8d_workseat_slots_219_verified": true,
+    "phase8d_single_actor_cycle_verified": true,
+    "phase8d_lifecycle_audit_report": "REPORTS/PHASE8D_WORK_SEAT_LIFECYCLE_AUDIT.json",
+    "phase8d_visual_qa_generated": true,
+    "phase8d_visual_qa_case_count": 5,
+    "phase8d_visual_author_acceptance_pending": false,
+    "phase8d_visual_author_acceptance_date": "2026-08-31",
+    "phase8d_capacity_qa_verified": true,
+    "phase8d_capacity_qa_report": "LOCAL_REVIEW/PHASE8D_WORKSTATION_CAPACITY_QA_20260831/report.json",
+    "phase8d_capacity_qa_total_cycles": 39,
     "phase8e_speed_range_225_250_verified": true,
     "phase8e_speed_profiles_rerolled_verified": true,
       "phase8e_dynamic_actor_reservation_verified": true,
@@ -484,5 +512,5 @@
       "phase8f_crowd_active_wait_zero_verified": true,
       "phase8f_crowd_pre_spawn_offset_fallback_verified": true
   },
-  "version": "1.8.4"
+  "version": "1.8.5"
 }

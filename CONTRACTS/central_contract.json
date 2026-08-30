@@ -153,11 +153,13 @@
       "move",
       "idle"
     ],
-    "movement_speed_assignment": "stable_sha256_per_character_with_optional_actor_seed",
+    "movement_speed_assignment": "embedded_character_metadata_permanent_per_character",
     "movement_speed_range_percent": [
-      125,
-      175
+      225,
+      250
     ],
+    "movement_speed_profile_contract": "gds.character_movement_profile.v1",
+    "movement_speed_spawn_policy": "read_once_from_character_metadata",
     "shared_playback_tick_ms": 60,
     "per_actor_timeline": true,
     "walk_frame_distance_base_cells": 0.65,
@@ -166,7 +168,7 @@
     "raw_navigation_direction_preserved": true,
     "portal_spawn_fade": "not_in_8b",
     "portal_exit_despawn": "not_in_8b",
-    "work_seat_takeover": "not_in_8b",
+    "work_seat_takeover": "phase8d_single_actor_lifecycle",
     "final_depth_occlusion": "not_in_8b",
     "multi_character_avoidance": "not_in_8b"
   }

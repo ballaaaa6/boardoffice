@@ -1,0 +1,109 @@
+{
+  "$schema": "gds.work_seat_lifecycle.v1",
+  "schema": "gds.work_seat_lifecycle.v1",
+  "contract_id": "contract.gds.work_seat_lifecycle.v1",
+  "version": "1.0.0",
+  "scope": "deterministic_single_actor_workstation_cycle",
+  "state_vocabulary": {
+    "actor_phases": [
+      "walking_to_seat",
+      "approach",
+      "seated_work",
+      "exit_seat",
+      "walking_from_seat"
+    ],
+    "slot_states": ["free", "reserved", "occupied", "releasing"],
+    "render_owners": ["walking_depth", "work_seat"],
+    "legal_actor_transitions": [
+      ["walking_to_seat", "approach"],
+      ["approach", "seated_work"],
+      ["seated_work", "exit_seat"],
+      ["exit_seat", "walking_from_seat"]
+    ],
+    "legal_slot_transitions": [
+      ["free", "reserved"],
+      ["reserved", "occupied"],
+      ["occupied", "releasing"],
+      ["releasing", "free"]
+    ]
+  },
+  "slot_policy": {
+    "capacity": 1,
+    "slot_id_template": "workseat:{floor_id}:{workstation_id}:primary",
+    "slot_shape": "list",
+    "derivation_policy": "runtime_derived_from_navigation_workseat_identity",
+    "transition_gate_source": "NavigationOccupancyCore.workstation_access.transition_gate_uv",
+    "transition_gate_policy": "reachable_exterior_clearance_gate",
+    "visual_anchor_policy": "WorkSeatCore_visual_only_not_gameplay",
+    "reservation_policy": "reserve_before_inbound_walking",
+    "release_policy": "release_before_outbound_walking",
+    "multi_actor_policy": "deferred_until_single_actor_visual_gate"
+  },
+  "action_bindings": {
+    "walking_to_seat": {
+      "action": "move",
+      "direction_source": "movement_path",
+      "render_owner": "walking_depth"
+    },
+    "approach": {
+      "action": "idle",
+      "direction_source": "workstation_facing",
+      "render_owner": "walking_depth"
+    },
+    "seated_work": {
+      "action": "work",
+      "direction_source": "workstation_facing",
+      "subaction_source": "caller",
+      "render_owner": "work_seat"
+    },
+    "exit_seat": {
+      "action": "idle",
+      "direction_source": "workstation_facing",
+      "render_owner": "walking_depth"
+    },
+    "walking_from_seat": {
+      "action": "move",
+      "direction_source": "movement_path",
+      "render_owner": "walking_depth"
+    },
+    "event_emotions": {
+      "actions": ["sad", "happy"],
+      "direction_source": "none",
+      "render_owner": "walking_depth"
+    }
+  },
+  "timing": {
+    "playback_tick_ms": 60,
+    "approach_ticks": 1,
+    "exit_ticks": 1,
+    "work_character_frame_ms": 220,
+    "work_effect_frame_ms": 140,
+    "work_humanball_frame_ms": 140,
+    "work_duration_policy": "positive_caller_supplied_work_ticks",
+    "transition_tween_policy": "none"
+  },
+  "render_contract": {
+    "walking_and_seated_visibility": "mutually_exclusive",
+    "walking_owner": "walking_depth",
+    "seated_owner": "work_seat",
+    "seated_position_source": "WorkSeatCore",
+    "seated_position_is_navigation_anchor": false,
+    "character_frame_index_source": "elapsed_seated_ms_div_work_character_frame_ms",
+    "effect_frame_index_source": "elapsed_seated_ms_div_work_effect_frame_ms",
+    "humanball_frame_index_source": "elapsed_seated_ms_div_work_humanball_frame_ms",
+    "foreground_policy": "existing_authored_nw_foreground_order"
+  },
+  "error_policy": {
+    "unknown_floor": "error",
+    "unknown_workstation": "error",
+    "unknown_character": "error",
+    "invalid_uv": "error",
+    "non_walkable_or_unreachable": "error",
+    "non_positive_work_ticks": "error",
+    "unsupported_subaction": "error",
+    "unsupported_effect_or_humanball_subaction": "error",
+    "missing_transition_gate": "error",
+    "missing_seat_transition_ready": "error",
+    "fallback_guessing": false
+  }
+}

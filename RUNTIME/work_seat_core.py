@@ -161,9 +161,21 @@ class WorkSeatCore:
         assignments: list[dict[str, Any]],
         *,
         frame_index: int = 0,
+        character_frame_index: int | None = None,
+        effect_frame_index: int | None = None,
+        humanball_frame_index: int | None = None,
     ) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
         if frame_index < 0:
             raise WorkSeatError('frame_index must be >= 0')
+        if character_frame_index is not None and character_frame_index < 0:
+            raise WorkSeatError('character_frame_index must be >= 0')
+        if effect_frame_index is not None and effect_frame_index < 0:
+            raise WorkSeatError('effect_frame_index must be >= 0')
+        if humanball_frame_index is not None and humanball_frame_index < 0:
+            raise WorkSeatError('humanball_frame_index must be >= 0')
+        character_frame_index = frame_index if character_frame_index is None else int(character_frame_index)
+        effect_frame_index = frame_index if effect_frame_index is None else int(effect_frame_index)
+        humanball_frame_index = frame_index if humanball_frame_index is None else int(humanball_frame_index)
         by_workstation: dict[str, dict[str, Any]] = {}
         rendered: dict[str, dict[str, Any]] = {}
         for assignment in assignments:
@@ -176,7 +188,7 @@ class WorkSeatCore:
             action = self.characters.render(character_id, 'work', seat['direction'], subaction)
             if not action.frames:
                 raise WorkSeatError(f'{character_id} produced no work frames')
-            human = action.frames[frame_index % len(action.frames)].convert('RGBA')
+            human = action.frames[character_frame_index % len(action.frames)].convert('RGBA')
             chair = self.world.load_asset(seat['chair_asset_id']).convert('RGBA')
             offset = self.resolve_world_offset(
                 seat['direction'], chair_size=chair.size, human_size=human.size
@@ -197,7 +209,7 @@ class WorkSeatCore:
                 effect = self.characters.render_effect(effect_id, seat['direction'])
                 if not effect.frames:
                     raise WorkSeatError(f'{effect_id} produced no VFX frames')
-                effect_frame = effect.frames[frame_index % len(effect.frames)].convert('RGBA')
+                effect_frame = effect.frames[effect_frame_index % len(effect.frames)].convert('RGBA')
                 effect_x, effect_y = self.resolve_effect_world_position(
                     seat['direction'],
                     human_top_left_px=(data['human_x_px'], data['human_y_px']),
@@ -222,7 +234,7 @@ class WorkSeatCore:
                 )
                 if not popup.frames:
                     raise WorkSeatError(f'{humanball_id} produced no HumanBall frames')
-                popup_index = frame_index % len(popup.frames)
+                popup_index = humanball_frame_index % len(popup.frames)
                 popup_frame = popup.frames[popup_index]
                 popup_offset = popup.offsets[popup_index]
                 popup_x = popup_y = None
@@ -477,9 +489,17 @@ class WorkSeatCore:
         assignments: list[dict[str, Any]],
         *,
         frame_index: int = 0,
+        character_frame_index: int | None = None,
+        effect_frame_index: int | None = None,
+        humanball_frame_index: int | None = None,
     ) -> Image.Image:
         by_workstation, rendered = self._resolve_floor_assignment_data(
-            floor_id, assignments, frame_index=frame_index
+            floor_id,
+            assignments,
+            frame_index=frame_index,
+            character_frame_index=character_frame_index,
+            effect_frame_index=effect_frame_index,
+            humanball_frame_index=humanball_frame_index,
         )
 
         skin = self.world.floor_skin(floor_id)
@@ -528,9 +548,17 @@ class WorkSeatCore:
         assignments: list[dict[str, Any]],
         *,
         frame_index: int = 0,
+        character_frame_index: int | None = None,
+        effect_frame_index: int | None = None,
+        humanball_frame_index: int | None = None,
     ) -> Image.Image:
         by_workstation, rendered = self._resolve_floor_assignment_data(
-            floor_id, assignments, frame_index=frame_index
+            floor_id,
+            assignments,
+            frame_index=frame_index,
+            character_frame_index=character_frame_index,
+            effect_frame_index=effect_frame_index,
+            humanball_frame_index=humanball_frame_index,
         )
 
         skin = self.world.floor_skin(floor_id)
@@ -589,4 +617,3 @@ class WorkSeatCore:
                 (int(payload['humanball_x_px']), int(payload['humanball_y_px'])),
             )
         return canvas
-

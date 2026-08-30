@@ -60,13 +60,15 @@ def test_movement_profile_is_stable_per_character_and_stays_in_approved_range():
     assert all(225 <= row['speed_percent'] <= 250 for row in profiles)
 
 
-def test_actor_seed_can_vary_an_instance_without_rerolling_between_calls():
+def test_actor_seed_cannot_reroll_an_identity_level_speed_profile():
     movement = CharacterMovementCore(ROOT)
     first = movement.resolve_movement_profile(0, actor_seed='lobby-a')
     repeated = movement.resolve_movement_profile('TP_000', actor_seed='lobby-a')
+    other_seed = movement.resolve_movement_profile(0, actor_seed='lobby-b')
 
     assert first == repeated
-    assert first['assignment_policy'] == 'stable_sha256_per_actor_seed'
+    assert first == other_seed
+    assert first['assignment_policy'] == 'embedded_character_metadata'
 
 
 def test_shared_tick_timeline_moves_faster_profiles_farther_and_finishes_earlier():

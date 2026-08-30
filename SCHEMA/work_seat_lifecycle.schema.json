@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.work_seat_lifecycle.v1",
+  "title": "GDS WorkSeat single-actor lifecycle contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema",
+    "contract_id",
+    "version",
+    "scope",
+    "state_vocabulary",
+    "slot_policy",
+    "action_bindings",
+    "timing",
+    "render_contract",
+    "error_policy"
+  ],
+  "properties": {
+    "$schema": {"const": "gds.work_seat_lifecycle.v1"},
+    "schema": {"const": "gds.work_seat_lifecycle.v1"},
+    "contract_id": {"const": "contract.gds.work_seat_lifecycle.v1"},
+    "version": {"const": "1.0.0"},
+    "scope": {"const": "deterministic_single_actor_workstation_cycle"},
+    "state_vocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actor_phases", "slot_states", "render_owners", "legal_actor_transitions", "legal_slot_transitions"],
+      "properties": {
+        "actor_phases": {
+          "const": ["walking_to_seat", "approach", "seated_work", "exit_seat", "walking_from_seat"]
+        },
+        "slot_states": {"const": ["free", "reserved", "occupied", "releasing"]},
+        "render_owners": {"const": ["walking_depth", "work_seat"]},
+        "legal_actor_transitions": {"type": "array", "minItems": 4},
+        "legal_slot_transitions": {"type": "array", "minItems": 4}
+      }
+    },
+    "slot_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capacity", "slot_id_template", "slot_shape", "derivation_policy", "transition_gate_source", "transition_gate_policy", "visual_anchor_policy", "reservation_policy", "release_policy", "multi_actor_policy"],
+      "properties": {
+        "capacity": {"const": 1},
+        "slot_id_template": {"const": "workseat:{floor_id}:{workstation_id}:primary"},
+        "slot_shape": {"const": "list"},
+        "derivation_policy": {"const": "runtime_derived_from_navigation_workseat_identity"},
+        "transition_gate_source": {"type": "string", "minLength": 1},
+        "transition_gate_policy": {"const": "reachable_exterior_clearance_gate"},
+        "visual_anchor_policy": {"const": "WorkSeatCore_visual_only_not_gameplay"},
+        "reservation_policy": {"const": "reserve_before_inbound_walking"},
+        "release_policy": {"const": "release_before_outbound_walking"},
+        "multi_actor_policy": {"type": "string", "minLength": 1}
+      }
+    },
+    "action_bindings": {"type": "object", "minProperties": 6},
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["playback_tick_ms", "approach_ticks", "exit_ticks", "work_character_frame_ms", "work_effect_frame_ms", "work_humanball_frame_ms", "work_duration_policy", "transition_tween_policy"],
+      "properties": {
+        "playback_tick_ms": {"const": 60},
+        "approach_ticks": {"const": 1},
+        "exit_ticks": {"const": 1},
+        "work_character_frame_ms": {"const": 220},
+        "work_effect_frame_ms": {"const": 140},
+        "work_humanball_frame_ms": {"const": 140},
+        "work_duration_policy": {"type": "string", "minLength": 1},
+        "transition_tween_policy": {"const": "none"}
+      }
+    },
+    "render_contract": {"type": "object", "minProperties": 8},
+    "error_policy": {"type": "object", "minProperties": 10}
+  }
+}

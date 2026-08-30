@@ -1,10 +1,10 @@
-# GDS CENTRAL GAME CORE v1.8.4
+# GDS CENTRAL GAME CORE v1.8.5
 
-> v1.8.4 is the Phase 8C portal-lifecycle release. It preserves the author-approved Phase 8B navigation foundation, continuous movement and no-redraw walking depth, then adds the deterministic portal actor lifecycle and the final F2-family reception expansion.
+> The current worktree contains the closed Phase 8D WorkSeat single-actor lifecycle implementation, author-approved with capacity-based five-floor visual QA and verified in a clean v1.8.5 package. It preserves the author-approved Phase 8B/8C navigation and portal foundation.
 
 ## Current status
 
-**PHASE 8C PORTAL LIFECYCLE / CLOSED — AUTHOR-APPROVED — 2026-08-31**
+**PHASE 8D WORKSEAT LIFECYCLE / CLOSED — AUTHOR-APPROVED — CLEAN PACKAGE VERIFIED — 2026-08-31**
 
 ## Navigation formula
 
@@ -38,11 +38,13 @@ F0 and F1 remain unique. All 23 floors using `layout.floor02.large` now resolve 
 - F2-family Reception fixed navigation ground anchor independent of transparent visual padding
 - independent reception render-depth profiles for F1/F2+ use the visible ground front edge; F0 remains embedded and unbound
 - deterministic portal actor lifecycle: unspawned → entering → active → exiting → despawned
-- stable per-character movement profiles sampled once from the approved 225–250% range (re-rolled with the v3 speed seed)
+- permanent per-character movement profiles embedded in character metadata, sampled once in the new v4 reroll from the approved 225–250% range; spawn and actor aliases never reroll the value
 - independent per-actor travel on a shared 60 ms tick; optional actor seeds support repeated instances
 - distance-driven walk animation with a speed-scaled stride (`0.65 × speed` cells per frame step)
 - visual-facing lookahead/hysteresis to suppress rapid direction flips on A* staircase paths
 - deterministic crowd movement planning from synchronized head trajectories; trail overlap is allowed, alternate routes are tried, and no actor waits after spawn
+- deterministic WorkSeat actor cycle from reachable gate to workstation and back: `walking_to_seat → approach → seated_work → exit_seat → walking_from_seat`
+- explicit action semantics: directional `idle`/`move`/seated `work`, plus directionless `sad`/`happy` event emotions
 
 ## F2/F2+ Reception lock
 
@@ -98,4 +100,4 @@ F2 is canonical for 23 F2+ floors, so the editor shows that family impact before
 
 ## Next milestone
 
-**Phase 8D — WorkSeat runtime lifecycle:** walking → approach → seated/work → exit seat → walking.
+**Phase 8D — WorkSeat runtime lifecycle:** closed and author-approved with one actor per authored computer in the five-floor QA; v1.8.5 clean release is verified.
