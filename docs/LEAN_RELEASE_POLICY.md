@@ -22,6 +22,7 @@ Keep:
 Do not require or package as canonical payload:
 
 - `PREVIEW/`
+- `LOCAL_REVIEW/`
 - generated GIFs, review sheets, debug overlays, acceptance screenshots
 - `WORLD/COMPILED_NAV/OCCUPANCY/`
 - other per-floor outputs that can be deterministically derived from canonical registries
@@ -49,6 +50,7 @@ Before declaring a canonical release:
 
 ```text
 PREVIEW/                              must be absent
+LOCAL_REVIEW/                         local-only; excluded from release archive
 WORLD/COMPILED_NAV/OCCUPANCY/        must be absent
 pytest                               must pass on a fresh extraction
 navigation occupancy audit           must pass without disk cache

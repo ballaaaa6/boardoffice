@@ -11,7 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from TOOLS.render_phase8b_crowd_portal_qa import CrowdPortalRenderer
 
 if __name__ == '__main__':
-    output_root = Path('/mnt/data/GDS_PHASE8C_V184_ALL_FLOOR_CROWD_QA')
+    output_root = PROJECT_ROOT / 'LOCAL_REVIEW' / 'PHASE8C_ALL_FLOOR_CROWD_QA'
     renderer = CrowdPortalRenderer(PROJECT_ROOT)
     result = renderer.render_all_registered_floors(output_root)
     print(json.dumps(result, ensure_ascii=False, indent=2))

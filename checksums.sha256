@@ -2,7 +2,7 @@
 # Scope: CENTRAL_MANIFEST + CHARACTER + WORLD + RUNTIME + CONTRACTS + SCHEMA + runtime dependency/pointer files
 # Excluded support/generated material: PREVIEW, REPORTS, TESTS, TOOLS, VALIDATION, DOCS/docs, HANDOFF, README, optional occupancy cache
 
-5d9cb73f0d7d0d720f6df6ee49d1333a969aa684e9ebd466c0ac17246114eaf2  ./CENTRAL_MANIFEST.json
+0f03e09fe0c92ff19f916ae5e257184b6ceaa7feb1e45a9d9d9035b7bc467e64  ./CENTRAL_MANIFEST.json
 501e52a43af974bbcfe795f781b9c0992280561025f8207e64b4027fe7d7889e  ./CHARACTER/ACTIONS/gds_standard_v1.json
 2f70e64586812a1a52258ef57781f11a16bf13e15a68dccea2c6b81e21c156e6  ./CHARACTER/ASSETS/asset_registry.json
 90914c820d4395cee8bdc861f0371ef951d5e23c9bfb5c93291b156b3cf0d2df  ./CHARACTER/ASSETS/characters/asset_registry.json
@@ -203,14 +203,14 @@ a0dac73f133c27601496ad5e2083bb07cdf4f03da33138483d53b495d15b7ece  ./CHARACTER/RU
 833e08a4dc741b94fef918e61e02ee9e9f88f4449d1e959c87ada3e780bd3f00  ./CHARACTER/RUNTIME/presentation_renderer.py
 c6fc8960e19eb8d79ed69cd07a2299257bf314d89bb0d365fbaac7f9d5e69eba  ./CHARACTER/RUNTIME/resolve_action.py
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ./CHARACTER/__init__.py
-9279460867dd0b4ac8b4f25c40969e8bfaa37d43aeec3efbfde44940071676a3  ./CONTRACTS/central_contract.json
+e9023150fe081633b8af2d0782162548809cfec6caa6faffcb8377ecbc80b63e  ./CONTRACTS/central_contract.json
 12f0446b3e7f6b162a027922bd68c71bfff20633a43f073960b1387889032f7b  ./CONTRACTS/spatial_object_contract.json
 bbef3d81a5fcec1f0ea1fff3b371f35399eeb4f04030698d2c06fbaf8da6df46  ./CONTRACTS/work_pose_profiles.json
 a634b688d57a4cf86c8c4f30eb4d14b60006c39e67c8363e0858b9cb9b26a71c  ./LEGACY_ARCHIVE_POINTER.json
 8c52044e42a3aaf7f24f1cf91c6e84e1332448afb9bcb3b3610dc1bf317e28b7  ./RUNTIME/__init__.py
-cf359b0b658be35547d5e2868a0ce4b1dde903a62d77b49f298e2960b0163620  ./RUNTIME/central_core.py
-5a3fdfa170bce4e733525af823b1abe7cc9a986777afebc180056ac0093c3686  ./RUNTIME/character_movement_core.py
-c9734265c8fddff1fd0dc3ea4f212b60a3584785267d7cd5219149c6ed13ea16  ./RUNTIME/portal_actor_lifecycle.py
+3310c9c7aa0f1a5535fa53450e202bae79a0e6165f623bec2a6ba6ef9e9b4c38  ./RUNTIME/central_core.py
+19a8c65d5ccf4168d11aa3113d4556801fb5b58428d204c82dfcb058e31c01c3  ./RUNTIME/character_movement_core.py
+68a136060bd4eef7610675aa3155406505f971494f84cc00ee3df348154b6ed1  ./RUNTIME/portal_actor_lifecycle.py
 d678c3cd7f3e3e463beb19ada6235f3122b0758e12bf30255a1f1d54c09b612a  ./RUNTIME/work_seat_core.py
 3f9cde7048cb6eacc55075a2baec4a0c4f01cb50ffd048666d2792dfa10fb075  ./SCHEMA/CHARACTER/action_set.schema.json
 a9e4efbbee9c0a7eaabe1201c11851a8235002327d35d27870ef4e99cb184d70  ./SCHEMA/CHARACTER/character_asset_registry.schema.json

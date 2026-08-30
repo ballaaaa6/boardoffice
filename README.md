@@ -37,6 +37,10 @@ F0 and F1 remain unique. All 23 floors using `layout.floor02.large` now resolve 
 - explicit F2 gameplay metadata family audit/runtime
 - F2-family Reception fixed navigation ground anchor independent of transparent visual padding
 - deterministic portal actor lifecycle: unspawned → entering → active → exiting → despawned
+- stable per-character movement profiles sampled once from the approved 125–175% range
+- independent per-actor travel on a shared 60 ms tick; optional actor seeds support repeated instances
+- distance-driven walk animation with a speed-scaled stride (`0.65 × speed` cells per frame step)
+- visual-facing lookahead/hysteresis to suppress rapid direction flips on A* staircase paths
 
 ## F2/F2+ Reception lock
 
@@ -69,7 +73,7 @@ This is the prior 20×15 reservation expanded **again** by `-U5` and `+U4`. All 
 
 ## Lean release policy
 
-Keep canonical assets/shared blobs, registries, runtime, tests, schemas and small reports. Do not package generated QA images/GIFs, `PREVIEW/`, `WORLD/COMPILED_NAV/OCCUPANCY/`, Python caches, or pytest caches.
+Keep canonical assets/shared blobs, registries, runtime, tests, schemas and small reports. Do not package generated QA images/GIFs, `PREVIEW/`, `LOCAL_REVIEW/`, `WORLD/COMPILED_NAV/OCCUPANCY/`, Python caches, or pytest caches.
 
 ## Verification
 

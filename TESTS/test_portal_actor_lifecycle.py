@@ -18,6 +18,8 @@ def test_portal_actor_cycle_is_deterministic_and_ends_despawned():
 
     assert first == second
     assert first['schema'] == 'gds.portal_actor_lifecycle.v1'
+    assert first['playback_tick_ms'] == 60
+    assert 125 <= first['movement_profile']['speed_percent'] <= 175
     assert first['portal']['entry_exit_adjacent'] is True
     assert first['target_uv'] == list(target)
     assert first['outward_path_cells_uv'][0] == list(start)
@@ -31,6 +33,11 @@ def test_portal_actor_cycle_is_deterministic_and_ends_despawned():
     assert first['final_state']['phase'] == 'despawned'
     assert first['final_state']['visible'] is False
     assert first['final_state']['alpha'] == 0.0
+    assert all(
+        state['speed_percent'] == first['movement_profile']['speed_percent']
+        for state in first['states']
+    )
+    assert all(state['tick_ms'] == first['playback_tick_ms'] for state in first['states'])
 
     phases = [state['phase'] for state in first['states']]
     assert phases[0] == 'unspawned'
@@ -63,3 +70,23 @@ def test_portal_actor_cycle_rejects_unreachable_goal():
     core = CentralGameCore(ROOT)
     with pytest.raises(CentralGameCoreError):
         core.resolve_portal_actor_cycle(0, 'floor00', (0, 0))
+
+
+def test_faster_portal_actor_uses_fewer_shared_tick_move_states_for_same_route():
+    core = CentralGameCore(ROOT)
+    start = tuple(core.resolve_portal_navigation_start('floor00'))
+    target = tuple(core.pathfinding.resolve_near_target('floor00', start, min_distance=12))
+    fast = core.resolve_portal_actor_cycle(1, 'floor00', target)
+    slow = core.resolve_portal_actor_cycle(6, 'floor00', target)
+
+    assert fast['movement_profile']['speed_percent'] > slow['movement_profile']['speed_percent']
+    fast_move_count = sum(
+        state['phase'] == 'active' and state['action'] == 'move'
+        for state in fast['states']
+    )
+    slow_move_count = sum(
+        state['phase'] == 'active' and state['action'] == 'move'
+        for state in slow['states']
+    )
+    assert fast_move_count < slow_move_count
+    assert all('raw_direction' in state for state in fast['states'])

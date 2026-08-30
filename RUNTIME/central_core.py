@@ -312,6 +312,20 @@ class CentralGameCore:
         except CharacterMovementError as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
+    def resolve_character_movement_profile(
+        self,
+        query: int | str,
+        *,
+        actor_seed: str | None = None,
+    ) -> dict[str, Any]:
+        try:
+            return self.character_movement.resolve_movement_profile(
+                query,
+                actor_seed=actor_seed,
+            )
+        except CharacterMovementError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
     def resolve_portal_actor_cycle(
         self,
         query: int | str,

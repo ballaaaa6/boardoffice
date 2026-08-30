@@ -153,6 +153,17 @@
       "move",
       "idle"
     ],
+    "movement_speed_assignment": "stable_sha256_per_character_with_optional_actor_seed",
+    "movement_speed_range_percent": [
+      125,
+      175
+    ],
+    "shared_playback_tick_ms": 60,
+    "per_actor_timeline": true,
+    "walk_frame_distance_base_cells": 0.65,
+    "walk_frame_distance_policy": "base_cells_multiplied_by_actor_speed",
+    "visual_direction_policy": "path_lookahead_plus_confirmation_and_minimum_hold_hysteresis",
+    "raw_navigation_direction_preserved": true,
     "portal_spawn_fade": "not_in_8b",
     "portal_exit_despawn": "not_in_8b",
     "work_seat_takeover": "not_in_8b",

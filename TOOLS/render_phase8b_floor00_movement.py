@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import sys
 from pathlib import Path
 
@@ -104,27 +103,28 @@ class Phase8BFloor00MovementQA:
             ground_anchor_px=self.movement.GROUND_ANCHOR_PX,
         )
 
-    def _movement_frames(self, character_query: int | str, record: dict, *, max_step_samples: int = 80) -> list[Image.Image]:
-        path = [tuple(cell) for cell in record['path_cells_uv']]
-        step_count = max(0, len(path) - 1)
-        stride = max(1, math.ceil(step_count / max_step_samples)) if step_count else 1
+    def _movement_frames(self, character_query: int | str, record: dict) -> list[Image.Image]:
+        profile = record['movement_profile']
         frames: list[Image.Image] = []
 
-        for idx in range(0, step_count, stride):
-            cur = path[idx]
-            nxt = path[idx + 1]
-            direction = self.movement.direction_for_step(cur, nxt)
+        for sample in record['timed_motion_samples']:
+            direction = sample['direction']
             action = self.core.render_character(character_query, 'move', direction)
-            start_xy = self.movement.uv_cell_center_to_pixel(*cur)
-            end_xy = self.movement.uv_cell_center_to_pixel(*nxt)
-            sprite = action.frames[(idx // stride) % len(action.frames)]
-            fx = start_xy[0] + (end_xy[0] - start_xy[0]) * 0.5
-            fy = start_xy[1] + (end_xy[1] - start_xy[1]) * 0.5
-            frames.append(self._composite_character(record['floor_id'], sprite, (fx, fy)))
+            sprite_index = self.movement.walk_cycle_frame_index(
+                sample['cumulative_distance_px'],
+                len(action.frames),
+                frame_distance_cells=profile['walk_frame_distance_cells'],
+            )
+            sprite = action.frames[sprite_index]
+            frames.append(self._composite_character(
+                record['floor_id'],
+                sprite,
+                tuple(sample['ground_xy']),
+            ))
 
         arrival_dir = record['arrival_action']['direction']
         idle = self.core.render_character(character_query, 'idle', arrival_dir)
-        goal_xy = self.movement.uv_cell_center_to_pixel(*path[-1])
+        goal_xy = tuple(record['path_positions_px'][-1])
         for sprite in idle.frames[:2]:
             frames.append(self._composite_character(record['floor_id'], sprite, goal_xy))
         return frames
@@ -197,7 +197,7 @@ class Phase8BFloor00MovementQA:
 
             frames = self._movement_frames(character_query, record)
             gif_path = gif_dir / f"floor00_{route['route_id']}_motion.gif"
-            self._save_gif(frames, gif_path)
+            self._save_gif(frames, gif_path, frame_ms=record['timed_motion_tick_ms'])
 
             row = {
                 **route,
@@ -206,6 +206,9 @@ class Phase8BFloor00MovementQA:
                 'segment_count': len(record['segments']),
                 'compressed_waypoint_count': len(record['compressed_waypoints_uv']),
                 'arrival_direction': record['arrival_action']['direction'],
+                'speed_percent': record['movement_profile']['speed_percent'],
+                'walk_frame_distance_cells': record['movement_profile']['walk_frame_distance_cells'],
+                'playback_tick_ms': record['timed_motion_tick_ms'],
                 'ground_anchor_px': record['ground_anchor_px'],
                 'debug_png': str(debug_path),
                 'motion_gif': str(gif_path),

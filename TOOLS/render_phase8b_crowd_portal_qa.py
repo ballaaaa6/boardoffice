@@ -18,16 +18,15 @@ from RUNTIME.central_core import CentralGameCore
 class CrowdPortalRenderer:
     """Render crowd portal QA loops.
 
-    v1.8.4 changes:
-    - keeps the v1.8.3 dense 4-substep motion sampling
-    - speeds playback up slightly by shortening frame time while preserving
-      the same distance-driven walk-cycle synchronization
+    Movement-profile changes:
+    - assigns a stable 125-175% travel speed to each character
+    - samples every actor independently on one shared 60 ms playback tick
+    - stabilizes visual facing across A* staircase paths
+    - scales walk-frame distance with travel speed to avoid fast leg pedalling
     - reduces peak memory during GIF rendering by quantizing frames eagerly,
       allowing full multi-floor crowd QA exports in one pass
     """
 
-    SUBSTEPS_PER_CELL = 4
-    MOVE_FRAME_DISTANCE_CELLS = 0.5
     FRAME_MS = 60
     EMPTY_TAIL_FRAMES = 8
 
@@ -142,12 +141,18 @@ class CrowdPortalRenderer:
         rgba.putalpha(channel)
         return rgba
 
-    def move_sprite_index(self, query: int, direction: str, cumulative_distance_px: float) -> int:
+    def move_sprite_index(
+        self,
+        query: int,
+        direction: str,
+        cumulative_distance_px: float,
+        movement_profile: dict[str, Any],
+    ) -> int:
         frames = self.sprite_frames(query, 'move', direction)
         return self.move.walk_cycle_frame_index(
             cumulative_distance_px,
             len(frames),
-            frame_distance_cells=self.MOVE_FRAME_DISTANCE_CELLS,
+            frame_distance_cells=float(movement_profile['walk_frame_distance_cells']),
         )
 
     @staticmethod
@@ -163,6 +168,7 @@ class CrowdPortalRenderer:
         alphas: list[float],
         *,
         distance_offset_px: float,
+        movement_profile: dict[str, Any],
     ) -> tuple[list[dict[str, Any]], float]:
         states: list[dict[str, Any]] = []
         segment_distance = self._distance(start_xy, end_xy)
@@ -177,10 +183,13 @@ class CrowdPortalRenderer:
             states.append({
                 'ground_xy': xy,
                 'direction': direction,
+                'raw_direction': direction,
                 'action': 'move',
                 'cumulative_distance_px': cumulative,
                 'alpha': alpha,
                 'phase': phase,
+                'speed_percent': movement_profile['speed_percent'],
+                'speed_multiplier': movement_profile['speed_multiplier'],
             })
         return states, distance_offset_px + segment_distance
 
@@ -190,8 +199,13 @@ class CrowdPortalRenderer:
         phase: str,
         *,
         distance_offset_px: float,
+        movement_profile: dict[str, Any],
     ) -> tuple[list[dict[str, Any]], float]:
-        raw = self.move.sample_path_states(path, substeps_per_cell=self.SUBSTEPS_PER_CELL)
+        raw = self.move.sample_path_timeline(
+            path,
+            speed_multiplier=float(movement_profile['speed_multiplier']),
+            tick_ms=int(movement_profile['playback_tick_ms']),
+        )
         states = []
         last_distance = distance_offset_px
         for sample in raw:
@@ -200,17 +214,27 @@ class CrowdPortalRenderer:
             states.append({
                 'ground_xy': xy,
                 'direction': sample['direction'],
+                'raw_direction': sample['raw_direction'],
                 'action': 'move',
                 'cumulative_distance_px': cumulative,
                 'alpha': 1.0,
                 'phase': phase,
                 'step_index': sample['step_index'],
-                'substep_index': sample['substep_index'],
+                'tick_index': sample['tick_index'],
+                'speed_percent': movement_profile['speed_percent'],
+                'speed_multiplier': movement_profile['speed_multiplier'],
             })
             last_distance = cumulative
         return states, last_distance
 
-    def states_for(self, floor_id: str, query: int, start_uv: tuple[int, int], target_uv: tuple[int, int]) -> tuple[list[dict[str, Any]], tuple[int, int]]:
+    def states_for(
+        self,
+        floor_id: str,
+        query: int,
+        start_uv: tuple[int, int],
+        target_uv: tuple[int, int],
+    ) -> tuple[list[dict[str, Any]], tuple[int, int], dict[str, Any]]:
+        movement_profile = self.core.resolve_character_movement_profile(query)
         outside_uv = self.adjacent_outside(floor_id, start_uv)
         entry_dir = self.move.direction_for_step(outside_uv, start_uv)
         exit_dir = self.move.direction_for_step(start_uv, outside_uv)
@@ -230,10 +254,16 @@ class CrowdPortalRenderer:
             'entry',
             [0.25, 0.5, 0.75, 1.0],
             distance_offset_px=cumulative,
+            movement_profile=movement_profile,
         )
         states.extend(entry_states)
 
-        outward_states, cumulative = self._path_states(out_path, 'outward', distance_offset_px=cumulative)
+        outward_states, cumulative = self._path_states(
+            out_path,
+            'outward',
+            distance_offset_px=cumulative,
+            movement_profile=movement_profile,
+        )
         states.extend(outward_states)
 
         goal_dir = outward_states[-1]['direction'] if outward_states else entry_dir
@@ -246,9 +276,16 @@ class CrowdPortalRenderer:
                 'idle_frame_index': i % idle_frames,
                 'alpha': 1.0,
                 'phase': 'goal_hold',
+                'speed_percent': movement_profile['speed_percent'],
+                'speed_multiplier': movement_profile['speed_multiplier'],
             })
 
-        return_states, cumulative = self._path_states(back_path, 'return', distance_offset_px=cumulative)
+        return_states, cumulative = self._path_states(
+            back_path,
+            'return',
+            distance_offset_px=cumulative,
+            movement_profile=movement_profile,
+        )
         states.extend(return_states)
 
         arrival_dir = return_states[-1]['direction'] if return_states else goal_dir
@@ -261,6 +298,8 @@ class CrowdPortalRenderer:
                 'idle_frame_index': i % arrival_idle_frames,
                 'alpha': 1.0,
                 'phase': 'portal_hold',
+                'speed_percent': movement_profile['speed_percent'],
+                'speed_multiplier': movement_profile['speed_multiplier'],
             })
 
         exit_states, cumulative = self._transition_states(
@@ -270,10 +309,11 @@ class CrowdPortalRenderer:
             'exit',
             [1.0, 0.75, 0.5, 0.25],
             distance_offset_px=cumulative,
+            movement_profile=movement_profile,
         )
         states.extend(exit_states)
 
-        return states, outside_uv
+        return states, outside_uv, movement_profile
 
     def changed_outside_actor_bboxes(self, base: Image.Image, frame: Image.Image, bboxes: list[tuple[int, int, int, int]]) -> int:
         diff = ImageChops.difference(base, frame).convert('RGBA')
@@ -287,11 +327,11 @@ class CrowdPortalRenderer:
         targets = self.distributed_targets(floor_id, agent_count)
         agent_specs = []
         for query, (start_uv, target_uv) in enumerate(zip(starts, targets)):
-            states, outside_uv = self.states_for(floor_id, query, start_uv, target_uv)
+            states, outside_uv, movement_profile = self.states_for(floor_id, query, start_uv, target_uv)
             start_delay = query * 8
-            agent_specs.append((query, start_uv, target_uv, outside_uv, start_delay, states))
+            agent_specs.append((query, start_uv, target_uv, outside_uv, start_delay, movement_profile, states))
 
-        total_frames = max(start_delay + len(states) for *_head, start_delay, states in agent_specs) + self.EMPTY_TAIL_FRAMES
+        total_frames = max(start_delay + len(states) for *_head, start_delay, _profile, states in agent_specs) + self.EMPTY_TAIL_FRAMES
         base = self.core.render_floor(floor_id).convert('RGBA')
 
         sampled_checks = {0, total_frames // 3, (2 * total_frames) // 3, total_frames - 1}
@@ -304,13 +344,18 @@ class CrowdPortalRenderer:
         for frame_idx in range(total_frames):
             actors = []
             bboxes = []
-            for query, start_uv, target_uv, outside_uv, start_delay, states in agent_specs:
+            for query, start_uv, target_uv, outside_uv, start_delay, movement_profile, states in agent_specs:
                 local = frame_idx - start_delay
                 if local < 0 or local >= len(states):
                     continue
                 state = states[local]
                 if state['action'] == 'move':
-                    sprite_idx = self.move_sprite_index(query, state['direction'], state['cumulative_distance_px'])
+                    sprite_idx = self.move_sprite_index(
+                        query,
+                        state['direction'],
+                        state['cumulative_distance_px'],
+                        movement_profile,
+                    )
                 else:
                     sprite_idx = int(state.get('idle_frame_index', 0))
                 sprite = self.with_alpha(self.sprite(query, state['action'], state['direction'], sprite_idx), state['alpha'])
@@ -341,7 +386,7 @@ class CrowdPortalRenderer:
             (92, 255, 170, 180), (255, 115, 196, 180), (212, 255, 119, 180), (125, 167, 255, 180),
         ]
         summary_agents = []
-        for idx, (query, start_uv, target_uv, outside_uv, start_delay, states) in enumerate(agent_specs):
+        for idx, (query, start_uv, target_uv, outside_uv, start_delay, movement_profile, states) in enumerate(agent_specs):
             color = colors[idx % len(colors)]
             pts = [state['ground_xy'] for state in states if state['phase'] in {'outward', 'return'}]
             if len(pts) >= 2:
@@ -357,6 +402,8 @@ class CrowdPortalRenderer:
                 'target_uv': list(target_uv),
                 'start_delay': start_delay,
                 'state_count': len(states),
+                'speed_percent': movement_profile['speed_percent'],
+                'walk_frame_distance_cells': movement_profile['walk_frame_distance_cells'],
             })
         overlay_path = output_root / f'{floor_id}_crowd_routes_overlay_v184.png'
         overlay.save(overlay_path)
@@ -368,10 +415,14 @@ class CrowdPortalRenderer:
             'agent_count': agent_count,
             'frame_count': total_frames,
             'frame_ms': self.FRAME_MS,
-            'substeps_per_cell': self.SUBSTEPS_PER_CELL,
-            'walk_frame_distance_cells': self.MOVE_FRAME_DISTANCE_CELLS,
+            'baseline_substeps_per_cell': self.move.DEFAULT_SUBSTEPS_PER_CELL,
+            'speed_range_percent': [
+                self.move.MIN_MOVE_SPEED_PERCENT,
+                self.move.MAX_MOVE_SPEED_PERCENT,
+            ],
+            'walk_frame_distance_policy': '0.65 cells multiplied by actor speed',
             'static_world_changed_pixels_outside_actor_bounds': max_static,
-            'portal_entry_exit_adjacent': all(abs(outside_uv[0] - start_uv[0]) + abs(outside_uv[1] - start_uv[1]) == 1 for _, start_uv, _, outside_uv, _, _ in agent_specs),
+            'portal_entry_exit_adjacent': all(abs(outside_uv[0] - start_uv[0]) + abs(outside_uv[1] - start_uv[1]) == 1 for _, start_uv, _, outside_uv, _, _, _ in agent_specs),
             'empty_tail_frames': self.EMPTY_TAIL_FRAMES,
             'agents': summary_agents,
         }
@@ -387,9 +438,10 @@ class CrowdPortalRenderer:
             'schema': 'gds_phase8b_v184_crowd_portal_qa_v1',
             'status': 'PASS',
             'notes': [
-                'Movement preview keeps 4 spatial substeps per fine-grid cell.',
-                'Frame time shortened from 70ms to 60ms for slightly faster travel.',
-                'Walk animation cadence remains derived from cumulative movement distance.',
+                'Each character gets one deterministic movement speed from 125-175%.',
+                'All actors use one 60ms playback tick and advance by their own speed.',
+                'Walk cadence is distance-driven with a speed-scaled stride distance.',
+                'Visual direction uses path lookahead and hysteresis to suppress A* staircase flicker.',
                 'Actors despawn completely after exit fade-out.',
             ],
             'floors': results,
@@ -419,8 +471,9 @@ class CrowdPortalRenderer:
             'schema': 'gds_phase8c_v184_all_floor_crowd_qa_v1',
             'status': 'PASS',
             'notes': [
-                'All registered floors rendered with the v1.8.4 slightly faster movement preview.',
-                'Dense 4-substep interpolation per fine-grid cell preserved from v1.8.3.',
+                'All registered floors rendered with stable per-character 125-175% movement profiles.',
+                'Each actor advances independently on a shared 60ms playback tick.',
+                'Walk stride and stabilized facing are sourced from CharacterMovementCore.',
                 'GIF rendering quantizes frames eagerly to lower peak memory during full-bundle export.',
             ],
             'floor_count': len(results),
@@ -437,7 +490,7 @@ class CrowdPortalRenderer:
 
 if __name__ == '__main__':
     project_root = Path(__file__).resolve().parents[1]
-    out = Path('/mnt/data/GDS_PHASE8B_V184_CROWD_PORTAL_QA')
+    out = project_root / 'LOCAL_REVIEW' / 'PHASE8B_CROWD_PORTAL_QA'
     renderer = CrowdPortalRenderer(project_root)
     result = renderer.render_all(out)
     print(json.dumps(result, ensure_ascii=False, indent=2))

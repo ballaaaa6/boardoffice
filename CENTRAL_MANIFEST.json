@@ -118,6 +118,15 @@
     "character_movement_runtime": "RUNTIME/character_movement_core.py",
     "single_character_pathfinding": true,
     "four_neighbor_astar": true,
+    "movement_speed_assignment": "stable_sha256_per_character_or_actor_seed",
+    "movement_speed_range_percent": [
+      125,
+      175
+    ],
+    "movement_shared_playback_tick_ms": 60,
+    "movement_walk_frame_distance_base_cells": 0.65,
+    "movement_walk_frame_distance_policy": "base_cells_multiplied_by_actor_speed",
+    "movement_visual_direction_policy": "three_cell_path_lookahead_with_confirmation_and_hold_hysteresis",
     "movement_direction_mapping": {
       "+U": "SE",
       "-U": "NW",
@@ -420,7 +429,12 @@
     "phase8b_f2_reception_additional_minus_u5_plus_u4_verified": true,
     "phase8b_f2_reception_805_cells_verified": true,
     "phase8c_full_regression_121_pass": true,
-    "phase8c_portal_actor_lifecycle_verified": true
+    "phase8c_full_regression_127_pass": true,
+    "phase8c_portal_actor_lifecycle_verified": true,
+    "phase8c_stable_character_speed_profiles_verified": true,
+    "phase8c_shared_tick_per_actor_timing_verified": true,
+    "phase8c_speed_scaled_walk_stride_verified": true,
+    "phase8c_visual_direction_stabilization_verified": true
   },
   "version": "1.8.4"
 }

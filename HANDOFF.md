@@ -12,9 +12,10 @@ desk/chair semantic closure and clearance, WorkSeat approach gates, and
 no-redraw walking-depth occlusion.
 
 v1.8.4 adds the continuous movement preview and the production portal actor
-lifecycle. Movement keeps four spatial substeps per fine-grid cell, a shared
-character ground anchor of `[16,31]`, and walk animation phase derived from
-distance travelled.
+lifecycle. Each character now receives one deterministic movement profile in
+the author-approved 125–175% range. Actors advance independently on a shared
+60 ms tick, keep the shared ground anchor `[16,31]`, scale walk stride with
+travel speed, and stabilize visual facing across A* staircase paths.
 
 ## Navigation contract
 
@@ -59,6 +60,11 @@ Entry and exit use the canonical portal inside/outside pair. Normal movement
 uses the existing pathfinding and character movement cores. The final state is
 invisible and despawned, so no translucent actor remains after portal exit.
 
+Every lifecycle record includes its movement profile, shared playback tick,
+raw path direction, and stabilized sprite-facing direction. Speed assignment is
+stable by canonical character ID; an optional actor seed is available through
+the movement-profile API when repeated instances need distinct stable speeds.
+
 ## Verification and packaging gate
 
 Before publishing a release, run the full test suite and these audits:
@@ -72,8 +78,8 @@ Before publishing a release, run the full test suite and these audits:
 - F2 gameplay-metadata/reception family synchronization
 
 The release archive must be freshly extracted and must contain no `PREVIEW/`,
-materialized occupancy cache, Python cache, or pytest cache. The final central
-audit must report `release_clean=true`.
+`LOCAL_REVIEW/`, materialized occupancy cache, Python cache, or pytest cache.
+The final central audit must report `release_clean=true`.
 
 ## Next milestone
 

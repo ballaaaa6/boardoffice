@@ -119,6 +119,8 @@ class PortalActorLifecycle:
         to_uv: tuple[int, int] | None = None,
         progress_t: float | None = None,
         frame_index: int | None = None,
+        raw_direction: str | None = None,
+        movement_profile: dict[str, Any],
     ) -> dict[str, Any]:
         return {
             'actor_id': actor_id,
@@ -127,6 +129,7 @@ class PortalActorLifecycle:
             'phase': phase,
             'action': action,
             'direction': direction,
+            'raw_direction': raw_direction or direction,
             'ground_xy': self._round_xy(ground_xy),
             'current_uv': list(current_uv) if current_uv is not None else None,
             'from_uv': list(from_uv) if from_uv is not None else None,
@@ -136,6 +139,9 @@ class PortalActorLifecycle:
             'visible': bool(visible),
             'cumulative_distance_px': round(float(cumulative_distance_px), 4),
             'frame_index': int(frame_index) if frame_index is not None else None,
+            'speed_percent': int(movement_profile['speed_percent']),
+            'speed_multiplier': float(movement_profile['speed_multiplier']),
+            'tick_ms': int(movement_profile['playback_tick_ms']),
         }
 
     def _interpolated_states(
@@ -150,6 +156,7 @@ class PortalActorLifecycle:
         phase: str,
         alphas: list[float],
         distance_offset_px: float,
+        movement_profile: dict[str, Any],
     ) -> tuple[list[dict[str, Any]], float]:
         start_xy = self.movement.uv_cell_center_to_pixel(*start_uv)
         end_xy = self.movement.uv_cell_center_to_pixel(*end_uv)
@@ -176,6 +183,7 @@ class PortalActorLifecycle:
                 from_uv=start_uv,
                 to_uv=end_uv,
                 progress_t=progress,
+                movement_profile=movement_profile,
             ))
         return states, distance_offset_px + segment_distance
 
@@ -187,11 +195,13 @@ class PortalActorLifecycle:
         floor_id: str,
         path_cells_uv: list[tuple[int, int]],
         distance_offset_px: float,
+        movement_profile: dict[str, Any],
     ) -> tuple[list[dict[str, Any]], float]:
         try:
-            samples = self.movement.sample_path_states(
+            samples = self.movement.sample_path_timeline(
                 path_cells_uv,
-                substeps_per_cell=self.movement.DEFAULT_SUBSTEPS_PER_CELL,
+                speed_multiplier=float(movement_profile['speed_multiplier']),
+                tick_ms=int(movement_profile['playback_tick_ms']),
             )
         except CharacterMovementError as exc:
             raise PortalActorLifecycleError(str(exc)) from exc
@@ -205,6 +215,7 @@ class PortalActorLifecycle:
                 phase=self.ACTIVE,
                 action='move',
                 direction=sample['direction'],
+                raw_direction=sample['raw_direction'],
                 ground_xy=tuple(sample['ground_xy']),
                 alpha=1.0,
                 visible=True,
@@ -213,6 +224,7 @@ class PortalActorLifecycle:
                 from_uv=self._normalize_uv(sample['from_uv']),
                 to_uv=self._normalize_uv(sample['to_uv']),
                 progress_t=float(sample['progress_t']),
+                movement_profile=movement_profile,
             ))
         if samples:
             distance_offset_px += float(samples[-1]['cumulative_distance_px'])
@@ -229,6 +241,7 @@ class PortalActorLifecycle:
         direction: str,
         count: int,
         distance_px: float,
+        movement_profile: dict[str, Any],
     ) -> list[dict[str, Any]]:
         xy = self.movement.uv_cell_center_to_pixel(*uv)
         return [self._state(
@@ -244,6 +257,7 @@ class PortalActorLifecycle:
             cumulative_distance_px=distance_px,
             current_uv=uv,
             frame_index=index,
+            movement_profile=movement_profile,
         ) for index in range(count)]
 
     @staticmethod
@@ -271,6 +285,7 @@ class PortalActorLifecycle:
     ) -> dict[str, Any]:
         """Build a complete portal entry, movement, exit and despawn cycle."""
         character_id = self._character_id(character_query)
+        movement_profile = self.movement.resolve_movement_profile(character_id)
         inside_uv, outside_uv = self._portal_pair(floor_id)
         target_uv = (
             self._normalize_uv(goal_uv)
@@ -301,6 +316,7 @@ class PortalActorLifecycle:
             visible=False,
             cumulative_distance_px=0.0,
             current_uv=outside_uv,
+            movement_profile=movement_profile,
         )]
         phase_ranges: dict[str, list[int]] = {self.UNSPAWNED: [0, 0]}
 
@@ -314,6 +330,7 @@ class PortalActorLifecycle:
             phase=self.ENTERING,
             alphas=[(index + 1) / self.fade_steps for index in range(self.fade_steps)],
             distance_offset_px=0.0,
+            movement_profile=movement_profile,
         )
         self._append_phase(states, phase_ranges, entry_states)
 
@@ -323,6 +340,7 @@ class PortalActorLifecycle:
             floor_id=floor_id,
             path_cells_uv=outward_path,
             distance_offset_px=cumulative,
+            movement_profile=movement_profile,
         )
         self._append_phase(states, phase_ranges, outward_states)
         goal_direction = outward_states[-1]['direction'] if outward_states else entry_direction
@@ -335,6 +353,7 @@ class PortalActorLifecycle:
             direction=goal_direction,
             count=self.goal_hold_steps,
             distance_px=cumulative,
+            movement_profile=movement_profile,
         )
         self._append_phase(states, phase_ranges, goal_hold)
 
@@ -344,6 +363,7 @@ class PortalActorLifecycle:
             floor_id=floor_id,
             path_cells_uv=return_path,
             distance_offset_px=cumulative,
+            movement_profile=movement_profile,
         )
         self._append_phase(states, phase_ranges, return_states)
         portal_direction = return_states[-1]['direction'] if return_states else goal_direction
@@ -356,6 +376,7 @@ class PortalActorLifecycle:
             direction=portal_direction,
             count=self.portal_hold_steps,
             distance_px=cumulative,
+            movement_profile=movement_profile,
         )
         self._append_phase(states, phase_ranges, portal_hold)
 
@@ -369,6 +390,7 @@ class PortalActorLifecycle:
             phase=self.EXITING,
             alphas=[1.0 - (index / self.fade_steps) for index in range(self.fade_steps)],
             distance_offset_px=cumulative,
+            movement_profile=movement_profile,
         )
         self._append_phase(states, phase_ranges, exit_states)
         despawned = self._state(
@@ -383,6 +405,7 @@ class PortalActorLifecycle:
             visible=False,
             cumulative_distance_px=cumulative,
             current_uv=outside_uv,
+            movement_profile=movement_profile,
         )
         self._append_phase(states, phase_ranges, [despawned])
 
@@ -395,6 +418,8 @@ class PortalActorLifecycle:
             'actor_id': actor_id,
             'character_id': character_id,
             'floor_id': floor_id,
+            'movement_profile': movement_profile,
+            'playback_tick_ms': movement_profile['playback_tick_ms'],
             'portal': {
                 'inside_uv': list(inside_uv),
                 'outside_uv': list(outside_uv),

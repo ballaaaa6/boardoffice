@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from RUNTIME.central_core import CentralGameCore
 from RUNTIME.character_movement_core import CharacterMovementCore
 from WORLD.RUNTIME.pathfinding_core import PathfindingCore
@@ -40,6 +42,66 @@ def test_dense_motion_sampling_subdivides_every_fine_grid_step_without_zero_moti
         assert b['cumulative_distance_px'] > a['cumulative_distance_px']
 
 
+def test_movement_profile_is_stable_per_character_and_stays_in_approved_range():
+    core = CentralGameCore(ROOT)
+    numeric = core.resolve_character_movement_profile(0)
+    canonical = core.resolve_character_movement_profile('TP_000')
+
+    assert numeric == canonical
+    assert numeric['speed_range_percent'] == [125, 175]
+    assert 125 <= numeric['speed_percent'] <= 175
+    assert numeric['speed_multiplier'] == numeric['speed_percent'] / 100
+    assert numeric['walk_frame_distance_cells'] == pytest.approx(
+        0.65 * numeric['speed_multiplier']
+    )
+
+    profiles = [core.resolve_character_movement_profile(index) for index in range(20)]
+    assert len({row['speed_percent'] for row in profiles}) >= 10
+    assert all(125 <= row['speed_percent'] <= 175 for row in profiles)
+
+
+def test_actor_seed_can_vary_an_instance_without_rerolling_between_calls():
+    movement = CharacterMovementCore(ROOT)
+    first = movement.resolve_movement_profile(0, actor_seed='lobby-a')
+    repeated = movement.resolve_movement_profile('TP_000', actor_seed='lobby-a')
+
+    assert first == repeated
+    assert first['assignment_policy'] == 'stable_sha256_per_actor_seed'
+
+
+def test_shared_tick_timeline_moves_faster_profiles_farther_and_finishes_earlier():
+    movement = CharacterMovementCore(ROOT)
+    path = [(10, 10), (11, 10), (11, 11), (12, 11), (12, 12)]
+    slow = movement.sample_path_timeline(path, speed_multiplier=1.25)
+    fast = movement.sample_path_timeline(path, speed_multiplier=1.75)
+
+    assert len(fast) < len(slow)
+    assert fast[0]['distance_cells'] > slow[0]['distance_cells']
+    assert fast[-1]['ground_xy'] == slow[-1]['ground_xy']
+    assert fast[-1]['ground_xy'] == list(movement.uv_cell_center_to_pixel(*path[-1]))
+    assert all(row['tick_ms'] == 60 for row in fast + slow)
+
+
+def test_visual_facing_suppresses_alternating_astar_staircase_directions():
+    movement = CharacterMovementCore(ROOT)
+    path = [
+        (10, 10),
+        (11, 10),
+        (11, 11),
+        (12, 11),
+        (12, 12),
+        (13, 12),
+        (13, 13),
+        (14, 13),
+        (14, 14),
+    ]
+    raw = [movement.direction_for_step(a, b) for a, b in zip(path, path[1:])]
+    visual = movement.visual_directions_for_path(path)
+
+    assert raw == ['SE', 'SW', 'SE', 'SW', 'SE', 'SW', 'SE', 'SW']
+    assert visual == ['SE'] * len(raw)
+
+
 
 def test_resolve_movement_uses_existing_move_actions_and_arrives_in_idle():
     pathfinding = PathfindingCore(ROOT / 'WORLD')
@@ -64,8 +126,13 @@ def test_resolve_movement_uses_existing_move_actions_and_arrives_in_idle():
         assert len(segment['frame_ids']) >= 1
     assert record['dense_motion_substeps_per_cell'] == 4
     assert len(record['dense_motion_samples']) == max(0, record['path_cell_count'] - 1) * 4
+    assert record['movement_profile'] == movement.resolve_movement_profile(0)
+    assert record['timed_motion_tick_ms'] == 60
+    assert record['timed_motion_samples'][-1]['ground_xy'] == list(
+        movement.uv_cell_center_to_pixel(*goal)
+    )
     assert record['arrival_action']['action'] == 'idle'
-    assert record['arrival_action']['direction'] == record['segments'][-1]['direction']
+    assert record['arrival_action']['direction'] == record['timed_motion_samples'][-1]['direction']
     assert len(record['arrival_action']['frame_ids']) >= 1
 
 
