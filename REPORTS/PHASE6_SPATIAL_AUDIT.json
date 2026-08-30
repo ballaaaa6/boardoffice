@@ -56,7 +56,7 @@
     },
     "lean": {
       "materialized_floor_cache_present": false,
-      "python_cache_path_count": 95,
+      "python_cache_path_count": 114,
       "world_raw_present": false
     },
     "pass": true,

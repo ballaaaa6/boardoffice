@@ -21,7 +21,7 @@
         ],
         "properties": {
           "profile_id": {"type": "string"},
-          "object_type": {"const": "reception"},
+          "object_type": {"enum": ["desk", "reception"]},
           "depth_test": {"const": "front_edge_by_ground_x"},
           "navigation_independent": {"const": true},
           "outer_corners_world_px": {

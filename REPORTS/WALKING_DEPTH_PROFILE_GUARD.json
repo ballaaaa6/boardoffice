@@ -1,0 +1,11 @@
+{
+  "schema": "gds.walking_depth_profile_guard.v1",
+  "status": "PASS",
+  "checked_floor_count": 25,
+  "checked_row_count": 462,
+  "profiled_row_count": 49,
+  "unprofiled_front_envelope_issue_count": 0,
+  "candidate_counts_by_object_type": {},
+  "issues": [],
+  "policy": "reachable actor ground anchors inside each object footprint X span must not disagree between scalar depth and the local front envelope unless the object has an explicit front_edge_by_ground_x profile"
+}

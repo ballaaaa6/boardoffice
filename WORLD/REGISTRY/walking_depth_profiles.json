@@ -1,6 +1,66 @@
 {
   "schema": "gds_walking_depth_profiles_v1",
   "profiles": {
+    "walking_depth.ceo_desk.f0": {
+      "profile_id": "walking_depth.ceo_desk.f0",
+      "approval_status": "author_requested_2026-08-31",
+      "object_type": "desk",
+      "depth_test": "front_edge_by_ground_x",
+      "navigation_independent": true,
+      "outer_corners_world_px": [
+        [262, 288],
+        [276, 295],
+        [240, 313],
+        [226, 306]
+      ],
+      "front_edge_world_px": [
+        [226, 306],
+        [240, 313],
+        [276, 295]
+      ],
+      "provenance": "F0 CEO desk visible ground footprint front envelope for ceo_desk_cell2",
+      "notes": "Render-only depth geometry. Navigation keeps the existing CEO desk Ground Footprint and clearance."
+    },
+    "walking_depth.ceo_desk.f1": {
+      "profile_id": "walking_depth.ceo_desk.f1",
+      "approval_status": "author_requested_2026-08-31",
+      "object_type": "desk",
+      "depth_test": "front_edge_by_ground_x",
+      "navigation_independent": true,
+      "outer_corners_world_px": [
+        [297, 264],
+        [311, 271],
+        [275, 289],
+        [261, 282]
+      ],
+      "front_edge_world_px": [
+        [261, 282],
+        [275, 289],
+        [311, 271]
+      ],
+      "provenance": "F1 CEO desk visible ground footprint front envelope for ceo_desk_cell2",
+      "notes": "Render-only depth geometry. Navigation keeps the existing CEO desk Ground Footprint and clearance."
+    },
+    "walking_depth.ceo_desk.f2_plus": {
+      "profile_id": "walking_depth.ceo_desk.f2_plus",
+      "approval_status": "author_requested_2026-08-31",
+      "object_type": "desk",
+      "depth_test": "front_edge_by_ground_x",
+      "navigation_independent": true,
+      "outer_corners_world_px": [
+        [307, 256],
+        [293, 263],
+        [329, 281],
+        [343, 274]
+      ],
+      "front_edge_world_px": [
+        [293, 263],
+        [329, 281],
+        [343, 274]
+      ],
+      "provenance": "F2-family CEO desk visible ground footprint front envelope for ceo_desk_cell2",
+      "notes": "Canonical render-only depth geometry shared by all layout.floor02.large skins. Navigation keeps the existing CEO desk Ground Footprint and clearance."
+    },
     "walking_depth.reception.f1": {
       "profile_id": "walking_depth.reception.f1",
       "approval_status": "author_requested_2026-08-30",
@@ -43,12 +103,17 @@
     }
   },
   "floor_bindings": {
+    "floor00": {
+      "ceo_desk_cell2": "walking_depth.ceo_desk.f0"
+    },
     "floor01": {
+      "ceo_desk_cell2": "walking_depth.ceo_desk.f1",
       "reception": "walking_depth.reception.f1"
     }
   },
   "layout_bindings": {
     "layout.floor02.large": {
+      "ceo_desk_cell2": "walking_depth.ceo_desk.f2_plus",
       "reception": "walking_depth.reception.f2_plus"
     }
   }
