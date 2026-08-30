@@ -184,6 +184,9 @@ input[type="range"] { accent-color: var(--accent-2); padding: 0; }
 .canvas-toolbar .spacer { flex: 1; }
 .canvas-toolbar input[type="range"] { width: 110px; }
 .coordinate-readout { min-width: 160px; color: #cae4ff; font-variant-numeric: tabular-nums; }
+.change-readout { color: #f7dc7a; font-variant-numeric: tabular-nums; font-weight: 600; }
+.change-toggle { display: inline-flex; align-items: center; gap: 5px; color: #c5d7eb; white-space: nowrap; }
+.change-toggle input { margin: 0; accent-color: #f3c95e; }
 
 .canvas-wrap {
   position: relative;
@@ -219,6 +222,8 @@ input[type="range"] { accent-color: var(--accent-2); padding: 0; }
 .swatch.outside { background: #9965d6; }
 .swatch.occupied { background: #9e7b38; }
 .swatch.selected { background: #f4d56a; }
+.swatch.added { background: #18b47e; }
+.swatch.removed { background: #ce4f5e; }
 
 .metric-grid { display: grid; grid-template-columns: 1fr auto; gap: 7px 9px; font-size: 12px; }
 .metric-grid dt { color: var(--muted); }

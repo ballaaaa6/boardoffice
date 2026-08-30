@@ -439,6 +439,7 @@
     }
     pushHistory(before);
     showStatus(`${operation === 'open' ? 'เปิด' : 'ปิด'} ${state.selection.size} cells ใน ${LAYER_LABELS[state.layer]}`, 'success');
+    focusSelection();
     updateUI();
   }
 
@@ -475,6 +476,25 @@
     for (const key of current) if (!base.has(key)) added.add(key);
     for (const key of base) if (!current.has(key)) removed.add(key);
     return { added, removed };
+  }
+
+  function editableDiffs() {
+    if (!state.current || !state.base) {
+      return {
+        room: { added: new Set(), removed: new Set() },
+        portalInside: { added: new Set(), removed: new Set() },
+        portalOutside: { added: new Set(), removed: new Set() },
+      };
+    }
+    return {
+      room: diffSet(state.base.room, state.current.room),
+      portalInside: diffSet(state.base.portalInside, state.current.portalInside),
+      portalOutside: diffSet(state.base.portalOutside, state.current.portalOutside),
+    };
+  }
+
+  function diffCount(diffs) {
+    return Object.values(diffs).reduce((total, diff) => total + diff.added.size + diff.removed.size, 0);
   }
 
   function floodFill(traversable, starts) {
@@ -580,10 +600,15 @@
 
   function updateDiff() {
     if (!state.current || !state.base) return;
-    const room = diffSet(state.base.room, state.current.room);
-    const inside = diffSet(state.base.portalInside, state.current.portalInside);
-    const outside = diffSet(state.base.portalOutside, state.current.portalOutside);
-    const changed = room.added.size + room.removed.size + inside.added.size + inside.removed.size + outside.added.size + outside.removed.size;
+    const diffs = editableDiffs();
+    const room = diffs.room;
+    const inside = diffs.portalInside;
+    const outside = diffs.portalOutside;
+    const changed = diffCount(diffs);
+    const activeDiff = diffs[state.layer];
+    $('changeReadout').textContent = changed
+      ? `แก้แล้ว ${changed.toLocaleString()} cells · ${LAYER_LABELS[state.layer]} +${activeDiff.added.size}/-${activeDiff.removed.size}`
+      : 'แก้แล้ว 0 cells';
     if (!changed) {
       $('diffSummary').textContent = 'ยังไม่มีการเปลี่ยนแปลง';
       return;
@@ -713,6 +738,25 @@
     };
   }
 
+  function focusSelection() {
+    if (!state.selection.size || !state.view.ready) return;
+    const cells = [...state.selection].map(parseCell);
+    const center = cells.reduce((sum, [u, v]) => ({ u: sum.u + u, v: sum.v + v }), { u: 0, v: 0 });
+    const u = center.u / cells.length;
+    const v = center.v / cells.length;
+    const point = projectCenter(u, v);
+    state.view.panX += state.view.width / 2 - point.x;
+    state.view.panY += state.view.height / 2 - point.y;
+    if (cells.length <= 36 && state.view.zoom < 1.5) {
+      state.view.zoom = 1.5;
+      $('zoomRange').value = state.view.zoom;
+      state.view.scale = state.view.baseScale * state.view.zoom;
+      const zoomedPoint = projectCenter(u, v);
+      state.view.panX += state.view.width / 2 - zoomedPoint.x;
+      state.view.panY += state.view.height / 2 - zoomedPoint.y;
+    }
+  }
+
   function screenToCell(event) {
     const rect = state.canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -732,7 +776,7 @@
     context.closePath();
   }
 
-  function drawCell(u, v, key) {
+  function drawCell(u, v, key, diffs, showChanges) {
     const context = state.context;
     const points = [
       projectCorner(u, v),
@@ -749,14 +793,52 @@
     if (outside) fill = inRoom ? '#ae4d67' : '#9162ce';
     if (inside) fill = occupied ? '#b54961' : '#2d8fe6';
     const selected = state.selection.has(key) || state.previewSelection.has(key);
+    const layerDiff = diffs[state.layer];
+    const added = showChanges && layerDiff.added.has(key);
+    const removed = showChanges && layerDiff.removed.has(key);
+    const changed = added || removed;
+    if (added) fill = '#18b47e';
+    if (removed) fill = '#ce4f5e';
     drawPolygon(points);
     context.fillStyle = fill;
-    context.globalAlpha = inRoom || inside || outside || occupied ? 0.92 : 0.42;
+    context.globalAlpha = changed ? 0.97 : inRoom || inside || outside || occupied ? 0.92 : 0.42;
     context.fill();
     context.globalAlpha = 1;
-    context.strokeStyle = selected ? '#f8dc70' : inRoom ? 'rgba(144, 228, 204, 0.22)' : 'rgba(96, 128, 161, 0.16)';
-    context.lineWidth = selected ? 1.7 : 0.65;
+    context.strokeStyle = selected
+      ? '#ffe477'
+      : changed
+        ? (added ? '#a7ffe0' : '#ffb8c0')
+        : inRoom ? 'rgba(144, 228, 204, 0.22)' : 'rgba(96, 128, 161, 0.16)';
+    context.lineWidth = selected ? 2.5 : changed ? 1.25 : 0.65;
     context.stroke();
+
+    if (selected) {
+      drawPolygon(points);
+      context.fillStyle = 'rgba(255, 218, 87, 0.52)';
+      context.fill();
+      context.strokeStyle = '#fff0a6';
+      context.lineWidth = 2.5;
+      context.stroke();
+    }
+
+    if (changed) {
+      const center = projectCenter(u, v);
+      const markerSize = Math.max(1.8, Math.min(4.8, state.view.scale * 0.22));
+      context.beginPath();
+      if (added) {
+        context.fillStyle = '#e1fff3';
+        context.arc(center.x, center.y, markerSize, 0, Math.PI * 2);
+        context.fill();
+      } else {
+        context.strokeStyle = '#ffe3e7';
+        context.lineWidth = Math.max(1.4, Math.min(2.6, state.view.scale * 0.15));
+        context.moveTo(center.x - markerSize, center.y - markerSize);
+        context.lineTo(center.x + markerSize, center.y + markerSize);
+        context.moveTo(center.x + markerSize, center.y - markerSize);
+        context.lineTo(center.x - markerSize, center.y + markerSize);
+        context.stroke();
+      }
+    }
   }
 
   function draw() {
@@ -765,9 +847,11 @@
     context.clearRect(0, 0, state.view.width, state.view.height);
     context.save();
     context.lineJoin = 'round';
+    const diffs = editableDiffs();
+    const showChanges = $('showChangesToggle')?.checked !== false;
     for (let v = state.viewport.minV; v <= state.viewport.maxV; v += 1) {
       for (let u = state.viewport.minU; u <= state.viewport.maxU; u += 1) {
-        drawCell(u, v, cellKey(u, v));
+        drawCell(u, v, cellKey(u, v), diffs, showChanges);
       }
     }
 
@@ -1051,6 +1135,7 @@
     $('zoomInButton').addEventListener('click', () => setZoom(state.view.zoom + 0.1));
     $('zoomOutButton').addEventListener('click', () => setZoom(state.view.zoom - 0.1));
     $('centerButton').addEventListener('click', fitView);
+    $('showChangesToggle').addEventListener('change', draw);
 
     state.canvas.addEventListener('contextmenu', (event) => event.preventDefault());
     state.canvas.addEventListener('pointerdown', onPointerDown);

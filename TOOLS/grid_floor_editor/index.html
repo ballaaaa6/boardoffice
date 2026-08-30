@@ -107,6 +107,8 @@
           <div class="legend-item"><span class="swatch outside"></span>Portal Outside</div>
           <div class="legend-item"><span class="swatch occupied"></span>Occupancy (ถ้ามีข้อมูล)</div>
           <div class="legend-item"><span class="swatch selected"></span>Selection</div>
+          <div class="legend-item"><span class="swatch added"></span>เพิ่มจากค่าเริ่มต้น</div>
+          <div class="legend-item"><span class="swatch removed"></span>ลบจากค่าเริ่มต้น</div>
         </div>
       </section>
     </aside>
@@ -115,6 +117,11 @@
       <div class="canvas-toolbar">
         <span id="coordinateReadout" class="coordinate-readout">UV: —</span>
         <span id="selectionReadout">เลือกแล้ว 0 cells</span>
+        <span id="changeReadout" class="change-readout">แก้แล้ว 0 cells</span>
+        <label class="change-toggle" title="แสดงสีและเครื่องหมายของ cell ที่แก้จากค่าเริ่มต้น">
+          <input id="showChangesToggle" type="checkbox" checked>
+          เน้นจุดที่แก้
+        </label>
         <span class="spacer"></span>
         <span>Zoom</span>
         <input id="zoomRange" type="range" min="0.5" max="3" step="0.1" value="1">
@@ -124,7 +131,7 @@
       </div>
       <div class="canvas-wrap">
         <canvas id="gridCanvas" aria-label="Interactive isometric grid"></canvas>
-        <div class="canvas-help">คลิกเลือก · คลุมเพื่อเลือกกรอบ · ใช้ปุ่ม เปิด/ปิด ด้านซ้าย</div>
+        <div class="canvas-help">คลิก/คลุมเพื่อเลือก · กด เปิด/ปิด แล้วจุดที่แก้จะเป็นสีเหลือง เขียว หรือแดง</div>
       </div>
     </section>
 
