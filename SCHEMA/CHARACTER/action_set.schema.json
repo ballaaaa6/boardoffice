@@ -36,7 +36,7 @@
           ],
           "properties": {
             "direction_mode": {
-              "const": "three_way"
+              "const": "four_way"
             },
             "pose_category": {
               "const": "seated"

@@ -49,6 +49,11 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         # Phase 8E WorkSeat naming makes seated turn subactions direction-explicit
         # while preserving the underlying frame bindings.
         'CHARACTER/ACTIONS/gds_standard_v1.json',
+        # Phase 8E character action completeness adds fixed-head alternating-body
+        # Work turns and the derived NE character direction. World/WorkSeat NE
+        # remains a separate, unsupported bridge gate.
+        'CHARACTER/FRAME_RULES/frame_registry.json',
+        'SCHEMA/CHARACTER/action_set.schema.json',
         # Phase 8E dialogue presentation adds public runtime exports while
         # leaving the frozen character/world payloads unchanged.
         'CHARACTER/RUNTIME/__init__.py',
@@ -225,7 +230,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'identity_names_unique': counts['identity_full_name_unique'] == counts['identity_nickname_unique'] == 302,
         'identity_composition_exact': composition_exact == 302,
         'aliases_complete': aliases_complete,
-        'action_resolution_exact': action_request_count == 7852 and frame_occurrence_count == 15402 and not action_resolution_errors,
+        'action_resolution_exact': action_request_count == 9060 and frame_occurrence_count == 17516 and not action_resolution_errors,
         'floors_exact': len(core.world.floors) == floor_rgba_exact == floor_png_exact == 25 and not floor_errors,
         'placements_exact': resolved_placements == 766,
         'workstations_exact': workstation_resolved == 219 and not workstation_errors,

@@ -101,7 +101,7 @@ class CharacterSystem:
                     requests.append({'action': action, 'direction': direction, 'subaction': None})
         for action in ('happy', 'sad'):
             requests.append({'action': action, 'direction': None, 'subaction': None})
-        for direction in ('SE', 'SW', 'NW'):
+        for direction in ('NE', 'SE', 'SW', 'NW'):
             node = actions['work']['directions'][direction]
             for subaction in node['subactions']:
                 requests.append({'action': 'work', 'direction': direction, 'subaction': subaction})

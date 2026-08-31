@@ -63,9 +63,9 @@ Normal navigation must end at the existing reachable exterior transition gate. T
 
 #### Existing inventory to reuse
 
-- 302 canonical character identities and 47 registered body/frame records;
+- 302 canonical character identities and 60 registered Work frame records (46 native, 14 derived);
 - action families `idle`, `move`, `variants`, `sad`, `happy` and seated `work`;
-- seated `work` directions `SE`, `NW` and derived `SW`, each with `normal_work`, direction-named `turn_side_<direction>` and `happy` subactions;
+- four-way seated `work` character actions: native `SE`/`NW`, derived `SW`/`NE`, each with `normal_work`, direction-named `turn_side_<direction>` and `happy` subactions; world-seat support remains intentionally three-way;
 - 25 floors and 219 workstation instances: 100 `SE`, 96 `NW` and 23 `SW`;
 - all 219 workstation instances already pass `seat_transition_ready` and have one reachable exterior transition gate;
 - 30 registered chair families, of which 21 are used by current floors, including the existing optional NW foreground-chair composition;
@@ -271,13 +271,14 @@ The exact API names are frozen during 8E.0. Persistence, UI widgets, dashboard a
 
 1. **8E.0 — identity and employee metadata contract:** completed for the metadata slice — stable employee/template split, Wave 1 initial allocation, Wave 2 pre-generation, seeded names, movement and stamina profiles.
 2. **8E.P — dialogue presentation and editable catalog:** implementation completed in the root — CSV/content loader, 204 reference phrase IDs plus 800 author-approved expansion phrase IDs in EN/TH, provenance, category/scope/enabled filters, validated atomic reload, `fukidashi_base` whole-crop registry, BB5 exclusion, locale font/fallback policy, pixel-fit selection, character-head/bob anchor and Central/employee presentation facades. The expansion is in Central with fit-based enable flags; 492 overflow rows remain disabled until shortened. Import authorization is recorded; visual/behavior author acceptance, final content review and borrowed-asset/font replacement remain open gates.
-3. **8E.1 — roster and ownership resolver:** in progress — static initial ownership is wired and validated; mutable snapshot assignment, explicit vacancy commands and all-floor mutation validation remain.
-4. **8E.2 — actor snapshot and stamina reducer:** pending — stable per-character profiles, deterministic state-in/state-out advancement, threshold events and clamps.
-5. **8E.3 — talk, wander and popup behaviors:** pending — the next behavior slice is walking to a partner, pair locking, selecting the explicit WorkSeat turn-side axis binding from partner-relative UV direction, facing with existing idle actions and recovery coordination; the presentation API and turn-axis resolver are now reusable.
-6. **8E.4 — home and return composition:** pending — join WorkSeat, movement and portal primitives while retaining assignment and restoring stamina.
-7. **8E.5 — dashboard-facing Central facade:** pending — JSON-safe validation, commands, snapshots and deterministic replay; no persistence backend.
-8. **8E.6 — automated and visual verification:** pending — focused contract/runtime/rendering tests, full regression, required navigation/WorkSeat/spatial/integrity/F2 audits, and representative multi-actor QA on F0, F1, F2 plus deterministic random F14/F17.
-9. **8E.7 — author gate and release hygiene:** pending — explicit visual/behavior acceptance followed by a fresh clean archive and fresh-extraction verification.
+3. **8E.W — Work pose direction completeness:** character slice completed and author-approved on 2026-08-31 — canonical Work now has fixed-head/alternating-body turns with exact `turn_side_<direction>` names, native M42–M45 composite frame rules, derived SW/NE final-frame mirrors and a callable four-way NE action series from NW. The review tooling and GIF sheets use direction/subaction/frame-index labels without temporary two-slot names. The generic NW→NE workstation composite mirror remains a separate world-seat gate: verify character, chair, desk, PC, optional foreground, offsets/masks, semantic layers, footprint/occupancy and navigation before enabling the world bridge; no static assets changed.
+4. **8E.1 — roster and ownership resolver:** in progress — static initial ownership is wired and validated; mutable snapshot assignment, explicit vacancy commands and all-floor mutation validation remain.
+5. **8E.2 — actor snapshot and stamina reducer:** pending — stable per-character profiles, deterministic state-in/state-out advancement, threshold events and clamps.
+6. **8E.3 — talk, wander and popup behaviors:** pending — the next behavior slice is walking to a partner, pair locking, selecting the explicit WorkSeat turn-side axis binding from partner-relative UV direction, facing with existing idle actions and recovery coordination; the presentation API and turn-axis resolver are now reusable.
+7. **8E.4 — home and return composition:** pending — join WorkSeat, movement and portal primitives while retaining assignment and restoring stamina.
+8. **8E.5 — dashboard-facing Central facade:** pending — JSON-safe validation, commands, snapshots and deterministic replay; no persistence backend.
+9. **8E.6 — automated and visual verification:** pending — focused contract/runtime/rendering tests, full regression, required navigation/WorkSeat/spatial/integrity/F2 audits, and representative multi-actor QA on F0, F1, F2 plus deterministic random F14/F17.
+10. **8E.7 — author gate and release hygiene:** pending — explicit visual/behavior acceptance followed by a fresh clean archive and fresh-extraction verification.
 
 #### Explicitly outside the active roadmap
 
@@ -289,10 +290,11 @@ The exact API names are frozen during 8E.0. Persistence, UI widgets, dashboard a
 
 ## Immediate execution order
 
-1. Extend the completed dialogue presentation slice into the conversation behavior using employee IDs, existing idle/move actions and the stored recovery policy; add walking-to-partner/pair coordination only when explicitly requested.
-2. Add the actor snapshot/stamina reducer and bind the existing wander/effect/popup channels to the stored ranges.
-3. Add home/return behavior while retaining the same employee workstation assignment.
-4. Keep dashboard infrastructure, database/network persistence, queue/slot-contention and auto-fill outside the active scope until explicitly requested.
+1. Prototype and verify the generic NW→NE workstation composite mirror, then open the world-seat NE bridge only if visual, offset, draw-order, footprint and navigation checks pass.
+2. Extend the completed dialogue presentation slice into the conversation behavior using employee IDs, existing idle/move actions and the stored recovery policy; add walking-to-partner/pair coordination only when explicitly requested.
+3. Add the actor snapshot/stamina reducer and bind the existing wander/effect/popup channels to the stored ranges.
+4. Add home/return behavior while retaining the same employee workstation assignment.
+5. Keep dashboard infrastructure, database/network persistence, queue/slot-contention and auto-fill outside the active scope until explicitly requested.
 
 ## Definition of done for every phase
 

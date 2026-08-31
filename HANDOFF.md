@@ -2,9 +2,9 @@
 
 **Updated:** 2026-08-31 (Asia/Bangkok)
 **Project root:** D:\antigravity\board office
-**Status:** PHASE8C_CLOSED__CEO_DEPTH_CLOSED__PHASE8D_CLOSED__PHASE8E_DIALOGUE_PRESENTATION_AND_CATALOG_IMPLEMENTED__AUTHOR_ACCEPTANCE_PENDING__BEHAVIOR_DEFERRED
-**Next engineering task:** PHASE8E_CONVERSATION_COORDINATION_SLICE
-**Latest author-directed task:** Replace ambiguous WorkSeat turn labels with direction-named subactions for partner-facing behavior. `turn_side_<direction>` names are now explicit in the action registry and work-pose contract, validated at runtime, exposed through Central, and included in interaction-slot metadata; pair walking/locking/selection behavior remains pending. No static character art or world asset changed.
+**Status:** PHASE8C_CLOSED__CEO_DEPTH_CLOSED__PHASE8D_CLOSED__PHASE8E_DIALOGUE_PRESENTATION_AND_CATALOG_IMPLEMENTED__WORK_CHARACTER_CANONICAL_FOUR_WAY_APPROVED__WORLD_NE_GATE_PENDING__BEHAVIOR_DEFERRED
+**Next engineering task:** PHASE8E_WORLD_WORKSEAT_NE_MIRROR_GATE
+**Latest author-directed task:** The author approved the Work character GIF sheet. The canonical character action system now uses fixed-head/alternating-body side turns, exact direction-named subactions and a complete NE Work series derived from NW by `mirror_y`. World-seat NE remains a separate gate: its complete workstation composite (character, chair, desk, PC, optional foreground, offsets, draw order, footprint and navigation) must be proven before enabling the world bridge. No static character/world art or world-seat data was changed.
 **Active handoff:** this file only. ROADMAP.md is the single active milestone plan.
 
 ## Accepted foundation and current runtime
@@ -15,7 +15,7 @@
 - Employee metadata contains 604 instances (302 Wave 1, 302 Wave 2), 219 initial workstation owners, 83 unassigned Wave 1 and 302 unassigned Wave 2 employees. Stable movement/stamina profiles and employee bridges exist; temporary absence retains ownership and never auto-fills vacancies.
 - Dialogue presentation uses fixed complete fukidashi_base crops: BB1/BB2/BB3/BB4/BB6, excluding BB5. It measures locale text at 9 px, rejects overflow, and follows visible face-center X, actor movement and frame bob with the frame-top-minus-20 vertical policy. Thai/ASCII runs share a baseline. The caller supplies the character/employee ID, frame, current actor position and dialogue ID/locale; Central returns the bubble image and placement. Presentation does not choose when or what an actor says.
 - Pair approach, live participant locks, automatic category/random selection, mutable actor snapshots, stamina reduction/recovery and home/return composition remain unimplemented. Directional turn semantics are now named directly: `SE` and `NW` use `turn_side_sw=V+→SW` / `turn_side_ne=V-→NE`; `SW` uses `turn_side_se=U+→SE` / `turn_side_nw=U-→NW`. Dashboard UI/persistence, queues, auto-staffing and additional needs systems remain outside scope.
-- Existing pre-task working-tree changes were preserved. No static world/character art, placement, navigation, action frames or reference hashes were edited.
+- Existing pre-task working-tree changes were preserved. No static world/character art, placement, navigation, world-seat bridge or reference hashes were edited; the canonical character action/frame registries and CharacterSystem request list were intentionally updated.
 
 ## Completed editable catalog integration
 
@@ -38,6 +38,24 @@
 - README_TH.md and bubble_fit_report.json in that folder describe the review workflow and exact overflow IDs. The import report and pre-import backup are in LOCAL_REVIEW/DIALOGUE_CATALOG_IMPORT_20260831/. No runtime code, release package or source asset changed.
 - For easier author review, `outputs/01a0571c-f344-7b90-927f-ddb3389a1d36/dialogue_catalog_review.xlsx` is a presentation-only export with three visible columns (`mode`, `EN`, `TH`), one row per phrase pair, frozen headers and filters. It contains the same 800 pairs and does not replace the CSV source.
 
+## Completed review-only Work assembly reference
+
+- Added `TOOLS/render_work_frame_reference.py`, a presentation-only renderer that reads the canonical action, frame, asset and Work pose registries and writes review artifacts under `outputs/01a057c6-2d38-7be3-bfbe-4cadb1b6cc66/`.
+- The reference character is the existing `RND_F_004` / Josephine Brooks composition: `character.body.001` (`body/body_001.png`) + `character.face.011` (`face/face_011.png`). The native Work recipes are `SE: M20–M24 + M42–M43` and `NW: M25–M29 + M44–M45`; `SW: Mp20–Mp24, Mp42–Mp43` mirrors SE and `NE: Mp25–Mp29, Mp44–Mp45` mirrors NW at the complete-frame level.
+- The component sheet shows all 14 native Work frames as body crop + head/face crop = final 32×42 frame, including the new fixed-head/alternating-body composites and their source rectangles/canvas destinations. `B1–B6` and `H1–H6` are sheet-only labels; individual crops have no separate canonical asset IDs beyond their frame-rule `src` rectangles.
+- The body catalog contains all 23 registered body assets and the head/face catalog contains all 30 registered face assets, with canonical IDs, filenames, dimensions and reference counts. The registries define numeric IDs only; they do not provide human-readable clothing/hair names.
+- `work_frame_component_map.csv` is the machine-readable crop/use map for 28 Work frame IDs (14 native + 14 derived), and `body_head_asset_catalog.csv` is the 53-row asset catalog. These are review outputs; the canonical registries remain the runtime source of truth.
+- This remains an author-review aid for the visual breakdown, but the author-approved turn recipe is now adopted in the canonical action/frame registry. No character/world artwork, placement, navigation data or reference hash was changed, and no release was promoted.
+- The adopted Work turn recipe binds `SE:turn_side_sw` to `M22 → M42` (`B1+H1 → B2+H1`), `SE:turn_side_ne` to `M23 → M43` (`B1+H4 → B2+H4`), `NW:turn_side_sw` to `M27 → M44` (`B4+H1 → B5+H1`) and `NW:turn_side_ne` to `M28 → M45` (`B4+H4 → B5+H4`). The derived SW/NE action frames are final-composite mirrors.
+
+## Author-requested Work direction completeness implementation
+
+- The canonical action registry, character creation facade and review tooling now use only `turn_side_<direction>` names; the temporary two-slot labels were removed from the task-owned sheets/tools. GIF frames expose the exact direction, subaction and numeric `frame_index`.
+- The approved canonical turn recipe is fixed head plus alternating body: SE uses `turn_side_sw` = `M22 → M42` (`B1+H1 → B2+H1`) and `turn_side_ne` = `M23 → M43` (`B1+H4 → B2+H4`); NW uses `turn_side_sw` = `M27 → M44` (`B4+H1 → B5+H1`) and `turn_side_ne` = `M28 → M45` (`B4+H4 → B5+H4`). Shared `normal_work` remains unchanged.
+- NE character Work is available immediately from NW with `mirror_y`: `normal_work`, `turn_side_se`, `turn_side_nw` and `happy`, using `Mp25–Mp29` plus `Mp44–Mp45`. This adds no duplicate character artwork.
+- World/WorkSeat NE remains a separate gate, but the intended solution is a reusable directional composite mirror rather than a new static NE asset: derive the complete NW workstation presentation to NE with `mirror_y` around a declared viewport/anchor, transform component positions/offsets/masks consistently, and preserve the explicit semantic draw order. The gate must verify chair, desk, PC, optional foreground, character placement, footprint/occupancy and navigation against representative NW slots before enabling the world bridge. No static chair/world asset changes are authorized by this plan.
+- The review artifact is a set of animated GIFs, one per character direction/subaction (including the derived NE action set), with visible `direction`, exact `subaction` and numeric `frame_index`; the GIFs remain evidence/cache only and are not canonical source data.
+
 ## Verification
 
 - TDD: initial 11 focused catalog cases failed for missing behavior; implementation made them pass. Two additional ambiguous-CSV cases were observed failing before adding the parser guards.
@@ -52,15 +70,23 @@
 - Draft expansion verification: build_draft.py generated 800 unique phrase pairs / 1,600 rows across 16 office categories; normalized duplicate and active-catalog collision checks passed. validate_draft.py checked every localized row against the real renderer and wrote the review-required fit report.
 - Earlier independent integration review, before the expansion: no actionable findings; the then-current 239 enabled rows rendered safely. The fresh focused run above covers the current enabled office catalog. Technical checks do not constitute visual/Thai author acceptance or release approval.
 - Final source/static audit: all 3,388 extracted source files, 168 character asset files and 329 world asset files match the pre-task byte counts and tree hashes. Scoped git diff --check passes; no task-owned long-running process remains because none was started.
+- Work reference verification on 2026-08-31: `python -B TOOLS/render_work_frame_reference.py --character RND_F_004 --output-dir outputs/01a057c6-2d38-7be3-bfbe-4cadb1b6cc66` completed with registry hash verification; output map has 28 Work frame rows (`M20–M29`, `M42–M45`, `Mp20–Mp29`, `Mp42–Mp45`), the asset catalog has 23 body + 30 face rows, and the generated manifest records PNG dimensions/hashes. `body_001.png` and `face_011.png` both match their canonical registry SHA-256 values.
+- Canonical Work sheet verification on 2026-08-31: `python -B TOOLS/render_proposed_work_action_sheet.py --character RND_F_004 --output-dir outputs/01a057c6-2d38-7be3-bfbe-4cadb1b6cc66` completed with registry hash verification. The sheet includes all standard action groups, four direction columns and exact `turn_side_<direction>` rows; the comparison includes eight legacy/canonical side-turn rows and the map uses direction/frame-index labels with no temporary two-slot labels. Both sheets were visually inspected.
+- Work character GIF verification on 2026-08-31: `python -B TOOLS/render_work_character_gifs.py --character RND_F_004 --output-dir outputs/01a057c6-2d38-7be3-bfbe-4cadb1b6cc66` produced one two-frame master sheet GIF plus 16 per-direction/subaction GIFs for `NE/SE/SW/NW`, including NE derived from NW and SW derived from SE. Frame 0/1 PNG snapshots were visually inspected; the GIF tool remains read-only while the canonical action/frame update is now committed in source.
+- Canonical Work action verification on 2026-08-31: focused tests cover the four-way registry, fixed-head/alternating-body frame rules, all 16 Work direction/subaction renders and exact SW/NE final-frame mirrors. Full root regression `python -B -m pytest -q -p no:cacheprovider` — 216 passed in 48.58s.
+- Central integrity on 2026-08-31: PASS; all 26 schemas pass, 502 referenced payloads have zero mismatches, action resolution is 9,060 requests / 17,516 frame occurrences, all 25 floor PNG/RGBA checks pass, 302 character identities and 219 workstations resolve. `release_clean=false` because the development tree contains Python cache paths; no package was promoted.
+- WorkSeat audit on 2026-08-31: PASS; all 219 workstation compositions remain renderable, static floor/chair hashes remain exact, and all 2,114 SW character mirror pairs pass. The audit's Room Navigation regression also passes. World-seat NE remains bridge-disabled.
+- Latest source audit on 2026-08-31: no temporary two-slot turn labels remain in canonical character/contract/runtime/world data or the task-owned Work review tools; the world direction bridge remains intentionally three-way. No navigation/world geometry or static assets changed, and no development server or canonical release was started.
 - Task-specific review/verification evidence is under LOCAL_REVIEW/DIALOGUE_CATALOG_INTEGRATION_20260831/. The before-code snapshot distinguishes this work from existing uncommitted Phase 8E changes.
 - No navigation/world changes were made, so the navigation audit family was not rerun. Central's existing static-world and payload checks remain green. No development server or canonical release was started.
 
 ## Next task and open gates
 
-1. Edit `CHARACTER/DIALOGUE/dialogue.csv` directly for future content changes. The 492 fit-gated rows from the approved expansion remain available by stable `draft_*` ID; shorten and re-enable them only after a renderer fit/reload check.
-2. When explicitly requested, implement standing-pair conversation coordination using employee IDs, atomic participant locks, existing movement/crowd routing, directional idle facing and stored recovery policy. Add coherent turn selection/cooldowns/deduplication in that behavior slice; seated-listener variants remain follow-ups.
-3. Continue the mutable actor snapshot/stamina reducer, then home/return while retaining workstation ownership. Never make text rendering mutate stamina.
-4. Visual/behavior author acceptance, final content review and Thai shaping review remain open. Pillow has no RAQM; pixel fit is not a guarantee of glyph coverage for newly added characters or Unity-equivalent Thai shaping.
-5. Temporary TV bubble/font development inputs must be replaced with project-owned artwork/font policy before canonical release promotion. Content import approval does not close that gate or certify a release.
+1. Prototype and verify the generic NW→NE workstation composite mirror; open the world-seat NE bridge only when its visual, layer, offset, footprint and navigation checks pass.
+2. Edit `CHARACTER/DIALOGUE/dialogue.csv` directly for future content changes. The 492 fit-gated rows from the approved expansion remain available by stable `draft_*` ID; shorten and re-enable them only after a renderer fit/reload check.
+3. When explicitly requested, implement standing-pair conversation coordination using employee IDs, atomic participant locks, existing movement/crowd routing, directional idle facing and stored recovery policy. Add coherent turn selection/cooldowns/deduplication in that behavior slice; seated-listener variants remain follow-ups.
+4. Continue the mutable actor snapshot/stamina reducer, then home/return while retaining workstation ownership. Never make text rendering mutate stamina.
+5. Visual/behavior author acceptance for the remaining simulation, final content review and Thai shaping review remain open. Pillow has no RAQM; pixel fit is not a guarantee of glyph coverage for newly added characters or Unity-equivalent Thai shaping.
+6. Temporary TV bubble/font development inputs must be replaced with project-owned artwork/font policy before canonical release promotion. Content import approval does not close that gate or certify a release.
 
 No technical blocker for catalog use or editing. Do not mark Phase 8E closed from the CSV, tests or generated reports alone.

@@ -10,6 +10,12 @@
       2
     ],
     "source_rule_file": "FRAME_RULES/bodyface_rules_modes_00_41.csv",
+    "canonical_composite_modes": [
+      42,
+      43,
+      44,
+      45
+    ],
     "alpha_composite_order": [
       "body",
       "face"
@@ -1354,6 +1360,130 @@
       "special_split_body": false,
       "included_in_standard_actions": true
     },
+    "M42": {
+      "frame_id": "M42",
+      "kind": "native",
+      "mode": 42,
+      "body": {
+        "dst": [
+          1,
+          12
+        ],
+        "src": [
+          65,
+          33,
+          16,
+          13
+        ]
+      },
+      "face": {
+        "dst": [
+          -2,
+          0
+        ],
+        "src": [
+          0,
+          0,
+          16,
+          15
+        ]
+      },
+      "special_split_body": false,
+      "included_in_standard_actions": true
+    },
+    "M43": {
+      "frame_id": "M43",
+      "kind": "native",
+      "mode": 43,
+      "body": {
+        "dst": [
+          1,
+          12
+        ],
+        "src": [
+          65,
+          33,
+          16,
+          13
+        ]
+      },
+      "face": {
+        "dst": [
+          1,
+          0
+        ],
+        "src": [
+          48,
+          0,
+          16,
+          15
+        ]
+      },
+      "special_split_body": false,
+      "included_in_standard_actions": true
+    },
+    "M44": {
+      "frame_id": "M44",
+      "kind": "native",
+      "mode": 44,
+      "body": {
+        "dst": [
+          0,
+          13
+        ],
+        "src": [
+          65,
+          46,
+          17,
+          13
+        ]
+      },
+      "face": {
+        "dst": [
+          2,
+          0
+        ],
+        "src": [
+          0,
+          0,
+          16,
+          15
+        ]
+      },
+      "special_split_body": false,
+      "included_in_standard_actions": true
+    },
+    "M45": {
+      "frame_id": "M45",
+      "kind": "native",
+      "mode": 45,
+      "body": {
+        "dst": [
+          0,
+          13
+        ],
+        "src": [
+          65,
+          46,
+          17,
+          13
+        ]
+      },
+      "face": {
+        "dst": [
+          5,
+          0
+        ],
+        "src": [
+          48,
+          0,
+          16,
+          15
+        ]
+      },
+      "special_split_body": false,
+      "included_in_standard_actions": true
+    },
     "Mp20": {
       "frame_id": "Mp20",
       "display_id": "M′20",
@@ -1387,6 +1517,69 @@
       "display_id": "M′24",
       "kind": "derived",
       "source_frame_id": "M24",
+      "transform": "mirror_y"
+    },
+    "Mp25": {
+      "frame_id": "Mp25",
+      "display_id": "M′25",
+      "kind": "derived",
+      "source_frame_id": "M25",
+      "transform": "mirror_y"
+    },
+    "Mp26": {
+      "frame_id": "Mp26",
+      "display_id": "M′26",
+      "kind": "derived",
+      "source_frame_id": "M26",
+      "transform": "mirror_y"
+    },
+    "Mp27": {
+      "frame_id": "Mp27",
+      "display_id": "M′27",
+      "kind": "derived",
+      "source_frame_id": "M27",
+      "transform": "mirror_y"
+    },
+    "Mp28": {
+      "frame_id": "Mp28",
+      "display_id": "M′28",
+      "kind": "derived",
+      "source_frame_id": "M28",
+      "transform": "mirror_y"
+    },
+    "Mp29": {
+      "frame_id": "Mp29",
+      "display_id": "M′29",
+      "kind": "derived",
+      "source_frame_id": "M29",
+      "transform": "mirror_y"
+    },
+    "Mp42": {
+      "frame_id": "Mp42",
+      "display_id": "M′42",
+      "kind": "derived",
+      "source_frame_id": "M42",
+      "transform": "mirror_y"
+    },
+    "Mp43": {
+      "frame_id": "Mp43",
+      "display_id": "M′43",
+      "kind": "derived",
+      "source_frame_id": "M43",
+      "transform": "mirror_y"
+    },
+    "Mp44": {
+      "frame_id": "Mp44",
+      "display_id": "M′44",
+      "kind": "derived",
+      "source_frame_id": "M44",
+      "transform": "mirror_y"
+    },
+    "Mp45": {
+      "frame_id": "Mp45",
+      "display_id": "M′45",
+      "kind": "derived",
+      "source_frame_id": "M45",
       "transform": "mirror_y"
     }
   }

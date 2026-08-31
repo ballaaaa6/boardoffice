@@ -168,7 +168,7 @@
       "legacy_materialized_path": "happy"
     },
     "work": {
-      "direction_mode": "three_way",
+      "direction_mode": "four_way",
       "directions": {
         "SE": {
           "source": "native",
@@ -183,15 +183,15 @@
             },
             "turn_side_sw": {
               "frames": [
-                "M20",
-                "M22"
+                "M22",
+                "M42"
               ],
               "legacy_materialized_path": "work_se/turn_side_sw"
             },
             "turn_side_ne": {
               "frames": [
-                "M20",
-                "M23"
+                "M23",
+                "M43"
               ],
               "legacy_materialized_path": "work_se/turn_side_ne"
             },
@@ -218,15 +218,15 @@
             },
             "turn_side_se": {
               "frames": [
-                "Mp20",
-                "Mp22"
+                "Mp22",
+                "Mp42"
               ],
               "legacy_materialized_path": "work_sw/turn_side_se"
             },
             "turn_side_nw": {
               "frames": [
-                "Mp20",
-                "Mp23"
+                "Mp23",
+                "Mp43"
               ],
               "legacy_materialized_path": "work_sw/turn_side_nw"
             },
@@ -251,15 +251,15 @@
             },
             "turn_side_sw": {
               "frames": [
-                "M25",
-                "M27"
+                "M27",
+                "M44"
               ],
               "legacy_materialized_path": "work_nw/turn_side_sw"
             },
             "turn_side_ne": {
               "frames": [
-                "M25",
-                "M28"
+                "M28",
+                "M45"
               ],
               "legacy_materialized_path": "work_nw/turn_side_ne"
             },
@@ -268,6 +268,41 @@
                 "M29"
               ],
               "legacy_materialized_path": "work_nw/happy"
+            }
+          }
+        },
+        "NE": {
+          "source": "derived",
+          "derived_from": "NW",
+          "transform": "mirror_y",
+          "legacy_action_dir": "work_ne",
+          "subactions": {
+            "normal_work": {
+              "frames": [
+                "Mp25",
+                "Mp26"
+              ],
+              "legacy_materialized_path": "work_ne/normal_work"
+            },
+            "turn_side_se": {
+              "frames": [
+                "Mp27",
+                "Mp44"
+              ],
+              "legacy_materialized_path": "work_ne/turn_side_se"
+            },
+            "turn_side_nw": {
+              "frames": [
+                "Mp28",
+                "Mp45"
+              ],
+              "legacy_materialized_path": "work_ne/turn_side_nw"
+            },
+            "happy": {
+              "frames": [
+                "Mp29"
+              ],
+              "legacy_materialized_path": "work_ne/happy"
             }
           }
         }

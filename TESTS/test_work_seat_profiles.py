@@ -73,6 +73,11 @@ def test_turn_side_mapping_uses_canonical_uv_axes_and_target_idle_directions():
     assert list(work_actions['NW']['subactions']) == [
         'normal_work', 'turn_side_sw', 'turn_side_ne', 'happy'
     ]
+    assert work_actions['NE']['source'] == 'derived'
+    assert work_actions['NE']['derived_from'] == 'NW'
+    assert list(work_actions['NE']['subactions']) == [
+        'normal_work', 'turn_side_se', 'turn_side_nw', 'happy'
+    ]
 
     expected = {
         'SE': {

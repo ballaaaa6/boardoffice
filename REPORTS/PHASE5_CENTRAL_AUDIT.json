@@ -17,7 +17,7 @@
     "world_raw_omitted": true
   },
   "counts": {
-    "action_requests": 7852,
+    "action_requests": 9060,
     "action_resolution_errors": 0,
     "characters": 302,
     "composition_exact": 302,
@@ -28,7 +28,7 @@
     "floors": 25,
     "floors_png_exact": 25,
     "floors_render_exact": 25,
-    "frame_occurrences": 15402,
+    "frame_occurrences": 17516,
     "identity_full_name_unique": 302,
     "identity_nickname_unique": 302,
     "payload_hash_files": 502,
@@ -61,7 +61,7 @@
   },
   "lean": {
     "materialized_floor_cache_present": false,
-    "python_cache_path_count": 199,
+    "python_cache_path_count": 201,
     "world_raw_present": false
   },
   "pass": true,
