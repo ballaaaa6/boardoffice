@@ -11,6 +11,7 @@ from CHARACTER.IDENTITY.RUNTIME.identity_resolver import (
 )
 from CHARACTER.RUNTIME.character_identity import CharacterIdentityError, CharacterIdentityRegistry
 from CHARACTER.RUNTIME.character_system import CharacterSystem, CharacterSystemError
+from RUNTIME.employee_registry import EmployeeMetadataError, EmployeeMetadataRegistry
 from WORLD.RUNTIME.pathfinding_core import PathfindingCore
 from WORLD.RUNTIME.room_navigation_core import RoomNavigationCore
 
@@ -52,7 +53,13 @@ class CharacterMovementCore:
         'NE': 'SW',
     }
 
-    def __init__(self, root: str | Path, *, pathfinding: PathfindingCore | None = None):
+    def __init__(
+        self,
+        root: str | Path,
+        *,
+        pathfinding: PathfindingCore | None = None,
+        employee_registry: EmployeeMetadataRegistry | None = None,
+    ):
         self.root = Path(root).resolve()
         self.world_root = self.root / 'WORLD'
         self.character_root = self.root / 'CHARACTER'
@@ -62,6 +69,7 @@ class CharacterMovementCore:
         self.characters = CharacterSystem(self.character_root)
         self.identity = CharacterIdentityResolver(self.identity_root)
         self.character_metadata = CharacterIdentityRegistry(self.character_root)
+        self.employee_registry = employee_registry or EmployeeMetadataRegistry(self.root)
         try:
             registry = json.loads(
                 (self.character_root / 'CHARACTERS' / 'characters.json').read_text(encoding='utf-8')
@@ -152,8 +160,31 @@ class CharacterMovementCore:
                 f'{character_id}: embedded speed {speed_percent}% is outside '
                 f'{self.MIN_MOVE_SPEED_PERCENT}-{self.MAX_MOVE_SPEED_PERCENT}%'
             )
+        return self._build_movement_profile(
+            character_id,
+            speed_percent,
+            assignment_policy='embedded_character_metadata',
+        )
+
+    def _build_movement_profile(
+        self,
+        character_id: str,
+        speed_percent: int,
+        *,
+        assignment_policy: str,
+        employee_id: str | None = None,
+    ) -> dict:
+        if isinstance(speed_percent, bool) or not isinstance(speed_percent, int):
+            raise CharacterMovementError(
+                f'{character_id}: movement_profile.speed_percent must be an integer'
+            )
+        if not self.MIN_MOVE_SPEED_PERCENT <= speed_percent <= self.MAX_MOVE_SPEED_PERCENT:
+            raise CharacterMovementError(
+                f'{character_id}: embedded speed {speed_percent}% is outside '
+                f'{self.MIN_MOVE_SPEED_PERCENT}-{self.MAX_MOVE_SPEED_PERCENT}%'
+            )
         speed_multiplier = speed_percent / 100.0
-        return {
+        result = {
             'character_id': character_id,
             'speed_percent': speed_percent,
             'speed_multiplier': speed_multiplier,
@@ -163,10 +194,36 @@ class CharacterMovementCore:
             'direction_lookahead_cells': self.DEFAULT_DIRECTION_LOOKAHEAD_CELLS,
             'direction_confirm_steps': self.DEFAULT_DIRECTION_CONFIRM_STEPS,
             'direction_min_hold_cells': self.DEFAULT_DIRECTION_MIN_HOLD_CELLS,
-            'assignment_policy': 'embedded_character_metadata',
+            'assignment_policy': assignment_policy,
             'profile_seed': self.movement_profile_contract['profile_seed'],
             'spawn_policy': self.movement_profile_contract['spawn_policy'],
         }
+        if employee_id is not None:
+            result['employee_id'] = employee_id
+        return result
+
+    def resolve_employee_movement_profile(self, employee_id: str) -> dict:
+        """Resolve movement speed from a persistent employee instance.
+
+        The legacy character resolver remains identity-level and unchanged;
+        this method is the bridge for Wave 1/Wave 2 actor instances.
+        """
+        try:
+            employee = self.employee_registry.get(employee_id)
+        except EmployeeMetadataError as exc:
+            raise CharacterMovementError(str(exc)) from exc
+        movement = employee.get('movement_profile')
+        if not isinstance(movement, dict):
+            raise CharacterMovementError(
+                f'{employee_id}: missing employee movement_profile'
+            )
+        speed_percent = movement.get('speed_percent')
+        return self._build_movement_profile(
+            employee['character_id'],
+            speed_percent,
+            assignment_policy='embedded_employee_metadata',
+            employee_id=employee['employee_id'],
+        )
 
     @classmethod
     def walk_frame_distance_cells(cls, speed_multiplier: float) -> float:
@@ -428,17 +485,16 @@ class CharacterMovementCore:
         })
         return segments
 
-    def resolve_movement(
+    def _resolve_movement_for_character(
         self,
-        character_query: int | str,
+        character_id: str,
         floor_id: str,
         start_uv: tuple[int, int] | list[int],
         goal_uv: tuple[int, int] | list[int],
+        movement_profile: dict,
+        *,
+        employee_id: str | None = None,
     ) -> dict:
-        try:
-            character_id = self.identity.resolve_character_id(character_query)
-        except CharacterIdentityLookupError as exc:
-            raise CharacterMovementError(str(exc)) from exc
         path = self.pathfinding.find_path(floor_id, start_uv, goal_uv)
         path_cells = [self._normalize_uv(cell) for cell in path['path_cells_uv']]
         segments = self._segment_path(path_cells)
@@ -451,7 +507,6 @@ class CharacterMovementCore:
         path_positions = [list(self.uv_cell_center_to_pixel(*cell)) for cell in path_cells]
         waypoints = [self._normalize_uv(cell) for cell in path['compressed_waypoints_uv']]
         waypoint_positions = [list(self.uv_cell_center_to_pixel(*cell)) for cell in waypoints]
-        movement_profile = self.resolve_movement_profile(character_id)
         dense_samples = self.sample_path_states(path_cells, substeps_per_cell=self.DEFAULT_SUBSTEPS_PER_CELL)
         timed_samples = self.sample_path_timeline(
             path_cells,
@@ -468,7 +523,7 @@ class CharacterMovementCore:
             )
         except CharacterSystemError as exc:
             raise CharacterMovementError(str(exc)) from exc
-        return {
+        result = {
             'character_id': character_id,
             'floor_id': floor_id,
             'start_uv': list(self._normalize_uv(start_uv)),
@@ -491,3 +546,46 @@ class CharacterMovementCore:
                 'frame_ids': arrival_frame_ids,
             },
         }
+        if employee_id is not None:
+            result['employee_id'] = employee_id
+        return result
+
+    def resolve_movement(
+        self,
+        character_query: int | str,
+        floor_id: str,
+        start_uv: tuple[int, int] | list[int],
+        goal_uv: tuple[int, int] | list[int],
+    ) -> dict:
+        try:
+            character_id = self.identity.resolve_character_id(character_query)
+        except CharacterIdentityLookupError as exc:
+            raise CharacterMovementError(str(exc)) from exc
+        movement_profile = self.resolve_movement_profile(character_id)
+        return self._resolve_movement_for_character(
+            character_id,
+            floor_id,
+            start_uv,
+            goal_uv,
+            movement_profile,
+        )
+
+    def resolve_employee_movement(
+        self,
+        employee_id: str,
+        floor_id: str,
+        start_uv: tuple[int, int] | list[int],
+        goal_uv: tuple[int, int] | list[int],
+    ) -> dict:
+        try:
+            movement_profile = self.resolve_employee_movement_profile(employee_id)
+        except CharacterMovementError:
+            raise
+        return self._resolve_movement_for_character(
+            movement_profile['character_id'],
+            floor_id,
+            start_uv,
+            goal_uv,
+            movement_profile,
+            employee_id=movement_profile['employee_id'],
+        )

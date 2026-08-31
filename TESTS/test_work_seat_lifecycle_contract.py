@@ -80,6 +80,19 @@ def test_all_workstation_interaction_slots_are_runtime_derived_and_unique():
         assert slot["seat_transition_ready"] is True
         assert slot["enter_action"] is None
         assert slot["exit_action"] is None
+        assert slot["turn_side_bindings"]["work_direction"] == direction
+        expected_turn_names = {
+            "SE": {"turn_side_sw", "turn_side_ne"},
+            "SW": {"turn_side_se", "turn_side_nw"},
+            "NW": {"turn_side_sw", "turn_side_ne"},
+        }[direction]
+        assert set(slot["turn_side_bindings"]) == {"work_direction", *expected_turn_names}
+        assert all(
+            entry["action"] == "work"
+            and entry["direction"] == direction
+            and entry["direction_source"] == "turn_axis_mapping"
+            for entry in [slot["turn_side_bindings"][name] for name in sorted(expected_turn_names)]
+        )
 
 
 def test_directionless_event_actions_reject_direction_and_resolve_without_one():

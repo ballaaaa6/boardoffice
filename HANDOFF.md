@@ -1,84 +1,66 @@
 # GDS Central Game Core — Handoff
 
 **Updated:** 2026-08-31 (Asia/Bangkok)
-**Project root:** `D:\antigravity\board office`
-**Status:** `PHASE8C_CLOSED__CEO_DEPTH_CLOSED__PHASE8D_CLOSED__AUTHOR_APPROVED__CLEAN_PACKAGED`
-**Active handoff:** this file only
+**Project root:** D:\antigravity\board office
+**Status:** PHASE8C_CLOSED__CEO_DEPTH_CLOSED__PHASE8D_CLOSED__PHASE8E_DIALOGUE_PRESENTATION_AND_CATALOG_IMPLEMENTED__AUTHOR_ACCEPTANCE_PENDING__BEHAVIOR_DEFERRED
+**Next engineering task:** PHASE8E_CONVERSATION_COORDINATION_SLICE
+**Latest author-directed task:** Replace ambiguous WorkSeat turn labels with direction-named subactions for partner-facing behavior. `turn_side_<direction>` names are now explicit in the action registry and work-pose contract, validated at runtime, exposed through Central, and included in interaction-slot metadata; pair walking/locking/selection behavior remains pending. No static character art or world asset changed.
+**Active handoff:** this file only. ROADMAP.md is the single active milestone plan.
 
-## Source of truth
+## Accepted foundation and current runtime
 
-- The unpacked project at the root is the active source of truth.
-- `00_STARTING_POINT/` is the immutable four-file archive received at project start.
-- `ROADMAP.md` defines milestone order; `AGENTS.md` defines working rules.
-- `docs/history/` contains state snapshots only. They are not active handoffs.
-- Explicit author acceptance is recorded below; the manifest/report remain machine-checkable evidence, not a substitute for the acceptance record.
-- The original four-file project baseline remains preserved in `00_STARTING_POINT/`. The TV Studio Story archive currently stored there is external research evidence, not project status or a release input.
+- The unpacked root is authoritative. 00_STARTING_POINT/ is immutable. Its TV Studio Story files remain source evidence; runtime never reads them.
+- Phase 8B world/navigation is approved and frozen. Phase 8C portal lifecycle, the narrow CEO-desk render-depth correction and Phase 8D single-actor WorkSeat lifecycle are implemented, author-approved and closed.
+- The accepted release remains releases/GDS_CENTRAL_GAME_CORE_v1.8.5.zip (738 entries; fresh-extract 179 passed; required audits passed; release_clean=true). No new release or phase closeout occurred in this task.
+- Employee metadata contains 604 instances (302 Wave 1, 302 Wave 2), 219 initial workstation owners, 83 unassigned Wave 1 and 302 unassigned Wave 2 employees. Stable movement/stamina profiles and employee bridges exist; temporary absence retains ownership and never auto-fills vacancies.
+- Dialogue presentation uses fixed complete fukidashi_base crops: BB1/BB2/BB3/BB4/BB6, excluding BB5. It measures locale text at 9 px, rejects overflow, and follows visible face-center X, actor movement and frame bob with the frame-top-minus-20 vertical policy. Thai/ASCII runs share a baseline. The caller supplies the character/employee ID, frame, current actor position and dialogue ID/locale; Central returns the bubble image and placement. Presentation does not choose when or what an actor says.
+- Pair approach, live participant locks, automatic category/random selection, mutable actor snapshots, stamina reduction/recovery and home/return composition remain unimplemented. Directional turn semantics are now named directly: `SE` and `NW` use `turn_side_sw=V+→SW` / `turn_side_ne=V-→NE`; `SW` uses `turn_side_se=U+→SE` / `turn_side_nw=U-→NW`. Dashboard UI/persistence, queues, auto-staffing and additional needs systems remain outside scope.
+- Existing pre-task working-tree changes were preserved. No static world/character art, placement, navigation, action frames or reference hashes were edited.
 
-## Where the project is now
+## Completed editable catalog integration
 
-- Phase 8B navigation/world foundation is author-approved and remains frozen.
-- Phase 8C portal actor lifecycle is implemented, visually accepted, and closed; it is wired through `RUNTIME/central_core.py`.
-- The lifecycle runs `unspawned → entering → active → exiting → despawned`, keeps deterministic actor identity/movement data, and ends invisible after portal exit.
-- Crowd movement/portal QA support is present.
-- The author approved all five dense visual samples on 2026-08-31. Phase 8C remains closed.
-- A newly reported F2 CEO-desk walking-depth defect was diagnosed and corrected without changing world/character art, placement or navigation: `ceo_desk_cell2` and its inheriting `ceo_pc` now use one centralized policy with layout-specific front-edge metadata for F0, F1 and F2+. The proven Reception depth mechanism was reused only for this desk class; standard desks/chairs and existing Reception profiles remain unchanged. The author approved the five-floor CEO visual QA on 2026-08-31, so this corrective gate is closed.
-- Phase 8D is implemented and closed in the root: contract/schema, runtime-derived capacity-one interaction slots for all 219 workstations, deterministic single-actor lifecycle and Central facade. Navigation ends at the existing reachable exterior transition gate; seated visual placement remains owned by `WorkSeatCore`, and its visual offsets are not gameplay anchors. The author approved the corrected capacity-based visual QA on 2026-08-31, and the fresh v1.8.5 package/extract passed the clean-release gate.
+- The author explicitly requested importing the prepared reference phrases and being able to edit/add them later. This authorizes development content integration; it is not final visual/behavior acceptance or release promotion.
+- CHARACTER/DIALOGUE/dialogue.csv is the active editable content source: the original 204 imported phrase IDs plus 800 author-approved expansion IDs, each in EN/TH, plus the preserved hello_world_test/en row = 2,009 rows / 1,005 total IDs.
+- Keep each dialogue_id stable while editing text; locale and line_index distinguish localized turns. New project-authored IDs/categories can be added without changing code.
+- Optional columns category, usage_scope, enabled, full_text, source_id and source_text extend the original five-column CSV format compatibly. text is the actual display draft; full_text preserves the full locale text and source_text preserves exact original English.
+- Before the expansion, imported office rows enabled initially were TH 136 and EN 102; including the legacy test there were 239 enabled rows. The approved expansion added 1,600 office rows: 1,108 fit the current locale renderer and are enabled, while 492 overflow rows remain stored with `enabled=false`. The current catalog therefore has 1,347 enabled rows; these are measured content counts, not hard-coded limits.
+- CHARACTER/DIALOGUE/reference_import.json records source files/hashes, the original reference catalog hash, initial categories and import policy. It does not regenerate or overwrite later CSV edits, and is not a live count manifest.
+- Central and CharacterSystem expose list_dialogue_lines(locale, category, usage_scope, enabled_only) with JSON-safe metadata. Listing without filters includes disabled rows; callers choosing office content must explicitly filter scope/category/enabled status.
+- reload_dialogue_content() parses and checks a candidate catalog, validates all enabled text against the current renderer, then replaces the in-memory catalog. Duplicate IDs, ambiguous CSV columns, malformed enabled flags, enabled markup/placeholders and overflow reject the reload while preserving the old in-memory data. The disk file is not rolled back.
+- All dialogue-ID render paths (CharacterSystem frame, Central character and Central employee) reject disabled rows. resolve_dialogue_line() can still inspect them, or enforce require_enabled=True. No automatic conversation/random/stamina behavior was added.
+- CHARACTER/DIALOGUE/README.md explains edits, additions, UTF-8/CSV quoting, defaults, API usage and limitations. CONTRACTS/central_contract.json and ROADMAP.md describe this authorized extension.
+- The earlier research catalog stays at LOCAL_REVIEW/TV_STUDIO_DIALOGUE_REFERENCE_20260831/. Its README now points to the active catalog. Long talk/notification/UI tables were not bulk-imported as ambient speech. Earlier detailed source/font/anchor research remains in docs/history/TV_STUDIO_REFERENCE_STATE_SNAPSHOT_20260831.md, not another handoff.
 
-## Latest verification
+## Review-only dialogue expansion draft
 
-- Full regression from the new root: `179 passed` (`pytest.ini` excludes ignored `releases/.staging/` extraction snapshots from duplicate collection).
-- Focused portal/movement/crowd regression: `27 passed`.
-- Focused Portal/Crowd/WorkSeat comparison regression after the TV Studio Story review: `39 passed`.
-- Focused walking-depth, Reception-depth, no-redraw and F2-family regression after the CEO-depth diagnosis: `21 passed`.
-- CEO desk depth/profile and guard regression: `12 passed`; profile guard: PASS for 25 floors / 462 rows, 49 profiled rows and zero unprofiled front-envelope issues.
-- Diagnostic evidence: F2 CEO desk footprint corners are `[(307,256),(293,263),(329,281),(343,274)]`; the new profile uses front envelope `[(293,263),(329,281),(343,274)]`. Walkable cell `(205,69)` maps to ground `(300,275)`, which now remains in front of both CEO desk and PC because the local desk front edge at `X=300` is `Y=266.5`.
-- Cross-floor scope audit: considering walkable ground anchors that lie within each object's own footprint X span and whose actor box overlaps real asset alpha, the scalar/front-envelope disagreement appeared only for `ceo_desk_cell2` and its inheriting `ceo_pc`: 30 positions on F0, 25 on F1 and 25 on every F2-family floor. Standard desks/chairs only produced lateral, outside-footprint-X differences, which are not proven visual defects and must not be bulk-migrated without separate visual evidence.
-- Room Navigation: PASS.
-- Navigation Occupancy: PASS for 25 floors / 219 workstations.
-- WorkSeat: PASS.
-- Phase 6 Spatial: PASS.
-- F2 gameplay-metadata family: PASS.
-- Central integrity: PASS, with `release_clean=false` because the working tree contains ignored caches/review outputs.
-- CEO-desk visual QA: PASS at `LOCAL_REVIEW/CEO_DESK_DEPTH_QA_20260831/`; F0, F1, F2 plus deterministic random F14/F17 (seed `8042`), 10 actors per floor, reachable targets deliberately inside the former scalar false band. All five reports have zero collisions, active waits, static-world diff pixels and portal adjacency failures; actual GIFs are 600×600 with nonzero frames and non-identical first/last frames.
-- Historical release candidates are preserved as `releases/GDS_CENTRAL_GAME_CORE_v1.8.4_PRE_CLEAN_CANDIDATE.zip`, `releases/GDS_CENTRAL_GAME_CORE_v1.8.4_PRE_NORMALIZATION_PROMOTED.zip`, and `releases/GDS_CENTRAL_GAME_CORE_v1.8.4_PRE_ACCEPTANCE_TECHNICAL.zip`; the accepted package is promoted at `releases/GDS_CENTRAL_GAME_CORE_v1.8.4.zip`.
-- Fresh dense visual QA is now generated at `LOCAL_REVIEW/PHASE8C_DENSE_10_ACTOR_QA_20260831/`: F0, F1, F2 plus deterministic random floors F14 and F17 (seed `8042`), 10 actors per floor, farthest-point room coverage. The report is PASS with zero active waits, zero collisions, zero static-world diff pixels and all actors despawned.
-- CEO-desk author acceptance: **APPROVED** on 2026-08-31 for F0, F1, F2, F14 and F17 keyframe/GIF samples. The accepted change remains render-only; no release archive/version bump was requested in this push.
-- Phase 8D inventory/planning audit (read-only): 302 character identities, 47 registered frame records, 25 floors, 219 workstation instances (`SE=100`, `NW=96`, `SW=23`), 30 registered chair families / 21 currently used, 11 work VFX and 6 HumanBall choices. All 219 workstation instances resolve `seat_transition_ready=true`.
-- Permanent movement metadata is now embedded for all 302 characters in both technical and identity-card registries. The new v4 reroll covers the inclusive 225–250% range (26 distinct values), is synchronized across aliases and actor seeds, and is read without runtime reroll. `CONTRACTS/central_contract.json` and `CENTRAL_MANIFEST.json` now describe this policy.
-- Required audits after implementation: Room Navigation PASS; Navigation Occupancy PASS (25 floors / 219 workstations); WorkSeat PASS; Phase 6 Spatial PASS; Central integrity PASS (`release_clean=false` only because local caches/review outputs remain); F2 gameplay-metadata family PASS; dedicated Phase 8D lifecycle audit PASS (9 canonical cycles).
-- Supporting visual QA remains generated at `LOCAL_REVIEW/PHASE8D_WORKSEAT_SINGLE_ACTOR_QA_20260831/` and `LOCAL_REVIEW/PHASE8D_SPAWN_TO_WORK_QA_20260831/`; both reports are PASS and are retained as lifecycle evidence.
-- The incorrectly scoped all-character GIF batch and renderer were removed after clarification. They were generated review outputs only; no source code, runtime behavior, world art or character assets were removed.
-- Capacity-based visual QA is generated at `LOCAL_REVIEW/PHASE8D_WORKSTATION_CAPACITY_QA_20260831/`: F0 has 5 actors for 5 computers, F1 has 7 for 7, and F2/F14/F17 have 9 for 9 each. The report is PASS across 39 independent actor cycles: all workstation/slot assignments are unique, every slot has capacity one and is ready, all actors reach `seated=computer_count`, duplicate active slots are zero, static-world diff is zero, and every final slot is `free`. The five GIFs total about 161 MB, with the largest about 44 MB. The author approved this visual gate on 2026-08-31.
-- Fresh v1.8.5 package verification: archive `releases/GDS_CENTRAL_GAME_CORE_v1.8.5.zip` has 738 entries and excludes review outputs, caches, staging and materialized occupancy. A fresh extraction passed `179 passed`; Room Navigation, Ground Footprints, Navigation Occupancy, WorkSeat, Phase 6 Spatial, Central integrity, F2 gameplay-metadata family, Phase 8D lifecycle and walking-depth audits all pass, with Central reporting `release_clean=true` and zero Python-cache paths.
-- Phase 8D closeout evidence is recorded in `REPORTS/PHASE8D_CLOSEOUT.json`; the accepted visual QA remains externalized under `LOCAL_REVIEW/` and is intentionally not packaged.
+- LOCAL_REVIEW/DIALOGUE_CATALOG_DRAFT_20260831/dialogue_draft.csv was the review source for 16 office categories × 50 new EN/TH pairs = 800 pairs / 1,600 rows. Its IDs were appended to the active catalog after author approval; the review folder remains a source snapshot and is not loaded by Central.
+- The draft had no normalized exact duplicates within itself or against the pre-import active catalog. Its bubble-fit audit is intentionally separate: 1,108/1,600 localized rows fit, 384/800 pairs fit in both locales, and 416 imported pairs need shortening or review before both locales can be enabled.
+- README_TH.md and bubble_fit_report.json in that folder describe the review workflow and exact overflow IDs. The import report and pre-import backup are in LOCAL_REVIEW/DIALOGUE_CATALOG_IMPORT_20260831/. No runtime code, release package or source asset changed.
+- For easier author review, `outputs/01a0571c-f344-7b90-927f-ddb3389a1d36/dialogue_catalog_review.xlsx` is a presentation-only export with three visible columns (`mode`, `EN`, `TH`), one row per phrase pair, frozen headers and filters. It contains the same 800 pairs and does not replace the CSV source.
 
-## Most recent project changes
+## Verification
 
-- Added three render-only CEO desk walking-depth profiles and F0/F1/F2+ bindings in `WORLD/REGISTRY/walking_depth_profiles.json`; extended its schema to permit desk profiles.
-- Added the centralized omission guard, canonical CEO front/behind/boundary regressions, and deterministic five-floor 10-actor GIF QA tool/report.
-- Added `pytest.ini` exclusion for ignored `releases/.staging/` snapshots so the required root test command cannot collect duplicate module names.
-- No world artwork, character artwork, layout placement, navigation occupancy, closure, clearance or portal geometry was changed.
-- Added `CONTRACTS/work_seat_lifecycle.json` and `SCHEMA/work_seat_lifecycle.schema.json`; implemented `RUNTIME/work_seat_lifecycle.py`, Central slot/cycle/event facades, separate WorkSeat character/effect/HumanBall frame indices, and `VALIDATION/self_audit_work_seat_lifecycle.py`.
-- Added explicit action semantics (`idle` conversation standing, `move` walking, seated `work`, directionless `sad/happy` event emotions) and permanent per-character speed metadata with its assignment/audit tool. No world artwork, static placement, navigation geometry or character frame pixels changed.
-- Added `TOOLS/render_spawn_to_work_gif.py` and its reproducible full spawn-to-work visual artifact for direct author review.
-- Added `TOOLS/render_workstation_capacity_qa.py` and `TESTS/test_workstation_capacity_qa.py`; the QA renderer launches exactly one deterministic actor per authored computer across the five review floors without adding queue or contention semantics to production runtime.
-- Expanded `ROADMAP.md` from a locked plan to implementation-complete / visual-acceptance-pending, then closed Phase 8D after author acceptance and clean-package verification; updated manifests, schemas, reference hashes and generated audit reports.
+- TDD: initial 11 focused catalog cases failed for missing behavior; implementation made them pass. Two additional ambiguous-CSV cases were observed failing before adding the parser guards.
+- Fresh dialogue-readiness verification on 2026-08-31: `python -B -m pytest -q TESTS/test_dialogue_bubble.py TESTS/test_dialogue_catalog.py -p no:cacheprovider` — 24 passed in 2.21s. Coverage includes actor movement/frame-bob placement, pixel-fit selection, Central/employee rendering, metadata filtering/JSON, legacy CSV compatibility, malformed content rejection, edit/add/reload, failed reload preserving the old catalog, disabled-row rejection and rendering every enabled office localization.
+- Presentation artifact verification on 2026-08-31: rendered and visually inspected `outputs/01a0571c-f344-7b90-927f-ddb3389a1d36/RND_F_004_character_sheet.png` at 1,232×2,034 px; all 47 requested frame labels and the action mapping are present. No source/static asset was changed.
+- Presentation artifact verification on 2026-08-31: rendered and visually inspected `outputs/01a0571c-f344-7b90-927f-ddb3389a1d36/RND_F_004_action_direction_sheet.png` at 1,600×1,775 px; rows are action/subaction groups, columns are NE/SE/SW/NW, and directionless event poses are separated below. No source/static asset was changed.
+- Direction-named action sheet verification on 2026-08-31: rendered and visually inspected `outputs/01a0571c-f344-7b90-927f-ddb3389a1d36/RND_F_004_action_direction_sheet_v2.png` at 1,600×1,772 px; WorkSeat rows are split by target idle direction (`turn_side_sw`, `turn_side_ne`, `turn_side_se`, `turn_side_nw`) and blank cells show unsupported direction/subaction combinations. No source/static asset was changed.
+- Work-turn naming implementation verification on 2026-08-31: `gds_standard_v1.json` and `work_pose_profiles.json` now use `turn_side_<direction>` names (`sw`, `ne`, `se`, `nw`) with `U+/U-/V+/V-` axis conventions; `WorkSeatCore.resolve_turn_side_mapping()` validates the direction name, axis and UV delta; `resolve_turn_side_for_target()` selects the named turn from a known partner-relative idle direction; Central exposes both resolvers; every derived interaction slot carries the mapping. Focused WorkSeat profile/lifecycle/runtime suite passes 36/36, with the full regression at 212/212. No walking, participant lock or automatic facing-coordination loop was implemented.
+- Latest full root regression on 2026-08-31: `python -B -m pytest -q -p no:cacheprovider` — 212 passed. No navigation/world change occurred.
+- Central integrity: PASS; all 26 schemas pass, 502 referenced payloads have zero mismatches, all 25 floor PNG/RGBA checks pass, 302 character identities and 219 workstations resolve. `release_clean=false` because the development tree contains 199 Python cache paths; no package was promoted.
+- Import verification: the approved expansion import appended all 800 EN/TH pairs and preserved existing rows exactly; 2,009 active CSV rows, 1,005 IDs, 1,347 enabled rows and 492 fit-gated disabled rows. Actual validated reload returns 2,009 rows / 1,005 IDs / locales en, th. The import report is `LOCAL_REVIEW/DIALOGUE_CATALOG_IMPORT_20260831/import_report.json`.
+- Draft expansion verification: build_draft.py generated 800 unique phrase pairs / 1,600 rows across 16 office categories; normalized duplicate and active-catalog collision checks passed. validate_draft.py checked every localized row against the real renderer and wrote the review-required fit report.
+- Earlier independent integration review, before the expansion: no actionable findings; the then-current 239 enabled rows rendered safely. The fresh focused run above covers the current enabled office catalog. Technical checks do not constitute visual/Thai author acceptance or release approval.
+- Final source/static audit: all 3,388 extracted source files, 168 character asset files and 329 world asset files match the pre-task byte counts and tree hashes. Scoped git diff --check passes; no task-owned long-running process remains because none was started.
+- Task-specific review/verification evidence is under LOCAL_REVIEW/DIALOGUE_CATALOG_INTEGRATION_20260831/. The before-code snapshot distinguishes this work from existing uncommitted Phase 8E changes.
+- No navigation/world changes were made, so the navigation audit family was not rerun. Central's existing static-world and payload checks remain green. No development server or canonical release was started.
 
-## Research input retained for future work
+## Next task and open gates
 
-- A read-only static review of `00_STARTING_POINT/TV_Studio_Story_v1.2.7_EXTRACTED_ASSETS.zip` was completed on 2026-08-31. The archive remains external research evidence only; it is not a project asset or release input, and no runtime/source/asset behavior changed during the review.
-- Confirmed static evidence: `chips.txt` contains 89 object rows with four directional local-tuple groups; 20 rows expose more than one tuple in at least one direction. Examples include two-position Audience Seating, a three-position panel and a six-position board. This supports an orientation-aware object-owned interaction-slot list, but the unnamed tuple fields and exact runtime meaning remain unverified.
-- Confirmed static evidence: `body/seb.inf` maps stable numeric action IDs to semantic stand/walk/sit/special-work resources and reuses resources with a transform flag; `s_pc0_u.seb` is a separate two-layer, 12-global-frame work resource and its monitor overlay is another resource. Furniture and desk presentation resources are likewise layered and separate from their image atlases.
-- Confirmed static evidence: each recovered map references a base floor image plus three flattened `object_id&variant` grids. This reinforces GDS's existing separation of static world art, placement metadata and navigation; it does not justify replacing the approved Phase 8B world/navigation model.
-- Phase 8D locked planning basis: keep actor lifecycle and slot occupancy as synchronized tracks—actor `walking_to_seat/approach/seated_work/exit_seat/walking_from_seat`; slot transition history `free/reserved/occupied/releasing/free`. Reserve atomically before inbound walking, keep inbound/approach reserved, and release before outbound walking. Start with one capacity-one slot per workstation, while defining the contract as a list so future furniture can expose multiple orientation-specific slots.
-- Phase 8D locked planning basis: name all GDS fields explicitly (`slot_id`, `transition_gate_uv`, `facing`, `render_owner`, action binding and optional effect channels) instead of importing anonymous tuples. Walking and seated render channels must be mutually exclusive; existing `WorkSeatCore`, chair foreground, VFX and HumanBall composition remain the owners of visual placement.
-- GDS already has the semantic character action registry in `CHARACTER/ACTIONS/gds_standard_v1.json`; lifecycle phases should bind to that registry. Optional enter/exit clip hooks may be present but null in the first slice because GDS has no approved sit/stand transition frames.
-- A future directional entry/exit lane refinement remains optional and should be added only if GDS crowd/portal visual review demonstrates a real bottleneck. No TV tuple values, timing, scheduler behavior, queue policy, map markers or asset resources should be copied as fact without runtime/code evidence.
+1. Edit `CHARACTER/DIALOGUE/dialogue.csv` directly for future content changes. The 492 fit-gated rows from the approved expansion remain available by stable `draft_*` ID; shorten and re-enable them only after a renderer fit/reload check.
+2. When explicitly requested, implement standing-pair conversation coordination using employee IDs, atomic participant locks, existing movement/crowd routing, directional idle facing and stored recovery policy. Add coherent turn selection/cooldowns/deduplication in that behavior slice; seated-listener variants remain follow-ups.
+3. Continue the mutable actor snapshot/stamina reducer, then home/return while retaining workstation ownership. Never make text rendering mutate stamina.
+4. Visual/behavior author acceptance, final content review and Thai shaping review remain open. Pillow has no RAQM; pixel fit is not a guarantee of glyph coverage for newly added characters or Unity-equivalent Thai shaping.
+5. Temporary TV bubble/font development inputs must be replaced with project-owned artwork/font policy before canonical release promotion. Content import approval does not close that gate or certify a release.
 
-## Next exact task
-
-Select and scope the next milestone. Phase 8D has no remaining implementation or release gate; multi-actor queue/slot-contention semantics remain deferred until a new milestone is approved.
-
-## Current blocker
-
-No technical blocker. Phase 8D runtime, automated gates, author visual acceptance and clean packaging are green. The existing character action set has `idle`, `move` and seated `work` frames but no dedicated sit/stand frames, so approach/exit remain one-tick semantic takeover states with null transition-action hooks. Multi-actor queue semantics remain intentionally deferred and are the next proposal only; the approved capacity QA uses independent one-actor cycles mapped one-to-one to computers.
+No technical blocker for catalog use or editing. Do not mark Phase 8E closed from the CSV, tests or generated reports alone.

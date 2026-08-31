@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_dialogue_bubble_registry_v1",
+  "title": "GDS Fixed Dialogue Bubble Registry v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "presentation_mode",
+    "source_asset",
+    "allowed_bubble_ids",
+    "excluded_bubble_ids",
+    "selection",
+    "text_layout",
+    "presets",
+    "provenance"
+  ],
+  "properties": {
+    "schema": {"const": "gds_dialogue_bubble_registry_v1"},
+    "presentation_mode": {"const": "fixed_whole_crop"},
+    "source_asset": {
+      "type": "object",
+      "required": ["path", "sha256", "dimensions_px", "source_reference"],
+      "properties": {
+        "path": {"const": "ASSETS/dialogue/fukidashi_base.png"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "dimensions_px": {"const": [192, 40]},
+        "source_reference": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "whole_crop_semantics": {"type": "string", "minLength": 1},
+    "allowed_bubble_ids": {
+      "const": ["BB1", "BB2", "BB3", "BB4", "BB6"]
+    },
+    "excluded_bubble_ids": {"const": ["BB5"]},
+    "selection": {
+      "type": "object",
+      "required": ["rule", "order", "wrap", "overflow_policy"],
+      "properties": {
+        "rule": {"const": "smallest_allowed_bubble_whose_rendered_text_fits_safe_rect"},
+        "order": {"const": ["BB4", "BB3", "BB6", "BB2", "BB1"]},
+        "wrap": {"const": false},
+        "overflow_policy": {"const": "error"}
+      },
+      "additionalProperties": false
+    },
+    "text_layout": {
+      "type": "object",
+      "required": ["font_registry", "default_locale", "default_font_size_px", "text_color_rgba", "safe_inset_native_px", "alignment", "vertical_offset_from_actor_frame_top_px"],
+      "properties": {
+        "font_registry": {"const": "DIALOGUE/dialogue_fonts.json"},
+        "default_locale": {"const": "en"},
+        "default_font_size_px": {"const": 9},
+        "text_color_rgba": {"const": [12, 69, 251, 255]},
+        "safe_inset_native_px": {"const": [4, 3, 4, 3]},
+        "alignment": {"const": "horizontal_and_vertical_center_inside_safe_rect"},
+        "vertical_offset_from_actor_frame_top_px": {"const": -20}
+      },
+      "additionalProperties": false
+    },
+    "presets": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["bubble_id", "name", "crop_box", "size_px", "tail_tip_local_px", "tail_start_y", "safe_rect", "excluded"],
+        "properties": {
+          "bubble_id": {"pattern": "^BB[1-6]$"},
+          "name": {"type": "string", "minLength": 1},
+          "crop_box": {"type": "array", "prefixItems": [{"type": "integer", "minimum": 0}, {"type": "integer", "minimum": 0}, {"type": "integer", "minimum": 1}, {"type": "integer", "minimum": 1}], "minItems": 4, "maxItems": 4},
+          "size_px": {"type": "array", "prefixItems": [{"type": "integer", "minimum": 1}, {"type": "integer", "minimum": 1}], "minItems": 2, "maxItems": 2},
+          "tail_tip_local_px": {"anyOf": [{"type": "null"}, {"type": "array", "prefixItems": [{"type": "integer", "minimum": 0}, {"type": "integer", "minimum": 0}], "minItems": 2, "maxItems": 2}]},
+          "tail_start_y": {"type": "integer", "minimum": 1},
+          "safe_rect": {"type": "array", "prefixItems": [{"type": "integer", "minimum": 0}, {"type": "integer", "minimum": 0}, {"type": "integer", "minimum": 1}, {"type": "integer", "minimum": 1}], "minItems": 4, "maxItems": 4},
+          "excluded": {"type": "boolean"},
+          "excluded_reason": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "provenance": {"type": "object", "required": ["source_type", "source_package", "runtime_use", "replacement_gate"]}
+  },
+  "additionalProperties": false
+}

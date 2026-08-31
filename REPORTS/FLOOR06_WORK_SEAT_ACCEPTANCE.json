@@ -172,17 +172,17 @@
       "png": "PREVIEW/work_seat/floor06/normal_work_frame00.png",
       "sheet": "PREVIEW/work_seat/floor06/normal_work_sheet.png"
     },
-    "turn_side_a": {
+    "turn_side_sw": {
       "frame_count": 2,
-      "gif": "PREVIEW/work_seat/floor06/turn_side_a.gif",
-      "png": "PREVIEW/work_seat/floor06/turn_side_a_frame00.png",
-      "sheet": "PREVIEW/work_seat/floor06/turn_side_a_sheet.png"
+      "gif": "PREVIEW/work_seat/floor06/turn_side_sw.gif",
+      "png": "PREVIEW/work_seat/floor06/turn_side_sw_frame00.png",
+      "sheet": "PREVIEW/work_seat/floor06/turn_side_sw_sheet.png"
     },
-    "turn_side_b": {
+    "turn_side_ne": {
       "frame_count": 2,
-      "gif": "PREVIEW/work_seat/floor06/turn_side_b.gif",
-      "png": "PREVIEW/work_seat/floor06/turn_side_b_frame00.png",
-      "sheet": "PREVIEW/work_seat/floor06/turn_side_b_sheet.png"
+      "gif": "PREVIEW/work_seat/floor06/turn_side_ne.gif",
+      "png": "PREVIEW/work_seat/floor06/turn_side_ne_frame00.png",
+      "sheet": "PREVIEW/work_seat/floor06/turn_side_ne_sheet.png"
     }
   },
   "visual_approval": "pending_author_review"

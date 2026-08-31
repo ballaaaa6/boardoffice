@@ -181,19 +181,19 @@
               ],
               "legacy_materialized_path": "work_se/normal_work"
             },
-            "turn_side_a": {
+            "turn_side_sw": {
               "frames": [
                 "M20",
                 "M22"
               ],
-              "legacy_materialized_path": "work_se/turn_side_a"
+              "legacy_materialized_path": "work_se/turn_side_sw"
             },
-            "turn_side_b": {
+            "turn_side_ne": {
               "frames": [
                 "M20",
                 "M23"
               ],
-              "legacy_materialized_path": "work_se/turn_side_b"
+              "legacy_materialized_path": "work_se/turn_side_ne"
             },
             "happy": {
               "frames": [
@@ -216,19 +216,19 @@
               ],
               "legacy_materialized_path": "work_sw/normal_work"
             },
-            "turn_side_a": {
+            "turn_side_se": {
               "frames": [
                 "Mp20",
                 "Mp22"
               ],
-              "legacy_materialized_path": "work_sw/turn_side_a"
+              "legacy_materialized_path": "work_sw/turn_side_se"
             },
-            "turn_side_b": {
+            "turn_side_nw": {
               "frames": [
                 "Mp20",
                 "Mp23"
               ],
-              "legacy_materialized_path": "work_sw/turn_side_b"
+              "legacy_materialized_path": "work_sw/turn_side_nw"
             },
             "happy": {
               "frames": [
@@ -249,19 +249,19 @@
               ],
               "legacy_materialized_path": "work_nw/normal_work"
             },
-            "turn_side_a": {
+            "turn_side_sw": {
               "frames": [
                 "M25",
                 "M27"
               ],
-              "legacy_materialized_path": "work_nw/turn_side_a"
+              "legacy_materialized_path": "work_nw/turn_side_sw"
             },
-            "turn_side_b": {
+            "turn_side_ne": {
               "frames": [
                 "M25",
                 "M28"
               ],
-              "legacy_materialized_path": "work_nw/turn_side_b"
+              "legacy_materialized_path": "work_nw/turn_side_ne"
             },
             "happy": {
               "frames": [

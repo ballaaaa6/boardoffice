@@ -12,3 +12,7 @@ WORLD/COMPILED_NAV/OCCUPANCY/
 
 # Local release staging output
 releases/.staging/
+
+# Local extracted archive copy and presentation-only outputs
+00_STARTING_POINT/TV_Studio_Story_v1.2.7_EXTRACTED_ASSETS/
+outputs/

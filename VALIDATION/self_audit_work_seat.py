@@ -121,7 +121,25 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         layout = seat.world.floor_layout(floor_id)
         for workstation_id in layout['workstation_groups']:
             seat_record = seat.resolve_workstation_seat(floor_id, workstation_id)
-            for subaction in ('normal_work', 'turn_side_a', 'turn_side_b', 'happy'):
+            for subaction in seat.TURN_SIDE_SUBACTIONS_BY_WORK_DIRECTION[seat_record['direction']]:
+                composition_requests += 1
+                try:
+                    result = seat.compose_seat(
+                        'TP_000',
+                        seat_record['chair_family_id'],
+                        seat_record['direction'],
+                        subaction,
+                    )
+                    if not result.frames:
+                        raise ValueError('no frames')
+                except Exception as exc:
+                    composition_errors.append({
+                        'floor_id': floor_id,
+                        'workstation_id': workstation_id,
+                        'subaction': subaction,
+                        'error': str(exc),
+                    })
+            for subaction in ('normal_work', 'happy'):
                 composition_requests += 1
                 try:
                     result = seat.compose_seat(
@@ -160,13 +178,19 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
     sw_pairs_checked = 0
     character_ids = characters.list_characters()
     for character_id in character_ids:
-        for subaction in ('normal_work', 'turn_side_a', 'turn_side_b', 'happy'):
-            se = characters.render(character_id, 'work', 'SE', subaction)
-            sw = characters.render(character_id, 'work', 'SW', subaction)
+        for se_subaction, sw_subaction in (
+            ('normal_work', 'normal_work'),
+            ('turn_side_sw', 'turn_side_se'),
+            ('turn_side_ne', 'turn_side_nw'),
+            ('happy', 'happy'),
+        ):
+            se = characters.render(character_id, 'work', 'SE', se_subaction)
+            sw = characters.render(character_id, 'work', 'SW', sw_subaction)
             if len(se.frames) != len(sw.frames):
                 sw_mismatches.append({
                     'character_id': character_id,
-                    'subaction': subaction,
+                    'se_subaction': se_subaction,
+                    'sw_subaction': sw_subaction,
                     'error': 'frame_count_mismatch',
                 })
                 continue
@@ -176,11 +200,49 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
                 if expected.tobytes() != sw_frame.convert('RGBA').tobytes():
                     sw_mismatches.append({
                         'character_id': character_id,
-                        'subaction': subaction,
+                        'se_subaction': se_subaction,
+                        'sw_subaction': sw_subaction,
                         'frame_index': index,
                         'error': 'pixel_mismatch',
                     })
 
+    axis_convention_exact = pose.get('axis_direction_convention') == {
+        'U+': {'axis': 'U', 'sign': '+', 'direction': 'SE', 'uv_delta': [1, 0]},
+        'U-': {'axis': 'U', 'sign': '-', 'direction': 'NW', 'uv_delta': [-1, 0]},
+        'V+': {'axis': 'V', 'sign': '+', 'direction': 'SW', 'uv_delta': [0, 1]},
+        'V-': {'axis': 'V', 'sign': '-', 'direction': 'NE', 'uv_delta': [0, -1]},
+    }
+    turn_side_mapping_exact = (
+        pose['profiles']['SE']['turn_side_mapping'] == pose['profiles']['NW']['turn_side_mapping']
+        and pose['profiles']['SE']['turn_side_mapping'] == {
+            'turn_side_sw': {
+                'axis': 'V',
+                'sign': '+',
+                'axis_direction': 'V+',
+                'target_idle_direction': 'SW',
+            },
+            'turn_side_ne': {
+                'axis': 'V',
+                'sign': '-',
+                'axis_direction': 'V-',
+                'target_idle_direction': 'NE',
+            },
+        }
+        and pose['profiles']['SW']['turn_side_mapping'] == {
+            'turn_side_se': {
+                'axis': 'U',
+                'sign': '+',
+                'axis_direction': 'U+',
+                'target_idle_direction': 'SE',
+            },
+            'turn_side_nw': {
+                'axis': 'U',
+                'sign': '-',
+                'axis_direction': 'U-',
+                'target_idle_direction': 'NW',
+            },
+        }
+    )
     profiles_exact = (
         pose['profiles']['SE']['visual_character_offset_from_chair_px'] == [2, 2]
         and pose['profiles']['SE']['world_chair_role'] == 'part_01'
@@ -191,6 +253,8 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         and pose['profiles']['SW']['standalone_transform_scope'] == 'final_composite'
         and pose['profiles']['SW']['world_chair_role'] == 'part_02'
         and pose['coordinate_semantics']['gameplay_anchor_fields_populated'] is False
+        and axis_convention_exact
+        and turn_side_mapping_exact
     )
 
     nav = RoomNavigationCore(root / 'WORLD')

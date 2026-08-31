@@ -53,7 +53,7 @@ def main() -> int:
         {'workstation_id': ws, 'character': q}
         for ws, q in zip(workstations, character_queries)
     ]
-    subactions = ['normal_work', 'turn_side_a', 'turn_side_b', 'happy']
+    subactions = ['normal_work', 'turn_side_sw', 'turn_side_ne', 'happy']
     report = {
         'schema': 'gds.floor06_work_seat_acceptance.v1',
         'floor_id': 'floor06',

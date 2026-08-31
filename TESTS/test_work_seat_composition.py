@@ -43,7 +43,7 @@ def test_se_local_seat_matches_verified_native_formula_for_all_subactions():
     from RUNTIME.work_seat_core import WorkSeatCore
 
     core = WorkSeatCore(ROOT)
-    for subaction in ('normal_work', 'turn_side_a', 'turn_side_b', 'happy'):
+    for subaction in ('normal_work', 'turn_side_sw', 'turn_side_ne', 'happy'):
         result = core.compose_seat('TP_000', 'chair_000', 'SE', subaction)
         assert result.viewport == (-4, -10, 54, 54)
         assert result.human_offset_from_chair_px == (2, 2)
@@ -57,7 +57,7 @@ def test_nw_local_seat_matches_verified_native_formula_for_all_subactions():
     from RUNTIME.work_seat_core import WorkSeatCore
 
     core = WorkSeatCore(ROOT)
-    for subaction in ('normal_work', 'turn_side_a', 'turn_side_b', 'happy'):
+    for subaction in ('normal_work', 'turn_side_sw', 'turn_side_ne', 'happy'):
         result = core.compose_seat('TP_000', 'chair_000', 'NW', subaction)
         assert result.viewport == (-16, -10, 24, 44)
         assert result.human_offset_from_chair_px == (-10, -6)

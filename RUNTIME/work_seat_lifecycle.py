@@ -8,6 +8,7 @@ from typing import Any, Iterable
 from CHARACTER.IDENTITY.RUNTIME.identity_resolver import CharacterIdentityLookupError
 from CHARACTER.RUNTIME.character_system import CharacterSystem, CharacterSystemError
 from RUNTIME.character_movement_core import CharacterMovementCore, CharacterMovementError
+from RUNTIME.employee_registry import EmployeeMetadataError
 from RUNTIME.work_seat_core import WorkSeatCore, WorkSeatError
 from WORLD.RUNTIME.navigation_occupancy_core import (
     NavigationOccupancyCore,
@@ -213,6 +214,7 @@ class WorkSeatLifecycle:
                 },
                 "walking": {"action": "move", "direction_source": "movement_path"},
             },
+            "turn_side_bindings": self.work_seats.resolve_turn_side_mapping(facing),
             "effect_id": None,
             "humanball_id": None,
             "enter_action": None,
@@ -490,8 +492,31 @@ class WorkSeatLifecycle:
         subaction: str = "normal_work",
         effect_id: str | None = None,
         humanball_id: str | None = None,
+        employee_id: str | None = None,
     ) -> dict[str, Any]:
-        character_id = self._character_id(character_query)
+        employee: dict[str, Any] | None = None
+        if employee_id is None:
+            character_id = self._character_id(character_query)
+        else:
+            try:
+                employee = self.movement.employee_registry.get(employee_id)
+            except EmployeeMetadataError as exc:
+                raise WorkSeatLifecycleError(str(exc)) from exc
+            assignment = employee.get("assignment")
+            if assignment is None:
+                raise WorkSeatLifecycleError(
+                    f"{employee_id}: employee has no assigned workstation"
+                )
+            if (
+                assignment.get("floor_id") != floor_id
+                or assignment.get("workstation_id") != workstation_id
+            ):
+                raise WorkSeatLifecycleError(
+                    f"{employee_id}: assigned to "
+                    f"{assignment.get('floor_id')}.{assignment.get('workstation_id')}, "
+                    f"not {floor_id}.{workstation_id}"
+                )
+            character_id = employee["character_id"]
         slot = self.resolve_interaction_slot(floor_id, workstation_id)
         start = self._normalize_uv(start_uv)
         exit_goal = self._normalize_uv(exit_goal_uv) if exit_goal_uv is not None else start
@@ -505,7 +530,11 @@ class WorkSeatLifecycle:
                 "Work VFX/HumanBall overlays are supported only for normal_work"
             )
 
-        movement_profile = self.movement.resolve_movement_profile(character_id)
+        movement_profile = (
+            self.movement.resolve_employee_movement_profile(employee_id)
+            if employee_id is not None
+            else self.movement.resolve_movement_profile(character_id)
+        )
         try:
             inbound_result = self.pathfinding.find_path(floor_id, start, slot["transition_gate_uv"])
             outbound_result = self.pathfinding.find_path(
@@ -543,7 +572,8 @@ class WorkSeatLifecycle:
         effect_count = len(effect_result.frames) if effect_result is not None else None
         humanball_count = len(humanball_result.frames) if humanball_result is not None else None
 
-        actor_id = f"{floor_id}:{workstation_id}:{character_id}"
+        actor_identity = employee_id if employee_id is not None else character_id
+        actor_id = f"{floor_id}:{workstation_id}:{actor_identity}"
         states: list[dict[str, Any]] = []
         slot_events: list[dict[str, Any]] = [
             {
@@ -733,14 +763,14 @@ class WorkSeatLifecycle:
                 raise WorkSeatLifecycleError("Walking and seated render channels overlap")
 
         slot_events[-1]["state_index"] = outbound_start_index
-        return {
+        result = {
             "schema": "gds.work_seat_actor_cycle.v1",
             "actor_id": actor_id,
             "character_id": character_id,
             "floor_id": floor_id,
             "workstation_id": workstation_id,
             "inputs": {
-                "character_query": character_id,
+                "character_query": employee_id if employee_id is not None else character_id,
                 "character_id": character_id,
                 "floor_id": floor_id,
                 "workstation_id": workstation_id,
@@ -781,6 +811,9 @@ class WorkSeatLifecycle:
             "final_slot_state": self.FREE,
             "completed": True,
         }
+        if employee_id is not None:
+            result["employee_id"] = employee_id
+        return result
 
     def render_seated_state(
         self,

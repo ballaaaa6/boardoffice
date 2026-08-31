@@ -70,6 +70,14 @@
       "actions": ["sad", "happy"],
       "direction_source": "none",
       "render_owner": "walking_depth"
+    },
+    "turn_side": {
+      "action": "work",
+      "direction_source": "workstation_facing",
+      "subaction_source": "turn_side_direction_mapping",
+      "mapping_source": "CONTRACTS/work_pose_profiles.json",
+      "target_idle_direction_source": "partner_relative_uv_axis",
+      "render_owner": "work_seat"
     }
   },
   "timing": {

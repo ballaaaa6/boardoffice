@@ -7,7 +7,40 @@
     "note": "Visual character offsets are sprite-composition coordinates, not Phase 7F seat/approach/exit anchors."
   },
   "supported_directions": ["SE", "SW", "NW"],
-  "supported_subactions": ["normal_work", "turn_side_a", "turn_side_b", "happy"],
+  "supported_subactions": [
+    "normal_work",
+    "turn_side_sw",
+    "turn_side_ne",
+    "turn_side_se",
+    "turn_side_nw",
+    "happy"
+  ],
+  "axis_direction_convention": {
+    "U+": {
+      "axis": "U",
+      "sign": "+",
+      "direction": "SE",
+      "uv_delta": [1, 0]
+    },
+    "U-": {
+      "axis": "U",
+      "sign": "-",
+      "direction": "NW",
+      "uv_delta": [-1, 0]
+    },
+    "V+": {
+      "axis": "V",
+      "sign": "+",
+      "direction": "SW",
+      "uv_delta": [0, 1]
+    },
+    "V-": {
+      "axis": "V",
+      "sign": "-",
+      "direction": "NE",
+      "uv_delta": [0, -1]
+    }
+  },
   "profiles": {
     "SE": {
       "direction": "SE",
@@ -15,6 +48,20 @@
       "source_package": "GDS_WORK_SE_ASSEMBLER",
       "world_chair_role": "part_01",
       "visual_character_offset_from_chair_px": [2, 2],
+      "turn_side_mapping": {
+        "turn_side_sw": {
+          "axis": "V",
+          "sign": "+",
+          "axis_direction": "V+",
+          "target_idle_direction": "SW"
+        },
+        "turn_side_ne": {
+          "axis": "V",
+          "sign": "-",
+          "axis_direction": "V-",
+          "target_idle_direction": "NE"
+        }
+      },
       "composition_viewport": {
         "min_x": -4,
         "min_y": -10,
@@ -43,6 +90,20 @@
       "world_chair_foreground_role": "part_03",
       "foreground_optional": true,
       "visual_character_offset_from_chair_px": [-10, -6],
+      "turn_side_mapping": {
+        "turn_side_sw": {
+          "axis": "V",
+          "sign": "+",
+          "axis_direction": "V+",
+          "target_idle_direction": "SW"
+        },
+        "turn_side_ne": {
+          "axis": "V",
+          "sign": "-",
+          "axis_direction": "V-",
+          "target_idle_direction": "NE"
+        }
+      },
       "composition_viewport": {
         "min_x": -16,
         "min_y": -10,
@@ -65,6 +126,20 @@
       "world_chair_role": "part_02",
       "world_character_frame_direction": "SW",
       "world_offset_derivation": "mirror_relation_within_chair_canvas",
+      "turn_side_mapping": {
+        "turn_side_se": {
+          "axis": "U",
+          "sign": "+",
+          "axis_direction": "U+",
+          "target_idle_direction": "SE"
+        },
+        "turn_side_nw": {
+          "axis": "U",
+          "sign": "-",
+          "axis_direction": "U-",
+          "target_idle_direction": "NW"
+        }
+      },
       "world_insertion_rule": "immediately_after_chair_main",
       "never_double_mirror_materialized_character_frames": true
     }

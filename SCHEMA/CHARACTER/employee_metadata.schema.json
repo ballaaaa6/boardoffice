@@ -1,0 +1,773 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_employee_metadata_v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "identity_binding",
+    "generation",
+    "source_registries",
+    "wave_counts",
+    "roster_policy",
+    "stamina_policy",
+    "visual_channels",
+    "employees"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds.employee_metadata.v1"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "identity_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "character_id_role",
+        "employee_id_role",
+        "wave2_reuses_character_art",
+        "runtime_state_policy"
+      ],
+      "properties": {
+        "character_id_role": {
+          "const": "canonical_visual_template_id"
+        },
+        "employee_id_role": {
+          "const": "persistent_actor_instance_id"
+        },
+        "wave2_reuses_character_art": {
+          "const": true
+        },
+        "runtime_state_policy": {
+          "const": "stamina_presence_activity_are_not_static_metadata"
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generator",
+        "generator_version",
+        "generated_date",
+        "wave1_policy",
+        "wave2_policy",
+        "wave2_template_seed",
+        "wave2_name_seed",
+        "wave2_movement_seed",
+        "stamina_profile_seed",
+        "initial_assignment_seed",
+        "source_hashes"
+      ],
+      "properties": {
+        "generator": {
+          "const": "TOOLS/generate_employee_metadata.py"
+        },
+        "generator_version": {
+          "const": "1.0.0"
+        },
+        "generated_date": {
+          "const": "2026-08-31"
+        },
+        "wave1_policy": {
+          "const": "one_employee_per_canonical_character_in_identity_card_order"
+        },
+        "wave2_policy": {
+          "const": "sha256_rank_all_canonical_templates_once"
+        },
+        "wave2_template_seed": {
+          "const": "gds-employee-wave2-template-order-v1"
+        },
+        "wave2_name_seed": {
+          "const": "gds-employee-wave2-english-name-v1"
+        },
+        "wave2_movement_seed": {
+          "const": "gds-employee-wave2-movement-speed-v1"
+        },
+        "stamina_profile_seed": {
+          "const": "gds-employee-stamina-profile-v1"
+        },
+        "initial_assignment_seed": {
+          "const": "gds-employee-wave1-floor-assignment-v1"
+        },
+        "source_hashes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "technical_character_registry_sha256",
+            "identity_cards_sha256",
+            "floor_registry_sha256",
+            "layout_registry_sha256",
+            "direction_registry_sha256"
+          ],
+          "properties": {
+            "technical_character_registry_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "identity_cards_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "floor_registry_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "layout_registry_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "direction_registry_sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        }
+      }
+    },
+    "source_registries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "technical_characters",
+        "identity_cards",
+        "floors",
+        "layouts",
+        "workstation_directions",
+        "effects",
+        "event_presets",
+        "humanballs"
+      ],
+      "properties": {
+        "technical_characters": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identity_cards": {
+          "type": "string",
+          "minLength": 1
+        },
+        "floors": {
+          "type": "string",
+          "minLength": 1
+        },
+        "layouts": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workstation_directions": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effects": {
+          "type": "string",
+          "minLength": 1
+        },
+        "event_presets": {
+          "type": "string",
+          "minLength": 1
+        },
+        "humanballs": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "wave_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "wave1",
+        "wave2",
+        "total"
+      ],
+      "properties": {
+        "wave1": {
+          "const": 302
+        },
+        "wave2": {
+          "const": 302
+        },
+        "total": {
+          "const": 604
+        }
+      }
+    },
+    "roster_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "floor_count",
+        "workstation_capacity",
+        "floor_order",
+        "workstation_order",
+        "initial_assignment_order",
+        "initial_assignment_count",
+        "initial_original_assignment_count",
+        "initial_custom_assignment_count",
+        "wave1_unassigned_count",
+        "wave2_initial_assignment",
+        "unassignment_policy",
+        "home_return_policy"
+      ],
+      "properties": {
+        "floor_count": {
+          "const": 25
+        },
+        "workstation_capacity": {
+          "const": 1
+        },
+        "floor_order": {
+          "const": "numeric_floor_suffix_ascending_then_lexical"
+        },
+        "workstation_order": {
+          "const": "ceo_then_numeric_ws_then_lexical"
+        },
+        "initial_assignment_order": {
+          "const": "wave1_original_then_wave1_custom"
+        },
+        "initial_assignment_count": {
+          "const": 219
+        },
+        "initial_original_assignment_count": {
+          "const": 64
+        },
+        "initial_custom_assignment_count": {
+          "const": 155
+        },
+        "wave1_unassigned_count": {
+          "const": 83
+        },
+        "wave2_initial_assignment": {
+          "const": "null_unassigned"
+        },
+        "unassignment_policy": {
+          "const": "explicit_vacancy_only_no_auto_fill"
+        },
+        "home_return_policy": {
+          "const": "retain_the_same_owned_workstation"
+        }
+      }
+    },
+    "stamina_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "time_unit",
+        "stamina_max",
+        "critical_threshold",
+        "target_work_cycle_seconds_range",
+        "work_drain_unit",
+        "per_employee_work_drain_range",
+        "recovery_operation",
+        "recovery_events",
+        "home_policy",
+        "visual_recovery_references"
+      ],
+      "properties": {
+        "schema": {
+          "const": "gds.stamina_policy.v1"
+        },
+        "time_unit": {
+          "const": "simulation_seconds"
+        },
+        "stamina_max": {
+          "const": 100
+        },
+        "critical_threshold": {
+          "const": 10
+        },
+        "target_work_cycle_seconds_range": {
+          "$ref": "#/$defs/positive_range"
+        },
+        "work_drain_unit": {
+          "const": "milli_stamina_per_second"
+        },
+        "per_employee_work_drain_range": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": 600
+            },
+            {
+              "const": 850
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "recovery_operation": {
+          "const": "add_then_clamp_to_stamina_max"
+        },
+        "recovery_events": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "talk",
+            "background_effect",
+            "popup",
+            "wander"
+          ],
+          "properties": {
+            "talk": {
+              "$ref": "#/$defs/recovery_event"
+            },
+            "background_effect": {
+              "$ref": "#/$defs/recovery_event"
+            },
+            "popup": {
+              "$ref": "#/$defs/recovery_event"
+            },
+            "wander": {
+              "$ref": "#/$defs/recovery_event"
+            }
+          }
+        },
+        "home_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "trigger",
+            "delay_seconds_range",
+            "restore_policy",
+            "retain_assignment",
+            "return_target",
+            "runtime_status"
+          ],
+          "properties": {
+            "trigger": {
+              "const": "stamina_lte_critical_threshold"
+            },
+            "delay_seconds_range": {
+              "$ref": "#/$defs/positive_range"
+            },
+            "restore_policy": {
+              "const": "full_on_home"
+            },
+            "retain_assignment": {
+              "const": true
+            },
+            "return_target": {
+              "const": "same_owned_workstation"
+            },
+            "runtime_status": {
+              "const": "pending_home_return_system"
+            }
+          }
+        },
+        "visual_recovery_references": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "effect_ids",
+            "humanball_ids"
+          ],
+          "properties": {
+            "effect_ids": {
+              "$ref": "#/$defs/string_list"
+            },
+            "humanball_ids": {
+              "$ref": "#/$defs/string_list"
+            }
+          }
+        }
+      }
+    },
+    "visual_channels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "effect_registry",
+        "event_presets",
+        "humanball_registry",
+        "binding_policy"
+      ],
+      "properties": {
+        "effect_registry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "recovery_effect_ids",
+            "fatigue_effect_id"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "recovery_effect_ids": {
+              "$ref": "#/$defs/string_list"
+            },
+            "fatigue_effect_id": {
+              "const": "low_battery_drain"
+            }
+          }
+        },
+        "event_presets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "positive_event_keys"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "positive_event_keys": {
+              "$ref": "#/$defs/string_list"
+            }
+          }
+        },
+        "humanball_registry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "popup_humanball_ids"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "popup_humanball_ids": {
+              "$ref": "#/$defs/string_list"
+            }
+          }
+        },
+        "binding_policy": {
+          "const": "metadata_references_existing_visual_registries_without_copying_assets"
+        }
+      }
+    },
+    "employees": {
+      "type": "array",
+      "minItems": 604,
+      "maxItems": 604,
+      "items": {
+        "$ref": "#/$defs/employee"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "string_list": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "positive_range": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "integer",
+          "minimum": 1
+        }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "recovery_event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "interval_seconds_range",
+        "recovery_amount_range",
+        "activity_duration_seconds_range",
+        "selection_weight",
+        "runtime_status",
+        "visual_channel"
+      ],
+      "properties": {
+        "interval_seconds_range": {
+          "$ref": "#/$defs/positive_range"
+        },
+        "recovery_amount_range": {
+          "$ref": "#/$defs/positive_range"
+        },
+        "activity_duration_seconds_range": {
+          "$ref": "#/$defs/positive_range"
+        },
+        "selection_weight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "runtime_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visual_channel": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "template_origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "collection",
+        "source",
+        "legacy_id"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "original",
+            "custom"
+          ]
+        },
+        "collection": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "legacy_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "name_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pool",
+        "basis",
+        "source_label"
+      ],
+      "properties": {
+        "pool": {
+          "enum": [
+            "neutral",
+            "male",
+            "female"
+          ]
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "generation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "movement_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "speed_percent",
+        "source"
+      ],
+      "properties": {
+        "speed_percent": {
+          "type": "integer",
+          "minimum": 225,
+          "maximum": 250
+        },
+        "source": {
+          "enum": [
+            "canonical_character_metadata",
+            "wave2_employee_seeded_metadata"
+          ]
+        }
+      }
+    },
+    "stamina_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stamina_max",
+        "work_drain_milli_per_second",
+        "event_timing_multiplier_percent",
+        "home_delay_seconds_range",
+        "profile_seed"
+      ],
+      "properties": {
+        "stamina_max": {
+          "const": 100
+        },
+        "work_drain_milli_per_second": {
+          "type": "integer",
+          "minimum": 600,
+          "maximum": 850
+        },
+        "event_timing_multiplier_percent": {
+          "type": "integer",
+          "minimum": 90,
+          "maximum": 115
+        },
+        "home_delay_seconds_range": {
+          "$ref": "#/$defs/positive_range"
+        },
+        "profile_seed": {
+          "const": "gds-employee-stamina-profile-v1"
+        }
+      }
+    },
+    "assignment": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "status": {
+          "const": "assigned"
+        },
+        "snapshot": {
+          "const": "wave1_initial"
+        },
+        "assignment_order": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 218
+        },
+        "floor_id": {
+          "pattern": "^floor[0-9]+$",
+          "type": "string"
+        },
+        "workstation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slot_id": {
+          "pattern": "^workseat:floor[0-9]+:[^:]+:primary$",
+          "type": "string"
+        },
+        "capacity": {
+          "const": 1
+        },
+        "facing": {
+          "enum": [
+            "NW",
+            "SE",
+            "SW"
+          ]
+        },
+        "seat_transition_ready": {
+          "const": true
+        }
+      },
+      "required": [
+        "status",
+        "snapshot",
+        "assignment_order",
+        "floor_id",
+        "workstation_id",
+        "slot_id",
+        "capacity",
+        "facing",
+        "seat_transition_ready"
+      ],
+      "additionalProperties": false
+    },
+    "employee": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "employee_id",
+        "generation_wave",
+        "character_id",
+        "character_pool",
+        "template_character_no",
+        "template_character_code",
+        "first_name",
+        "last_name",
+        "full_name",
+        "nickname",
+        "name_profile",
+        "template_origin",
+        "movement_profile",
+        "stamina_profile",
+        "assignment"
+      ],
+      "properties": {
+        "employee_id": {
+          "pattern": "^EMP_W[12]_[0-9]{4}$",
+          "type": "string"
+        },
+        "generation_wave": {
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "character_id": {
+          "pattern": "^(TP|RND_[MF])_[0-9]{3}$",
+          "type": "string"
+        },
+        "character_pool": {
+          "enum": [
+            "original",
+            "custom"
+          ]
+        },
+        "template_character_no": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 301
+        },
+        "template_character_code": {
+          "pattern": "^CHAR_[0-9]{3}$",
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "last_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "full_name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "nickname": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name_profile": {
+          "$ref": "#/$defs/name_profile"
+        },
+        "template_origin": {
+          "$ref": "#/$defs/template_origin"
+        },
+        "movement_profile": {
+          "$ref": "#/$defs/movement_profile"
+        },
+        "stamina_profile": {
+          "$ref": "#/$defs/stamina_profile"
+        },
+        "assignment": {
+          "$ref": "#/$defs/assignment"
+        }
+      }
+    }
+  }
+}

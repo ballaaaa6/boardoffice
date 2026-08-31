@@ -4,6 +4,13 @@ from pathlib import Path
 from typing import Any
 
 from CHARACTER.RUNTIME.character_system import CharacterSystem, CharacterSystemError
+from CHARACTER.RUNTIME.dialogue_bubble import (
+    BubbleSelection,
+    DialogueBubbleError,
+    DialogueBubbleRenderResult,
+    TextMetrics,
+)
+from CHARACTER.RUNTIME.dialogue_content import DialogueLine
 from CHARACTER.RUNTIME.asset_registry import AssetRegistry as CharacterAssetRegistry, AssetResolutionError
 from CHARACTER.IDENTITY.RUNTIME.identity_resolver import (
     CharacterIdentityLookupError,
@@ -22,6 +29,7 @@ from WORLD.RUNTIME.gameplay_metadata_family_core import GameplayMetadataFamilyCo
 from RUNTIME.work_seat_core import WorkSeatCore, WorkSeatError
 from RUNTIME.work_seat_lifecycle import WorkSeatLifecycle, WorkSeatLifecycleError
 from RUNTIME.character_movement_core import CharacterMovementCore, CharacterMovementError
+from RUNTIME.employee_registry import EmployeeMetadataError, EmployeeMetadataRegistry
 from RUNTIME.portal_actor_lifecycle import PortalActorLifecycle, PortalActorLifecycleError
 from RUNTIME.crowd_movement_core import (
     CrowdMovementReservationError,
@@ -45,6 +53,7 @@ class CentralGameCore:
         self.characters = CharacterSystem(self.character_root)
         self.character_assets = CharacterAssetRegistry(self.character_root)
         self.identity = CharacterIdentityResolver(self.identity_root)
+        self.employee_metadata = EmployeeMetadataRegistry(self.root)
         self.world = LayoutCore(self.world_root)
         self.floors = FloorRenderer(self.world_root)
         self.directions = DirectionCore(self.world_root)
@@ -53,7 +62,11 @@ class CentralGameCore:
         self.room_navigation = RoomNavigationCore(self.world_root)
         self.navigation_occupancy = NavigationOccupancyCore(self.world_root)
         self.pathfinding = PathfindingCore(self.world_root, occupancy=self.navigation_occupancy)
-        self.character_movement = CharacterMovementCore(self.root, pathfinding=self.pathfinding)
+        self.character_movement = CharacterMovementCore(
+            self.root,
+            pathfinding=self.pathfinding,
+            employee_registry=self.employee_metadata,
+        )
         self.portal_lifecycle = PortalActorLifecycle(self.root, movement=self.character_movement)
         self.crowd_movement = DynamicActorReservationCore()
         self.walking_depth = WalkingDepthCore(
@@ -93,7 +106,12 @@ class CentralGameCore:
                 return self.world.resolve_asset_blob(asset_id)
             except KeyError as exc:
                 raise CentralGameCoreError(f'Unknown world asset: {asset_id}') from exc
-        raise CentralGameCoreError(f'Unknown asset domain: {domain!r}; expected character or world')
+        if domain_key == 'dialogue':
+            try:
+                return self.characters.resolve_dialogue_asset_path(asset_id)
+            except (CharacterSystemError, DialogueBubbleError) as exc:
+                raise CentralGameCoreError(str(exc)) from exc
+        raise CentralGameCoreError(f'Unknown asset domain: {domain!r}; expected character, world or dialogue')
 
     def resolve_character(self, query: int | str) -> dict[str, Any]:
         try:
@@ -103,6 +121,69 @@ class CentralGameCore:
 
     def resolve_character_id(self, query: int | str) -> str:
         return self.resolve_character(query)['character_id']
+
+    def list_employees(
+        self,
+        *,
+        wave: int | None = None,
+        assigned: bool | None = None,
+        character_pool: str | None = None,
+    ) -> list[dict[str, Any]]:
+        try:
+            return self.employee_metadata.list(
+                wave=wave,
+                assigned=assigned,
+                character_pool=character_pool,
+            )
+        except EmployeeMetadataError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_employee(self, employee_id: str) -> dict[str, Any]:
+        try:
+            return self.employee_metadata.resolve(employee_id)
+        except EmployeeMetadataError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_employee_assignment(self, employee_id: str) -> dict[str, Any] | None:
+        employee = self.resolve_employee(employee_id)
+        assignment = employee.get('assignment')
+        return None if assignment is None else dict(assignment)
+
+    def resolve_initial_employee_roster(
+        self,
+        floor_id: str | None = None,
+    ) -> list[dict[str, Any]]:
+        try:
+            return self.employee_metadata.resolve_initial_roster(floor_id)
+        except EmployeeMetadataError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_employee_stamina_profile(self, employee_id: str) -> dict[str, Any]:
+        employee = self.resolve_employee(employee_id)
+        return {
+            'employee_id': employee['employee_id'],
+            'character_id': employee['character_id'],
+            'stamina_profile': dict(employee['stamina_profile']),
+            'stamina_policy': self.employee_metadata.stamina_policy(),
+        }
+
+    def render_employee(
+        self,
+        employee_id: str,
+        action: str,
+        direction: str | None = None,
+        subaction: str | None = None,
+        *,
+        effect_id: str | None = None,
+    ):
+        employee = self.resolve_employee(employee_id)
+        return self.render_character(
+            employee['character_id'],
+            action,
+            direction,
+            subaction,
+            effect_id=effect_id,
+        )
 
     def render_character(
         self,
@@ -124,6 +205,160 @@ class CentralGameCore:
             )
         except CharacterSystemError as exc:
             raise CentralGameCoreError(str(exc)) from exc
+
+    def render_employee_dialogue_bubble(
+        self,
+        employee_id: str,
+        frame_id: str,
+        text: str,
+        *,
+        actor_top_left: tuple[int, int] = (0, 0),
+        locale: str = 'en',
+        font_size_px: int | None = None,
+    ) -> DialogueBubbleRenderResult:
+        employee = self.resolve_employee(employee_id)
+        try:
+            return self.characters.render_dialogue_bubble_for_frame(
+                employee['character_id'],
+                frame_id,
+                text,
+                actor_top_left=actor_top_left,
+                locale=locale,
+                font_size_px=font_size_px,
+            )
+        except (CharacterSystemError, DialogueBubbleError) as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def render_employee_dialogue_line(
+        self,
+        employee_id: str,
+        frame_id: str,
+        dialogue_id: str,
+        *,
+        actor_top_left: tuple[int, int] = (0, 0),
+        locale: str | None = None,
+        line_index: int = 0,
+        font_size_px: int | None = None,
+    ) -> DialogueBubbleRenderResult:
+        line = self.resolve_dialogue_line(
+            dialogue_id,
+            locale='en' if locale is None else locale,
+            line_index=line_index,
+            require_enabled=True,
+        )
+        return self.render_employee_dialogue_bubble(
+            employee_id,
+            frame_id,
+            line.text,
+            actor_top_left=actor_top_left,
+            locale=line.locale,
+            font_size_px=font_size_px,
+        )
+
+    def list_dialogue_bubbles(self) -> list[str]:
+        return self.characters.list_dialogue_bubbles()
+
+    def list_dialogue_lines(
+        self, *, locale: str | None = None, category: str | None = None,
+        usage_scope: str | None = None, enabled_only: bool = False,
+    ) -> list[dict[str, object]]:
+        return self.characters.list_dialogue_lines(
+            locale=locale, category=category, usage_scope=usage_scope,
+            enabled_only=enabled_only,
+        )
+
+    def reload_dialogue_content(self) -> dict[str, object]:
+        return self.characters.reload_dialogue_content()
+
+    def resolve_dialogue_line(
+        self,
+        dialogue_id: str,
+        *,
+        locale: str = 'en',
+        line_index: int = 0,
+        require_enabled: bool = False,
+    ) -> DialogueLine:
+        return self.characters.resolve_dialogue_line(
+            dialogue_id,
+            locale=locale,
+            line_index=line_index,
+            require_enabled=require_enabled,
+        )
+
+    def measure_dialogue_text(
+        self,
+        text: str,
+        *,
+        locale: str = 'en',
+        font_size_px: int | None = None,
+    ) -> TextMetrics:
+        return self.characters.measure_dialogue_text(
+            text,
+            locale=locale,
+            font_size_px=font_size_px,
+        )
+
+    def select_dialogue_bubble(
+        self,
+        text: str,
+        *,
+        locale: str = 'en',
+        font_size_px: int | None = None,
+    ) -> BubbleSelection:
+        return self.characters.select_dialogue_bubble(
+            text,
+            locale=locale,
+            font_size_px=font_size_px,
+        )
+
+    def render_dialogue_bubble_for_character(
+        self,
+        query: int | str,
+        frame_id: str,
+        text: str,
+        *,
+        actor_top_left: tuple[int, int] = (0, 0),
+        locale: str = 'en',
+        font_size_px: int | None = None,
+    ) -> DialogueBubbleRenderResult:
+        character_id = self.resolve_character_id(query)
+        try:
+            return self.characters.render_dialogue_bubble_for_frame(
+                character_id,
+                frame_id,
+                text,
+                actor_top_left=actor_top_left,
+                locale=locale,
+                font_size_px=font_size_px,
+            )
+        except (CharacterSystemError, DialogueBubbleError) as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def render_dialogue_line_for_character(
+        self,
+        query: int | str,
+        frame_id: str,
+        dialogue_id: str,
+        *,
+        actor_top_left: tuple[int, int] = (0, 0),
+        locale: str | None = None,
+        line_index: int = 0,
+        font_size_px: int | None = None,
+    ) -> DialogueBubbleRenderResult:
+        line = self.resolve_dialogue_line(
+            dialogue_id,
+            locale='en' if locale is None else locale,
+            line_index=line_index,
+            require_enabled=True,
+        )
+        return self.render_dialogue_bubble_for_character(
+            query,
+            frame_id,
+            line.text,
+            actor_top_left=actor_top_left,
+            locale=line.locale,
+            font_size_px=font_size_px,
+        )
 
     def list_humanballs(self) -> list[str]:
         return self.characters.list_humanballs()
@@ -257,6 +492,24 @@ class CentralGameCore:
         except (WorkSeatError, KeyError, ValueError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
+    def resolve_work_turn_mapping(self, direction: str) -> dict[str, Any]:
+        """Expose direction-named seated turn bindings for a work direction."""
+        try:
+            return self.work_seats.resolve_turn_side_mapping(direction)
+        except (WorkSeatError, KeyError, ValueError) as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_work_turn_for_target(
+        self, direction: str, target_idle_direction: str
+    ) -> dict[str, Any]:
+        """Select the seated turn whose named idle facing matches a target direction."""
+        try:
+            return self.work_seats.resolve_turn_side_for_target(
+                direction, target_idle_direction
+            )
+        except (WorkSeatError, KeyError, ValueError) as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
     def resolve_work_seat_interaction_slot(
         self, floor_id: str, workstation_id: str
     ) -> dict[str, Any]:
@@ -300,6 +553,34 @@ class CentralGameCore:
                 subaction=subaction,
                 effect_id=effect_id,
                 humanball_id=humanball_id,
+            )
+        except WorkSeatLifecycleError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_employee_work_seat_actor_cycle(
+        self,
+        employee_id: str,
+        floor_id: str,
+        workstation_id: str,
+        start_uv,
+        exit_goal_uv=None,
+        work_ticks: int = WorkSeatLifecycle.DEFAULT_WORK_TICKS,
+        subaction: str = 'normal_work',
+        effect_id: str | None = None,
+        humanball_id: str | None = None,
+    ) -> dict[str, Any]:
+        try:
+            return self.work_seat_lifecycle.resolve_actor_cycle(
+                employee_id,
+                floor_id,
+                workstation_id,
+                start_uv,
+                exit_goal_uv=exit_goal_uv,
+                work_ticks=work_ticks,
+                subaction=subaction,
+                effect_id=effect_id,
+                humanball_id=humanball_id,
+                employee_id=employee_id,
             )
         except WorkSeatLifecycleError as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -479,6 +760,29 @@ class CentralGameCore:
             return self.character_movement.resolve_movement_profile(
                 query,
                 actor_seed=actor_seed,
+            )
+        except CharacterMovementError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_employee_movement_profile(self, employee_id: str) -> dict[str, Any]:
+        try:
+            return self.character_movement.resolve_employee_movement_profile(employee_id)
+        except CharacterMovementError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_employee_movement(
+        self,
+        employee_id: str,
+        floor_id: str,
+        start_uv,
+        goal_uv,
+    ) -> dict[str, Any]:
+        try:
+            return self.character_movement.resolve_employee_movement(
+                employee_id,
+                floor_id,
+                start_uv,
+                goal_uv,
             )
         except CharacterMovementError as exc:
             raise CentralGameCoreError(str(exc)) from exc

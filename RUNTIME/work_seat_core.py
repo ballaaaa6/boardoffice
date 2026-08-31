@@ -50,6 +50,11 @@ class WorkPresentationResult:
 
 class WorkSeatCore:
     SUPPORTED_DIRECTIONS = frozenset({'SE', 'SW', 'NW'})
+    TURN_SIDE_SUBACTIONS_BY_WORK_DIRECTION = {
+        'SE': ('turn_side_sw', 'turn_side_ne'),
+        'SW': ('turn_side_se', 'turn_side_nw'),
+        'NW': ('turn_side_sw', 'turn_side_ne'),
+    }
 
     def __init__(
         self,
@@ -76,6 +81,123 @@ class WorkSeatCore:
         if key not in self.SUPPORTED_DIRECTIONS:
             raise WorkSeatError(f'Unsupported work seat direction: {direction}')
         return self.profiles[key]
+
+    @staticmethod
+    def _normalize_direction(value: str, *, name: str) -> str:
+        if not isinstance(value, str) or not value.strip():
+            raise WorkSeatError(f'{name} must be a non-empty direction string')
+        return value.strip().upper()
+
+    def resolve_turn_side_mapping(self, direction: str) -> dict[str, Any]:
+        """Resolve the explicit axis meaning of direction-named seated turns.
+
+        The subaction name carries the target idle direction (for example,
+        ``turn_side_sw``). This contract supplies the axis/sign and UV delta
+        for that direction. No partner position or fallback direction is
+        guessed here.
+        """
+        key = self._normalize_direction(direction, name='work direction')
+        profile = self.resolve_profile(key)
+        convention = self.contract.get('axis_direction_convention')
+        if not isinstance(convention, dict):
+            raise WorkSeatError('Work pose contract is missing axis_direction_convention')
+        source = profile.get('turn_side_mapping')
+        if not isinstance(source, dict):
+            raise WorkSeatError(f'{key} profile is missing turn_side_mapping')
+        subactions = self.TURN_SIDE_SUBACTIONS_BY_WORK_DIRECTION.get(key)
+        if subactions is None:
+            raise WorkSeatError(f'{key} has no direction-named turn mapping')
+
+        resolved: dict[str, Any] = {'work_direction': key}
+        seen_axis_directions: set[str] = set()
+        seen_targets: set[str] = set()
+        for subaction in subactions:
+            raw = source.get(subaction)
+            if not isinstance(raw, dict):
+                raise WorkSeatError(f'{key} profile is missing {subaction} axis mapping')
+
+            axis = str(raw.get('axis', '')).strip().upper()
+            sign = str(raw.get('sign', '')).strip()
+            axis_direction = str(raw.get('axis_direction', '')).strip().upper()
+            target = str(raw.get('target_idle_direction', '')).strip().upper()
+            if axis not in {'U', 'V'} or sign not in {'+', '-'}:
+                raise WorkSeatError(f'{key}/{subaction} has an invalid axis/sign mapping')
+            if axis_direction != f'{axis}{sign}':
+                raise WorkSeatError(
+                    f'{key}/{subaction} axis_direction must match axis/sign: '
+                    f'{axis}{sign}, got {axis_direction!r}'
+                )
+            expected_target = subaction.removeprefix('turn_side_').upper()
+            if expected_target not in {'NE', 'SE', 'SW', 'NW'}:
+                raise WorkSeatError(f'{key}/{subaction} has an invalid direction-named turn')
+            if target != expected_target:
+                raise WorkSeatError(
+                    f'{key}/{subaction} target idle direction must match subaction name: '
+                    f'{expected_target}, got {target!r}'
+                )
+            if axis_direction in seen_axis_directions:
+                raise WorkSeatError(f'{key} turn-side mappings reuse axis direction {axis_direction}')
+            if target in seen_targets:
+                raise WorkSeatError(f'{key} turn-side mappings reuse target idle direction {target}')
+            seen_axis_directions.add(axis_direction)
+            seen_targets.add(target)
+
+            canonical = convention.get(axis_direction)
+            if not isinstance(canonical, dict):
+                raise WorkSeatError(
+                    f'{key}/{subaction} references unknown axis direction {axis_direction}'
+                )
+            if canonical.get('axis') != axis or canonical.get('sign') != sign:
+                raise WorkSeatError(
+                    f'{key}/{subaction} axis convention disagrees with axis/sign'
+                )
+            if canonical.get('direction') != target:
+                raise WorkSeatError(
+                    f'{key}/{subaction} target idle direction {target!r} does not match '
+                    f'axis direction {axis_direction}'
+                )
+            uv_delta = canonical.get('uv_delta')
+            if (
+                not isinstance(uv_delta, list)
+                or len(uv_delta) != 2
+                or any(isinstance(value, bool) or not isinstance(value, int) for value in uv_delta)
+            ):
+                raise WorkSeatError(
+                    f'{key}/{subaction} axis direction {axis_direction} has invalid uv_delta'
+                )
+
+            resolved[subaction] = {
+                'action': 'work',
+                'direction': key,
+                'subaction': subaction,
+                'axis': axis,
+                'sign': sign,
+                'axis_direction': axis_direction,
+                'axis_delta_uv': list(uv_delta),
+                'target_idle_direction': target,
+                'direction_source': 'turn_axis_mapping',
+            }
+        return resolved
+
+    def resolve_turn_side_for_target(
+        self,
+        direction: str,
+        target_idle_direction: str,
+    ) -> dict[str, Any]:
+        """Select the direction-named turn when a target idle direction is known."""
+        key = self._normalize_direction(direction, name='work direction')
+        target = self._normalize_direction(target_idle_direction, name='target idle direction')
+        mapping = self.resolve_turn_side_mapping(key)
+        subactions = self.TURN_SIDE_SUBACTIONS_BY_WORK_DIRECTION[key]
+        for subaction in subactions:
+            entry = mapping[subaction]
+            if entry['target_idle_direction'] == target:
+                return dict(entry)
+        supported = [mapping[subaction]['target_idle_direction'] for subaction in subactions]
+        raise WorkSeatError(
+            f'{key} does not have a direction-named turn mapping for target idle direction {target}; '
+            f'supported={supported}'
+        )
 
     def resolve_world_offset(
         self,
@@ -390,7 +512,11 @@ class WorkSeatCore:
 
         if key == 'SW':
             profile = self.resolve_profile('SW')
-            se = self.compose_reference_presentation(character_id, 'SE', subaction)
+            se_subaction = {
+                'turn_side_se': 'turn_side_sw',
+                'turn_side_nw': 'turn_side_ne',
+            }.get(subaction, subaction)
+            se = self.compose_reference_presentation(character_id, 'SE', se_subaction)
             sw_action = self.characters.render(character_id, 'work', 'SW', subaction)
             frames = [frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for frame in se.frames]
             return WorkPresentationResult(

@@ -48,6 +48,78 @@ def test_visual_offsets_are_not_gameplay_seat_anchors():
         assert 'exit_anchor' not in p
 
 
+def test_turn_side_mapping_uses_canonical_uv_axes_and_target_idle_directions():
+    from RUNTIME.work_seat_core import WorkSeatCore
+
+    core = WorkSeatCore(ROOT)
+
+    assert core.contract['axis_direction_convention'] == {
+        'U+': {'axis': 'U', 'sign': '+', 'direction': 'SE', 'uv_delta': [1, 0]},
+        'U-': {'axis': 'U', 'sign': '-', 'direction': 'NW', 'uv_delta': [-1, 0]},
+        'V+': {'axis': 'V', 'sign': '+', 'direction': 'SW', 'uv_delta': [0, 1]},
+        'V-': {'axis': 'V', 'sign': '-', 'direction': 'NE', 'uv_delta': [0, -1]},
+    }
+    assert core.contract['supported_subactions'] == [
+        'normal_work', 'turn_side_sw', 'turn_side_ne',
+        'turn_side_se', 'turn_side_nw', 'happy',
+    ]
+    work_actions = core.characters.core.action_set['actions']['work']['directions']
+    assert list(work_actions['SE']['subactions']) == [
+        'normal_work', 'turn_side_sw', 'turn_side_ne', 'happy'
+    ]
+    assert list(work_actions['SW']['subactions']) == [
+        'normal_work', 'turn_side_se', 'turn_side_nw', 'happy'
+    ]
+    assert list(work_actions['NW']['subactions']) == [
+        'normal_work', 'turn_side_sw', 'turn_side_ne', 'happy'
+    ]
+
+    expected = {
+        'SE': {
+            'turn_side_sw': ('V+', 'SW', [0, 1]),
+            'turn_side_ne': ('V-', 'NE', [0, -1]),
+        },
+        'SW': {
+            'turn_side_se': ('U+', 'SE', [1, 0]),
+            'turn_side_nw': ('U-', 'NW', [-1, 0]),
+        },
+        'NW': {
+            'turn_side_sw': ('V+', 'SW', [0, 1]),
+            'turn_side_ne': ('V-', 'NE', [0, -1]),
+        },
+    }
+
+    for work_direction, expected_sides in expected.items():
+        mapping = core.resolve_turn_side_mapping(work_direction)
+        assert mapping['work_direction'] == work_direction
+        for subaction, (axis_direction, target, uv_delta) in expected_sides.items():
+            entry = mapping[subaction]
+            assert entry['axis_direction'] == axis_direction
+            assert entry['target_idle_direction'] == target
+            assert entry['axis_delta_uv'] == uv_delta
+            assert entry['direction'] == work_direction
+            assert entry['action'] == 'work'
+            assert entry['subaction'] == subaction
+
+
+def test_turn_side_can_be_selected_from_partner_relative_idle_direction():
+    from RUNTIME.work_seat_core import WorkSeatCore
+
+    core = WorkSeatCore(ROOT)
+
+    assert core.resolve_turn_side_for_target('SE', 'SW')['subaction'] == 'turn_side_sw'
+    assert core.resolve_turn_side_for_target('SE', 'NE')['subaction'] == 'turn_side_ne'
+    assert core.resolve_turn_side_for_target('SW', 'SE')['subaction'] == 'turn_side_se'
+    assert core.resolve_turn_side_for_target('SW', 'NW')['subaction'] == 'turn_side_nw'
+    assert core.resolve_turn_side_for_target('NW', 'SW')['subaction'] == 'turn_side_sw'
+    assert core.resolve_turn_side_for_target('NW', 'NE')['subaction'] == 'turn_side_ne'
+
+    import pytest
+
+    with pytest.raises(ValueError, match='does not have a direction-named turn mapping'):
+        core.resolve_turn_side_for_target('SE', 'SE')
+
+
 def test_chair_family_resolver_handles_present_and_transparent_parts():
     from WORLD.RUNTIME.chair_family_core import ChairFamilyCore
 

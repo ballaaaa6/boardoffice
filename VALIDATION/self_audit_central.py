@@ -46,6 +46,12 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         # visual-only and does not evolve world/navigation payloads.
         'CHARACTER/ASSETS/asset_registry.json',
         'CHARACTER/RUNTIME/character_system.py',
+        # Phase 8E WorkSeat naming makes seated turn subactions direction-explicit
+        # while preserving the underlying frame bindings.
+        'CHARACTER/ACTIONS/gds_standard_v1.json',
+        # Phase 8E dialogue presentation adds public runtime exports while
+        # leaving the frozen character/world payloads unchanged.
+        'CHARACTER/RUNTIME/__init__.py',
     }
     payload_mismatches: list[dict[str, str]] = []
     payload_missing: list[str] = []
@@ -66,6 +72,9 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         ('SCHEMA/CHARACTER/composition_index.schema.json', 'CHARACTER/CHARACTERS/composition_index.json'),
         ('SCHEMA/CHARACTER/effect_registry.schema.json', 'CHARACTER/EFFECTS/gds_effects_v1.json'),
         ('SCHEMA/CHARACTER/humanball_registry.schema.json', 'CHARACTER/EFFECTS/humanball_v1.json'),
+        ('SCHEMA/CHARACTER/employee_metadata.schema.json', 'CHARACTER/EMPLOYEES/employee_metadata.json'),
+        ('SCHEMA/CHARACTER/dialogue_bubble_registry.schema.json', 'CHARACTER/DIALOGUE/bubble_presets.json'),
+        ('SCHEMA/CHARACTER/dialogue_font_registry.schema.json', 'CHARACTER/DIALOGUE/dialogue_fonts.json'),
         ('SCHEMA/CHARACTER/frame_registry.schema.json', 'CHARACTER/FRAME_RULES/frame_registry.json'),
         ('SCHEMA/CHARACTER/unified_asset_registry.schema.json', 'CHARACTER/ASSETS/asset_registry.json'),
         ('SCHEMA/CHARACTER/final_manifest.schema.json', 'CHARACTER/FINAL_MANIFEST.json'),
@@ -101,6 +110,10 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
     card_by_id = {row['character_id']: row for row in cards}
     technical = _load(root / 'CHARACTER' / 'CHARACTERS' / 'characters.json')['characters']
     tech_by_id = {row['character_id']: row for row in technical}
+    employee_rows = core.list_employees()
+    employee_wave1 = core.list_employees(wave=1)
+    employee_wave2 = core.list_employees(wave=2)
+    employee_initial_roster = core.resolve_initial_employee_roster()
 
     composition_exact = sum(
         1 for cid, row in card_by_id.items()
@@ -194,6 +207,10 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'resolved_placements': resolved_placements,
         'workstations_resolved': workstation_resolved,
         'workstation_errors': len(workstation_errors),
+        'employees': len(employee_rows),
+        'employee_wave1': len(employee_wave1),
+        'employee_wave2': len(employee_wave2),
+        'employee_initial_roster': len(employee_initial_roster),
         'payload_hash_files': len(refs['payload_files']),
         'payload_hash_mismatches': len(payload_mismatches),
         'payload_missing': len(payload_missing),
@@ -212,6 +229,12 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'floors_exact': len(core.world.floors) == floor_rgba_exact == floor_png_exact == 25 and not floor_errors,
         'placements_exact': resolved_placements == 766,
         'workstations_exact': workstation_resolved == 219 and not workstation_errors,
+        'employee_metadata_exact': (
+            len(employee_rows) == 604
+            and len(employee_wave1) == 302
+            and len(employee_wave2) == 302
+        ),
+        'employee_initial_roster_exact': len(employee_initial_roster) == 219,
         'integrated_smoke': all(row.get('ok') for row in integrated_smoke.values()),
         'world_raw_omitted': not lean['world_raw_present'],
         'no_materialized_floor_cache': not lean['materialized_floor_cache_present'],

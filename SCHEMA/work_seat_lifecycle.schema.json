@@ -54,7 +54,40 @@
         "multi_actor_policy": {"type": "string", "minLength": 1}
       }
     },
-    "action_bindings": {"type": "object", "minProperties": 6},
+    "action_bindings": {
+      "type": "object",
+      "required": [
+        "walking_to_seat",
+        "approach",
+        "seated_work",
+        "exit_seat",
+        "walking_from_seat",
+        "event_emotions",
+        "turn_side"
+      ],
+      "minProperties": 7,
+      "properties": {
+        "turn_side": {
+          "type": "object",
+          "required": [
+            "action",
+            "direction_source",
+            "subaction_source",
+            "mapping_source",
+            "target_idle_direction_source",
+            "render_owner"
+          ],
+          "properties": {
+            "action": {"const": "work"},
+            "direction_source": {"const": "workstation_facing"},
+            "subaction_source": {"const": "turn_side_direction_mapping"},
+            "mapping_source": {"const": "CONTRACTS/work_pose_profiles.json"},
+            "target_idle_direction_source": {"const": "partner_relative_uv_axis"},
+            "render_owner": {"const": "work_seat"}
+          }
+        }
+      }
+    },
     "timing": {
       "type": "object",
       "additionalProperties": false,

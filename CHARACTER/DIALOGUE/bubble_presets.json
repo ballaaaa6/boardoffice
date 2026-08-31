@@ -1,0 +1,97 @@
+{
+  "schema": "gds_dialogue_bubble_registry_v1",
+  "presentation_mode": "fixed_whole_crop",
+  "source_asset": {
+    "path": "ASSETS/dialogue/fukidashi_base.png",
+    "sha256": "ba5e1ca85ac8154ebcb679a8c45aa201b12ec55c39af34164db33198cf4ad71b",
+    "dimensions_px": [192, 40],
+    "source_reference": "00_STARTING_POINT/TV_Studio_Story_v1.2.7_EXTRACTED_ASSETS/01_KAIRO_SPRITE_PACKS/com/fukidashi_base.png"
+  },
+  "whole_crop_semantics": "crop_box is [source_x, source_y, width, height]; safe_rect is [left, top, right, bottom) in the cropped image",
+  "allowed_bubble_ids": ["BB1", "BB2", "BB3", "BB4", "BB6"],
+  "excluded_bubble_ids": ["BB5"],
+  "selection": {
+    "rule": "smallest_allowed_bubble_whose_rendered_text_fits_safe_rect",
+    "order": ["BB4", "BB3", "BB6", "BB2", "BB1"],
+    "wrap": false,
+    "overflow_policy": "error"
+  },
+  "text_layout": {
+    "font_registry": "DIALOGUE/dialogue_fonts.json",
+    "default_locale": "en",
+    "default_font_size_px": 9,
+    "text_color_rgba": [12, 69, 251, 255],
+    "safe_inset_native_px": [4, 3, 4, 3],
+    "alignment": "horizontal_and_vertical_center_inside_safe_rect",
+    "vertical_offset_from_actor_frame_top_px": -20
+  },
+  "presets": [
+    {
+      "bubble_id": "BB1",
+      "name": "01_top_left_71x20",
+      "crop_box": [0, 0, 71, 20],
+      "size_px": [71, 20],
+      "tail_tip_local_px": [35, 19],
+      "tail_start_y": 18,
+      "safe_rect": [4, 3, 67, 17],
+      "excluded": false
+    },
+    {
+      "bubble_id": "BB2",
+      "name": "02_top_second_57x20",
+      "crop_box": [71, 0, 57, 20],
+      "size_px": [57, 20],
+      "tail_tip_local_px": [28, 19],
+      "tail_start_y": 18,
+      "safe_rect": [4, 3, 53, 17],
+      "excluded": false
+    },
+    {
+      "bubble_id": "BB3",
+      "name": "03_top_third_41x20",
+      "crop_box": [128, 0, 41, 20],
+      "size_px": [41, 20],
+      "tail_tip_local_px": [20, 19],
+      "tail_start_y": 18,
+      "safe_rect": [4, 3, 37, 17],
+      "excluded": false
+    },
+    {
+      "bubble_id": "BB4",
+      "name": "04_top_right_23x18",
+      "crop_box": [169, 2, 23, 18],
+      "size_px": [23, 18],
+      "tail_tip_local_px": [11, 17],
+      "tail_start_y": 16,
+      "safe_rect": [4, 3, 19, 15],
+      "excluded": false
+    },
+    {
+      "bubble_id": "BB5",
+      "name": "05_bottom_left_41x18",
+      "crop_box": [0, 20, 41, 18],
+      "size_px": [41, 18],
+      "tail_tip_local_px": null,
+      "tail_start_y": 18,
+      "safe_rect": [4, 3, 37, 15],
+      "excluded": true,
+      "excluded_reason": "author_selected_scope_excludes_BB5"
+    },
+    {
+      "bubble_id": "BB6",
+      "name": "06_bottom_right_49x20",
+      "crop_box": [41, 20, 49, 20],
+      "size_px": [49, 20],
+      "tail_tip_local_px": [24, 19],
+      "tail_start_y": 18,
+      "safe_rect": [4, 3, 45, 17],
+      "excluded": false
+    }
+  ],
+  "provenance": {
+    "source_type": "borrowed_development_asset",
+    "source_package": "TV_Studio_Story_v1.2.7_EXTRACTED_ASSETS",
+    "runtime_use": "fixed_whole_crop_dialogue_presentation_only",
+    "replacement_gate": "replace_with_project_owned_artwork_before_canonical_release"
+  }
+}

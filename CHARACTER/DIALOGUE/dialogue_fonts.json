@@ -1,0 +1,29 @@
+{
+  "schema": "gds_dialogue_font_registry_v1",
+  "default_locale": "en",
+  "default_font_size_px": 9,
+  "fonts": {
+    "en": {
+      "font_id": "m_plus_1p_medium",
+      "path": "ASSETS/dialogue/fonts/M+1p-medium.ttf",
+      "family": "M+ 1p medium",
+      "render_size_px": 9,
+      "serialized_source_size": 16.0,
+      "sha256": "bffea78ceca12bfaea1aca5f894b4596c9c509557be827ecf00fc998050a0dd8",
+      "source_reference": "TV Studio Story recovered Unity Font default-en-switch"
+    },
+    "th": {
+      "font_id": "noto_sans_thai",
+      "path": "ASSETS/dialogue/fonts/NotoSansThai-Regular.ttf",
+      "family": "Noto Sans Thai",
+      "render_size_px": 9,
+      "serialized_source_size": 16.0,
+      "sha256": "055d1d6a5a6b0407b3be31ddb2bd88cfc4377877a7d7b6fbb84eee7a1a89868d",
+      "source_reference": "TV Studio Story recovered Unity Font default-th"
+    }
+  },
+  "provenance": {
+    "source_type": "borrowed_development_font_assets",
+    "replacement_gate": "replace_with_project_owned_font_policy_before_canonical_release"
+  }
+}

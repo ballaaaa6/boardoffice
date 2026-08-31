@@ -33,7 +33,7 @@ def test_se_reference_presentation_matches_verified_assembler_formula():
     from RUNTIME.work_seat_core import WorkSeatCore
 
     core = WorkSeatCore(ROOT)
-    for subaction in ('normal_work', 'turn_side_a', 'turn_side_b', 'happy'):
+    for subaction in ('normal_work', 'turn_side_sw', 'turn_side_ne', 'happy'):
         result = core.compose_reference_presentation('TP_000', 'SE', subaction)
         assert result.direction == 'SE'
         assert result.viewport == (-4, -10, 54, 54)
@@ -56,9 +56,14 @@ def test_sw_reference_presentation_is_pixel_exact_final_mirror_of_se():
     from RUNTIME.work_seat_core import WorkSeatCore
 
     core = WorkSeatCore(ROOT)
-    for subaction in ('normal_work', 'turn_side_a', 'turn_side_b', 'happy'):
-        se = core.compose_reference_presentation('TP_000', 'SE', subaction)
-        sw = core.compose_reference_presentation('TP_000', 'SW', subaction)
+    for se_subaction, sw_subaction in (
+        ('normal_work', 'normal_work'),
+        ('turn_side_sw', 'turn_side_se'),
+        ('turn_side_ne', 'turn_side_nw'),
+        ('happy', 'happy'),
+    ):
+        se = core.compose_reference_presentation('TP_000', 'SE', se_subaction)
+        sw = core.compose_reference_presentation('TP_000', 'SW', sw_subaction)
         assert sw.derived_from == 'SE'
         assert sw.transform == 'FLIP_LEFT_RIGHT'
         assert len(sw.frames) == len(se.frames)

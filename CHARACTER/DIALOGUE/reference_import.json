@@ -1,0 +1,122 @@
+{
+  "schema": "gds.dialogue_reference_import.v1",
+  "author_requested_on": "2026-08-31",
+  "source_title": "TV Studio Story v1.2.7 supplied extracted text",
+  "translation_origin": "Assistant-prepared Thai translation and short display drafts; not recovered official Thai localization",
+  "active_editable_content": "CHARACTER/DIALOGUE/dialogue.csv",
+  "source_required_at_runtime": false,
+  "import_history": {
+    "source_rows": 204,
+    "localized_rows": 408,
+    "locales": [
+      "en",
+      "th"
+    ],
+    "reference_catalog_sha256": "1d04e9063cf412e8c33afd05c04ee6f78304c9792177bfdc5f394def0b9b4c4a"
+  },
+  "source_files": [
+    {
+      "source_path": "00_STARTING_POINT/TV_Studio_Story_v1.2.7_EXTRACTED_ASSETS/01_KAIRO_SPRITE_PACKS/xls/English.lproj/text.txt",
+      "sha256": "603c4b385c25c888ff5150dc3bfc59152b7de859054590ec8b5a8ed9ab657181",
+      "bytes": 50367
+    },
+    {
+      "source_path": "00_STARTING_POINT/TV_Studio_Story_v1.2.7_EXTRACTED_ASSETS/01_KAIRO_SPRITE_PACKS/xls/English.lproj/trainings.txt",
+      "sha256": "7e9a519daeba1b57a04045b0d6743de31531fa1b6b7fd777cce0ef7b2f74b7e8",
+      "bytes": 1276
+    },
+    {
+      "source_path": "00_STARTING_POINT/TV_Studio_Story_v1.2.7_EXTRACTED_ASSETS/01_KAIRO_SPRITE_PACKS/xls/English.lproj/skill.txt",
+      "sha256": "ea5199de37e731e539bead050f502df5b6d391c3e595e79c0f1b1d54d2b4bbf5",
+      "bytes": 1075
+    }
+  ],
+  "source_id_format": "tv.<source table stem>.L<one-based physical source line>",
+  "id_policy": "phrase_<source table stem>_<one-based source line>; preserve existing IDs when editing; new authored IDs may use any unique descriptive name",
+  "category_policy": "Categories and contexts are editable GDS proposals, not verified original runtime trigger rules",
+  "categories_at_import": {
+    "greeting": {
+      "label_th": "ทักทาย",
+      "proposed_context_th": "เข้าออฟฟิศ/เริ่มคุย; Morning! ต้องมีช่วงเช้าจากเวลาจำลอง"
+    },
+    "conversation_open": {
+      "label_th": "เปิดบทสนทนา",
+      "proposed_context_th": "เริ่มบทที่กำหนดไว้ หลังคู่สนทนาพร้อมและล็อกผู้เข้าร่วมแล้ว"
+    },
+    "conversation_reply": {
+      "label_th": "ตอบรับและหัวเราะ",
+      "proposed_context_th": "ตาตอบของบทเดียวกัน ต้องเข้ากับประโยคก่อนหน้า"
+    },
+    "work_start": {
+      "label_th": "เริ่มงาน",
+      "proposed_context_th": "เริ่มหรือกลับเข้าทำงานจริง ไม่สุ่มระหว่างกลับบ้าน"
+    },
+    "work_progress": {
+      "label_th": "คิดงานและความคืบหน้า",
+      "proposed_context_th": "กำลังทำงาน; คำว่าใกล้เสร็จต้องมีสัญญาณความคืบหน้าจริง"
+    },
+    "work_complete": {
+      "label_th": "งานเสร็จ",
+      "proposed_context_th": "เหตุการณ์จบงานจริงหนึ่งครั้ง ไม่ใช่หมดเวลาวาด bubble"
+    },
+    "encouragement": {
+      "label_th": "ให้กำลังใจ",
+      "proposed_context_th": "ตาตอบให้กำลังใจในบทที่กำหนดไว้"
+    },
+    "praise": {
+      "label_th": "ชื่นชม",
+      "proposed_context_th": "มีผลสำเร็จหรือประโยคก่อนหน้าที่สมควรชื่นชม"
+    },
+    "celebration": {
+      "label_th": "ดีใจ",
+      "proposed_context_th": "ผลลัพธ์ดี/เหตุการณ์สำเร็จ ไม่เพิ่ม stamina จากตัวหนังสือ"
+    },
+    "fatigue": {
+      "label_th": "เหนื่อย",
+      "proposed_context_th": "เข้าเกณฑ์เหนื่อยจาก profile; critical กลับบ้านก่อนบทคุยทั่วไป"
+    },
+    "leaving": {
+      "label_th": "ลาและกลับบ้าน",
+      "proposed_context_th": "เริ่มเดินออก/กลับบ้านจริง ระงับเมื่อยกเลิกการออก"
+    },
+    "surprise": {
+      "label_th": "ตกใจหรือประหลาดใจ",
+      "proposed_context_th": "เหตุการณ์เซอร์ไพรส์หรือตาตอบที่มีเนื้อหารองรับ"
+    },
+    "uncertainty": {
+      "label_th": "ลังเล",
+      "proposed_context_th": "กำลังคิดงานหรือบทที่กำหนดว่าตัวละครไม่มั่นใจ"
+    },
+    "disappointment": {
+      "label_th": "ผิดหวัง",
+      "proposed_context_th": "มีเหตุการณ์พลาดหรือบทผิดหวังชัดเจน"
+    },
+    "anticipation": {
+      "label_th": "ตั้งตารอ",
+      "proposed_context_th": "เพิ่งรับงานหรือมีสิ่งที่กำลังรอ ไม่ใช้หลังงานจบโดยไม่มีบริบท"
+    },
+    "idle_flavor": {
+      "label_th": "พักชิลและฮัมเพลง",
+      "proposed_context_th": "พัก/เดินเล่นที่ได้รับอนุญาต ไม่แทนท่าเดินหรือท่าทำงาน"
+    },
+    "food_drink": {
+      "label_th": "อาหารและเครื่องดื่ม",
+      "proposed_context_th": "เฉพาะบริบท โครงการยังไม่มีระบบหิว/กิน/ดื่ม"
+    },
+    "movement": {
+      "label_th": "การเคลื่อนไหวเฉพาะ",
+      "proposed_context_th": "เก็บไว้จนมีท่า/เหตุการณ์ตรงกัน ไม่เพิ่มท่ากระโดดหรือย่อง"
+    },
+    "tv_specific": {
+      "label_th": "รายการทีวีและบริบทเฉพาะ",
+      "proposed_context_th": "ไม่เข้า pool ออฟฟิศทั่วไป ต้องมีบริบทหรือดัดแปลงใหม่"
+    },
+    "training_status": {
+      "label_th": "ป้ายสถานะกิจกรรม",
+      "proposed_context_th": "มาจากตารางฝึกฝน ไม่ใช่บทสนทนาคู่ รอระบบกิจกรรมที่ตรงกัน"
+    }
+  },
+  "initial_enable_policy": "Only office rows measured to fit the active locale renderer; other rows remain stored and disabled",
+  "release_status": "Root development import authorized; no visual author acceptance or canonical release promotion performed",
+  "editing_policy": "Edit active CSV directly; this file records the import, not the current live row counts. Do not rerun a bulk import over later edits."
+}

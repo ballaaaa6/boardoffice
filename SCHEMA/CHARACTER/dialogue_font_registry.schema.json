@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds_dialogue_font_registry_v1",
+  "title": "GDS Dialogue Font Registry v1",
+  "type": "object",
+  "required": ["schema", "default_locale", "default_font_size_px", "fonts", "provenance"],
+  "properties": {
+    "schema": {"const": "gds_dialogue_font_registry_v1"},
+    "default_locale": {"type": "string", "minLength": 1},
+    "default_font_size_px": {"type": "integer", "minimum": 1},
+    "fonts": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["font_id", "path", "family", "render_size_px", "serialized_source_size", "sha256", "source_reference"],
+        "properties": {
+          "font_id": {"type": "string", "minLength": 1},
+          "path": {"type": "string", "minLength": 1},
+          "family": {"type": "string", "minLength": 1},
+          "render_size_px": {"type": "integer", "minimum": 1},
+          "serialized_source_size": {"type": "number", "exclusiveMinimum": 0},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "source_reference": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "provenance": {"type": "object", "required": ["source_type", "replacement_gate"]}
+  },
+  "additionalProperties": false
+}

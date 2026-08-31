@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "GDS Work Pose Profiles v1",
   "type": "object",
-  "required": ["schema", "contract_id", "coordinate_semantics", "supported_directions", "supported_subactions", "profiles"],
+  "required": ["schema", "contract_id", "coordinate_semantics", "supported_directions", "supported_subactions", "axis_direction_convention", "profiles"],
   "properties": {
     "schema": {"const": "gds.work_pose_profiles.v1"},
     "contract_id": {"const": "contract.gds.work_pose_profiles.v1"},
@@ -16,15 +16,131 @@
       }
     },
     "supported_directions": {"const": ["SE", "SW", "NW"]},
-    "supported_subactions": {"const": ["normal_work", "turn_side_a", "turn_side_b", "happy"]},
+    "supported_subactions": {
+      "const": [
+        "normal_work",
+        "turn_side_sw",
+        "turn_side_ne",
+        "turn_side_se",
+        "turn_side_nw",
+        "happy"
+      ]
+    },
+    "axis_direction_convention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["U+", "U-", "V+", "V-"],
+      "properties": {
+        "U+": {
+          "type": "object",
+          "required": ["axis", "sign", "direction", "uv_delta"],
+          "properties": {
+            "axis": {"const": "U"},
+            "sign": {"const": "+"},
+            "direction": {"const": "SE"},
+            "uv_delta": {"const": [1, 0]}
+          }
+        },
+        "U-": {
+          "type": "object",
+          "required": ["axis", "sign", "direction", "uv_delta"],
+          "properties": {
+            "axis": {"const": "U"},
+            "sign": {"const": "-"},
+            "direction": {"const": "NW"},
+            "uv_delta": {"const": [-1, 0]}
+          }
+        },
+        "V+": {
+          "type": "object",
+          "required": ["axis", "sign", "direction", "uv_delta"],
+          "properties": {
+            "axis": {"const": "V"},
+            "sign": {"const": "+"},
+            "direction": {"const": "SW"},
+            "uv_delta": {"const": [0, 1]}
+          }
+        },
+        "V-": {
+          "type": "object",
+          "required": ["axis", "sign", "direction", "uv_delta"],
+          "properties": {
+            "axis": {"const": "V"},
+            "sign": {"const": "-"},
+            "direction": {"const": "NE"},
+            "uv_delta": {"const": [0, -1]}
+          }
+        }
+      }
+    },
     "profiles": {
       "type": "object",
       "required": ["SE", "SW", "NW"],
       "additionalProperties": false,
       "properties": {
-        "SE": {"type": "object"},
-        "SW": {"type": "object"},
-        "NW": {"type": "object"}
+        "SE": {
+          "type": "object",
+          "required": ["turn_side_mapping"],
+          "properties": {"turn_side_mapping": {"$ref": "#/$defs/vTurnSideMapping"}}
+        },
+        "SW": {
+          "type": "object",
+          "required": ["turn_side_mapping"],
+          "properties": {"turn_side_mapping": {"$ref": "#/$defs/uTurnSideMapping"}}
+        },
+        "NW": {
+          "type": "object",
+          "required": ["turn_side_mapping"],
+          "properties": {"turn_side_mapping": {"$ref": "#/$defs/vTurnSideMapping"}}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "vTurnSideMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["turn_side_sw", "turn_side_ne"],
+      "properties": {
+        "turn_side_sw": {
+          "const": {
+            "axis": "V",
+            "sign": "+",
+            "axis_direction": "V+",
+            "target_idle_direction": "SW"
+          }
+        },
+        "turn_side_ne": {
+          "const": {
+            "axis": "V",
+            "sign": "-",
+            "axis_direction": "V-",
+            "target_idle_direction": "NE"
+          }
+        }
+      }
+    },
+    "uTurnSideMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["turn_side_se", "turn_side_nw"],
+      "properties": {
+        "turn_side_se": {
+          "const": {
+            "axis": "U",
+            "sign": "+",
+            "axis_direction": "U+",
+            "target_idle_direction": "SE"
+          }
+        },
+        "turn_side_nw": {
+          "const": {
+            "axis": "U",
+            "sign": "-",
+            "axis_direction": "U-",
+            "target_idle_direction": "NW"
+          }
+        }
       }
     }
   }

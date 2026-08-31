@@ -5,9 +5,11 @@
     "entry_point": "RUNTIME.central_core.CentralGameCore.resolve_asset_path",
     "namespaces": [
       "character",
-      "world"
+      "world",
+      "dialogue"
     ],
-    "world_registry": "WORLD/REGISTRY/world_assets.json"
+    "world_registry": "WORLD/REGISTRY/world_assets.json",
+    "dialogue_registry": "CHARACTER/DIALOGUE/bubble_presets.json"
   },
   "contract_id": "contract.gds.central_core.v1",
   "domain_boundaries": {
@@ -27,6 +29,44 @@
     ],
     "canonical_result": "character_id",
     "fuzzy_matching": false
+  },
+  "employee_metadata": {
+    "registry": "CHARACTER/EMPLOYEES/employee_metadata.json",
+    "schema": "SCHEMA/CHARACTER/employee_metadata.schema.json",
+    "runtime": "RUNTIME/employee_registry.py",
+    "character_id_role": "canonical_visual_template_id",
+    "employee_id_role": "persistent_actor_instance_id",
+    "wave1_count": 302,
+    "wave2_count": 302,
+    "wave2_initial_assignment": "null_unassigned",
+    "initial_workstation_assignments": 219,
+    "assignment_capacity": 1,
+    "assignment_vacancy_policy": "explicit_unassignment_only_no_auto_fill",
+    "home_return_policy": "retain_the_same_owned_workstation",
+    "stamina_policy": "CHARACTER/EMPLOYEES/employee_metadata.json:stamina_policy",
+    "conversation_runtime": "behavior_coordinator_deferred; presentation_available"
+  },
+  "dialogue_presentation": {
+    "content_csv": "CHARACTER/DIALOGUE/dialogue.csv",
+    "content_policy": "editable_en_th_catalog_with_author_requested_reference_import",
+    "content_reference_import": "CHARACTER/DIALOGUE/reference_import.json",
+    "content_runtime_source_dependency": "active_csv_only_no_archive_or_local_review_dependency",
+    "content_metadata": ["category", "usage_scope", "enabled", "full_text", "source_id", "source_text"],
+    "content_list_api": "list_dialogue_lines(locale, category, usage_scope, enabled_only)",
+    "content_reload_api": "reload_dialogue_content_validates_before_replacing_memory_snapshot",
+    "disabled_content_policy": "inspectable_but_rejected_by_all_dialogue_id_render_paths",
+    "category_selection": "caller_filtered_catalog_only_no_automatic_event_scheduler",
+    "bubble_registry": "CHARACTER/DIALOGUE/bubble_presets.json",
+    "font_registry": "CHARACTER/DIALOGUE/dialogue_fonts.json",
+    "runtime": "CHARACTER/RUNTIME/dialogue_bubble.py",
+    "asset_id": "dialogue.fukidashi_base",
+    "asset_mode": "fixed_whole_crop",
+    "allowed_bubble_ids": ["BB1", "BB2", "BB3", "BB4", "BB6"],
+    "excluded_bubble_ids": ["BB5"],
+    "selection_rule": "smallest_allowed_bubble_whose_rendered_text_fits_safe_rect",
+    "anchor_rule": "visible_face_alpha_center_x_and_actor_frame_top_plus_bob_minus_20",
+    "movement_or_pair_coordinator": "deferred_to_follow_up_behavior_slice",
+    "text_wrap": false
   },
   "integrated_workflow": "resolve character alias -> resolve workstation direction/chair family -> apply verified visual work-pose contract -> dynamically insert seated character into authored world render stack",
   "phase_boundaries": {
@@ -86,7 +126,14 @@
     "runtime": "RUNTIME/work_seat_core.py",
     "static_floor_rendering_changes": false,
     "visual_offsets_are_gameplay_anchors": false,
-    "work_pose_contract": "CONTRACTS/work_pose_profiles.json"
+    "work_pose_contract": "CONTRACTS/work_pose_profiles.json",
+    "turn_side_axis_mapping": {
+      "source": "CONTRACTS/work_pose_profiles.json",
+      "resolver": "CentralGameCore.resolve_work_turn_mapping",
+      "target_resolver": "CentralGameCore.resolve_work_turn_for_target",
+      "subactions": ["turn_side_sw", "turn_side_ne", "turn_side_se", "turn_side_nw"],
+      "meaning": "Each turn_side_<direction> subaction names the target idle direction; its axis/sign and UV delta identify the partner-relative side"
+    }
   },
   "world_to_character_direction": {
     "registry": "WORLD/REGISTRY/character_direction_bridge.json",
