@@ -35,6 +35,8 @@ from RUNTIME.crowd_movement_core import (
     CrowdMovementReservationError,
     DynamicActorReservationCore,
 )
+from RUNTIME.conversation_spot_core import ConversationSpotCore, ConversationSpotError
+from RUNTIME.conversation_behavior_core import ConversationBehaviorCore, ConversationBehaviorError
 
 
 class CentralGameCoreError(ValueError):
@@ -92,6 +94,25 @@ class CentralGameCore:
             pathfinding=self.pathfinding,
             work_seats=self.work_seats,
             characters=self.characters,
+        )
+        self.conversation_spots = ConversationSpotCore(
+            self.root,
+            layout=self.world,
+            navigation=self.navigation_occupancy,
+            work_seats=self.work_seats,
+            work_seat_lifecycle=self.work_seat_lifecycle,
+            walking_depth=self.walking_depth,
+        )
+        self.conversation = ConversationBehaviorCore(
+            self.root,
+            employee_registry=self.employee_metadata,
+            movement=self.character_movement,
+            navigation=self.navigation_occupancy,
+            pathfinding=self.pathfinding,
+            work_seats=self.work_seats,
+            work_seat_lifecycle=self.work_seat_lifecycle,
+            spots=self.conversation_spots,
+            crowd=self.crowd_movement,
         )
 
     def resolve_asset_path(self, domain: str, asset_id: str) -> Path:
@@ -810,6 +831,163 @@ class CentralGameCore:
         try:
             return self.crowd_movement.schedule(actors)
         except CrowdMovementReservationError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_conversation_spot(
+        self,
+        mode: str,
+        floor_id: str,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        """Resolve a read-only, navigation-backed conversation position."""
+        try:
+            return self.conversation_spots.resolve_spot(mode, floor_id, **kwargs)
+        except ConversationSpotError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_conversation_plan(
+        self,
+        initiator_id: str,
+        *,
+        partner_id: str | None = None,
+        mode: str | None = None,
+        snapshot: dict[str, Any] | None = None,
+        floor_id: str | None = None,
+        talk_frames: int | None = None,
+        timing: dict[str, Any] | None = None,
+        dialogue_locale: str = "en",
+        dialogue_category: str | None = None,
+        dialogue_seed: str | int = "0",
+        gap_cells: int | None = None,
+        blocked_cells=None,
+        reserved_cells=None,
+        origin_uvs=None,
+    ) -> dict[str, Any]:
+        """Build a deterministic conversation movement plan and lock snapshot."""
+        try:
+            return self.conversation.plan_conversation(
+                initiator_id,
+                partner_id=partner_id,
+                mode=mode,
+                snapshot=snapshot,
+                floor_id=floor_id,
+                talk_frames=talk_frames,
+                timing=timing,
+                dialogue_locale=dialogue_locale,
+                dialogue_category=dialogue_category,
+                dialogue_seed=dialogue_seed,
+                gap_cells=gap_cells,
+                blocked_cells=blocked_cells,
+                reserved_cells=reserved_cells,
+                origin_uvs=origin_uvs,
+            )
+        except ConversationBehaviorError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_conversation_self_talk(
+        self,
+        initiator_id: str,
+        *,
+        snapshot: dict[str, Any] | None = None,
+        talk_frames: int | None = None,
+        timing: dict[str, Any] | None = None,
+        dialogue_locale: str = "en",
+        dialogue_category: str | None = None,
+        dialogue_seed: str | int = "0",
+    ) -> dict[str, Any]:
+        try:
+            return self.conversation.plan_self_talk(
+                initiator_id,
+                snapshot=snapshot,
+                talk_frames=talk_frames,
+                timing=timing,
+                dialogue_locale=dialogue_locale,
+                dialogue_category=dialogue_category,
+                dialogue_seed=dialogue_seed,
+            )
+        except ConversationBehaviorError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_conversation_snapshot(self, floor_id: str | None = None) -> dict[str, Any]:
+        try:
+            return self.conversation.initial_snapshot(floor_id)
+        except ConversationBehaviorError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def validate_conversation_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
+        try:
+            return self.conversation.validate_snapshot(snapshot)
+        except ConversationBehaviorError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_conversation_dialogue(
+        self,
+        *,
+        mode: str = "standing_pair",
+        participant_ids,
+        initiator_id: str,
+        locale: str = "en",
+        category: str | None = None,
+        selection_seed: str | int = "0",
+        start_speaker_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Select one fit-gated line per conversation speaker deterministically."""
+        try:
+            return self.conversation.resolve_conversation_dialogue(
+                mode=mode,
+                participant_ids=participant_ids,
+                initiator_id=initiator_id,
+                locale=locale,
+                category=category,
+                selection_seed=selection_seed,
+                start_speaker_id=start_speaker_id,
+            )
+        except ConversationBehaviorError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_conversation_timing(
+        self,
+        *,
+        mode: str = "standing_pair",
+        participant_ids,
+        initiator_id: str,
+        talk_frames: int | None = None,
+        timing: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Normalize duration/loop/speaker tuning without touching world state."""
+        try:
+            return self.conversation.resolve_conversation_timing(
+                mode=mode,
+                participant_ids=participant_ids,
+                initiator_id=initiator_id,
+                talk_frames=talk_frames,
+                timing=timing,
+            )
+        except ConversationBehaviorError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def advance_conversation(
+        self,
+        snapshot: dict[str, Any],
+        plan: dict[str, Any],
+        *,
+        tick_ms: int = ConversationBehaviorCore.TICK_MS,
+    ) -> dict[str, Any]:
+        try:
+            return self.conversation.advance_conversation(snapshot, plan, tick_ms=tick_ms)
+        except ConversationBehaviorError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def cancel_conversation(
+        self,
+        snapshot: dict[str, Any],
+        plan: dict[str, Any],
+        *,
+        reason: str = "cancelled_by_caller",
+    ) -> dict[str, Any]:
+        try:
+            return self.conversation.cancel_conversation(snapshot, plan, reason=reason)
+        except ConversationBehaviorError as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
     def render_floor_with_work_effects(

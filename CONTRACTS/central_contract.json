@@ -44,7 +44,8 @@
     "assignment_vacancy_policy": "explicit_unassignment_only_no_auto_fill",
     "home_return_policy": "retain_the_same_owned_workstation",
     "stamina_policy": "CHARACTER/EMPLOYEES/employee_metadata.json:stamina_policy",
-    "conversation_runtime": "behavior_coordinator_deferred; presentation_available"
+    "conversation_runtime": "RUNTIME/conversation_behavior_core.py; one_loop_staggered_bubbles_4000ms_then_fade",
+    "conversation_spot_runtime": "RUNTIME/conversation_spot_core.py"
   },
   "dialogue_presentation": {
     "content_csv": "CHARACTER/DIALOGUE/dialogue.csv",
@@ -55,7 +56,7 @@
     "content_list_api": "list_dialogue_lines(locale, category, usage_scope, enabled_only)",
     "content_reload_api": "reload_dialogue_content_validates_before_replacing_memory_snapshot",
     "disabled_content_policy": "inspectable_but_rejected_by_all_dialogue_id_render_paths",
-    "category_selection": "caller_filtered_catalog_only_no_automatic_event_scheduler",
+    "category_selection": "pair_open_then_reply_self_general_deterministic_selection",
     "bubble_registry": "CHARACTER/DIALOGUE/bubble_presets.json",
     "font_registry": "CHARACTER/DIALOGUE/dialogue_fonts.json",
     "runtime": "CHARACTER/RUNTIME/dialogue_bubble.py",
@@ -65,10 +66,23 @@
     "excluded_bubble_ids": ["BB5"],
     "selection_rule": "smallest_allowed_bubble_whose_rendered_text_fits_safe_rect",
     "anchor_rule": "visible_face_alpha_center_x_and_actor_frame_top_plus_bob_minus_20",
-    "movement_or_pair_coordinator": "deferred_to_follow_up_behavior_slice",
+    "movement_or_pair_coordinator": "RUNTIME/conversation_behavior_core.py",
     "text_wrap": false
   },
   "integrated_workflow": "resolve character alias -> resolve workstation direction/chair family -> apply verified visual work-pose contract -> dynamically insert seated character into authored world render stack",
+  "conversation_behavior": {
+    "contract": "CONTRACTS/conversation_behavior.json",
+    "schema": "SCHEMA/conversation_behavior.schema.json",
+    "spot_runtime": "RUNTIME/conversation_spot_core.py",
+    "behavior_runtime": "RUNTIME/conversation_behavior_core.py",
+    "modes": ["self_talk", "standing_pair", "ceo_front", "seated_host"],
+    "first_slice": ["standing_pair", "ceo_front", "self_talk"],
+    "ceo_policy": "host_only_no_outbound_leave_seat",
+    "timing_policy": "one_loop_first_bubble_4000ms_then_global_fade_with_500ms_partner_gap",
+    "timing_api": "CentralGameCore.resolve_conversation_timing",
+    "dialogue_selection_api": "CentralGameCore.resolve_conversation_dialogue",
+    "assignment_mutation": false
+  },
   "phase_boundaries": {
     "grid": "permanent_fine_grid_canonical",
     "room_domain": "author_approved_canonical",

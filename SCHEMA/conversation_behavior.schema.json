@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.conversation_behavior.v1",
+  "title": "GDS deterministic conversation movement vertical-slice contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema", "contract_id", "version", "scope", "state_vocabulary",
+    "policy", "coordinate_contract", "geometry_policy", "timing", "error_policy"
+  ],
+  "properties": {
+    "$schema": {"const": "gds.conversation_behavior.v1"},
+    "schema": {"const": "gds.conversation_behavior.v1"},
+    "contract_id": {"const": "contract.gds.conversation_behavior.v1"},
+    "version": {"const": "1.0.0"},
+    "scope": {"const": "deterministic_conversation_movement_vertical_slice"},
+    "state_vocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actor_phases", "conversation_modes", "render_owners", "legal_actor_transitions", "lock_order"],
+      "properties": {
+        "actor_phases": {"type": "array", "minItems": 12, "uniqueItems": true},
+        "conversation_modes": {"const": ["self_talk", "standing_pair", "ceo_front", "seated_host"]},
+        "render_owners": {"const": ["work_seat", "walking_depth", "dialogue_bubble"]},
+        "legal_actor_transitions": {"type": "array", "minItems": 12},
+        "lock_order": {"const": ["participant_lock", "talk_slot_lock", "workseat_transient_release"]}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ceo_workstation_id", "ceo_outbound_talk", "ceo_self_talk", "ceo_inbound_employee_talk",
+        "employee_to_employee", "employee_to_ceo", "general_seated_host", "cross_floor",
+        "group_talk", "walk_and_talk", "partner_selection", "assignment_mutation", "conversation_timing", "dialogue_selection", "dialogue_layout"
+      ],
+      "properties": {
+        "ceo_workstation_id": {"const": "ceo"},
+        "ceo_outbound_talk": {"const": false},
+        "ceo_self_talk": {"const": true},
+        "ceo_inbound_employee_talk": {"const": true},
+        "employee_to_employee": {"const": "standing_pair"},
+        "employee_to_ceo": {"const": "ceo_front"},
+        "general_seated_host": {"const": "outward_side_only"},
+        "cross_floor": {"const": false},
+        "group_talk": {"const": false},
+        "walk_and_talk": {"const": false},
+        "partner_selection": {"type": "string", "minLength": 1},
+        "assignment_mutation": {"const": "never"},
+        "conversation_timing": {"const": "one_loop_first_bubble_4000ms_then_fade"},
+        "dialogue_selection": {"const": "pair_open_then_reply_self_general_deterministic"},
+        "dialogue_layout": {"const": "direct_head_anchor_overlay_paint_order"}
+      }
+    },
+    "coordinate_contract": {"type": "object", "required": ["grid", "axis_direction_convention", "standing_pair", "seated_host", "ceo_front"]},
+    "geometry_policy": {"type": "object", "required": ["walkability_source", "reachability_source", "path_source", "seat_departure_source", "talk_position_source", "dynamic_blocking", "no_cache_materialization"]},
+    "timing": {"type": "object", "additionalProperties": false, "required": ["playback_tick_ms", "talk_duration_policy", "loop_count_policy", "speaker_cadence_policy", "timing_input_policy", "speaker_schedule_policy", "default_loop_count", "max_loop_count", "preview_default_talk_frames", "default_bubble_visible_ms", "default_speaker_gap_ms", "default_bubble_fade_ms", "preview_only", "tuning_status", "legacy_talk_frames_policy"], "properties": {"playback_tick_ms": {"const": 60}, "talk_duration_policy": {"const": "first_bubble_visible_4000ms_then_global_fade"}, "loop_count_policy": {"const": "one_exchange_loop_default_one"}, "speaker_cadence_policy": {"const": "staggered_persistent_bubbles"}, "timing_input_policy": {"const": "caller_override_or_approved_default"}, "speaker_schedule_policy": {"const": "deterministic_start_speaker_then_partner"}, "default_loop_count": {"const": 1}, "max_loop_count": {"type": "integer", "minimum": 1, "maximum": 8}, "preview_only": {"const": false}, "preview_default_talk_frames": {"type": "integer", "minimum": 1}, "default_bubble_visible_ms": {"const": 4000}, "default_speaker_gap_ms": {"const": 500}, "default_bubble_fade_ms": {"const": 300}, "tuning_status": {"const": "author_approved_initial"}, "legacy_talk_frames_policy": {"const": "explicit_compact_alternating_review_only"}}},
+    "error_policy": {"type": "object", "required": ["unknown_floor", "unknown_employee", "ceo_outbound", "duplicate_participant_lock", "duplicate_talk_slot_lock", "non_walkable_or_unreachable", "fallback_guessing"], "properties": {"fallback_guessing": {"const": false}}}
+  }
+}

@@ -152,11 +152,13 @@ Planned focused files are `TESTS/test_work_seat_lifecycle_contract.py`, `TESTS/t
 
 The dashboard-first direction does not require any of these items. Workstation ownership will prevent normal seat contention by construction: one assigned character owns one authored workstation, temporary absence does not vacate it, and only an explicit dashboard unassignment makes it available again.
 
-### Phase 8E — dashboard-ready roster, stamina and behavior loop — metadata foundation implemented; behavior runtime pending
+### Phase 8E — dashboard-ready roster, stamina and behavior loop — conversation one-loop presentation implemented; stamina/home reducer pending
 
-**Author-confirmed current implementation slice:** Dialogue presentation and editable content catalog. On 2026-08-31 the author requested importing the prepared English/Thai reference phrases into Central and keeping them editable. The active one-line CSV now holds the original 204 imported phrase IDs plus 800 approved authored expansion IDs in both EN and TH, plus the original test line: 1,005 IDs / 2,009 localized rows with category/scope/enabled metadata, full/reference text, provenance, filtered listing and validated reload. It reuses the approved development `fukidashi_base.png` whole-crop skin and existing font/frame rules. WorkSeat turns are now named directly as `turn_side_<direction>`: `SE/NW` use `turn_side_sw` / `turn_side_ne` with `V+/V-` axes, while `SW` uses `turn_side_se` / `turn_side_nw` with `U+/U-` axes. Walking-to-partner, pair locking, facing coordination and automatic event-driven selection remain the next behavior task. Content import authorization and axis mapping do not close visual/behavior acceptance or the borrowed-asset/font replacement gate before canonical release promotion.
+**Author-confirmed current implementation slice:** Dialogue presentation, editable content catalog and the first conversation movement vertical slice. On 2026-08-31 the author requested importing the prepared English/Thai reference phrases into Central and keeping them editable. The active one-line CSV now holds the original 204 imported phrase IDs plus 800 approved authored expansion IDs in both EN and TH, plus the original test line: 1,005 IDs / 2,009 localized rows with category/scope/enabled metadata, full/reference text, provenance, filtered listing and validated reload. It reuses the approved development `fukidashi_base.png` whole-crop skin and existing font/frame rules. WorkSeat turns are named directly as `turn_side_<direction>`: `SE/NW` use `turn_side_sw` / `turn_side_ne` with `V+/V-` axes, while `SW` uses `turn_side_se` / `turn_side_nw` with `U+/U-` axes. The implemented behavior slice is CEO host-only (self-talk and inbound employee talk, no outbound CEO leave-seat talk), employee-to-employee standing pairs in an open axis-aligned slot, employee-to-CEO front talk at the red outward/front envelope, and a derived outward-only seated-host resolver. For current general-employee seats, the preferred outward side is V (`u` equal, `v` changed), with the inner-between-desks side rejected; the resolver still derives the axis from the Work mapping rather than hard-code V. Central now exposes JSON-safe snapshot/spot/plan/advance/cancel operations, deterministic locks, inverse idle facing and return-to-owned-workstation tracks. The approved initial talk loop is one exchange: first bubble at the shared talk boundary, partner at +500ms, both visible until 4,000ms from the first bubble, a shared 300ms fade, then return. Pair text is selected from `conversation_open` → `conversation_reply`; self-talk uses a general office pool; selection is deterministic and assignment-safe. No canonical release is promoted.
 
 **Approved content expansion:** The review draft in `LOCAL_REVIEW/DIALOGUE_CATALOG_DRAFT_20260831/` contained 50 new EN/TH pairs for each of the 16 current office categories (800 pairs / 1,600 rows) and had no normalized exact duplicates or collisions with the active catalog. The author approved it on 2026-08-31, and all pairs were appended to the active CSV. The current fit gate enables 1,108 localized rows and keeps 492 overflow rows stored with `enabled=false`; the import report and pre-import backup are in `LOCAL_REVIEW/DIALOGUE_CATALOG_IMPORT_20260831/`. Future edits use the active CSV directly; shortening and enabling an overflow row requires another fit/reload check.
+
+**Author approval and next seam (2026-09-01):** The movement/facing principle, the initial one-loop timing and the refreshed direct-anchor bubble GIFs are accepted. The runtime timing seam now exposes the 4,000ms global bubble window, 500ms partner gap, 300ms fade and one loop; the partner bubble overlaps the first until the shared fade. Explicit compact `talk_frames` callers remain a legacy review compatibility path. Bubble placement uses the renderer's exact head anchor with pair offsets fixed at `[0, 0]`; no collision resolver, displacement or connector is applied, and a later speaker paints over an earlier bubble when rectangles overlap. Seated bubbles use the composed human offset instead of the chair origin. The draw-order audit confirms that y-sort applies only to walking actors; static/WorkSeat composition uses authored layers and bubbles remain a post-actor overlay. Visual acceptance for this bubble/movement slice is closed; remaining Thai shaping/content quality and stamina/home work stay open.
 
 #### Product outcome
 
@@ -177,7 +179,78 @@ This phase is intentionally smaller than a general crowd scheduler. It must prov
 - `move`, seated `work`, and directionless `happy`/`sad` event actions;
 - 11 existing effect animations and six HumanBall popup assets, presentation-only and available to seated `normal_work` in all four Work directions through the same derived relation.
 
-The remaining work is coordination and persistent simulation state. No new floor geometry, navigation cells, static world art or character frames are required for the first slice.
+The remaining work is full persistent simulation state, event weighting and stamina/home behavior. No new floor geometry, navigation cells, static world art or character frames are required for the conversation slice.
+
+#### Author-directed conversation first-slice plan (8E.3; movement and initial presentation)
+
+This plan freezes the movement, seating, geometry, facing and initial one-loop presentation rules. The implementation is renderer-agnostic, JSON-safe and deterministic, and does not edit floor geometry, static art or the employee metadata source. Later work may tune event weights or persistent stamina/home behavior without changing this contract.
+
+**Behavior policy**
+
+1. A CEO workstation is host-only. The actor assigned to `workstation_id=ceo` may self-talk while seated and may receive an employee, but may not leave the seat to initiate an outbound conversation. Because the current employee metadata has no role field, binding the first slice to the CEO workstation is the implementable policy; a future role-only policy can be added without changing the geometry resolver.
+2. An employee-to-employee conversation uses `standing_pair`: both actors leave their transient WorkSeat occupancy, keep their original workstation assignments, walk to a free pair of standing cells and face one another with opposite `idle` directions.
+3. An employee-to-CEO conversation uses `ceo_front`: only the employee leaves and walks to the reachable outward/front envelope represented by the red arrow; the CEO remains seated and uses `work/normal_work` facing the front slot.
+4. A general employee may later be a seated host through `seated_host`: the visitor uses only the outward green side of the host's workstation. The side between two desks is never selected. This is a small extension of the same resolver, not a new coordinate convention.
+5. The first slice excludes CEO outbound talk, seated-to-seated/group talk, walk-and-talk, cross-floor partners, queues and automatic vacancy filling. Self-talk is a no-movement fallback, not a hidden partner search.
+
+**Coordinate and facing contract**
+
+- The canonical lattice is `+U=SE`, `-U=NW`, `+V=SW`, `-V=NE`; pathfinding stays 4-neighbor only.
+- `u` equal with `v` changed is a V-axis line. A pair `(u,v)` and `(u,v+gap)` faces `SW` and `NE`; reversing the signs swaps the actors without changing the rule.
+- `v` equal with `u` changed is a U-axis line. A pair `(u,v)` and `(u+gap,v)` faces `SE` and `NW`.
+- Current general-employee Work directions are `SE/NW`, whose authored side turns are V-axis (`turn_side_sw`/`turn_side_ne`), so V is the preferred seated-side and standing-pair axis for the current maps. The resolver must still read `axis`, `sign`, `uv_delta` and `target_idle_direction` from `WorkSeatCore`; it must not hard-code V for a future `SW/NE` employee seat.
+- For a seated host, the host turn is the direction named by the side target and the visitor's idle direction is its exact inverse. For example, host `turn_side_sw` + visitor `idle NE`, or host `turn_side_ne` + visitor `idle SW`. For a standing pair, both actors use `idle` only; the final endpoint delta determines the inverse directions, never the last movement step.
+- Seated talk positions are derived from the chair footprint/clearance and the walkable grid, never from the visual sprite offset or the WorkSeat transition gate. A seated Work state has no navigation `current_uv`, so the resolver must not invent one.
+
+**Talk-spot resolver**
+
+Add a read-only runtime-derived resolver (proposed `RUNTIME/conversation_spot_core.py`) with a contract/schema (proposed `CONTRACTS/conversation_behavior.json` and `SCHEMA/conversation_behavior.schema.json`). It returns a plan plus a rejection reason without mutating the employee registry.
+
+1. `standing_pair`: enumerate reachable walkable cells on the same floor; prefer V-axis pairs with a named `talk_gap_cells` (initial geometry default 4, collision-safe minimum 3), require every straight segment cell to be walkable, keep a two-cell open navigation ring around both endpoints, reject portals/ingress gates/active furniture clearance and reject the corridor between workstation clearance islands. If V has no candidate, try U with the same rules. Sort by deterministic distance, axis preference, assignment order and UV tie-breaks.
+2. `seated_host`: read the host Work direction's two `turn_side_<direction>` bindings, project each side from the chair's navigation footprint and clearance, and expose `ready`, `axis`, `sign`, `target_idle_direction`, `candidate_uv` and `reason` per side. Reject a side whose ray or open ring enters another workstation's clearance or the between-desks corridor; choose the outward side by the larger free-space score, with deterministic tie-breaking.
+3. `ceo_front`: resolve the CEO desk's reachable front/depth envelope, not a side-turn lane and not the transition gate. The front direction follows the existing Work facing (floor00/floor01 CEO `SE`/`U+`; floor02-family CEO `SW`/`V+`), and the returned plan keeps the CEO seated.
+4. Every returned plan includes floor, mode, axis, signed endpoint delta, endpoint UVs, host/visitor roles, exact facings, path goals, slot identity and the static constraints used. No materialized 219-row talk registry is created.
+
+**Eligibility and atomic locks**
+
+- Resolve candidates from the mutable actor snapshot, not by rereading a guessed character identity. Both actors must be assigned, present on the same floor, not home/leaving/talking and not already reserved. CEO may be a host but never an initiator.
+- Select a partner deterministically (same-floor eligible employee, then reachable route cost, assignment order and employee ID). A later seeded selector may vary this without changing the slot contract.
+- Acquire locks in one order before any actor leaves a seat: `participant_lock` → `talk_slot_lock` → transient WorkSeat release. A pair has capacity two; a CEO front slot has capacity one visitor plus the seated CEO. Duplicate requests, self-pairing and a slot already reserved return explicit refusal reasons.
+- Releasing a WorkSeat means only that its transient occupancy is free. The employee's `assignment`, `floor_id`, `workstation_id` and `slot_id` remain unchanged. Locks release only after both actors are safely at the conversation boundary or after a cancellation return is secured.
+
+**Actor state sequence**
+
+1. `working` receives an explicit talk event or deterministic behavior request; validate policy and snapshot version.
+2. `talk_pending` resolves the partner and talk spot, then commits the atomic locks. If no partner/spot/route exists, remain working or use the declared self-talk fallback without half-releasing a seat.
+3. `leaving_workseat` runs the existing WorkSeat exit boundary to its canonical transition gate. The seated render owner ends before walking ownership begins; no seat assignment is deleted.
+4. `walking_to_talk` routes each visitor through existing 4-neighbor pathfinding and the production crowd reservation helper. Both paths and endpoint reservations are accepted before the pair is shown as talking.
+5. `talk_arrival` snaps each actor to its reserved endpoint and explicitly sets inverse `idle` facings. The arrival direction is not reused if the path approached from another side.
+6. `talking` exposes participant IDs, mode, endpoint UVs, facings and a presentation hook. The active timing policy keeps one line per participant, starts the partner after 500ms, keeps both bubbles through a shared 4,000ms window, fades for 300ms and holds a seated host in its turn-side Work pose. Assignment/work ownership remains unchanged.
+7. `talk_complete` ends the presentation hook, then releases the talk slot and participant lock at one boundary.
+8. `returning_to_work` routes each employee back to that employee's original transition gate and invokes the existing WorkSeat lifecycle for the same assigned workstation. CEO front talk routes only the visitor; the CEO never leaves.
+9. `cancelled`/`no_path`/`blocked` paths are idempotent. Before leaving, the actor remains working; after leaving, the reducer routes to the safest owned gate/endpoint and returns to `present/idle` with assignment intact. No actor may remain permanently locked or in an occupied seat without its seated render owner.
+
+**Central-facing operations**
+
+Expose read-only and advance operations through `CentralGameCore` (exact names frozen with the contract): resolve a talk spot/plan, validate an actor snapshot, advance one behavior window, cancel a conversation and return JSON-safe events/render states. The facade must reuse `EmployeeMetadataRegistry`, `WorkSeatCore`, `WorkSeatLifecycle`, `NavigationOccupancyCore`, `PathfindingCore`, `CharacterMovementCore`, `DynamicActorReservationCore` and the existing dialogue bubble presenter; it must not mutate the metadata JSON or add a database/UI/network dependency.
+
+**Implementation order**
+
+1. **Completed:** freeze contract/schema, policy refusal reasons, state vocabulary, lock order and snapshot fields; add contract-first tests.
+2. **Completed:** implement and audit the read-only spot resolver for all 25 floors/219 WorkSeats, including outward-side and CEO-front classifications.
+3. **Completed:** implement atomic participant/talk-slot locks and the minimal mutable actor snapshot while keeping workstation ownership immutable.
+4. **Completed:** implement `standing_pair` end-to-end: leave two employee seats, route, reserve, face, expose the presentation hook, cancel safely and return both actors.
+5. **Completed:** implement `ceo_front`: one employee leaves, reaches the red front envelope, the CEO stays in `normal_work`, then the visitor returns.
+6. **Implemented as a derived resolver:** `seated_host` for general employees with outward-side filtering and existing `turn_side_<direction>` semantics; live production scheduling remains a follow-up.
+7. **Completed and visually author-approved:** add rendering/event integration, pair/self-talk content selection, one-loop staggered bubble scheduling, opacity fade, exact head-anchor overlay paint order and GIF evidence. Explicit event weighting, stamina mutation and persistent home/return behavior remain follow-up work.
+
+**Acceptance and regression gates**
+
+- Contract tests reject CEO outbound, cross-floor/self/duplicate partners and occupied locks; repeated input snapshots produce byte-equivalent plans. Unassigned/invalid-UV refusal paths are represented by the runtime error policy and remain in the next negative-case expansion.
+- Geometry tests prove `u`/`v` axis invariants, exact inverse facings, walkable endpoints/segments, no portal/clearance/between-desk endpoint, outward-side selection and CEO front direction on F0/F1/F2 plus the 23 F2-family floors.
+- State tests prove reserve-before-walk, WorkSeat transient release without assignment loss, walking/Work render-channel exclusivity, atomic lock release, deterministic cancellation and return to the same workstation.
+- Render evidence covers standing pair and CEO front on F0/F1/F2 geometry families, one existing bubble presentation hook, depth compositing, exact head anchoring, later-speaker overwrite and labeled return states. Bubble/movement visual acceptance is author-approved; Thai shaping/content quality, F14/F17 expansion and remaining simulation work stay open.
+- Run the full Python regression plus Room Navigation, Navigation Occupancy, WorkSeat, Phase 6 Spatial, Central integrity, F2 gameplay-metadata family and a new conversation/spot audit. Visual/behavior author approval remains a gate; generated reports alone cannot close 8E.3.
 
 #### Completed metadata foundation slice
 
@@ -233,7 +306,7 @@ The metadata contract now records the initial tuning policy: stamina max 100, cr
 
 The first slice does not require a new sit/stand clip, social furniture, directional queue lane or home scene.
 
-Conversation presentation remains independent from behavior and content. The active presentation slice uses only `fukidashi_base.png` as six complete PNG-derived whole crops. `BB1`, `BB2`, `BB3`, `BB4` and `BB6` are allowed; `BB5` is explicitly excluded. The renderer measures the actual locale font advance/ink bounds, chooses the smallest allowed crop that fits its safe rectangle, rejects overflow instead of wrapping/clipping, and anchors the tail to the visible face center plus the existing frame bob. Following the author's explicit catalog-import request, `CHARACTER/DIALOGUE/dialogue.csv` is the editable source for imported English references, assistant-prepared Thai drafts and future project-authored additions. `reference_import.json` records provenance; runtime does not read the research archive or LOCAL_REVIEW. Keep stable dialogue IDs while editing text, preserve the legacy five-column CSV contract, and require enabled plain text to fit before committing a reload to memory. Context-specific, future-activity, template and oversized English rows are retained but initially disabled; every dialogue-ID render facade rejects disabled rows. Category filtering is available, while actual event scheduling and compatible pair-turn selection remain pending. The implementation is in `CHARACTER/DIALOGUE/` and `CHARACTER/RUNTIME/dialogue_content.py` / `dialogue_bubble.py`; walking or partner coordination is not part of this slice.
+Conversation presentation remains independent from assignment and gameplay stamina. The active presentation slice uses only `fukidashi_base.png` as six complete PNG-derived whole crops. `BB1`, `BB2`, `BB3`, `BB4` and `BB6` are allowed; `BB5` is explicitly excluded. The renderer measures the actual locale font advance/ink bounds, chooses the smallest allowed crop that fits its safe rectangle, rejects overflow instead of wrapping/clipping, and anchors the tail to the visible face center plus the existing frame bob. Following the author's explicit catalog-import request, `CHARACTER/DIALOGUE/dialogue.csv` is the editable source for imported English references, assistant-prepared Thai drafts and future project-authored additions. `reference_import.json` records provenance; runtime does not read the research archive or LOCAL_REVIEW. Keep stable dialogue IDs while editing text, preserve the legacy five-column CSV contract, and require enabled plain text to fit before committing a reload to memory. Context-specific, future-activity, template and oversized English rows are retained but initially disabled; every dialogue-ID render facade rejects disabled rows. Category filtering and deterministic `conversation_open` → `conversation_reply` / self-talk selection are available through Central; event weighting remains pending. The implementation is in `CHARACTER/DIALOGUE/`, `CHARACTER/RUNTIME/dialogue_content.py` / `dialogue_bubble.py` and `RUNTIME/conversation_behavior_core.py`.
 
 The source guide does not specify dialogue font, maximum width, padding or wrapping. APK/native evidence fills in part of that gap: the locale font assets are embedded dynamic fonts (`M+ 1p medium` for English and `Noto Sans Thai` for Thai, serialized at size 16), while the runtime exposes `TextLayout` measurement/wrapping inputs and `Balloon` sizing, padding, tail, clipping and repeat controls. `DrawTalkBox` confirms the selected TV skin is assembled with 3-pixel corners/borders and 20-pixel repeated pieces. The exact original caller settings remain an evidence gap; GDS owns those authored values.
 
@@ -274,7 +347,7 @@ The exact API names are frozen during 8E.0. Persistence, UI widgets, dashboard a
 3. **8E.W — Work pose and WorkSeat direction completeness:** completed and author-approved on 2026-08-31 — canonical Work now has fixed-head/alternating-body turns with exact `turn_side_<direction>` names, native M42–M45 composite frame rules, derived SW/NE final-frame mirrors and a callable four-way NE action series from NW. The runtime WorkSeat bridge now derives a complete NE workstation composite from NW with one mirror relation for character, chair, desk, PC, optional foreground, offsets, VFX and HumanBall channels while preserving source draw layers. Focused exact-composite coverage, WorkSeat audit, navigation/occupancy, Phase 6 spatial and F2 family audits pass; current authored world slots remain 100 SE / 96 NW / 23 SW / 0 NE and no static asset/geometry changed.
 4. **8E.1 — roster and ownership resolver:** in progress — static initial ownership is wired and validated; mutable snapshot assignment, explicit vacancy commands and all-floor mutation validation remain.
 5. **8E.2 — actor snapshot and stamina reducer:** pending — stable per-character profiles, deterministic state-in/state-out advancement, threshold events and clamps.
-6. **8E.3 — talk, wander and popup behaviors:** pending — the next behavior slice is walking to a partner, pair locking, selecting the explicit WorkSeat turn-side axis binding from partner-relative UV direction, facing with existing idle actions and recovery coordination; the presentation API and turn-axis resolver are now reusable.
+6. **8E.3 — talk, wander and popup behaviors:** conversation movement and the initial talk timing/presentation are implemented and visually author-approved, including direct head-anchor overlay paint order — one deterministic pair exchange, `conversation_open` → `conversation_reply` content selection, 500ms speaker gap, 4,000ms global bubble window, 300ms fade, seated turn-side hold and assignment-safe return. Thai shaping/content quality, explicit event weighting, stamina mutation, wander, popup and the full live reducer remain pending.
 7. **8E.4 — home and return composition:** pending — join WorkSeat, movement and portal primitives while retaining assignment and restoring stamina.
 8. **8E.5 — dashboard-facing Central facade:** pending — JSON-safe validation, commands, snapshots and deterministic replay; no persistence backend.
 9. **8E.6 — automated and visual verification:** pending — focused contract/runtime/rendering tests, full regression, required navigation/WorkSeat/spatial/integrity/F2 audits, and representative multi-actor QA on F0, F1, F2 plus deterministic random F14/F17.
@@ -286,14 +359,15 @@ The exact API names are frozen during 8E.0. Persistence, UI widgets, dashboard a
 - database, network protocol, authentication or dashboard UI implementation;
 - skill, productivity, salary, morale or needs systems beyond stamina;
 - new character/world artwork, sit/stand clips or a rendered home location;
-- TV Studio Story timings, tuple meanings, scheduler rules, map markers and permanent/release visual asset use. Approved development inputs are the provenance-tagged Phase 8E bubble/fonts and the explicitly requested English/Thai dialogue reference import. Bubble/font inputs must be replaced with project-owned artwork/font policy before clean release promotion; the content import does not imply automatic behavior mapping or final release acceptance.
+- TV Studio Story timings, tuple meanings, scheduler rules, map markers and permanent/release visual asset use. Approved development inputs are the provenance-tagged Phase 8E bubble/fonts and the explicitly requested English/Thai dialogue reference import. Bubble/font inputs must be replaced with project-owned artwork/font policy before clean release promotion; the content import does not imply final release acceptance.
 
 ## Immediate execution order
 
-1. Extend the completed dialogue presentation slice into the conversation behavior using employee IDs, existing idle/move actions and the stored recovery policy; add walking-to-partner/pair coordination only when explicitly requested.
-2. Add the actor snapshot/stamina reducer and bind the existing wander/effect/popup channels to the stored ranges.
-3. Add home/return behavior while retaining the same employee workstation assignment.
-4. Keep dashboard infrastructure, database/network persistence, queue/slot-contention and auto-fill outside the active scope until explicitly requested.
+1. Completed and author-approved: review the refreshed conversation bubble evidence and preserve the direct head-anchor overlay/paint-order policy, including seated WorkSeat offsets.
+2. Add the persistent actor/stamina reducer and bind event weighting to the completed conversation movement/presentation slice without changing its geometry or assignment contract.
+3. Add the actor snapshot/stamina reducer and bind the existing wander/effect/popup channels to the stored ranges.
+4. Add home/return behavior while retaining the same employee workstation assignment.
+5. Keep dashboard infrastructure, database/network persistence, queue/slot-contention and auto-fill outside the active scope until explicitly requested.
 
 ## Definition of done for every phase
 

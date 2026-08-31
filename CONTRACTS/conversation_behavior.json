@@ -1,0 +1,134 @@
+{
+  "$schema": "gds.conversation_behavior.v1",
+  "schema": "gds.conversation_behavior.v1",
+  "contract_id": "contract.gds.conversation_behavior.v1",
+  "version": "1.0.0",
+  "scope": "deterministic_conversation_movement_vertical_slice",
+  "state_vocabulary": {
+    "actor_phases": [
+      "working",
+      "talk_pending",
+      "leaving_workseat",
+      "walking_to_talk",
+      "talk_arrival",
+      "talking",
+      "talk_complete",
+      "returning_to_work",
+      "cancelled",
+      "no_path",
+      "blocked",
+      "self_talk"
+    ],
+    "conversation_modes": ["self_talk", "standing_pair", "ceo_front", "seated_host"],
+    "render_owners": ["work_seat", "walking_depth", "dialogue_bubble"],
+    "legal_actor_transitions": [
+      ["working", "talk_pending"],
+      ["talk_pending", "leaving_workseat"],
+      ["talk_pending", "self_talk"],
+      ["leaving_workseat", "walking_to_talk"],
+      ["walking_to_talk", "talk_arrival"],
+      ["talk_arrival", "talking"],
+      ["talking", "talk_complete"],
+      ["talk_complete", "returning_to_work"],
+      ["returning_to_work", "working"],
+      ["talk_pending", "cancelled"],
+      ["walking_to_talk", "cancelled"],
+      ["talking", "cancelled"],
+      ["cancelled", "returning_to_work"],
+      ["talk_pending", "no_path"],
+      ["walking_to_talk", "no_path"],
+      ["talk_pending", "blocked"],
+      ["walking_to_talk", "blocked"]
+    ],
+    "lock_order": ["participant_lock", "talk_slot_lock", "workseat_transient_release"]
+  },
+  "policy": {
+    "ceo_workstation_id": "ceo",
+    "ceo_outbound_talk": false,
+    "ceo_self_talk": true,
+    "ceo_inbound_employee_talk": true,
+    "employee_to_employee": "standing_pair",
+    "employee_to_ceo": "ceo_front",
+    "general_seated_host": "outward_side_only",
+    "cross_floor": false,
+    "group_talk": false,
+    "walk_and_talk": false,
+    "partner_selection": "same_floor_then_route_cost_assignment_order_employee_id",
+    "assignment_mutation": "never",
+    "conversation_timing": "one_loop_first_bubble_4000ms_then_fade",
+    "dialogue_selection": "pair_open_then_reply_self_general_deterministic",
+    "dialogue_layout": "direct_head_anchor_overlay_paint_order"
+  },
+  "coordinate_contract": {
+    "grid": "uv",
+    "axis_direction_convention": {
+      "U+": {"axis": "U", "sign": "+", "uv_delta": [1, 0], "direction": "SE"},
+      "U-": {"axis": "U", "sign": "-", "uv_delta": [-1, 0], "direction": "NW"},
+      "V+": {"axis": "V", "sign": "+", "uv_delta": [0, 1], "direction": "SW"},
+      "V-": {"axis": "V", "sign": "-", "uv_delta": [0, -1], "direction": "NE"}
+    },
+    "standing_pair": {
+      "preferred_axis": "V",
+      "fallback_axis": "U",
+      "talk_gap_cells": 4,
+      "minimum_gap_cells": 3,
+      "open_ring_radius_cells": 2,
+      "portal_margin_cells": 3,
+      "endpoint_facing": "exact_inverse_from_signed_endpoint_delta",
+      "between_desks": "reject"
+    },
+    "seated_host": {
+      "axis_source": "WorkSeatCore.resolve_turn_side_mapping",
+      "side_source": "chair_clearance_ray_and_open_ring",
+      "inner_between_desks": "reject",
+      "visitor_facing": "exact_inverse_of_host_turn_target"
+    },
+    "ceo_front": {
+      "front_source": "workstation_facing_depth_envelope",
+      "host_render": "work_seat.normal_work",
+      "visitor_facing": "exact_inverse_of_host_facing",
+      "host_movement": "none"
+    }
+  },
+  "geometry_policy": {
+    "walkability_source": "NavigationOccupancyCore",
+    "reachability_source": "portal_reachable_walkable_cells",
+    "path_source": "PathfindingCore.4_neighbor",
+    "seat_departure_source": "WorkSeatLifecycle.transition_gate_uv",
+    "talk_position_source": "derived_runtime_talk_spot_not_visual_offset",
+    "dynamic_blocking": "caller_reserved_cells_are_rejected",
+    "no_cache_materialization": true
+  },
+  "timing": {
+    "playback_tick_ms": 60,
+    "talk_duration_policy": "first_bubble_visible_4000ms_then_global_fade",
+    "loop_count_policy": "one_exchange_loop_default_one",
+    "speaker_cadence_policy": "staggered_persistent_bubbles",
+    "timing_input_policy": "caller_override_or_approved_default",
+    "speaker_schedule_policy": "deterministic_start_speaker_then_partner",
+    "default_loop_count": 1,
+    "max_loop_count": 8,
+    "preview_default_talk_frames": 67,
+    "default_bubble_visible_ms": 4000,
+    "default_speaker_gap_ms": 500,
+    "default_bubble_fade_ms": 300,
+    "preview_only": false,
+    "tuning_status": "author_approved_initial",
+    "legacy_talk_frames_policy": "explicit_compact_alternating_review_only"
+  },
+  "error_policy": {
+    "unknown_floor": "error",
+    "unknown_employee": "error",
+    "unassigned_employee": "refuse",
+    "cross_floor_partner": "refuse",
+    "self_pair": "refuse",
+    "ceo_outbound": "refuse",
+    "duplicate_participant_lock": "refuse",
+    "duplicate_talk_slot_lock": "refuse",
+    "invalid_uv": "error",
+    "non_walkable_or_unreachable": "refuse",
+    "no_open_pair_slot": "refuse",
+    "no_ceo_front_slot": "refuse",
+    "fallback_guessing": false
+  }
+}

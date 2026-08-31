@@ -71,6 +71,27 @@ summary = central.reload_dialogue_content()
 
 list_dialogue_lines() เมื่อไม่ใส่ filter จะคืนทุกแถว รวมตัวอย่างและแถวที่ปิด. สำหรับการเลือกในออฟฟิศต้องใส่ usage_scope="office", enabled_only=True และหมวดที่ตรงเหตุการณ์. API นี้ยังไม่สุ่ม ไม่หัก/เพิ่ม stamina และไม่ตรวจว่าเหตุการณ์นั้นเกิดแล้วจริง
 
+## การเลือกบทสนทนาคู่และพูดคนเดียว
+
+ตัวประสานบทสนทนาอยู่ที่ `RUNTIME/conversation_behavior_core.py` และเรียกผ่าน
+`CentralGameCore.resolve_conversation_dialogue(...)` ได้โดยไม่เปลี่ยน assignment
+หรือ state งาน. คู่สนทนาเลือกบรรทัดที่เปิดใช้จาก `conversation_open` ให้ผู้เริ่ม
+และ `conversation_reply` ให้คู่สนทนา; ถ้าระบุ `category` จะเลือกสองบรรทัดต่าง ID
+จากหมวดนั้น. Self-talk เลือกหนึ่งบรรทัดจาก pool ออฟฟิศทั่วไป โดยไม่นับสองหมวดคู่
+ข้างต้น. ทุกตัวเลือกใช้ hash ของผู้ร่วมสนทนา/seed/locale จึง replay ได้เหมือนเดิม
+และเปลี่ยนข้อความใน CSV ได้โดยไม่ต้องแก้โค้ด
+
+~~~python
+dialogue = central.resolve_conversation_dialogue(
+    mode="standing_pair",
+    participant_ids=["EMP_W1_0031", "EMP_W1_0010"],
+    initiator_id="EMP_W1_0031",
+    locale="th",
+    selection_seed="event-001",
+)
+# dialogue["speaker_lines"] มีหนึ่งบรรทัดต่อคน เรียงผู้เริ่มก่อนคู่สนทนา
+~~~
+
 API render จาก ID ทั้ง CharacterSystem, Central character และ employee bridge ตรวจ enabled เหมือนกัน. resolve_dialogue_line() อ่านแถวที่ปิดได้เพื่อแก้ไข; ใส่ require_enabled=True เมื่อต้องการให้ปฏิเสธแถวที่ปิดตั้งแต่ lookup
 
 ## ขอบเขตและข้อควรระวัง
@@ -79,7 +100,7 @@ API render จาก ID ทั้ง CharacterSystem, Central character แล�
 - ตัวแปรอย่าง <0> ยังไม่มีตัวแทนค่าใน slice นี้. ต้องแก้ text เป็นข้อความสุดท้ายและวัดใหม่ก่อนเปิดใช้; อย่าเปิด placeholder ให้ลอยบนหัว
 - มีข้อความซ้ำข้าม ID ตามแหล่งเดิม. list คืนรายการตาม ID ไม่ได้รวมซ้ำหรือเพิ่มน้ำหนักให้เอง; ตัวเลือกสุ่มในอนาคตต้องกำหนด duplicate/cooldown policy
 - เลือกหมวดจากเหตุการณ์ก่อนเลือกข้อความ เช่น fatigue ต้องมี stamina state รองรับ และ work_complete ต้องมีเหตุการณ์งานเสร็จ. CSV ไม่ได้สร้าง behavior เหล่านี้
-- บทสนทนาคู่ การเดินเข้าหา การล็อกคู่ ลำดับตาพูด ระบบสุ่ม stamina reducer และ home/return ยังเป็นงานถัดไป
+- บทสนทนาคู่ การเดินเข้าหา การล็อกคู่ ลำดับผู้พูด และ bubble timing one-loop ถูกผูกไว้ใน behavior slice แล้ว; ระบบสุ่มน้ำหนักเหตุการณ์, stamina reducer และ home/return ถาวรยังเป็นงานถัดไป
 - การแก้ข้อความยาวขึ้นอาจไม่พอดี bubble. ตรวจจากพิกเซลด้วยฟอนต์จริง ไม่ใช่จำนวนตัวอักษร; ไม่ตัดหรือ wrap เงียบ ๆ
 - อักขระนอกชุดฟอนต์ เช่น emoji/ภาษาใหม่ ต้องตรวจ glyph/fallback และภาพเพิ่ม. Pixel fit ไม่ได้ยืนยัน glyph coverage หรือการจัดวางภาษาไทยทั้งหมด. Pillow เครื่องนี้ยังไม่มี RAQM; gate ตรวจภาษา/ภาพยังเปิด
 
