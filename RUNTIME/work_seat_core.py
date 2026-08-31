@@ -49,11 +49,22 @@ class WorkPresentationResult:
 
 
 class WorkSeatCore:
-    SUPPORTED_DIRECTIONS = frozenset({'SE', 'SW', 'NW'})
+    SUPPORTED_DIRECTIONS = frozenset({'SE', 'SW', 'NW', 'NE'})
     TURN_SIDE_SUBACTIONS_BY_WORK_DIRECTION = {
         'SE': ('turn_side_sw', 'turn_side_ne'),
         'SW': ('turn_side_se', 'turn_side_nw'),
         'NW': ('turn_side_sw', 'turn_side_ne'),
+        'NE': ('turn_side_se', 'turn_side_nw'),
+    }
+    DERIVED_SOURCE_SUBACTIONS = {
+        'SW': {
+            'turn_side_se': 'turn_side_sw',
+            'turn_side_nw': 'turn_side_ne',
+        },
+        'NE': {
+            'turn_side_se': 'turn_side_sw',
+            'turn_side_nw': 'turn_side_ne',
+        },
     }
 
     def __init__(
@@ -81,6 +92,21 @@ class WorkSeatCore:
         if key not in self.SUPPORTED_DIRECTIONS:
             raise WorkSeatError(f'Unsupported work seat direction: {direction}')
         return self.profiles[key]
+
+    def _derived_source_direction(self, direction: str) -> str | None:
+        profile = self.resolve_profile(direction)
+        if profile.get('mode') != 'derived':
+            return None
+        source = str(profile.get('derived_from', '')).strip().upper()
+        if not source or source == direction.upper():
+            raise WorkSeatError(f'{direction} has an invalid derived_from direction')
+        if source not in self.SUPPORTED_DIRECTIONS:
+            raise WorkSeatError(f'{direction} derives from unsupported direction: {source}')
+        return source
+
+    @classmethod
+    def _source_subaction(cls, direction: str, subaction: str) -> str:
+        return cls.DERIVED_SOURCE_SUBACTIONS.get(direction.upper(), {}).get(subaction, subaction)
 
     @staticmethod
     def _normalize_direction(value: str, *, name: str) -> str:
@@ -211,9 +237,12 @@ class WorkSeatCore:
         if profile['mode'] == 'native_verified':
             x, y = profile['visual_character_offset_from_chair_px']
             return int(x), int(y)
-        if key != 'SW' or profile.get('derived_from') != 'SE':
+        source_direction = self._derived_source_direction(key)
+        if source_direction is None:
             raise WorkSeatError(f'Unsupported derived world offset profile: {key}')
-        source = self.resolve_profile('SE')
+        source = self.resolve_profile(source_direction)
+        if source.get('mode') != 'native_verified':
+            raise WorkSeatError(f'{key} must derive from a native-verified profile: {source_direction}')
         dx, dy = source['visual_character_offset_from_chair_px']
         chair_w, _ = chair_size
         human_w, _ = human_size
@@ -231,14 +260,16 @@ class WorkSeatCore:
         chair_size: tuple[int, int],
     ) -> tuple[int, int, int, int]:
         key = direction.upper()
-        if key in {'SE', 'NW'}:
+        profile = self.resolve_profile(key)
+        if profile.get('mode') == 'native_verified':
             return self._viewport_tuple(self.resolve_profile(key))
-        if key == 'SW':
-            se = self.resolve_profile('SE')
-            min_x, min_y, max_x, max_y = self._viewport_tuple(se)
-            chair_w, _ = chair_size
-            return chair_w - max_x, min_y, chair_w - min_x, max_y
-        raise WorkSeatError(f'Unsupported work seat direction: {direction}')
+        source_direction = self._derived_source_direction(key)
+        if source_direction is None:
+            raise WorkSeatError(f'Unsupported work seat direction: {direction}')
+        source = self.resolve_profile(source_direction)
+        min_x, min_y, max_x, max_y = self._viewport_tuple(source)
+        chair_w, _ = chair_size
+        return chair_w - max_x, min_y, chair_w - min_x, max_y
 
     def _effect_local_offsets(
         self,
@@ -251,16 +282,17 @@ class WorkSeatCore:
         if key in {'NW', 'SE'}:
             node = self.effect_work_local_profile[key]
             return tuple(node['effect_pos']), tuple(node['character_pos'])
-        if key != 'SW':
+        source_direction = {'SW': 'SE', 'NE': 'NW'}.get(key)
+        if source_direction is None:
             raise WorkSeatError(f'Unsupported VFX work direction: {direction}')
         canvas_w, _ = self.effect_work_local_canvas
-        se = self.effect_work_local_profile['SE']
-        se_effect = tuple(se['effect_pos'])
-        se_character = tuple(se['character_pos'])
+        source = self.effect_work_local_profile[source_direction]
+        source_effect = tuple(source['effect_pos'])
+        source_character = tuple(source['character_pos'])
         effect_w, _ = effect_size
         human_w, _ = human_size
-        effect_pos = (int(canvas_w) - int(se_effect[0]) - int(effect_w), int(se_effect[1]))
-        character_pos = (int(canvas_w) - int(se_character[0]) - int(human_w), int(se_character[1]))
+        effect_pos = (int(canvas_w) - int(source_effect[0]) - int(effect_w), int(source_effect[1]))
+        character_pos = (int(canvas_w) - int(source_character[0]) - int(human_w), int(source_character[1]))
         return effect_pos, character_pos
 
     def resolve_effect_world_position(
@@ -391,6 +423,51 @@ class WorkSeatCore:
         profile = self.resolve_profile(key)
         if subaction not in self.contract['supported_subactions']:
             raise WorkSeatError(f'Unsupported work subaction: {subaction}')
+
+        # SW keeps its authored chair part (part_02) and therefore retains the
+        # established world-seat assembler below.  NE is the complete
+        # workstation mirror derived from the native NW seat.
+        if key == 'NE' and profile.get('mode') == 'derived':
+            source_direction = self._derived_source_direction(key)
+            if source_direction is None:
+                raise WorkSeatError(f'Unsupported derived work seat profile: {key}')
+            source_subaction = self._source_subaction(key, subaction)
+            source_result = self.compose_seat(
+                character_id,
+                chair_family_id,
+                source_direction,
+                source_subaction,
+            )
+            target_action = self.characters.render(character_id, 'work', key, subaction)
+            if len(source_result.frames) != len(target_action.frames):
+                raise WorkSeatError(
+                    f'{key}/{subaction} frame count does not match its source '
+                    f'{source_direction}/{source_subaction}'
+                )
+            chair = self.world.load_asset(source_result.chair_asset_id).convert('RGBA')
+            human_size = target_action.frames[0].size
+            offset = self.resolve_world_offset(
+                key,
+                chair_size=chair.size,
+                human_size=human_size,
+            )
+            viewport = self._world_viewport(key, chair_size=chair.size)
+            return WorkSeatRenderResult(
+                character_id=character_id,
+                chair_family_id=chair_family_id,
+                direction=key,
+                subaction=subaction,
+                frame_ids=list(target_action.frame_ids),
+                frames=[frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for frame in source_result.frames],
+                loop=bool(target_action.loop),
+                viewport=viewport,
+                chair_asset_id=source_result.chair_asset_id,
+                foreground_asset_id=source_result.foreground_asset_id,
+                human_offset_from_chair_px=offset,
+                used_foreground=source_result.used_foreground,
+                derived_from=source_direction,
+                transform='mirror_relation_within_chair_canvas',
+            )
 
         chair_role = profile['world_chair_role']
         chair_asset_id = self.chairs.resolve_part_asset(chair_family_id, chair_role)
@@ -531,6 +608,30 @@ class WorkSeatCore:
                 transform=profile['standalone_transform'],
             )
 
+        if key == 'NE':
+            profile = self.resolve_profile('NE')
+            nw_subaction = self._source_subaction('NE', subaction)
+            nw = self.compose_reference_presentation(character_id, 'NW', nw_subaction)
+            ne_action = self.characters.render(character_id, 'work', 'NE', subaction)
+            if len(nw.frames) != len(ne_action.frames):
+                raise WorkSeatError(
+                    f'NE/{subaction} frame count does not match NW/{nw_subaction}'
+                )
+            return WorkPresentationResult(
+                character_id=character_id,
+                direction='NE',
+                subaction=subaction,
+                frame_ids=list(ne_action.frame_ids),
+                frames=[frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for frame in nw.frames],
+                loop=bool(ne_action.loop),
+                viewport=self._world_viewport(
+                    'NE',
+                    chair_size=self.world.load_asset('chair_000.part_00').size,
+                ),
+                derived_from=profile['derived_from'],
+                transform=profile['standalone_transform'],
+            )
+
         raise WorkSeatError(f'Unsupported work seat direction: {direction}')
 
     def _layout_slot(self, floor_id: str, slot_id: str) -> dict[str, Any] | None:
@@ -589,6 +690,40 @@ class WorkSeatCore:
                     foreground_x = int(static['x_px'])
                     foreground_y = int(static['y_px'])
 
+        component_placements: dict[str, dict[str, Any]] = {}
+        static_component_placement_ids: list[str] = []
+        for role in ('desk', 'pc', 'chair_main'):
+            placement_id = group['component_slots'].get(role)
+            if placement_id is None or placement_id not in placements:
+                raise WorkSeatError(
+                    f'{floor_id}.{workstation_id}: missing required {role} placement {placement_id}'
+                )
+            component_placements[role] = placements[placement_id]
+            static_component_placement_ids.append(placement_id)
+
+        if foreground_static_present and foreground_placement_id is not None:
+            component_placements['chair_foreground'] = placements[foreground_placement_id]
+            static_component_placement_ids.append(foreground_placement_id)
+        elif profile.get('world_component_derivation') and foreground_asset_id is not None:
+            # A source NW layout may keep the optional chair foreground as a
+            # dynamic placement. Preserve that authored slot geometry, then
+            # mirror it with the rest of the workstation at render time.
+            if foreground_slot_id and foreground_layer is not None and foreground_x is not None and foreground_y is not None:
+                slot = self._layout_slot(floor_id, foreground_slot_id)
+                if slot is not None:
+                    component_placements['chair_foreground'] = {
+                        'floor_id': floor_id,
+                        'placement_id': foreground_slot_id,
+                        'canonical_placement_id': f'{floor_id}.{foreground_slot_id}',
+                        'object_type': 'chair_sub',
+                        'asset_id': foreground_asset_id,
+                        'variant_id': self.world.resolve_variant(foreground_asset_id, slot['transform']),
+                        'transform': slot['transform'],
+                        'x_px': foreground_x,
+                        'y_px': foreground_y,
+                        'layer': foreground_layer,
+                    }
+
         return {
             'floor_id': floor_id,
             'workstation_id': workstation_id,
@@ -606,8 +741,63 @@ class WorkSeatCore:
             'foreground_layer': foreground_layer,
             'foreground_x_px': foreground_x,
             'foreground_y_px': foreground_y,
+            'source_direction': profile.get('derived_from'),
+            'world_component_derivation': profile.get('world_component_derivation'),
+            'component_placements': component_placements,
+            'world_component_placement_ids': static_component_placement_ids,
             'visual_profile': profile,
         }
+
+    def _derived_world_component_events(
+        self,
+        data: dict[str, Any],
+    ) -> list[tuple[int, int, str, str, dict[str, Any]]]:
+        """Mirror authored source-world components for a derived workstation.
+
+        The source placement coordinates and draw layers remain authoritative.
+        Only the resolved sprite and its x coordinate are mirrored around the
+        source chair canvas; no static world asset or floor layout is mutated.
+        """
+        if not data.get('world_component_derivation'):
+            return []
+        components = data.get('component_placements')
+        if not isinstance(components, dict):
+            raise WorkSeatError(
+                f"{data['floor_id']}.{data['workstation_id']}: derived workstation has no components"
+            )
+        chair = components.get('chair_main')
+        if not isinstance(chair, dict):
+            raise WorkSeatError(
+                f"{data['floor_id']}.{data['workstation_id']}: derived workstation has no chair anchor"
+            )
+        chair_sprite = self.world.load_variant(chair['variant_id'])
+        anchor_x = int(chair['x_px'])
+        chair_width = int(chair_sprite.width)
+        events: list[tuple[int, int, str, str, dict[str, Any]]] = []
+        for role in ('desk', 'pc', 'chair_main', 'chair_foreground'):
+            placement = components.get(role)
+            if placement is None:
+                continue
+            sprite = self.world.load_variant(placement['variant_id']).convert('RGBA')
+            mirrored = sprite.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            source_x = int(placement['x_px'])
+            mirrored_x = anchor_x + chair_width - (source_x - anchor_x) - mirrored.width
+            events.append((
+                int(placement['layer']),
+                0,
+                f"{data['workstation_id']}:{role}",
+                'derived_static',
+                {
+                    'sprite': mirrored,
+                    'x_px': mirrored_x,
+                    'y_px': int(placement['y_px']),
+                },
+            ))
+        if not events:
+            raise WorkSeatError(
+                f"{data['floor_id']}.{data['workstation_id']}: derived workstation has no renderable components"
+            )
+        return events
 
     def render_floor_with_work(
         self,
@@ -632,17 +822,30 @@ class WorkSeatCore:
         canvas = self.world.load_variant(skin['base_variant_id']).copy().convert('RGBA')
         events: list[tuple[int, int, str, str, dict[str, Any]]] = []
         placements = self.world.resolve_floor_placements(floor_id)
+        derived_data = [data for data in by_workstation.values() if data.get('world_component_derivation')]
+        suppressed_placement_ids = {
+            placement_id
+            for data in derived_data
+            for placement_id in data.get('world_component_placement_ids', [])
+        }
         for placement in placements:
+            if placement['placement_id'] in suppressed_placement_ids:
+                continue
             events.append((int(placement['layer']), 0, placement['placement_id'], 'static', placement))
             data = rendered.get(placement['placement_id'])
             if data is not None:
                 events.append((int(placement['layer']), 1, data['workstation_id'], 'human', data))
+
+        for data in derived_data:
+            events.extend(self._derived_world_component_events(data))
+            events.append((int(data['chair_layer']), 1, data['workstation_id'], 'human', data))
 
         for data in by_workstation.values():
             if (
                 data['foreground_asset_id'] is not None
                 and not data['foreground_static_present']
                 and data['foreground_layer'] is not None
+                and not data.get('world_component_derivation')
             ):
                 events.append((
                     int(data['foreground_layer']),
@@ -656,6 +859,8 @@ class WorkSeatCore:
             if kind == 'static':
                 sprite = self.world.load_variant(payload['variant_id'])
                 canvas.alpha_composite(sprite, (int(payload['x_px']), int(payload['y_px'])))
+            elif kind == 'derived_static':
+                canvas.alpha_composite(payload['sprite'], (int(payload['x_px']), int(payload['y_px'])))
             elif kind == 'human':
                 canvas.alpha_composite(payload['human'], (payload['human_x_px'], payload['human_y_px']))
             elif kind == 'foreground':
@@ -691,7 +896,15 @@ class WorkSeatCore:
         canvas = self.world.load_variant(skin['base_variant_id']).copy().convert('RGBA')
         events: list[tuple[int, int, str, str, dict[str, Any]]] = []
         placements = self.world.resolve_floor_placements(floor_id)
+        derived_data = [data for data in by_workstation.values() if data.get('world_component_derivation')]
+        suppressed_placement_ids = {
+            placement_id
+            for data in derived_data
+            for placement_id in data.get('world_component_placement_ids', [])
+        }
         for placement in placements:
+            if placement['placement_id'] in suppressed_placement_ids:
+                continue
             data = rendered.get(placement['placement_id'])
             if data is not None and data.get('effect') is not None:
                 events.append((int(placement['layer']), -1, data['workstation_id'], 'effect', data))
@@ -699,11 +912,18 @@ class WorkSeatCore:
             if data is not None:
                 events.append((int(placement['layer']), 1, data['workstation_id'], 'human', data))
 
+        for data in derived_data:
+            if data.get('effect') is not None:
+                events.append((int(data['chair_layer']), -1, data['workstation_id'], 'effect', data))
+            events.extend(self._derived_world_component_events(data))
+            events.append((int(data['chair_layer']), 1, data['workstation_id'], 'human', data))
+
         for data in by_workstation.values():
             if (
                 data['foreground_asset_id'] is not None
                 and not data['foreground_static_present']
                 and data['foreground_layer'] is not None
+                and not data.get('world_component_derivation')
             ):
                 events.append((
                     int(data['foreground_layer']),
@@ -719,6 +939,8 @@ class WorkSeatCore:
             elif kind == 'static':
                 sprite = self.world.load_variant(payload['variant_id'])
                 canvas.alpha_composite(sprite, (int(payload['x_px']), int(payload['y_px'])))
+            elif kind == 'derived_static':
+                canvas.alpha_composite(payload['sprite'], (int(payload['x_px']), int(payload['y_px'])))
             elif kind == 'human':
                 canvas.alpha_composite(payload['human'], (payload['human_x_px'], payload['human_y_px']))
             elif kind == 'foreground':

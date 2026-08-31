@@ -10,7 +10,7 @@ This roadmap belongs to the current project, not to the received v1.8.4 handoff 
 
 Phase 8B is the approved foundation. Phase 8C portal actor lifecycle is implemented, regression-tested, visually accepted, clean-packaged, and closed. The narrowly scoped canonical CEO-desk walking-depth corrective gate is implemented, regression-tested, visually accepted and closed. Phase 8D single-actor WorkSeat lifecycle is implemented, regression/audit verified, visually author-approved, clean-packaged and closed.
 
-The active product direction is now Phase 8E: a dashboard-ready fixed floor roster, persistent workstation ownership, per-character stamina and a small deterministic behavior loop. Multi-actor workstation queues and crowd slot contention are no longer on the active roadmap; they remain optional future work only if a later product need proves them necessary.
+The active product direction is now Phase 8E: a dashboard-ready fixed floor roster, persistent workstation ownership, per-character stamina and a small deterministic behavior loop. The 8E.W four-way Work/WorkSeat direction slice is complete and author-approved; current authored world slots still contain no NE record, but the derived NE runtime path is ready for future use. Multi-actor workstation queues and crowd slot contention are no longer on the active roadmap; they remain optional future work only if a later product need proves them necessary.
 
 ## Milestones
 
@@ -65,7 +65,7 @@ Normal navigation must end at the existing reachable exterior transition gate. T
 
 - 302 canonical character identities and 60 registered Work frame records (46 native, 14 derived);
 - action families `idle`, `move`, `variants`, `sad`, `happy` and seated `work`;
-- four-way seated `work` character actions: native `SE`/`NW`, derived `SW`/`NE`, each with `normal_work`, direction-named `turn_side_<direction>` and `happy` subactions; world-seat support remains intentionally three-way;
+- four-way seated `work` character actions: native `SE`/`NW`, derived `SW`/`NE`, each with `normal_work`, direction-named `turn_side_<direction>` and `happy` subactions; WorkSeat now supports a four-way bridge with NE derived from NW while current authored world slots remain three-way;
 - 25 floors and 219 workstation instances: 100 `SE`, 96 `NW` and 23 `SW`;
 - all 219 workstation instances already pass `seat_transition_ready` and have one reachable exterior transition gate;
 - 30 registered chair families, of which 21 are used by current floors, including the existing optional NW foreground-chair composition;
@@ -175,7 +175,7 @@ This phase is intentionally smaller than a general crowd scheduler. It must prov
 - canonical pathfinding, movement sampling, crowd collision support, walking depth and render ownership;
 - directional `idle` semantics suitable for two standing characters facing one another;
 - `move`, seated `work`, and directionless `happy`/`sad` event actions;
-- 11 existing effect animations and six HumanBall popup assets, currently presentation-only and mostly restricted to seated `normal_work`.
+- 11 existing effect animations and six HumanBall popup assets, presentation-only and available to seated `normal_work` in all four Work directions through the same derived relation.
 
 The remaining work is coordination and persistent simulation state. No new floor geometry, navigation cells, static world art or character frames are required for the first slice.
 
@@ -271,7 +271,7 @@ The exact API names are frozen during 8E.0. Persistence, UI widgets, dashboard a
 
 1. **8E.0 — identity and employee metadata contract:** completed for the metadata slice — stable employee/template split, Wave 1 initial allocation, Wave 2 pre-generation, seeded names, movement and stamina profiles.
 2. **8E.P — dialogue presentation and editable catalog:** implementation completed in the root — CSV/content loader, 204 reference phrase IDs plus 800 author-approved expansion phrase IDs in EN/TH, provenance, category/scope/enabled filters, validated atomic reload, `fukidashi_base` whole-crop registry, BB5 exclusion, locale font/fallback policy, pixel-fit selection, character-head/bob anchor and Central/employee presentation facades. The expansion is in Central with fit-based enable flags; 492 overflow rows remain disabled until shortened. Import authorization is recorded; visual/behavior author acceptance, final content review and borrowed-asset/font replacement remain open gates.
-3. **8E.W — Work pose direction completeness:** character slice completed and author-approved on 2026-08-31 — canonical Work now has fixed-head/alternating-body turns with exact `turn_side_<direction>` names, native M42–M45 composite frame rules, derived SW/NE final-frame mirrors and a callable four-way NE action series from NW. The review tooling and GIF sheets use direction/subaction/frame-index labels without temporary two-slot names. The generic NW→NE workstation composite mirror remains a separate world-seat gate: verify character, chair, desk, PC, optional foreground, offsets/masks, semantic layers, footprint/occupancy and navigation before enabling the world bridge; no static assets changed.
+3. **8E.W — Work pose and WorkSeat direction completeness:** completed and author-approved on 2026-08-31 — canonical Work now has fixed-head/alternating-body turns with exact `turn_side_<direction>` names, native M42–M45 composite frame rules, derived SW/NE final-frame mirrors and a callable four-way NE action series from NW. The runtime WorkSeat bridge now derives a complete NE workstation composite from NW with one mirror relation for character, chair, desk, PC, optional foreground, offsets, VFX and HumanBall channels while preserving source draw layers. Focused exact-composite coverage, WorkSeat audit, navigation/occupancy, Phase 6 spatial and F2 family audits pass; current authored world slots remain 100 SE / 96 NW / 23 SW / 0 NE and no static asset/geometry changed.
 4. **8E.1 — roster and ownership resolver:** in progress — static initial ownership is wired and validated; mutable snapshot assignment, explicit vacancy commands and all-floor mutation validation remain.
 5. **8E.2 — actor snapshot and stamina reducer:** pending — stable per-character profiles, deterministic state-in/state-out advancement, threshold events and clamps.
 6. **8E.3 — talk, wander and popup behaviors:** pending — the next behavior slice is walking to a partner, pair locking, selecting the explicit WorkSeat turn-side axis binding from partner-relative UV direction, facing with existing idle actions and recovery coordination; the presentation API and turn-axis resolver are now reusable.
@@ -290,11 +290,10 @@ The exact API names are frozen during 8E.0. Persistence, UI widgets, dashboard a
 
 ## Immediate execution order
 
-1. Prototype and verify the generic NW→NE workstation composite mirror, then open the world-seat NE bridge only if visual, offset, draw-order, footprint and navigation checks pass.
-2. Extend the completed dialogue presentation slice into the conversation behavior using employee IDs, existing idle/move actions and the stored recovery policy; add walking-to-partner/pair coordination only when explicitly requested.
-3. Add the actor snapshot/stamina reducer and bind the existing wander/effect/popup channels to the stored ranges.
-4. Add home/return behavior while retaining the same employee workstation assignment.
-5. Keep dashboard infrastructure, database/network persistence, queue/slot-contention and auto-fill outside the active scope until explicitly requested.
+1. Extend the completed dialogue presentation slice into the conversation behavior using employee IDs, existing idle/move actions and the stored recovery policy; add walking-to-partner/pair coordination only when explicitly requested.
+2. Add the actor snapshot/stamina reducer and bind the existing wander/effect/popup channels to the stored ranges.
+3. Add home/return behavior while retaining the same employee workstation assignment.
+4. Keep dashboard infrastructure, database/network persistence, queue/slot-contention and auto-fill outside the active scope until explicitly requested.
 
 ## Definition of done for every phase
 

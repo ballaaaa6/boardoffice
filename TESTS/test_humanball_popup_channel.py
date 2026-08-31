@@ -86,6 +86,22 @@ def test_humanball_sw_derives_only_relation_from_se_and_does_not_flip_artwork():
     assert sw.frames[0].tobytes() == se.frames[0].tobytes()
 
 
+def test_humanball_ne_derives_only_relation_from_nw_and_does_not_flip_artwork():
+    from CHARACTER.RUNTIME.character_system import CharacterSystem
+
+    system = CharacterSystem(ROOT / 'CHARACTER')
+    nw = system.render_humanball('controller', 'NW', human_size=(32, 42))
+    ne = system.render_humanball('controller', 'NE', human_size=(32, 42))
+    expected_ne = [(32 - (x + 18), y) for x, y in NW_OFFSETS]
+
+    assert ne.offsets[:10] == expected_ne
+    assert ne.offsets[10:] == [None, None]
+    assert ne.derived_from == 'NW'
+    assert ne.transform == 'mirror_relation_x'
+    assert ne.frames[0] is not None and nw.frames[0] is not None
+    assert ne.frames[0].tobytes() == nw.frames[0].tobytes()
+
+
 
 def test_humanball_registry_has_schema_and_central_facade():
     import json

@@ -8,13 +8,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
-def test_verified_se_and_nw_profiles_and_derived_sw_offset():
+def test_verified_se_and_nw_profiles_and_derived_sw_ne_offsets():
     from RUNTIME.work_seat_core import WorkSeatCore
 
     core = WorkSeatCore(ROOT)
     se = core.resolve_profile('SE')
     nw = core.resolve_profile('NW')
     sw = core.resolve_profile('SW')
+    ne = core.resolve_profile('NE')
 
     assert se['mode'] == 'native_verified'
     assert se['world_chair_role'] == 'part_01'
@@ -36,12 +37,21 @@ def test_verified_se_and_nw_profiles_and_derived_sw_offset():
     assert sw['world_chair_role'] == 'part_02'
     assert core.resolve_world_offset('SW', chair_size=(21, 32), human_size=(32, 42)) == (-13, 2)
 
+    assert ne['mode'] == 'derived'
+    assert ne['derived_from'] == 'NW'
+    assert ne['standalone_transform'] == 'FLIP_LEFT_RIGHT'
+    assert ne['standalone_transform_scope'] == 'complete_workstation_composite'
+    assert ne['world_chair_role'] == 'part_00'
+    assert ne['world_chair_foreground_role'] == 'part_03'
+    assert ne['world_component_derivation'] == 'mirror_relation_within_chair_canvas'
+    assert core.resolve_world_offset('NE', chair_size=(21, 32), human_size=(32, 42)) == (-1, -6)
+
 
 def test_visual_offsets_are_not_gameplay_seat_anchors():
     from RUNTIME.work_seat_core import WorkSeatCore
 
     core = WorkSeatCore(ROOT)
-    for direction in ('SE', 'NW', 'SW'):
+    for direction in ('SE', 'NW', 'SW', 'NE'):
         p = core.resolve_profile(direction)
         assert 'seat_anchor' not in p
         assert 'approach_anchor' not in p
@@ -92,6 +102,10 @@ def test_turn_side_mapping_uses_canonical_uv_axes_and_target_idle_directions():
             'turn_side_sw': ('V+', 'SW', [0, 1]),
             'turn_side_ne': ('V-', 'NE', [0, -1]),
         },
+        'NE': {
+            'turn_side_se': ('U+', 'SE', [1, 0]),
+            'turn_side_nw': ('U-', 'NW', [-1, 0]),
+        },
     }
 
     for work_direction, expected_sides in expected.items():
@@ -118,6 +132,8 @@ def test_turn_side_can_be_selected_from_partner_relative_idle_direction():
     assert core.resolve_turn_side_for_target('SW', 'NW')['subaction'] == 'turn_side_nw'
     assert core.resolve_turn_side_for_target('NW', 'SW')['subaction'] == 'turn_side_sw'
     assert core.resolve_turn_side_for_target('NW', 'NE')['subaction'] == 'turn_side_ne'
+    assert core.resolve_turn_side_for_target('NE', 'SE')['subaction'] == 'turn_side_se'
+    assert core.resolve_turn_side_for_target('NE', 'NW')['subaction'] == 'turn_side_nw'
 
     import pytest
 

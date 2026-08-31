@@ -21,10 +21,10 @@
           "additionalProperties": false,
           "properties": {
             "character_action_id":{"const":"work"},
-            "direction_mode":{"const":"three_way"},
-            "supported_directions":{"type":"array","prefixItems":[{"const":"SE"},{"const":"SW"},{"const":"NW"}],"minItems":3,"maxItems":3},
-            "mapping":{"type":"object","required":["SE","SW","NW"],"additionalProperties":false,"properties":{"SE":{"const":"SE"},"SW":{"const":"SW"},"NW":{"const":"NW"}}},
-            "unsupported_world_directions":{"type":"array","prefixItems":[{"const":"NE"}],"minItems":1,"maxItems":1},
+            "direction_mode":{"const":"four_way"},
+            "supported_directions":{"type":"array","prefixItems":[{"const":"SE"},{"const":"SW"},{"const":"NW"},{"const":"NE"}],"minItems":4,"maxItems":4},
+            "mapping":{"type":"object","required":["SE","SW","NW","NE"],"additionalProperties":false,"properties":{"SE":{"const":"SE"},"SW":{"const":"SW"},"NW":{"const":"NW"},"NE":{"const":"NE"}}},
+            "unsupported_world_directions":{"type":"array","maxItems":0},
             "unsupported_policy":{"const":"error_no_fallback"}
           }
         }

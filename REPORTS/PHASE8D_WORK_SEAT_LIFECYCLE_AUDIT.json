@@ -28,7 +28,8 @@
     "direction_counts": {
       "SE": 100,
       "NW": 96,
-      "SW": 23
+      "SW": 23,
+      "NE": 0
     },
     "all_ready": true,
     "duplicate_slot_ids": [],

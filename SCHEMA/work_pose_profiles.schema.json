@@ -15,7 +15,7 @@
         "note": {"type": "string"}
       }
     },
-    "supported_directions": {"const": ["SE", "SW", "NW"]},
+    "supported_directions": {"const": ["SE", "SW", "NW", "NE"]},
     "supported_subactions": {
       "const": [
         "normal_work",
@@ -75,7 +75,7 @@
     },
     "profiles": {
       "type": "object",
-      "required": ["SE", "SW", "NW"],
+      "required": ["SE", "SW", "NW", "NE"],
       "additionalProperties": false,
       "properties": {
         "SE": {
@@ -92,6 +92,11 @@
           "type": "object",
           "required": ["turn_side_mapping"],
           "properties": {"turn_side_mapping": {"$ref": "#/$defs/vTurnSideMapping"}}
+        },
+        "NE": {
+          "type": "object",
+          "required": ["turn_side_mapping"],
+          "properties": {"turn_side_mapping": {"$ref": "#/$defs/uTurnSideMapping"}}
         }
       }
     }

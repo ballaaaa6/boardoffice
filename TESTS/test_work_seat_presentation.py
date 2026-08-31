@@ -70,3 +70,24 @@ def test_sw_reference_presentation_is_pixel_exact_final_mirror_of_se():
         for se_frame, sw_frame in zip(se.frames, sw.frames):
             expected = se_frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
             assert sw_frame.tobytes() == expected.tobytes()
+
+
+def test_ne_reference_presentation_is_pixel_exact_final_mirror_of_nw():
+    from RUNTIME.work_seat_core import WorkSeatCore
+
+    core = WorkSeatCore(ROOT)
+    for nw_subaction, ne_subaction in (
+        ('normal_work', 'normal_work'),
+        ('turn_side_sw', 'turn_side_se'),
+        ('turn_side_ne', 'turn_side_nw'),
+        ('happy', 'happy'),
+    ):
+        nw = core.compose_reference_presentation('TP_000', 'NW', nw_subaction)
+        ne = core.compose_reference_presentation('TP_000', 'NE', ne_subaction)
+        assert ne.derived_from == 'NW'
+        assert ne.transform == 'FLIP_LEFT_RIGHT'
+        assert ne.viewport == (-3, -10, 37, 44)
+        assert len(ne.frames) == len(nw.frames)
+        for nw_frame, ne_frame in zip(nw.frames, ne.frames):
+            expected = nw_frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            assert ne_frame.tobytes() == expected.tobytes()

@@ -29,6 +29,12 @@
       "derived_from": "SE",
       "transform": "mirror_relation_x",
       "mirror_artwork": false
+    },
+    "NE": {
+      "source": "derived_relation",
+      "derived_from": "NW",
+      "transform": "mirror_relation_x",
+      "mirror_artwork": false
     }
   },
   "motion_offsets_from_character_top_left_px": {

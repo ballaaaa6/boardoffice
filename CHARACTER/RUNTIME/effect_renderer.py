@@ -50,24 +50,25 @@ class EffectRenderer:
 
     def render_effect(self, effect_id: str, direction: str) -> EffectRenderResult:
         direction = direction.upper()
-        if direction not in {'NW', 'SE', 'SW'}:
-            raise EffectRenderError(f'Effect direction must be NW, SE, or SW: {direction}')
+        if direction not in {'NW', 'SE', 'SW', 'NE'}:
+            raise EffectRenderError(f'Effect direction must be NW, SE, SW, or NE: {direction}')
         try:
             meta = self.registry.get(effect_id)
         except EffectRegistryError as exc:
             raise EffectRenderError(str(exc)) from exc
 
-        if direction == 'SW':
-            se = self.render_effect(effect_id, 'SE')
+        source_direction = {'SW': 'SE', 'NE': 'NW'}.get(direction)
+        if source_direction is not None:
+            source = self.render_effect(effect_id, source_direction)
             return EffectRenderResult(
                 effect_id=effect_id,
-                direction='SW',
-                source_frame_count=se.source_frame_count,
-                frame_asset_ids=list(se.frame_asset_ids),
-                frames=[f.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for f in se.frames],
-                loop=se.loop,
-                frame_ms=se.frame_ms,
-                derived_from='SE',
+                direction=direction,
+                source_frame_count=source.source_frame_count,
+                frame_asset_ids=list(source.frame_asset_ids),
+                frames=[f.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for f in source.frames],
+                loop=source.loop,
+                frame_ms=source.frame_ms,
+                derived_from=source_direction,
                 transform='mirror_y',
             )
 

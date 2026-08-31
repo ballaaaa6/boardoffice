@@ -5,6 +5,9 @@
     "all_876_workstation_subaction_compositions_renderable": true,
     "chair_catalog_complete": true,
     "chair_source_hashes_exact": true,
+    "ne_character_mirror_exact": true,
+    "ne_workseat_composite_ready": true,
+    "ne_world_component_mirror_ready": true,
     "room_navigation_regression_pass": true,
     "schemas_valid": true,
     "static_floor_hashes_unchanged": true,
@@ -18,12 +21,17 @@
     "chair_source_parts": 120,
     "chair_transparent_parts": 5,
     "characters_checked": 302,
+    "ne_frame_pairs_checked": 2114,
+    "ne_readiness_compositions_checked": 4,
     "static_floors_checked": 25,
     "sw_frame_pairs_checked": 2114,
     "workstation_subaction_compositions_checked": 876,
     "workstations_checked": 219
   },
   "floor_hash_errors": [],
+  "ne_mismatches": [],
+  "ne_readiness_errors": [],
+  "ne_world_probe_errors": [],
   "pass": true,
   "room_navigation": {
     "checks": {

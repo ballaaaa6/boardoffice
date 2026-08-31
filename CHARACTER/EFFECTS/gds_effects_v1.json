@@ -31,6 +31,11 @@
       "source": "derived",
       "derived_from": "SE",
       "transform": "mirror_y"
+    },
+    "NE": {
+      "source": "derived",
+      "derived_from": "NW",
+      "transform": "mirror_y"
     }
   },
   "work_local_profile": {

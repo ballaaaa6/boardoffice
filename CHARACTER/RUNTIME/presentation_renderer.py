@@ -35,8 +35,8 @@ class WorkEffectPresentationRenderer:
     """Composes normal_work character frames with central VFX on a transparent work-local canvas.
 
     This intentionally does not import floor/map/furniture systems. The relative offsets are the
-    approved FIREMATCH character/effect relationship reduced to source-pixel coordinates. SW is
-    always derived from the fully resolved SE presentation by horizontal pixel mirror.
+    approved FIREMATCH character/effect relationship reduced to source-pixel coordinates. SW and
+    NE are derived from their native opposite-side presentation by one final horizontal mirror.
     """
 
     def __init__(self, core_root: str | Path, actions: CharacterActionRenderer):
@@ -80,8 +80,8 @@ class WorkEffectPresentationRenderer:
         if direction is None:
             raise PresentationRenderError('VFX work presentation requires direction')
         direction = direction.upper()
-        if direction not in {'NW', 'SE', 'SW'}:
-            raise PresentationRenderError(f'VFX work direction must be NW, SE, or SW: {direction}')
+        if direction not in {'NW', 'SE', 'SW', 'NE'}:
+            raise PresentationRenderError(f'VFX work direction must be NW, SE, SW, or NE: {direction}')
         return direction
 
     def render_character(
@@ -94,23 +94,24 @@ class WorkEffectPresentationRenderer:
     ) -> WorkEffectRenderResult:
         direction = self._validate_request(action, direction, subaction)
         try:
-            if direction == 'SW':
-                se_char = self.actions.render_action(character_id, 'work', 'SE', 'normal_work')
-                sw_char = self.actions.render_action(character_id, 'work', 'SW', 'normal_work')
-                se_effect = self.effects.render_effect(effect_id, 'SE')
-                se_frames = self._combine_native(se_char, se_effect, 'SE')
-                frames = [f.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for f in se_frames]
-                frame_ids = self._cycle_ids(sw_char.frame_ids, len(frames))
+            source_direction = {'SW': 'SE', 'NE': 'NW'}.get(direction)
+            if source_direction is not None:
+                source_char = self.actions.render_action(character_id, 'work', source_direction, 'normal_work')
+                target_char = self.actions.render_action(character_id, 'work', direction, 'normal_work')
+                source_effect = self.effects.render_effect(effect_id, source_direction)
+                source_frames = self._combine_native(source_char, source_effect, source_direction)
+                frames = [f.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for f in source_frames]
+                frame_ids = self._cycle_ids(target_char.frame_ids, len(frames))
                 return WorkEffectRenderResult(
                     character_id=character_id,
-                    action='work', direction='SW', subaction='normal_work',
+                    action='work', direction=direction, subaction='normal_work',
                     frame_ids=frame_ids, frames=frames, loop=True,
                     effect_id=effect_id,
-                    effect_frame_asset_ids=list(se_effect.frame_asset_ids),
-                    effect_source_frame_count=se_effect.source_frame_count,
-                    effect_frame_ms=se_effect.frame_ms,
+                    effect_frame_asset_ids=list(source_effect.frame_asset_ids),
+                    effect_source_frame_count=source_effect.source_frame_count,
+                    effect_frame_ms=source_effect.frame_ms,
                     presentation_canvas=self.canvas,
-                    derived_from='SE', transform='mirror_y',
+                    derived_from=source_direction, transform='mirror_y',
                 )
 
             char = self.actions.render_action(character_id, 'work', direction, 'normal_work')
@@ -142,27 +143,28 @@ class WorkEffectPresentationRenderer:
         direction = self._validate_request(action, direction, subaction)
         key = f'composition:{body_asset_id}+{face_asset_id}'
         try:
-            if direction == 'SW':
-                se_char = self.actions.render_composition_action(
-                    body_asset_id, face_asset_id, 'work', 'SE', 'normal_work'
+            source_direction = {'SW': 'SE', 'NE': 'NW'}.get(direction)
+            if source_direction is not None:
+                source_char = self.actions.render_composition_action(
+                    body_asset_id, face_asset_id, 'work', source_direction, 'normal_work'
                 )
-                sw_char = self.actions.render_composition_action(
-                    body_asset_id, face_asset_id, 'work', 'SW', 'normal_work'
+                target_char = self.actions.render_composition_action(
+                    body_asset_id, face_asset_id, 'work', direction, 'normal_work'
                 )
-                se_effect = self.effects.render_effect(effect_id, 'SE')
-                se_frames = self._combine_native(se_char, se_effect, 'SE')
-                frames = [f.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for f in se_frames]
+                source_effect = self.effects.render_effect(effect_id, source_direction)
+                source_frames = self._combine_native(source_char, source_effect, source_direction)
+                frames = [f.transpose(Image.Transpose.FLIP_LEFT_RIGHT) for f in source_frames]
                 return WorkEffectRenderResult(
                     character_id=key,
-                    action='work', direction='SW', subaction='normal_work',
-                    frame_ids=self._cycle_ids(sw_char.frame_ids, len(frames)),
+                    action='work', direction=direction, subaction='normal_work',
+                    frame_ids=self._cycle_ids(target_char.frame_ids, len(frames)),
                     frames=frames, loop=True,
                     effect_id=effect_id,
-                    effect_frame_asset_ids=list(se_effect.frame_asset_ids),
-                    effect_source_frame_count=se_effect.source_frame_count,
-                    effect_frame_ms=se_effect.frame_ms,
+                    effect_frame_asset_ids=list(source_effect.frame_asset_ids),
+                    effect_source_frame_count=source_effect.source_frame_count,
+                    effect_frame_ms=source_effect.frame_ms,
                     presentation_canvas=self.canvas,
-                    derived_from='SE', transform='mirror_y',
+                    derived_from=source_direction, transform='mirror_y',
                 )
             char = self.actions.render_composition_action(
                 body_asset_id, face_asset_id, 'work', direction, 'normal_work'

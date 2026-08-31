@@ -50,10 +50,27 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         # while preserving the underlying frame bindings.
         'CHARACTER/ACTIONS/gds_standard_v1.json',
         # Phase 8E character action completeness adds fixed-head alternating-body
-        # Work turns and the derived NE character direction. World/WorkSeat NE
-        # remains a separate, unsupported bridge gate.
+        # Work turns and the derived NE character direction. The current source
+        # world slots remain three-way, while the runtime bridge is now ready
+        # to derive a future NE WorkSeat from NW.
         'CHARACTER/FRAME_RULES/frame_registry.json',
         'SCHEMA/CHARACTER/action_set.schema.json',
+        # Four-way WorkSeat support derives NE from NW at runtime. It mirrors
+        # the complete workstation composite without changing static assets,
+        # authored floor placement hashes, or the current three-way slots.
+        'CHARACTER/EFFECTS/gds_effects_v1.json',
+        'CHARACTER/EFFECTS/humanball_v1.json',
+        'CHARACTER/RUNTIME/effect_renderer.py',
+        'CHARACTER/RUNTIME/humanball_renderer.py',
+        'CHARACTER/RUNTIME/presentation_renderer.py',
+        'CONTRACTS/central_contract.json',
+        'CONTRACTS/work_pose_profiles.json',
+        'RUNTIME/work_seat_core.py',
+        'RUNTIME/work_seat_lifecycle.py',
+        'SCHEMA/CHARACTER/humanball_registry.schema.json',
+        'SCHEMA/WORLD/character_direction_bridge.schema.json',
+        'SCHEMA/work_pose_profiles.schema.json',
+        'WORLD/REGISTRY/character_direction_bridge.json',
         # Phase 8E dialogue presentation adds public runtime exports while
         # leaving the frozen character/world payloads unchanged.
         'CHARACTER/RUNTIME/__init__.py',
@@ -94,6 +111,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         ('SCHEMA/WORLD/workstation_directions.schema.json', 'WORLD/REGISTRY/workstation_directions.json'),
         ('SCHEMA/WORLD/gameplay_metadata_families.schema.json', 'WORLD/REGISTRY/gameplay_metadata_families.json'),
         ('SCHEMA/WORLD/character_direction_bridge.schema.json', 'WORLD/REGISTRY/character_direction_bridge.json'),
+        ('SCHEMA/work_pose_profiles.schema.json', 'CONTRACTS/work_pose_profiles.json'),
         ('SCHEMA/WORLD/walking_depth_profiles.schema.json', 'WORLD/REGISTRY/walking_depth_profiles.json'),
         ('SCHEMA/work_seat_lifecycle.schema.json', 'CONTRACTS/work_seat_lifecycle.json'),
     ]

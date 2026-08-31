@@ -39,7 +39,7 @@
       },
       "additionalProperties": false
     },
-    "direction_rules": {"type": "object", "required": ["NW", "SE", "SW"]},
+    "direction_rules": {"type": "object", "required": ["NW", "SE", "SW", "NE"]},
     "motion_offsets_from_character_top_left_px": {
       "type": "object",
       "required": ["NW", "SE"],

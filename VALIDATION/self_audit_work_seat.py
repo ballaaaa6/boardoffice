@@ -40,6 +40,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
     for schema_rel, data_rel in (
         ('SCHEMA/WORLD/chair_families.schema.json', 'WORLD/REGISTRY/chair_families.json'),
         ('SCHEMA/work_pose_profiles.schema.json', 'CONTRACTS/work_pose_profiles.json'),
+        ('SCHEMA/WORLD/character_direction_bridge.schema.json', 'WORLD/REGISTRY/character_direction_bridge.json'),
     ):
         schema = _load(root / schema_rel)
         data = _load(root / data_rel)
@@ -158,6 +159,39 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
                         'error': str(exc),
                     })
 
+    ne_readiness_errors: list[str] = []
+    for subaction in ('normal_work', 'turn_side_se', 'turn_side_nw', 'happy'):
+        try:
+            result = seat.compose_seat('TP_000', 'chair_006', 'NE', subaction)
+            if not result.frames or result.derived_from != 'NW':
+                raise ValueError('NE derived composite did not resolve from NW')
+        except Exception as exc:
+            ne_readiness_errors.append(f'{subaction}: {exc}')
+
+    ne_world_probe_errors: list[str] = []
+    original_direction_resolver = seat.directions.resolve_character_action_direction
+    seat.directions.resolve_character_action_direction = (
+        lambda floor_id, workstation_id, action_family='work': (
+            'NE' if (floor_id, workstation_id) == ('floor02', 'ws8')
+            else original_direction_resolver(floor_id, workstation_id, action_family=action_family)
+        )
+    )
+    try:
+        probe = seat.resolve_workstation_seat('floor02', 'ws8')
+        if probe['direction'] != 'NE' or probe.get('source_direction') != 'NW':
+            raise ValueError('future NE workstation did not resolve from NW')
+        scene = seat.render_floor_with_work(
+            'floor02',
+            [{'workstation_id': 'ws8', 'character_id': 'TP_000'}],
+            frame_index=0,
+        )
+        if scene.size != (600, 600):
+            raise ValueError(f'future NE workstation scene has unexpected size {scene.size}')
+    except Exception as exc:
+        ne_world_probe_errors.append(str(exc))
+    finally:
+        seat.directions.resolve_character_action_direction = original_direction_resolver
+
     floor_renderer = FloorRenderer(root / 'WORLD')
     floor_hash_errors: list[dict[str, str]] = []
     for floor_id, expected in floor_refs.items():
@@ -176,6 +210,8 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
     characters = CharacterSystem(root / 'CHARACTER')
     sw_mismatches: list[dict[str, Any]] = []
     sw_pairs_checked = 0
+    ne_mismatches: list[dict[str, Any]] = []
+    ne_pairs_checked = 0
     character_ids = characters.list_characters()
     for character_id in character_ids:
         for se_subaction, sw_subaction in (
@@ -202,6 +238,35 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
                         'character_id': character_id,
                         'se_subaction': se_subaction,
                         'sw_subaction': sw_subaction,
+                        'frame_index': index,
+                        'error': 'pixel_mismatch',
+                    })
+
+    for character_id in character_ids:
+        for nw_subaction, ne_subaction in (
+            ('normal_work', 'normal_work'),
+            ('turn_side_sw', 'turn_side_se'),
+            ('turn_side_ne', 'turn_side_nw'),
+            ('happy', 'happy'),
+        ):
+            nw = characters.render(character_id, 'work', 'NW', nw_subaction)
+            ne = characters.render(character_id, 'work', 'NE', ne_subaction)
+            if len(nw.frames) != len(ne.frames):
+                ne_mismatches.append({
+                    'character_id': character_id,
+                    'nw_subaction': nw_subaction,
+                    'ne_subaction': ne_subaction,
+                    'error': 'frame_count_mismatch',
+                })
+                continue
+            for index, (nw_frame, ne_frame) in enumerate(zip(nw.frames, ne.frames)):
+                ne_pairs_checked += 1
+                expected = nw_frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+                if expected.tobytes() != ne_frame.convert('RGBA').tobytes():
+                    ne_mismatches.append({
+                        'character_id': character_id,
+                        'nw_subaction': nw_subaction,
+                        'ne_subaction': ne_subaction,
                         'frame_index': index,
                         'error': 'pixel_mismatch',
                     })
@@ -242,9 +307,24 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
                 'target_idle_direction': 'NW',
             },
         }
+        and pose['profiles']['NE']['turn_side_mapping'] == {
+            'turn_side_se': {
+                'axis': 'U',
+                'sign': '+',
+                'axis_direction': 'U+',
+                'target_idle_direction': 'SE',
+            },
+            'turn_side_nw': {
+                'axis': 'U',
+                'sign': '-',
+                'axis_direction': 'U-',
+                'target_idle_direction': 'NW',
+            },
+        }
     )
     profiles_exact = (
-        pose['profiles']['SE']['visual_character_offset_from_chair_px'] == [2, 2]
+        pose.get('supported_directions') == ['SE', 'SW', 'NW', 'NE']
+        and pose['profiles']['SE']['visual_character_offset_from_chair_px'] == [2, 2]
         and pose['profiles']['SE']['world_chair_role'] == 'part_01'
         and pose['profiles']['NW']['visual_character_offset_from_chair_px'] == [-10, -6]
         and pose['profiles']['NW']['world_chair_role'] == 'part_00'
@@ -252,6 +332,12 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         and pose['profiles']['SW']['derived_from'] == 'SE'
         and pose['profiles']['SW']['standalone_transform_scope'] == 'final_composite'
         and pose['profiles']['SW']['world_chair_role'] == 'part_02'
+        and pose['profiles']['NE']['mode'] == 'derived'
+        and pose['profiles']['NE']['derived_from'] == 'NW'
+        and pose['profiles']['NE']['standalone_transform_scope'] == 'complete_workstation_composite'
+        and pose['profiles']['NE']['world_chair_role'] == 'part_00'
+        and pose['profiles']['NE']['world_chair_foreground_role'] == 'part_03'
+        and pose['profiles']['NE']['world_component_derivation'] == 'mirror_relation_within_chair_canvas'
         and pose['coordinate_semantics']['gameplay_anchor_fields_populated'] is False
         and axis_convention_exact
         and turn_side_mapping_exact
@@ -276,8 +362,11 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'work_pose_profiles_exact': profiles_exact,
         'all_219_workstations_chair_role_consistent': workstation_count == 219 and not workstation_errors,
         'all_876_workstation_subaction_compositions_renderable': composition_requests == 876 and not composition_errors,
+        'ne_workseat_composite_ready': len(ne_readiness_errors) == 0,
+        'ne_world_component_mirror_ready': len(ne_world_probe_errors) == 0,
         'static_floor_hashes_unchanged': len(floor_refs) == 25 and not floor_hash_errors,
         'sw_character_mirror_exact': len(character_ids) == 302 and sw_pairs_checked == 2114 and not sw_mismatches,
+        'ne_character_mirror_exact': len(character_ids) == 302 and ne_pairs_checked == 2114 and not ne_mismatches,
         'room_navigation_regression_pass': bool(room_navigation['pass']),
     }
     report = {
@@ -291,16 +380,21 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
             'chair_transparent_parts': len(transparent_parts),
             'workstations_checked': workstation_count,
             'workstation_subaction_compositions_checked': composition_requests,
+            'ne_readiness_compositions_checked': 4,
             'static_floors_checked': len(floor_refs),
             'characters_checked': len(character_ids),
             'sw_frame_pairs_checked': sw_pairs_checked,
+            'ne_frame_pairs_checked': ne_pairs_checked,
         },
         'schema_errors': schema_errors,
         'chair_hash_errors': chair_hash_errors,
         'workstation_errors': workstation_errors,
         'composition_errors': composition_errors,
+        'ne_readiness_errors': ne_readiness_errors,
+        'ne_world_probe_errors': ne_world_probe_errors,
         'floor_hash_errors': floor_hash_errors,
         'sw_mismatches': sw_mismatches,
+        'ne_mismatches': ne_mismatches,
         'room_navigation': room_navigation,
     }
     if write_report:

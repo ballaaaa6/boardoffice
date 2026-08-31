@@ -89,3 +89,29 @@ def test_sw_world_seat_uses_authored_part02_and_mirrored_relation_without_double
     chars = CharacterSystem(ROOT / 'CHARACTER')
     sw = chars.render('TP_000', 'work', 'SW', 'normal_work')
     assert result.frame_ids == sw.frame_ids
+
+
+def test_ne_world_seat_mirrors_complete_nw_composite_and_uses_ne_action_ids():
+    from RUNTIME.work_seat_core import WorkSeatCore
+
+    core = WorkSeatCore(ROOT)
+    chars = CharacterSystem(ROOT / 'CHARACTER')
+    for nw_subaction, ne_subaction in (
+        ('normal_work', 'normal_work'),
+        ('turn_side_sw', 'turn_side_se'),
+        ('turn_side_ne', 'turn_side_nw'),
+        ('happy', 'happy'),
+    ):
+        nw = core.compose_seat('TP_000', 'chair_006', 'NW', nw_subaction)
+        ne = core.compose_seat('TP_000', 'chair_006', 'NE', ne_subaction)
+        assert ne.chair_asset_id == 'chair_006.part_00'
+        assert ne.foreground_asset_id == 'chair_006.part_03'
+        assert ne.derived_from == 'NW'
+        assert ne.transform == 'mirror_relation_within_chair_canvas'
+        assert ne.viewport == (21 - nw.viewport[2], nw.viewport[1], 21 - nw.viewport[0], nw.viewport[3])
+        assert ne.human_offset_from_chair_px == (-1, -6)
+        target = chars.render('TP_000', 'work', 'NE', ne_subaction)
+        assert ne.frame_ids == target.frame_ids
+        for nw_frame, ne_frame in zip(nw.frames, ne.frames):
+            expected = nw_frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            assert ne_frame.tobytes() == expected.tobytes()

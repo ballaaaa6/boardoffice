@@ -2,21 +2,21 @@
   "action_families": {
     "work": {
       "character_action_id": "work",
-      "direction_mode": "three_way",
+      "direction_mode": "four_way",
       "mapping": {
         "NW": "NW",
         "SE": "SE",
-        "SW": "SW"
+        "SW": "SW",
+        "NE": "NE"
       },
       "supported_directions": [
         "SE",
         "SW",
-        "NW"
+        "NW",
+        "NE"
       ],
       "unsupported_policy": "error_no_fallback",
-      "unsupported_world_directions": [
-        "NE"
-      ]
+      "unsupported_world_directions": []
     }
   },
   "character_direction_vocabulary": [

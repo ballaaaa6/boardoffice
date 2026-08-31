@@ -141,7 +141,8 @@
     "work_supported_directions": [
       "SE",
       "SW",
-      "NW"
+      "NW",
+      "NE"
     ]
   },
   "room_navigation": {

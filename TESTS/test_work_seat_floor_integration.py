@@ -48,6 +48,79 @@ def test_floor02_nw_reuses_existing_static_foreground_instead_of_double_drawing(
     assert nw['foreground_asset_id'] == 'chair_002.part_03'
 
 
+def test_future_ne_assignment_mirrors_authored_nw_workstation_components_without_mutating_static_layout(monkeypatch):
+    from RUNTIME.work_seat_core import WorkSeatCore
+    from CHARACTER.RUNTIME.character_system import CharacterSystem
+    from WORLD.RUNTIME.layout_core import LayoutCore
+
+    seat = WorkSeatCore(ROOT)
+    original = seat.directions.resolve_character_action_direction
+    monkeypatch.setattr(
+        seat.directions,
+        'resolve_character_action_direction',
+        lambda floor_id, workstation_id, action_family='work': (
+            'NE' if (floor_id, workstation_id) == ('floor02', 'ws8')
+            else original(floor_id, workstation_id, action_family=action_family)
+        ),
+    )
+    actual = seat.render_floor_with_work(
+        'floor02',
+        [{'workstation_id': 'ws8', 'character_id': 'TP_000', 'subaction': 'normal_work'}],
+        frame_index=0,
+    )
+
+    world = LayoutCore(ROOT / 'WORLD')
+    chars = CharacterSystem(ROOT / 'CHARACTER')
+    skin = world.floor_skin('floor02')
+    expected = world.load_variant(skin['base_variant_id']).copy().convert('RGBA')
+    placements = {p['placement_id']: p for p in world.resolve_floor_placements('floor02')}
+    group = world.workstation_group('floor02', 'ws8')
+    source_ids = [*group['component_slots'].values(), 'ws8_chair_sub']
+    chair = placements['ws8_chair_main']
+    chair_sprite = world.load_variant(chair['variant_id'])
+    anchor_x = chair['x_px']
+    chair_width = chair_sprite.width
+
+    events = [
+        (p['layer'], 0, p['placement_id'], 'static', p)
+        for p in placements.values()
+        if p['placement_id'] not in source_ids
+    ]
+    for role, placement_id in (
+        ('desk', 'ws8_desk'),
+        ('pc', 'ws8_pc'),
+        ('chair_main', 'ws8_chair_main'),
+        ('chair_foreground', 'ws8_chair_sub'),
+    ):
+        source = placements[placement_id]
+        sprite = world.load_variant(source['variant_id']).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        mirrored_x = anchor_x + chair_width - (source['x_px'] - anchor_x) - sprite.width
+        events.append((source['layer'], 0, f'ws8:{role}', 'derived_static', {
+            'sprite': sprite,
+            'x_px': mirrored_x,
+            'y_px': source['y_px'],
+        }))
+
+    human = chars.render('TP_000', 'work', 'NE', 'normal_work').frames[0].convert('RGBA')
+    offset = seat.resolve_world_offset('NE', chair_size=chair_sprite.size, human_size=human.size)
+    events.append((chair['layer'], 1, 'ws8', 'human', {
+        'sprite': human,
+        'x_px': chair['x_px'] + offset[0],
+        'y_px': chair['y_px'] + offset[1],
+    }))
+
+    for _, _, _, kind, payload in sorted(events, key=lambda e: (e[0], e[1], e[2], e[3])):
+        if kind == 'static':
+            expected.alpha_composite(
+                world.load_variant(payload['variant_id']),
+                (payload['x_px'], payload['y_px']),
+            )
+        else:
+            expected.alpha_composite(payload['sprite'], (payload['x_px'], payload['y_px']))
+
+    assert actual.tobytes() == expected.tobytes()
+
+
 def test_floor06_se_dynamic_frame_matches_independent_manual_layer_insertion():
     from RUNTIME.work_seat_core import WorkSeatCore
     from CHARACTER.RUNTIME.character_system import CharacterSystem

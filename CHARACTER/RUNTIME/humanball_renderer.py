@@ -58,8 +58,8 @@ class HumanBallRenderer:
         human_size: tuple[int, int] = (32, 42),
     ) -> HumanBallRenderResult:
         key = direction.upper()
-        if key not in {'NW', 'SE', 'SW'}:
-            raise HumanBallRenderError(f'HumanBall direction must be NW, SE, or SW: {direction}')
+        if key not in {'NW', 'SE', 'SW', 'NE'}:
+            raise HumanBallRenderError(f'HumanBall direction must be NW, SE, SW, or NE: {direction}')
         try:
             meta = self.registry.get(humanball_id)
         except HumanBallRegistryError as exc:
@@ -70,15 +70,15 @@ class HumanBallRenderer:
         animation = self.registry.data['animation']
         visible_count = int(animation['visible_frames'])
         hidden_count = int(animation['hidden_frames'])
-        source_direction = 'SE' if key == 'SW' else key
+        source_direction = {'SW': 'SE', 'NE': 'NW'}.get(key, key)
         source_offsets = [tuple(map(int, pair)) for pair in self.registry.data['motion_offsets_from_character_top_left_px'][source_direction]]
         derived_from = None
         transform = None
-        if key == 'SW':
+        if key in {'SW', 'NE'}:
             human_w, _ = human_size
             popup_w, _ = icon.size
             source_offsets = [(int(human_w) - (x + popup_w), y) for x, y in source_offsets]
-            derived_from = 'SE'
+            derived_from = source_direction
             transform = 'mirror_relation_x'
 
         offsets: list[tuple[int, int] | None] = list(source_offsets) + [None] * hidden_count

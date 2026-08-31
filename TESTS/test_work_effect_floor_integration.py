@@ -17,6 +17,36 @@ def test_sw_effect_world_position_matches_mirrored_work_local_contract():
     assert char_pos == (4, 27)
 
 
+def test_ne_effect_and_work_local_position_derive_from_nw_once():
+    from RUNTIME.work_seat_core import WorkSeatCore
+    from RUNTIME.central_core import CentralGameCore
+    from PIL import Image
+
+    core = WorkSeatCore(ROOT)
+    effect_pos, char_pos = core._effect_local_offsets('NE', human_size=(32, 42), effect_size=(33, 65))
+    assert effect_pos == (7, 0)
+    assert char_pos == (7, 30)
+
+    system = CentralGameCore(ROOT)
+    nw = system.characters.render_effect('thunder_cloud', 'NW')
+    ne = system.characters.render_effect('thunder_cloud', 'NE')
+    assert ne.derived_from == 'NW'
+    assert ne.transform == 'mirror_y'
+    for nw_frame, ne_frame in zip(nw.frames, ne.frames):
+        assert ne_frame.tobytes() == nw_frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes()
+
+    nw_presentation = system.characters.render(
+        'TP_000', 'work', 'NW', 'normal_work', effect_id='thunder_cloud'
+    )
+    ne_presentation = system.characters.render(
+        'TP_000', 'work', 'NE', 'normal_work', effect_id='thunder_cloud'
+    )
+    assert ne_presentation.derived_from == 'NW'
+    assert ne_presentation.transform == 'mirror_y'
+    for nw_frame, ne_frame in zip(nw_presentation.frames, ne_presentation.frames):
+        assert ne_frame.tobytes() == nw_frame.transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes()
+
+
 def test_floor06_effect_underlay_stays_behind_authored_chair_pixels():
     from RUNTIME.central_core import CentralGameCore
 

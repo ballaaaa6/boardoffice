@@ -4,6 +4,8 @@
       "action_resolution_exact": true,
       "aliases_complete": true,
       "characters_302": true,
+      "employee_initial_roster_exact": true,
+      "employee_metadata_exact": true,
       "floors_exact": true,
       "identity_composition_exact": true,
       "identity_names_unique": true,
@@ -16,14 +18,18 @@
       "world_raw_omitted": true
     },
     "counts": {
-      "action_requests": 7852,
+      "action_requests": 9060,
       "action_resolution_errors": 0,
       "characters": 302,
       "composition_exact": 302,
+      "employee_initial_roster": 219,
+      "employee_wave1": 302,
+      "employee_wave2": 302,
+      "employees": 604,
       "floors": 25,
       "floors_png_exact": 25,
       "floors_render_exact": 25,
-      "frame_occurrences": 15402,
+      "frame_occurrences": 17516,
       "identity_full_name_unique": 302,
       "identity_nickname_unique": 302,
       "payload_hash_files": 502,
@@ -31,7 +37,7 @@
       "payload_missing": 0,
       "resolved_placements": 766,
       "schema_validation_errors": 0,
-      "schemas_validated": 23,
+      "schemas_validated": 27,
       "technical_characters": 302,
       "workstation_errors": 0,
       "workstations_resolved": 219
@@ -56,7 +62,7 @@
     },
     "lean": {
       "materialized_floor_cache_present": false,
-      "python_cache_path_count": 134,
+      "python_cache_path_count": 201,
       "world_raw_present": false
     },
     "pass": true,

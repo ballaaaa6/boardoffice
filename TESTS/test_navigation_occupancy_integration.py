@@ -71,7 +71,7 @@ def test_all_workstations_have_portal_reachable_approach_cells():
             assert access['reachable_approach_cell_count'] > 0, (floor_id, workstation_id)
             assert access['chair_fully_inside_room'] is True, (floor_id, workstation_id)
             assert access['seat_transition_ready'] is True, (floor_id, workstation_id)
-            assert access['work_seat_direction'] in {'SE', 'SW', 'NW'}, (floor_id, workstation_id)
+            assert access['work_seat_direction'] in {'SE', 'SW', 'NW', 'NE'}, (floor_id, workstation_id)
 
 
 def test_f2_plus_reuses_room_and_portal_geometry_but_keeps_per_floor_occupancy():

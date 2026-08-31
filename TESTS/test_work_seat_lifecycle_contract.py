@@ -62,7 +62,7 @@ def test_all_workstation_interaction_slots_are_runtime_derived_and_unique():
     assert audit["slot_count"] == 219
     assert audit["unique_slot_id_count"] == 219
     assert audit["capacity_values"] == [1]
-    assert audit["direction_counts"] == {"SE": 100, "NW": 96, "SW": 23}
+    assert audit["direction_counts"] == {"SE": 100, "NW": 96, "SW": 23, "NE": 0}
 
     for floor_id, workstation_id, direction in (
         ("floor00", "ceo", "SE"),
@@ -85,6 +85,7 @@ def test_all_workstation_interaction_slots_are_runtime_derived_and_unique():
             "SE": {"turn_side_sw", "turn_side_ne"},
             "SW": {"turn_side_se", "turn_side_nw"},
             "NW": {"turn_side_sw", "turn_side_ne"},
+            "NE": {"turn_side_se", "turn_side_nw"},
         }[direction]
         assert set(slot["turn_side_bindings"]) == {"work_direction", *expected_turn_names}
         assert all(

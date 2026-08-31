@@ -263,7 +263,7 @@ class WorkSeatLifecycle:
             "capacity_values": sorted(set(int(slot["capacity"]) for slot in slots)),
             "direction_counts": {
                 direction: sum(slot["facing"] == direction for slot in slots)
-                for direction in ("SE", "NW", "SW")
+                for direction in ("SE", "NW", "SW", "NE")
             },
             "all_ready": all(bool(slot["seat_transition_ready"]) for slot in slots),
             "duplicate_slot_ids": sorted({slot_id for slot_id in ids if ids.count(slot_id) > 1}),
