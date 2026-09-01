@@ -71,6 +71,87 @@ class ReviewState:
         self.adapter.render_current()
 
     @staticmethod
+    def _ready_return_commands(runtime: dict[str, Any]) -> list[dict[str, Any]]:
+        """Mirror an external app's ready-gated return policy for live review.
+
+        The core intentionally requires an explicit ``request_return`` after
+        home recovery.  The review host is the caller, so its live mode sends
+        that command as soon as the deterministic ready timestamp is reached;
+        this keeps the dashboard moving without hiding the core contract.
+        """
+        now_ms = int(runtime["actor_snapshot"]["clock"]["simulation_time_ms"])
+        commands: list[dict[str, Any]] = []
+        for employee_id, actor in sorted(runtime["actor_snapshot"]["actors"].items()):
+            if actor.get("presence") != "home" or actor.get("activity") != "home_recovery":
+                continue
+            ready_at = actor.get("behavior", {}).get("activity_until_ms")
+            if ready_at is not None and int(ready_at) <= now_ms:
+                commands.append({"type": "request_return", "employee_id": employee_id})
+        return commands
+
+    def live_start(self) -> dict[str, Any]:
+        """Start a self-running review scenario with one observable critical route.
+
+        One actor begins at critical stamina so the finish-current-loop rule is
+        visible immediately.  Other actors remain normal and receive staggered
+        deterministic behavior/speech due times, allowing work, recovery,
+        wander and conversation channels to emerge without manual clicks.
+        """
+        with self.lock:
+            runtime = copy.deepcopy(self.base_runtime)
+            actor_ids = sorted(runtime["actor_snapshot"]["actors"])
+            if not actor_ids:
+                raise CentralGameCoreError("floor02 has no actors for live review")
+            critical_id = actor_ids[0]
+            critical = runtime["actor_snapshot"]["actors"][critical_id]
+            critical["stamina"].update({
+                "current_milli": 5000,
+                "threshold_band": "critical",
+                "drain_remainder": 0,
+            })
+            critical["behavior"].update({
+                "next_event_due_ms": 10**9,
+                "active_event": None,
+                "activity_started_ms": 0,
+                "activity_until_ms": None,
+                "work_loop_elapsed_ms": 0,
+                "pending_home": False,
+                "pending_home_due_ms": None,
+            })
+            critical["presence"] = "present"
+            critical["activity"] = "working"
+            critical["conversation_phase"] = None
+            # Stagger normal actors so the floor develops into a readable
+            # living scene instead of firing every behavior at once.
+            for index, employee_id in enumerate(actor_ids[1:], start=1):
+                actor = runtime["actor_snapshot"]["actors"][employee_id]
+                actor["behavior"]["next_event_due_ms"] = 1200 + (index - 1) * 1200
+            speech_actors = runtime["speech_snapshot"]["actors"]
+            for actor in speech_actors.values():
+                actor["greeting_due_ms"] = None
+                actor["greeting_emitted"] = True
+                actor["work_start_due_ms"] = None
+                actor["work_start_emitted"] = True
+                actor["solo_next_due_ms"] = None
+                actor["pair_next_due_ms"] = None
+            if len(actor_ids) > 1:
+                # A first self-talk line makes the speech lane visible early;
+                # the scheduler re-arms its normal intervals afterward.
+                speech_actors[actor_ids[1]]["work_start_due_ms"] = 600
+                speech_actors[actor_ids[1]]["work_start_emitted"] = False
+            if len(actor_ids) > 2:
+                speech_actors[actor_ids[2]]["pair_next_due_ms"] = 1800
+            if len(actor_ids) > 3:
+                speech_actors[actor_ids[3]]["solo_next_due_ms"] = 3000
+            runtime = self.core.validate_runtime_snapshot(runtime)
+            self.initial_runtime = copy.deepcopy(runtime)
+            self.replay_steps = []
+            self._reset_loop(runtime)
+            # Kick the queue at a small boundary so the first render already
+            # demonstrates that the critical actor is pending home.
+            return self.tick(60, autopilot=True, note="live simulation started")
+
+    @staticmethod
     def _image_data_url(image: Any) -> str:
         output = BytesIO()
         image.convert("RGBA").save(output, format="PNG", optimize=True)
@@ -133,21 +214,36 @@ class ReviewState:
         *,
         actor_commands: list[dict[str, Any]] | None = None,
         speech_commands: list[dict[str, Any]] | None = None,
+        autopilot: bool = False,
+        note: str | None = None,
     ) -> dict[str, Any]:
         with self.lock:
+            commands = copy.deepcopy(actor_commands or [])
+            if autopilot:
+                runtime = self.adapter.loop.runtime_snapshot
+                existing_ids = {
+                    str(command.get("employee_id"))
+                    for command in commands
+                    if isinstance(command, dict)
+                }
+                commands.extend(
+                    command
+                    for command in self._ready_return_commands(runtime)
+                    if command["employee_id"] not in existing_ids
+                )
             frame = self.adapter.tick(
                 elapsed_ms,
-                actor_commands=actor_commands or [],
+                actor_commands=commands,
                 speech_commands=speech_commands or [],
             )
             self.replay_steps.append({
                 "elapsed_ms": int(elapsed_ms),
-                "actor_commands": copy.deepcopy(actor_commands or []),
+                "actor_commands": copy.deepcopy(commands),
                 "speech_commands": copy.deepcopy(speech_commands or []),
                 "dialogue_locale": "en",
                 "dialogue_seed": "0",
             })
-            return self.frame_payload(frame)
+            return self.frame_payload(frame, note=note)
 
     def reset(self) -> dict[str, Any]:
         with self.lock:
@@ -278,6 +374,8 @@ class ReviewHandler(BaseHTTPRequestHandler):
             body = self._read_json()
             if self.path == "/api/reset":
                 self._send(200, STATE.reset())
+            elif self.path == "/api/live-start":
+                self._send(200, STATE.live_start())
             elif self.path == "/api/tick":
                 elapsed_ms = body.get("elapsed_ms", 60)
                 if isinstance(elapsed_ms, bool) or not isinstance(elapsed_ms, int) or elapsed_ms < 0:
@@ -286,6 +384,7 @@ class ReviewHandler(BaseHTTPRequestHandler):
                     elapsed_ms,
                     actor_commands=body.get("actor_commands"),
                     speech_commands=body.get("speech_commands"),
+                    autopilot=bool(body.get("autopilot", False)),
                 ))
             elif self.path == "/api/demo-critical":
                 employee_id = body.get("employee_id")

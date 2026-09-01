@@ -52,7 +52,7 @@ F0 and F1 remain unique. All 23 floors using `layout.floor02.large` now resolve 
 - Standing-pair emotions apply deterministic numeric bonuses: `sad -1` and `happy +2` display stamina (`-1000/+2000` milli), clamped by the actor reducer.
 - The drain/recovery ranges are explicitly marked `initial_runtime_tuning_author_review_pending`; gameplay observation must approve any final values.
 - `RUNTIME/runtime_persistence.py` and the `CentralGameCore.serialize/deserialize/replay_runtime_*` APIs provide caller-owned snapshot save/load and explicit-step deterministic replay.
-- Run `python TOOLS/runtime_review_server.py` and open `http://127.0.0.1:8765/` to inspect the worknormal → critical queue → loop boundary → home route, save/load and replay controls. This is a review host; it is not the production dashboard.
+- Run `python TOOLS/runtime_review_server.py` and open `http://127.0.0.1:8765/` to watch a self-running deterministic floor: worknormal → critical queue → loop boundary → home/return, plus staggered recovery/talk/wander activity. Pause/manual ticks and save/load/replay remain available for close inspection. This is a review host; it is not the production dashboard.
 
 ## F2/F2+ Reception lock
 

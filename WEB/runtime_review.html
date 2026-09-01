@@ -19,6 +19,9 @@
     button, select { background:#243449; color:#e5edf5; border:1px solid #425a73; border-radius:7px; padding:8px 10px; cursor:pointer; }
     button:hover { border-color:var(--accent); } button.primary { background:#075985; border-color:#38bdf8; }
     button.danger { background:#4c1d2b; border-color:#fb7185; }
+    button.active { background:#075985; border-color:#38bdf8; }
+    .live-status { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border:1px solid #285b47; border-radius:7px; color:var(--good); background:#123225; font-weight:650; }
+    .live-status.paused { border-color:#6b5520; color:var(--warn); background:#352b12; }
     .meta { display:flex; flex-wrap:wrap; gap:10px; color:var(--muted); font-size:12px; }
     .cards { display:flex; flex-direction:column; gap:7px; max-height:510px; overflow:auto; }
     .card { border:1px solid #2c3c4f; border-radius:8px; padding:9px; background:#141c26; cursor:pointer; }
@@ -42,14 +45,18 @@
     <section class="panel stage">
       <img id="scene" alt="Rendered floor02 runtime frame">
       <div class="toolbar">
-        <button data-tick="60">Tick 60ms</button><button data-tick="360">Tick 360ms</button><button data-tick="720" class="primary">Tick 720ms</button><button data-tick="1440">Tick 1.44s</button>
-        <button id="reset">Reset</button><button id="critical" class="danger">Critical demo</button>
+        <button id="liveToggle" class="primary">Pause live</button><span id="liveStatus" class="live-status">● LIVE</span>
+        <button data-speed="1">1×</button><button data-speed="4" class="active">4×</button><button data-speed="8">8×</button>
+      </div>
+      <div class="toolbar">
+        <button data-tick="60">Manual +60ms</button><button data-tick="360">Manual +360ms</button><button data-tick="720">Manual +720ms</button><button data-tick="1440">Manual +1.44s</button>
+        <button id="reset">Restart live</button><button id="critical" class="danger">Critical demo (manual)</button>
       </div>
       <div class="toolbar">
         <button id="save">Save snapshot</button><button id="load">Load saved snapshot</button><button id="replay">Replay recorded steps</button>
       </div>
-      <div class="meta"><span>Clock: <b id="clock">0</b>ms</span><span>Frames: <b id="frames">0</b></span><span id="note"></span></div>
-      <div class="hint">Click an actor card to target the critical demo. Save/load uses the new JSON snapshot seam; replay runs the recorded explicit steps from the initial snapshot.</div>
+      <div class="meta"><span>Mode: <b id="mode">LIVE</b></span><span>Clock: <b id="clock">0</b>ms</span><span>Frames: <b id="frames">0</b></span><span id="note"></span></div>
+      <div class="hint">The floor starts moving automatically. Live mode advances the deterministic host and sends ready-gated returns for home actors; pause or use manual ticks only when you want to inspect a precise boundary.</div>
     </section>
     <aside class="panel">
       <h2>Actors on floor02</h2>
@@ -62,23 +69,60 @@
 <script>
   const $ = (id) => document.getElementById(id);
   let state = null; let selected = null; let saved = null;
+  let live = true; let autoSpeed = 4; let timer = null; let busy = false;
+  const AUTO_WALL_MS = 240; const seenEvents = new Set();
   const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   async function api(path, body) { const r = await fetch(path, body ? {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)} : {}); const x = await r.json(); if(!r.ok) throw new Error(x.error || r.statusText); return x; }
+  function appendEvents(events) {
+    const fresh = [];
+    (events || []).forEach(e => {
+      const key = `${e.source||'runtime'}|${e.event_index??''}|${e.timestamp_ms??''}|${e.type||''}|${e.employee_id||''}`;
+      if(seenEvents.has(key)) return;
+      seenEvents.add(key);
+      fresh.push(`${e.timestamp_ms}ms  ${e.source||'runtime'}  ${e.type}  ${e.employee_id||''}${e.reason?`  (${e.reason})`:''}`);
+    });
+    if(!fresh.length) return;
+    const old = $('log').textContent.split('\n').filter(Boolean);
+    $('log').textContent = [...fresh.reverse(), ...old].slice(0, 240).join('\n');
+  }
   function render(x) {
     state = x; $('scene').src = x.image_data_url; $('clock').textContent = x.clock_ms; $('frames').textContent = x.frame_count; $('note').textContent = x.note || '';
     const rows = x.actors || []; if(!selected || !rows.some(a => a.employee_id === selected)) selected = rows[0]?.employee_id;
     $('actors').innerHTML = rows.map(a => { const pct = Math.max(0, Math.min(100, a.stamina)); const band = a.stamina_band; return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.action||'none')}/${esc(a.subaction||'')}</div><div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`; }).join('');
     document.querySelectorAll('.card').forEach(el => el.onclick = () => { selected = el.dataset.id; render(state); });
-    const events = x.events || []; if(events.length) $('log').textContent = events.map(e => `${e.timestamp_ms}ms  ${e.source||'runtime'}  ${e.type}  ${e.employee_id||''}${e.reason?`  (${e.reason})`:''}`).join('\n') + '\n' + $('log').textContent;
+    appendEvents(x.events);
   }
-  async function refresh() { render(await api('/api/state')); }
-  document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick)})); } catch(e){ alert(e.message); } });
-  $('reset').onclick = async () => { try { $('log').textContent=''; render(await api('/api/reset',{})); } catch(e){ alert(e.message); } };
-  $('critical').onclick = async () => { try { if(!selected) throw new Error('Select an actor first'); render(await api('/api/demo-critical',{employee_id:selected})); } catch(e){ alert(e.message); } };
-  $('save').onclick = async () => { try { const x = await api('/api/save',{}); saved = x.runtime_snapshot; localStorage.setItem('gds-runtime-snapshot',x.snapshot_json); localStorage.setItem('gds-runtime-replay',x.replay_json); $('note').textContent='snapshot saved'; } catch(e){ alert(e.message); } };
-  $('load').onclick = async () => { try { const raw = localStorage.getItem('gds-runtime-snapshot'); if(!raw && !saved) throw new Error('No saved snapshot'); render(await api('/api/load',{runtime_snapshot:saved || JSON.parse(raw)})); } catch(e){ alert(e.message); } };
-  $('replay').onclick = async () => { try { const raw = localStorage.getItem('gds-runtime-replay'); if(!raw) throw new Error('Save a snapshot/replay first'); render(await api('/api/replay',JSON.parse(raw))); } catch(e){ alert(e.message); } };
-  refresh().catch(e => { $('log').textContent=e.message; });
+  function setLive(value) {
+    live = Boolean(value); $('mode').textContent = live ? 'LIVE' : 'PAUSED';
+    $('liveToggle').textContent = live ? 'Pause live' : 'Resume live';
+    $('liveToggle').classList.toggle('primary', live);
+    $('liveStatus').textContent = live ? '● LIVE' : '● PAUSED';
+    $('liveStatus').classList.toggle('paused', !live);
+    if(timer) { clearInterval(timer); timer = null; }
+    if(live) { timer = setInterval(liveTick, AUTO_WALL_MS); liveTick(); }
+  }
+  async function liveTick() {
+    if(!live || busy) return;
+    busy = true;
+    try { render(await api('/api/tick',{elapsed_ms:AUTO_WALL_MS * autoSpeed, autopilot:true})); }
+    catch(e) { setLive(false); $('note').textContent = `live stopped: ${e.message}`; }
+    finally { busy = false; }
+  }
+  document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => {
+    autoSpeed = Number(b.dataset.speed); document.querySelectorAll('[data-speed]').forEach(x => x.classList.toggle('active', x===b));
+    $('note').textContent = `live speed ${autoSpeed}×`;
+  });
+  $('liveToggle').onclick = () => setLive(!live);
+  document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { setLive(false); try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick)})); } catch(e){ alert(e.message); } });
+  $('reset').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/live-start',{})); setLive(true); } catch(e){ alert(e.message); } };
+  $('critical').onclick = async () => { setLive(false); try { if(!selected) throw new Error('Select an actor first'); render(await api('/api/demo-critical',{employee_id:selected})); } catch(e){ alert(e.message); } };
+  $('save').onclick = async () => { setLive(false); try { const x = await api('/api/save',{}); saved = x.runtime_snapshot; localStorage.setItem('gds-runtime-snapshot',x.snapshot_json); localStorage.setItem('gds-runtime-replay',x.replay_json); $('note').textContent='snapshot saved (live paused)'; } catch(e){ alert(e.message); } };
+  $('load').onclick = async () => { setLive(false); try { const raw = localStorage.getItem('gds-runtime-snapshot'); if(!raw && !saved) throw new Error('No saved snapshot'); render(await api('/api/load',{runtime_snapshot:saved || JSON.parse(raw)})); } catch(e){ alert(e.message); } };
+  $('replay').onclick = async () => { setLive(false); try { const raw = localStorage.getItem('gds-runtime-replay'); if(!raw) throw new Error('Save a snapshot/replay first'); render(await api('/api/replay',JSON.parse(raw))); } catch(e){ alert(e.message); } };
+  (async function boot() {
+    try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/live-start',{})); setLive(true); }
+    catch(e) { setLive(false); $('log').textContent=e.message; }
+  })();
 </script>
 </body>
 </html>

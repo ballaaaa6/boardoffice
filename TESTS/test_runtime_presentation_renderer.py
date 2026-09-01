@@ -236,6 +236,42 @@ def test_lifecycle_bubble_preserves_departure_route_instead_of_seating_actor():
     assert image.size == (600, 600)
 
 
+def test_hidden_home_actor_drops_lifecycle_bubble_overlay():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    employee_id, _second_employee, _ceo = _ids(core)
+    requested = core.advance_runtime_snapshot(
+        runtime,
+        0,
+        actor_commands=[{"type": "request_home", "employee_id": employee_id}],
+    )
+    actor = requested["actor_snapshot"]["actors"][employee_id]
+    actor.update({
+        "presence": "home",
+        "activity": "home_recovery",
+        "position": {"floor_id": None, "uv": None, "ground_xy": None, "route": None},
+    })
+    actor["behavior"].update({
+        "activity_started_ms": 0,
+        "activity_until_ms": 1000,
+        "active_event": None,
+        "next_event_due_ms": None,
+        "work_loop_elapsed_ms": 0,
+        "pending_home": False,
+        "pending_home_due_ms": None,
+    })
+    hidden = core.validate_runtime_snapshot(requested)
+    presentation = core.resolve_runtime_presentation(hidden, floor_id="floor02")
+    row = presentation["actors"][employee_id]
+    assert row["visible"] is False
+    assert row["dialogue_visible"] is False
+    image = RuntimePresentationRenderer(core).render_presentation(
+        presentation,
+        floor_id="floor02",
+    )
+    assert image.size == (600, 600)
+
+
 def test_workseat_compositor_honors_per_assignment_channel_indices():
     core = CentralGameCore(ROOT)
     actors = core.resolve_actor_snapshot("floor02")["actors"]

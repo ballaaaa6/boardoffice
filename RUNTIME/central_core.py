@@ -1702,7 +1702,14 @@ class CentralGameCore:
                 continue
             participants = [
                 employee_id for employee_id in session.get('participants', [])
+                # A lifecycle bubble can outlive the final portal fade by a
+                # few host ticks.  Do not keep painting a hidden home actor:
+                # its baseline row intentionally has no character/action,
+                # and the presentation lane must end with the portal exit.
                 if employee_id in actors
+                and actors[employee_id].get('visible')
+                and isinstance(actors[employee_id].get('character_id'), str)
+                and isinstance(actors[employee_id].get('action'), str)
             ]
             if not participants:
                 continue
