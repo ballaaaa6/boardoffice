@@ -2619,9 +2619,14 @@ class ActorSimulationCore:
         elapsed_ms: int,
         *,
         commands: Iterable[dict[str, Any]] | None = None,
+        validate: bool = True,
     ) -> dict[str, Any]:
         """Advance one validated snapshot and return the next snapshot plus events."""
-        current = self.validate_snapshot(snapshot)
+        # Trusted host loops may already validate at their lifecycle boundary.
+        # Skipping this defensive canonical/deep-copy pass keeps a 60ms review
+        # tick from copying long talk routes several times. The default remains
+        # fully validating and copy-isolated for normal callers.
+        current = self.validate_snapshot(snapshot) if validate else snapshot
         elapsed_ms = self._require_int(elapsed_ms, "elapsed_ms")
         start_ms = int(current["clock"]["simulation_time_ms"])
         target_ms = start_ms + elapsed_ms
@@ -2655,7 +2660,8 @@ class ActorSimulationCore:
                 events=events,
             )
         current["clock"]["simulation_time_ms"] = target_ms
-        current = self.validate_snapshot(current)
+        if validate:
+            current = self.validate_snapshot(current)
         events.sort(key=lambda event: (str(event["employee_id"]), int(event["event_index"])))
         return {
             "snapshot": current,
@@ -2668,5 +2674,11 @@ class ActorSimulationCore:
         elapsed_ms: int,
         *,
         commands: Iterable[dict[str, Any]] | None = None,
+        validate: bool = True,
     ) -> dict[str, Any]:
-        return self.advance_snapshot(snapshot, elapsed_ms, commands=commands)
+        return self.advance_snapshot(
+            snapshot,
+            elapsed_ms,
+            commands=commands,
+            validate=validate,
+        )

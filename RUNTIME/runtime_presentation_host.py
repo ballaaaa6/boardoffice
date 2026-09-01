@@ -36,7 +36,10 @@ EventSink = Callable[[dict[str, Any]], None]
 class RuntimePresentationHostAdapter:
     """Call :class:`RuntimePresentationLoop` once for each host frame.
 
-    ``frame_sink`` receives a defensive copy of the complete frame result.
+    ``frame_sink`` receives a defensive copy of the complete frame result by
+    default.  A host that owns an already validated frame lifecycle may pass
+    ``copy_frames=False`` to avoid copying large active route plans on every
+    preview tick; that mode is intentionally opt-in.
     That result contains the rendered RGBA ``image``, the read-only
     ``presentation`` snapshot, the composed ``runtime_snapshot`` and the
     actor/speech event lists.  ``event_sink`` receives defensive copies of
@@ -53,6 +56,7 @@ class RuntimePresentationHostAdapter:
         *,
         frame_sink: FrameSink | None = None,
         event_sink: EventSink | None = None,
+        copy_frames: bool = True,
     ) -> None:
         if not isinstance(loop, RuntimePresentationLoop):
             raise RuntimePresentationHostError(
@@ -65,6 +69,7 @@ class RuntimePresentationHostAdapter:
         self.loop = loop
         self.frame_sink = frame_sink
         self.event_sink = event_sink
+        self.copy_frames = bool(copy_frames)
         self._frame_count = 0
         self._last_frame: dict[str, Any] | None = None
         self._in_host_call = False
@@ -76,13 +81,14 @@ class RuntimePresentationHostAdapter:
 
     @property
     def last_frame(self) -> dict[str, Any] | None:
-        """Return a defensive copy of the last produced frame, if any."""
-        return copy.deepcopy(self._last_frame) if self._last_frame is not None else None
+        """Return the last produced frame; copy it by default for isolation."""
+        if self._last_frame is None:
+            return None
+        return copy.deepcopy(self._last_frame) if self.copy_frames else self._last_frame
 
-    @staticmethod
-    def _copy_frame(frame: dict[str, Any]) -> dict[str, Any]:
+    def _copy_frame(self, frame: dict[str, Any]) -> dict[str, Any]:
         """Copy a frame before exposing it to an application callback."""
-        return copy.deepcopy(frame)
+        return copy.deepcopy(frame) if self.copy_frames else frame
 
     def _present(self, frame: dict[str, Any], *, dispatch_events: bool = True) -> None:
         """Send one frame and its ordered events to the configured sinks."""

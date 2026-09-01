@@ -39,6 +39,12 @@ class RuntimePresentationRenderer:
     def __init__(self, core: "CentralGameCore"):
         self.core = core
         self._sprite_cache: dict[tuple[str, str, str | None, str | None], Any] = {}
+        # Live review samples usually reuse the same seated/PC frame for
+        # several ticks. Keep the expensive world + WorkSeat composition
+        # around and let the overlay pass paint onto a fresh copy.
+        self._base_floor_cache: dict[tuple[Any, ...], Image.Image] = {}
+        self._base_floor_cache_order: list[tuple[Any, ...]] = []
+        self._base_floor_cache_limit = 12
 
     @staticmethod
     def _as_direction(row: dict[str, Any]) -> str | None:
@@ -105,7 +111,8 @@ class RuntimePresentationRenderer:
             raise RuntimePresentationRenderError(
                 f"{row.get('employee_id', '<actor>')}: frame index must be >= 0"
             )
-        return result.frames[frame_index % len(result.frames)].convert("RGBA")
+        frame = result.frames[frame_index % len(result.frames)]
+        return frame if frame.mode == "RGBA" else frame.convert("RGBA")
 
     def _work_assignment(self, row: dict[str, Any]) -> dict[str, Any]:
         assignment: dict[str, Any] = {
@@ -143,13 +150,38 @@ class RuntimePresentationRenderer:
             and row.get("render_owner") == "work_seat"
             and row.get("action") == "work"
         ]
+        assignment_key = tuple(
+            (
+                str(assignment.get("workstation_id")),
+                str(assignment.get("character_id")),
+                str(assignment.get("subaction") or "normal_work"),
+                int(assignment.get("character_frame_index", 0)),
+                (
+                    None
+                    if assignment.get("pc_frame_index") is None
+                    else int(assignment["pc_frame_index"])
+                ),
+                assignment.get("effect_id"),
+                int(assignment.get("effect_frame_index", 0)),
+                assignment.get("humanball_id"),
+                int(assignment.get("humanball_frame_index", 0)),
+            )
+            for assignment in sorted(
+                assignments,
+                key=lambda item: str(item.get("workstation_id")),
+            )
+        )
+        cache_key = (str(floor_id), assignment_key)
+        cached = self._base_floor_cache.get(cache_key)
+        if cached is not None:
+            return cached.copy()
         has_channel = any(
             "effect_id" in assignment or "humanball_id" in assignment
             for assignment in assignments
         )
         try:
             if has_channel:
-                return self.core.render_floor_with_work_effects(
+                canvas = self.core.render_floor_with_work_effects(
                     floor_id,
                     assignments,
                     frame_index=0,
@@ -157,16 +189,23 @@ class RuntimePresentationRenderer:
                     effect_frame_index=0,
                     humanball_frame_index=0,
                 ).convert("RGBA")
-            return self.core.render_floor_with_work(
-                floor_id,
-                assignments,
-                frame_index=0,
-                character_frame_index=0,
-            ).convert("RGBA")
+            else:
+                canvas = self.core.render_floor_with_work(
+                    floor_id,
+                    assignments,
+                    frame_index=0,
+                    character_frame_index=0,
+                ).convert("RGBA")
         except Exception as exc:
             raise RuntimePresentationRenderError(
                 f"{floor_id}: cannot compose work-seat presentation"
             ) from exc
+        self._base_floor_cache[cache_key] = canvas.copy()
+        self._base_floor_cache_order.append(cache_key)
+        while len(self._base_floor_cache_order) > self._base_floor_cache_limit:
+            evicted = self._base_floor_cache_order.pop(0)
+            self._base_floor_cache.pop(evicted, None)
+        return canvas
 
     def _paint_walking_actor(
         self,
@@ -355,7 +394,9 @@ class RuntimePresentationLoop:
     each ``tick`` replaces that copy with Central's returned snapshot and then
     consumes it through :class:`RuntimePresentationRenderer`.  This is the
     integration seam a game/update loop can call once per frame without
-    accidentally sharing pose, speech or stamina clocks.
+    accidentally sharing pose, speech or stamina clocks.  Review hosts that
+    already own and serialize the lifecycle may opt out of the per-frame
+    defensive copy with ``copy_runtime_snapshot_each_frame=False``.
     """
 
     def __init__(
@@ -368,6 +409,7 @@ class RuntimePresentationLoop:
         dialogue_locale: str = "en",
         dialogue_seed: str | int = "0",
         validate_runtime_each_frame: bool = True,
+        copy_runtime_snapshot_each_frame: bool = True,
     ) -> None:
         self.core = core
         self.renderer = RuntimePresentationRenderer(core)
@@ -397,11 +439,14 @@ class RuntimePresentationLoop:
         self.dialogue_locale = str(dialogue_locale)
         self.dialogue_seed = dialogue_seed
         self.validate_runtime_each_frame = bool(validate_runtime_each_frame)
+        self.copy_runtime_snapshot_each_frame = bool(copy_runtime_snapshot_each_frame)
 
     @property
     def runtime_snapshot(self) -> dict[str, Any]:
-        """Return a defensive copy of the host-owned current snapshot."""
-        return copy.deepcopy(self._runtime_snapshot)
+        """Return the current snapshot; copy it by default for isolation."""
+        if self.copy_runtime_snapshot_each_frame:
+            return copy.deepcopy(self._runtime_snapshot)
+        return self._runtime_snapshot
 
     def _frame(
         self,
@@ -422,10 +467,22 @@ class RuntimePresentationLoop:
         return {
             "image": image,
             "presentation": presentation,
-            "runtime_snapshot": copy.deepcopy(source),
-            "events": copy.deepcopy(events or []),
-            "actor_events": copy.deepcopy(actor_events or []),
-            "speech_events": copy.deepcopy(speech_events or []),
+            "runtime_snapshot": (
+                copy.deepcopy(source)
+                if self.copy_runtime_snapshot_each_frame else source
+            ),
+            "events": (
+                copy.deepcopy(events or [])
+                if self.copy_runtime_snapshot_each_frame else (events or [])
+            ),
+            "actor_events": (
+                copy.deepcopy(actor_events or [])
+                if self.copy_runtime_snapshot_each_frame else (actor_events or [])
+            ),
+            "speech_events": (
+                copy.deepcopy(speech_events or [])
+                if self.copy_runtime_snapshot_each_frame else (speech_events or [])
+            ),
         }
 
     def render_current(self, *, at_ms: int | None = None) -> dict[str, Any]:
@@ -454,6 +511,7 @@ class RuntimePresentationLoop:
                 speech_commands=speech_commands,
                 dialogue_locale=self.dialogue_locale,
                 dialogue_seed=self.dialogue_seed,
+                validate=self.validate_runtime_each_frame,
             )
             next_snapshot = (
                 self.core.validate_runtime_snapshot(advanced)

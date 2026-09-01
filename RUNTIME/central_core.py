@@ -1265,6 +1265,7 @@ class CentralGameCore:
         speech_commands=None,
         dialogue_locale: str = 'en',
         dialogue_seed: str | int = '0',
+        validate: bool = True,
     ) -> dict[str, Any]:
         """Advance the authoritative actor/speech loop in deterministic slices.
 
@@ -1276,7 +1277,11 @@ class CentralGameCore:
         the old failure mode where speech showed a conversation while the
         actor had already returned to ``working`` at its workstation.
         """
-        runtime_snapshot = self.validate_runtime_snapshot(snapshot)
+        # The public/default path validates and copy-isolates every channel.
+        # A trusted presentation host can opt into the in-place path after it
+        # has validated the initial snapshot, avoiding repeated deep copies of
+        # long talk route plans on every visual tick.
+        runtime_snapshot = self.validate_runtime_snapshot(snapshot) if validate else snapshot
         if isinstance(elapsed_ms, bool) or not isinstance(elapsed_ms, int) or elapsed_ms < 0:
             raise CentralGameCoreError("elapsed_ms must be an integer >= 0")
 
@@ -1430,6 +1435,7 @@ class CentralGameCore:
                     actor_snapshot,
                     step_ms,
                     commands=(pending_actor_commands if first_slice else None),
+                    validate=validate,
                 )
                 actor_snapshot = actor_result["snapshot"]
                 chunk_actor_events = list(actor_result.get("events", []))
@@ -1445,6 +1451,7 @@ class CentralGameCore:
                     commands=bridge_commands,
                     dialogue_locale=dialogue_locale,
                     dialogue_seed=dialogue_seed,
+                    validate=validate,
                 )
                 speech_snapshot = speech_result["snapshot"]
                 chunk_speech_events = list(speech_result.get("events", []))
@@ -1484,6 +1491,7 @@ class CentralGameCore:
                         actor_snapshot,
                         0,
                         commands=talk_commands,
+                        validate=validate,
                     )
                     actor_snapshot = accepted["snapshot"]
                     chunk_actor_events.extend(accepted.get("events", []))
@@ -1506,6 +1514,7 @@ class CentralGameCore:
                         commands=return_commands,
                         dialogue_locale=dialogue_locale,
                         dialogue_seed=dialogue_seed,
+                        validate=validate,
                     )
                     speech_snapshot = speech_return["snapshot"]
                     return_events = list(speech_return.get("events", []))
@@ -1519,6 +1528,7 @@ class CentralGameCore:
                             actor_snapshot,
                             0,
                             commands=late_talk_commands,
+                            validate=validate,
                         )
                         actor_snapshot = accepted["snapshot"]
                         chunk_actor_events.extend(accepted.get("events", []))

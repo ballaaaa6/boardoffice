@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GDS Runtime Review — stamina loop</title>
+  <title>GDS Runtime Review — spawn, talk, effects, home</title>
   <style>
     :root { color-scheme: dark; --bg:#10141b; --panel:#18212c; --line:#304153; --muted:#9cafc2; --accent:#7dd3fc; --good:#86efac; --warn:#facc15; --bad:#fb7185; }
     * { box-sizing:border-box; }
@@ -14,7 +14,9 @@
     .grid { display:grid; grid-template-columns:minmax(480px, 2fr) minmax(330px, 1fr); gap:16px; align-items:start; }
     .panel { background:rgba(24,33,44,.94); border:1px solid var(--line); border-radius:12px; padding:14px; box-shadow:0 10px 30px #0003; }
     .stage { min-height:530px; display:flex; flex-direction:column; gap:10px; }
-    #scene { width:100%; image-rendering:auto; border-radius:8px; background:#0b0e13; border:1px solid #293849; }
+    .scene-frame { position:relative; width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:8px; background:#0b0e13; border:1px solid #293849; }
+    #scene, #sceneAlt { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; image-rendering:auto; opacity:0; transition:opacity .09s linear; }
+    #scene.visible, #sceneAlt.visible { opacity:1; }
     .toolbar { display:flex; flex-wrap:wrap; gap:7px; }
     button, select { background:#243449; color:#e5edf5; border:1px solid #425a73; border-radius:7px; padding:8px 10px; cursor:pointer; }
     button:hover { border-color:var(--accent); } button.primary { background:#075985; border-color:#38bdf8; }
@@ -32,36 +34,48 @@
     .fill { height:100%; background:var(--good); transition:width .18s linear; } .fill.low { background:var(--warn); } .fill.critical { background:var(--bad); }
     .badge { border-radius:999px; padding:2px 7px; font-size:11px; background:#284057; color:#bfe5ff; }
     .badge.critical { background:#572334; color:#fecdd3; } .badge.low { background:#574719; color:#fef08a; }
-    #log { height:200px; overflow:auto; white-space:pre-wrap; font:11px/1.4 ui-monospace,monospace; background:#0c1118; border:1px solid #293849; padding:8px; border-radius:7px; }
+    .settings { display:flex; flex-wrap:wrap; gap:8px; align-items:center; color:var(--muted); font-size:12px; }
+    .settings label { display:inline-flex; align-items:center; gap:5px; }
+    .settings select, .settings input { padding:6px 8px; }
+    .settings input[type=text] { width:92px; }
+    .card .detail { color:#c7d8e8; font-size:12px; margin-top:3px; }
+    .card .talk { color:#f9d58a; }
+    .card .route { color:#9bd7ff; }
+    #log { height:240px; overflow:auto; white-space:pre-wrap; font:11px/1.4 ui-monospace,monospace; background:#0c1118; border:1px solid #293849; padding:8px; border-radius:7px; }
     .hint { color:var(--muted); font-size:12px; }
     @media(max-width:900px){ .grid{grid-template-columns:1fr;} .stage{min-height:0;} }
   </style>
 </head>
 <body>
 <main>
-  <h1>Runtime review — stamina → worknormal loop → home</h1>
-  <div class="subtitle">Live floor02 host. Actors spawn outside the portal, enter one-by-one and walk to their assigned WorkSeat; the critical actor finishes its current <code>normal_work</code> loop, then returns home through the authored portal route.</div>
+  <h1>Runtime review — spawn → work → talk → home</h1>
+  <div class="subtitle">Live floor02 host. Actors spawn outside the portal, enter one-by-one and walk to their assigned WorkSeat. Use <b>Talk demo</b> for the real outbound route, shared bubbles and return-to-seat loop, or <b>Effects demo</b> for HumanBall + VFX.</div>
   <div class="grid">
     <section class="panel stage">
-      <img id="scene" alt="Rendered floor02 runtime frame">
+      <div class="scene-frame"><img id="scene" class="visible" alt="Rendered floor02 runtime frame"><img id="sceneAlt" alt="Rendered floor02 runtime frame"></div>
       <div class="toolbar">
         <button id="liveToggle" class="primary">Pause live</button><span id="liveStatus" class="live-status">● LIVE</span>
         <button data-speed="1" class="active">1×</button><button data-speed="2">2×</button><button data-speed="4">4×</button><button data-speed="8">8×</button>
       </div>
       <div class="toolbar">
         <button data-tick="60">Manual +60ms</button><button data-tick="360">Manual +360ms</button><button data-tick="720">Manual +720ms</button><button data-tick="1440">Manual +1.44s</button>
-        <button id="reset">Restart live</button><button id="critical" class="danger">Critical demo (manual)</button>
+        <button id="reset">Restart live</button><button id="talkDemo" class="primary">Talk demo</button><button id="effectsDemo">Effects demo</button><button id="critical" class="danger">Critical demo (manual)</button>
       </div>
       <div class="toolbar">
         <button id="save">Save snapshot</button><button id="load">Load saved snapshot</button><button id="replay">Replay recorded steps</button>
       </div>
-      <div class="meta"><span>Mode: <b id="mode">LIVE</b></span><span>Clock: <b id="clock">0</b>ms</span><span>Frames: <b id="frames">0</b></span><span id="note"></span></div>
-      <div class="hint">The floor starts moving automatically. Live mode advances the deterministic host and sends ready-gated returns for home actors; pause or use manual ticks only when you want to inspect a precise boundary.</div>
+      <div class="settings">
+        <label>Dialogue <select id="locale"><option value="en">English</option><option value="th">ไทย</option></select></label>
+        <label>Seed <input id="seed" type="text" value="0" spellcheck="false"></label>
+        <label><input id="showRoutes" type="checkbox" checked> show route samples</label>
+      </div>
+      <div class="meta"><span>Mode: <b id="mode">LIVE</b></span><span>Clock: <b id="clock">0</b>ms</span><span>Frames: <b id="frames">0</b></span><span>Events: <b id="eventCount">0</b></span><span id="note"></span></div>
+      <div class="hint">The preview advances with requestAnimationFrame pacing and crossfades ready images, while the simulation remains deterministic 60ms slices. Talk demo pauses unrelated behavior timers so the route, bubble/fade window and return are easy to verify.</div>
     </section>
     <aside class="panel">
       <h2>Actors on floor02</h2>
       <div id="actors" class="cards"></div>
-      <h2 style="margin-top:14px">Event log</h2>
+      <h2 style="margin-top:14px">Event log <span class="small">(compact live stream)</span></h2>
       <div id="log"></div>
     </aside>
   </div>
@@ -69,69 +83,109 @@
 <script>
   const $ = (id) => document.getElementById(id);
   let state = null; let selected = null; let saved = null;
-  let live = true; let autoSpeed = 1; let timer = null; let busy = false;
-  const AUTO_WALL_MS = 120; const seenEvents = new Set();
+  let live = true; let autoSpeed = 1; let busy = false; let rafId = null; let nextLiveAt = 0; let liveGeneration = 0;
+  let visibleScene = 'scene'; let sceneToken = 0;
+  const AUTO_WALL_MS = 120; const MIN_WALL_MS = 80; const seenEvents = new Set();
   const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const API_ROOT = location.protocol === 'file:' ? 'http://127.0.0.1:8765' : '';
-  async function api(path, body) { const r = await fetch(`${API_ROOT}${path}`, body ? {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)} : {}); const x = await r.json(); if(!r.ok) throw new Error(x.error || r.statusText); return x; }
+  async function api(path, body) {
+    const r = await fetch(`${API_ROOT}${path}`, body === undefined ? {} : {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    let x; try { x = await r.json(); } catch (_) { throw new Error(`HTTP ${r.status}`); }
+    if(!r.ok) throw new Error(x.error || r.statusText); return x;
+  }
+  function settings() { return {dialogue_locale:$('locale').value, dialogue_seed:$('seed').value.trim() || '0'}; }
+  function setScene(src) {
+    if(!src) return;
+    const target = $(visibleScene === 'scene' ? 'sceneAlt' : 'scene');
+    const previous = $(visibleScene); const token = ++sceneToken;
+    target.onload = () => { if(token !== sceneToken) return; target.classList.add('visible'); previous.classList.remove('visible'); visibleScene = target.id; };
+    target.src = src;
+    if(target.complete) target.onload();
+  }
+  function formatEvent(e) {
+    const time = `${e.timestamp_ms ?? 0}ms`;
+    const who = e.employee_id || (Array.isArray(e.participants) ? e.participants.join(',') : '');
+    if(e.type === 'actor_route_sample') {
+      const point = Array.isArray(e.ground_xy) ? ` @${e.ground_xy.map(v => Number(v).toFixed(1)).join(',')}` : '';
+      const progress = e.progress_t == null ? '' : ` ${(Number(e.progress_t)*100).toFixed(0)}%`;
+      return `${time}  ${who}  route:${e.phase || 'unknown'}${progress}${point}`;
+    }
+    if(e.type === 'speech_session_started') {
+      const lines = (e.dialogue_lines || []).map(line => `${line.employee_id}: ${line.text}`).join(' | ');
+      return `${time}  speech  ${e.mode || 'talk'}  ${who}${lines ? `  “${lines}”` : ''}`;
+    }
+    const partner = e.partner_id ? ` ↔ ${e.partner_id}` : '';
+    const mode = e.mode ? ` [${e.mode}]` : '';
+    const reason = e.reason ? ` (${e.reason})` : '';
+    return `${time}  ${e.source || 'runtime'}  ${e.type || 'event'}  ${who}${partner}${mode}${reason}`;
+  }
   function appendEvents(events) {
     const fresh = [];
-    (events || []).filter(e => e.type !== 'actor_route_sample').forEach(e => {
+    (events || []).forEach(e => {
+      if(!$('showRoutes').checked && e.type === 'actor_route_sample') return;
       const key = `${e.source||'runtime'}|${e.event_index??''}|${e.timestamp_ms??''}|${e.type||''}|${e.employee_id||''}`;
       if(seenEvents.has(key)) return;
-      seenEvents.add(key);
-      fresh.push(`${e.timestamp_ms}ms  ${e.source||'runtime'}  ${e.type}  ${e.employee_id||''}${e.reason?`  (${e.reason})`:''}`);
+      seenEvents.add(key); fresh.push(formatEvent(e));
     });
     if(!fresh.length) return;
     const old = $('log').textContent.split('\n').filter(Boolean);
-    $('log').textContent = [...fresh.reverse(), ...old].slice(0, 240).join('\n');
+    $('log').textContent = [...fresh.reverse(), ...old].slice(0, 260).join('\n');
   }
   function render(x) {
-    state = x; $('scene').src = x.image_data_url; $('clock').textContent = x.clock_ms; $('frames').textContent = x.frame_count; $('note').textContent = x.note || '';
+    state = x; setScene(x.image_data_url); $('clock').textContent = x.clock_ms; $('frames').textContent = x.frame_count; $('eventCount').textContent = seenEvents.size; if(x.note) $('note').textContent = x.note;
     const rows = x.actors || []; if(!selected || !rows.some(a => a.employee_id === selected)) selected = rows[0]?.employee_id;
-    $('actors').innerHTML = rows.map(a => { const pct = Math.max(0, Math.min(100, a.stamina)); const band = a.stamina_band; const overlay = a.overlay ? ` · ${esc(a.overlay)}` : ''; const bubble = a.dialogue_visible ? ` · bubble: ${esc(a.dialogue_text||'')}` : ''; return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.action||'none')}/${esc(a.subaction||'')}${overlay}${bubble}</div><div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`; }).join('');
+    $('actors').innerHTML = rows.map(a => {
+      const pct = Math.max(0, Math.min(100, a.stamina)); const band = a.stamina_band;
+      const overlay = a.overlay ? ` · ${esc(a.overlay)}` : '';
+      const bubble = a.dialogue_visible ? ` · bubble: ${esc(a.dialogue_text||'')}` : '';
+      const route = a.route_phase ? `<div class="detail route">route: ${esc(a.route_phase)}${a.ground_xy ? ` · @${a.ground_xy.map(v => Number(v).toFixed(1)).join(',')}` : ''}</div>` : '';
+      const talk = a.speech_mode ? `<div class="detail talk">talk: ${esc(a.speech_mode)}${a.talk_partner_id ? ` ↔ ${esc(a.talk_partner_id)}` : ''}${a.speech_category ? ` · ${esc(a.speech_category)}` : ''}</div>` : '';
+      return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.action||'none')}/${esc(a.subaction||'')}${overlay}${bubble}</div>${route}${talk}<div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`;
+    }).join('');
     document.querySelectorAll('.card').forEach(el => el.onclick = () => { selected = el.dataset.id; render(state); });
-    appendEvents(x.events);
+    appendEvents(x.events); $('eventCount').textContent = seenEvents.size;
+    if(x.demo_complete && live) {
+      setLive(false);
+      $('note').textContent = x.demo_kind === 'effects'
+        ? 'effects demo complete — channels finished and actors are seated'
+        : 'talk demo complete — returned to the owned WorkSeat';
+    }
   }
   function setLive(value) {
-    live = Boolean(value); $('mode').textContent = live ? 'LIVE' : 'PAUSED';
-    $('liveToggle').textContent = live ? 'Pause live' : 'Resume live';
-    $('liveToggle').classList.toggle('primary', live);
-    $('liveStatus').textContent = live ? '● LIVE' : '● PAUSED';
-    $('liveStatus').classList.toggle('paused', !live);
-    if(timer) { clearInterval(timer); timer = null; }
-    if(live) { timer = setInterval(liveTick, AUTO_WALL_MS); liveTick(); }
+    live = Boolean(value); const generation = ++liveGeneration; $('mode').textContent = live ? 'LIVE' : 'PAUSED'; $('liveToggle').textContent = live ? 'Pause live' : 'Resume live';
+    $('liveToggle').classList.toggle('primary', live); $('liveStatus').textContent = live ? '● LIVE' : '● PAUSED'; $('liveStatus').classList.toggle('paused', !live);
+    if(rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    if(live) { nextLiveAt = performance.now(); rafId = requestAnimationFrame(now => pumpLive(now, generation)); }
   }
-  async function liveTick() {
-    if(!live || busy) return;
-    busy = true;
-    try { render(await api('/api/tick',{elapsed_ms:AUTO_WALL_MS * autoSpeed, autopilot:true, compact:true})); }
-    catch(e) { setLive(false); $('note').textContent = `live stopped: ${e.message}`; }
-    finally { busy = false; }
+  async function pumpLive(now, generation) {
+    if(!live || generation !== liveGeneration) { return; }
+    if(!busy && now >= nextLiveAt) {
+      busy = true;
+      try {
+        const next = await api('/api/tick',{elapsed_ms:AUTO_WALL_MS * autoSpeed, autopilot:true, compact:true, ...settings()});
+        if(generation !== liveGeneration || !live) return;
+        render(next);
+      }
+      catch(e) { if(generation === liveGeneration) { setLive(false); $('note').textContent = `live stopped: ${e.message}`; } }
+      finally { busy = false; nextLiveAt = performance.now() + Math.max(MIN_WALL_MS, AUTO_WALL_MS / autoSpeed); }
+    }
+    if(live && generation === liveGeneration) rafId = requestAnimationFrame(next => pumpLive(next, generation));
   }
-  document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => {
-    autoSpeed = Number(b.dataset.speed); document.querySelectorAll('[data-speed]').forEach(x => x.classList.toggle('active', x===b));
-    $('note').textContent = `live speed ${autoSpeed}×`;
-  });
+  document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { autoSpeed = Number(b.dataset.speed); document.querySelectorAll('[data-speed]').forEach(x => x.classList.toggle('active', x===b)); $('note').textContent = `live speed ${autoSpeed}×`; });
   $('liveToggle').onclick = () => setLive(!live);
-  document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { setLive(false); try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick)})); } catch(e){ alert(e.message); } });
-  $('reset').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/live-start',{compact:true})); setLive(true); } catch(e){ alert(e.message); } };
+  document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { setLive(false); try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick),...settings()})); } catch(e){ alert(e.message); } });
+  $('reset').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/live-start',{compact:true,...settings()})); setLive(true); } catch(e){ alert(e.message); } };
+  $('talkDemo').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/demo-talk',{employee_id:selected,...settings(),compact:true})); setLive(true); } catch(e){ alert(e.message); } };
+  $('effectsDemo').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/demo-effects',{...settings(),compact:true})); setLive(true); } catch(e){ alert(e.message); } };
   $('critical').onclick = async () => { setLive(false); try { if(!selected) throw new Error('Select an actor first'); render(await api('/api/demo-critical',{employee_id:selected})); } catch(e){ alert(e.message); } };
   $('save').onclick = async () => { setLive(false); try { const x = await api('/api/save',{}); saved = x.runtime_snapshot; localStorage.setItem('gds-runtime-snapshot',x.snapshot_json); localStorage.setItem('gds-runtime-replay',x.replay_json); $('note').textContent='snapshot saved (live paused)'; } catch(e){ alert(e.message); } };
   $('load').onclick = async () => { setLive(false); try { const raw = localStorage.getItem('gds-runtime-snapshot'); if(!raw && !saved) throw new Error('No saved snapshot'); render(await api('/api/load',{runtime_snapshot:saved || JSON.parse(raw)})); } catch(e){ alert(e.message); } };
   $('replay').onclick = async () => { setLive(false); try { const raw = localStorage.getItem('gds-runtime-replay'); if(!raw) throw new Error('Save a snapshot/replay first'); render(await api('/api/replay',JSON.parse(raw))); } catch(e){ alert(e.message); } };
+  $('locale').onchange = () => { $('note').textContent = `dialogue locale: ${$('locale').value} (applies to new speech)`; };
+  $('showRoutes').onchange = () => { if(state) { $('log').textContent=''; seenEvents.clear(); render(state); } };
   (async function boot() {
-    try {
-      $('log').textContent=''; seenEvents.clear();
-      render(await api('/api/live-start',{compact:true}));
-      $('note').textContent = location.protocol === 'file:' ? 'connected to localhost host' : '';
-      setLive(true);
-    }
-    catch(e) {
-      setLive(false);
-      $('note').textContent = 'เปิดผ่าน http://127.0.0.1:8765/ หรือให้ runtime_review_server.py ทำงานอยู่';
-      $('log').textContent=e.message;
-    }
+    try { $('log').textContent=''; seenEvents.clear(); await api('/api/health'); render(await api('/api/live-start',{compact:true,...settings()})); $('note').textContent = location.protocol === 'file:' ? 'connected to localhost host' : ''; setLive(true); }
+    catch(e) { setLive(false); $('note').textContent = 'เปิดผ่าน http://127.0.0.1:8765/ และตรวจว่า runtime_review_server.py ทำงานอยู่'; $('log').textContent=`${e.message}\n\nStart: python TOOLS/runtime_review_server.py`; }
   })();
 </script>
 </body>

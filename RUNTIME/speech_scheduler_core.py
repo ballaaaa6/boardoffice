@@ -1287,9 +1287,18 @@ class SpeechSchedulerCore:
         commands: Iterable[dict[str, Any]] | None = None,
         dialogue_locale: str = "en",
         dialogue_seed: str | int = "0",
+        validate: bool = True,
     ) -> dict[str, Any]:
-        """Advance speech timers and return events; input snapshots stay untouched."""
-        current = self.validate_snapshot(snapshot)
+        """Advance speech timers and return events.
+
+        The default keeps the input snapshot untouched; trusted in-place host
+        loops may pass ``validate=False`` to avoid a defensive deep copy.
+        """
+        # A host that owns a previously validated snapshot can opt into the
+        # in-place path.  This avoids repeatedly deep-copying active talk
+        # route/dialogue plans during a live preview; callers keep the safe,
+        # copy-isolated default by omitting ``validate``.
+        current = self.validate_snapshot(snapshot) if validate else snapshot
         elapsed_ms = self._require_int(elapsed_ms, "elapsed_ms")
         start_ms = int(current["clock"]["simulation_time_ms"])
         target_ms = start_ms + elapsed_ms
@@ -1415,7 +1424,8 @@ class SpeechSchedulerCore:
             first_pass = False
 
         current["clock"]["simulation_time_ms"] = target_ms
-        current = self.validate_snapshot(current)
+        if validate:
+            current = self.validate_snapshot(current)
         events.sort(key=lambda event: (int(event["timestamp_ms"]), int(event["event_index"])))
         return {"snapshot": current, "events": events}
 

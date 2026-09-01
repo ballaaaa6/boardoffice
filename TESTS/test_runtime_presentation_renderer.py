@@ -121,6 +121,27 @@ def test_runtime_renderer_consumes_all_pair_modes_and_keeps_channels_separate(mo
     assert advanced == before_render
 
 
+def test_runtime_renderer_reuses_seated_base_composition_without_aliasing_overlays():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    renderer = RuntimePresentationRenderer(core)
+
+    first, _presentation = renderer.render_runtime_snapshot(
+        runtime,
+        floor_id="floor02",
+    )
+    cache_size = len(renderer._base_floor_cache)
+    second, _presentation = renderer.render_runtime_snapshot(
+        runtime,
+        floor_id="floor02",
+    )
+
+    assert cache_size == 1
+    assert len(renderer._base_floor_cache) == cache_size
+    assert first.size == second.size == (600, 600)
+    assert first.tobytes() == second.tobytes()
+
+
 def test_runtime_renderer_paints_shared_emotion_and_return_window():
     core = CentralGameCore(ROOT)
     runtime = _quiet_runtime(core)
