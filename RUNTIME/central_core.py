@@ -1653,6 +1653,7 @@ class CentralGameCore:
         *,
         at_ms: int | None = None,
         floor_id: str | None = None,
+        validate: bool = True,
     ) -> dict[str, Any]:
         """Materialize a read-only render snapshot from the three runtime channels.
 
@@ -1663,7 +1664,10 @@ class CentralGameCore:
         consume each frame without mutating gameplay state or workstation
         ownership.
         """
-        runtime = self.validate_runtime_snapshot(runtime_snapshot)
+        runtime = (
+            self.validate_runtime_snapshot(runtime_snapshot)
+            if validate else runtime_snapshot
+        )
         actor_snapshot = runtime['actor_snapshot']
         speech_snapshot = runtime['speech_snapshot']
         actor_clock_ms = int(actor_snapshot['clock']['simulation_time_ms'])

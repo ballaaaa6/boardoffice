@@ -335,12 +335,14 @@ class RuntimePresentationRenderer:
         *,
         at_ms: int | None = None,
         floor_id: str | None = None,
+        validate: bool = True,
     ) -> tuple[Image.Image, dict[str, Any]]:
         """Resolve and render one runtime sample, returning image + snapshot."""
         presentation = self.core.resolve_runtime_presentation(
             runtime_snapshot,
             at_ms=at_ms,
             floor_id=floor_id,
+            validate=validate,
         )
         return self.render_presentation(presentation, floor_id=floor_id), presentation
 
@@ -365,6 +367,7 @@ class RuntimePresentationLoop:
         simulation_seed: str = "gds-speech-scheduler-v1",
         dialogue_locale: str = "en",
         dialogue_seed: str | int = "0",
+        validate_runtime_each_frame: bool = True,
     ) -> None:
         self.core = core
         self.renderer = RuntimePresentationRenderer(core)
@@ -393,6 +396,7 @@ class RuntimePresentationLoop:
             self.floor_id = next(iter(floors))
         self.dialogue_locale = str(dialogue_locale)
         self.dialogue_seed = dialogue_seed
+        self.validate_runtime_each_frame = bool(validate_runtime_each_frame)
 
     @property
     def runtime_snapshot(self) -> dict[str, Any]:
@@ -413,6 +417,7 @@ class RuntimePresentationLoop:
             source,
             at_ms=at_ms,
             floor_id=self.floor_id,
+            validate=self.validate_runtime_each_frame,
         )
         return {
             "image": image,
@@ -450,7 +455,10 @@ class RuntimePresentationLoop:
                 dialogue_locale=self.dialogue_locale,
                 dialogue_seed=self.dialogue_seed,
             )
-            next_snapshot = self.core.validate_runtime_snapshot(advanced)
+            next_snapshot = (
+                self.core.validate_runtime_snapshot(advanced)
+                if self.validate_runtime_each_frame else advanced
+            )
             frame = self._frame(
                 runtime_snapshot=next_snapshot,
                 events=advanced.get("events", []),
