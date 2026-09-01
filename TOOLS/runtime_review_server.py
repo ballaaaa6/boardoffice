@@ -213,6 +213,7 @@ class ReviewState:
                     "activity_started_ms": 0,
                     "activity_until_ms": 0,
                     "work_loop_elapsed_ms": 0,
+                    "work_loop_count": 0,
                     "pending_home": False,
                     "pending_home_due_ms": None,
                 })
@@ -232,6 +233,7 @@ class ReviewState:
                 "activity_started_ms": 0,
                 "activity_until_ms": 0,
                 "work_loop_elapsed_ms": 0,
+                "work_loop_count": 0,
                 "pending_home": False,
                 "pending_home_due_ms": None,
             })
@@ -312,6 +314,7 @@ class ReviewState:
                     "activity_started_ms": now_ms,
                     "activity_until_ms": None,
                     "work_loop_elapsed_ms": 0,
+                    "work_loop_count": 0,
                     "pending_home": False,
                     "pending_home_due_ms": None,
                 })
@@ -426,6 +429,7 @@ class ReviewState:
                     "activity_started_ms": now_ms,
                     "activity_until_ms": None,
                     "work_loop_elapsed_ms": 0,
+                    "work_loop_count": 0,
                     "pending_home": False,
                     "pending_home_due_ms": None,
                 })
@@ -673,6 +677,8 @@ class ReviewState:
                 "workstation_id": row.get("workstation_id"),
                 "render_owner": row.get("render_owner"),
                 "visible": row.get("visible"),
+                "pc_frame_index": row.get("pc_frame_index"),
+                "pc_frame_count": row.get("pc_frame_count"),
                 "presentation_phase": row.get("presentation_phase"),
                 "route_phase": route.get("phase"),
                 "ground_xy": row.get("ground_xy"),
@@ -862,6 +868,7 @@ class ReviewState:
                 "activity_started_ms": runtime["actor_snapshot"]["clock"]["simulation_time_ms"],
                 "activity_until_ms": None,
                 "work_loop_elapsed_ms": 0,
+                "work_loop_count": 0,
                 "pending_home": False,
                 "pending_home_due_ms": None,
             })

@@ -225,8 +225,22 @@ class ActorSimulationCore:
             return 0
         before = cls._work_loop_elapsed(actor)
         total = before + int(elapsed_ms)
+        completed = total // cls.WORK_LOOP_MS
         actor["behavior"]["work_loop_elapsed_ms"] = total % cls.WORK_LOOP_MS
-        return total // cls.WORK_LOOP_MS
+        # ``work_loop_elapsed_ms`` is deliberately bounded because it is also
+        # the critical-home boundary clock.  PC animation needs the separate
+        # count of completed normal-work loops so its five authored cells can
+        # advance instead of dividing the already-wrapped phase.
+        if completed:
+            previous_count = actor["behavior"].get("work_loop_count", 0)
+            if (
+                isinstance(previous_count, bool)
+                or not isinstance(previous_count, int)
+                or previous_count < 0
+            ):
+                raise ActorSimulationError("work_loop_count must be an integer >= 0")
+            actor["behavior"]["work_loop_count"] = previous_count + completed
+        return completed
 
     @classmethod
     def _next_work_loop_boundary_ms(
@@ -495,6 +509,7 @@ class ActorSimulationCore:
         actor["behavior"]["pending_home"] = False
         actor["behavior"]["pending_home_due_ms"] = None
         actor["behavior"]["work_loop_elapsed_ms"] = 0
+        actor["behavior"]["work_loop_count"] = 0
         actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
         actor["behavior"]["activity_until_ms"] = None
         actor["last_event"] = "critical_home_requested" if reason == "stamina_critical" else "home_requested"
@@ -761,6 +776,7 @@ class ActorSimulationCore:
                 "active_event": None,
                 "cooldowns": {},
                 "work_loop_elapsed_ms": 0,
+                "work_loop_count": 0,
                 "pending_home": False,
                 "pending_home_due_ms": None,
                 "talk": None,
@@ -821,6 +837,9 @@ class ActorSimulationCore:
             # not carry these presentation-boundary fields.  Normalize them
             # at the validation boundary so saved v1 snapshots remain loadable.
             behavior.setdefault("work_loop_elapsed_ms", 0)
+            # Backward-compatible migration for snapshots created before the
+            # persistent completed-loop counter existed.
+            behavior.setdefault("work_loop_count", 0)
             behavior.setdefault("pending_home", False)
             behavior.setdefault("pending_home_due_ms", None)
             behavior.setdefault("talk", None)
@@ -956,6 +975,10 @@ class ActorSimulationCore:
                 raise ActorSimulationError(
                     f"{employee_id}: work_loop_elapsed_ms exceeds normal-work loop"
                 )
+            self._require_int(
+                behavior.get("work_loop_count", 0),
+                f"{employee_id}.work_loop_count",
+            )
             pending_home = behavior.get("pending_home", False)
             if not isinstance(pending_home, bool):
                 raise ActorSimulationError(f"{employee_id}: pending_home must be boolean")
@@ -1485,6 +1508,7 @@ class ActorSimulationCore:
         actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
         actor["behavior"]["activity_until_ms"] = None
         actor["behavior"]["work_loop_elapsed_ms"] = 0
+        actor["behavior"]["work_loop_count"] = 0
         actor["behavior"]["next_event_due_ms"] = self._schedule_next_event(
             actor,
             employee,
@@ -1846,6 +1870,7 @@ class ActorSimulationCore:
                 "activity_started_ms": int(timestamp_ms),
                 "activity_until_ms": int(timestamp_ms) + self._home_recovery_delay_ms(employee, actor),
                 "work_loop_elapsed_ms": 0,
+                "work_loop_count": 0,
                 "pending_home": False,
                 "pending_home_due_ms": None,
             })
@@ -1953,6 +1978,7 @@ class ActorSimulationCore:
                 "activity_started_ms": int(timestamp_ms),
                 "activity_until_ms": None,
                 "work_loop_elapsed_ms": 0,
+                "work_loop_count": 0,
                 "pending_home": False,
                 "pending_home_due_ms": None,
             })
@@ -2168,6 +2194,7 @@ class ActorSimulationCore:
         actor["conversation_phase"] = None
         actor["behavior"]["active_event"] = None
         actor["behavior"]["work_loop_elapsed_ms"] = 0
+        actor["behavior"]["work_loop_count"] = 0
         actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
         actor["behavior"]["activity_until_ms"] = None
         actor["behavior"]["next_event_due_ms"] = self._schedule_next_event(
@@ -2487,12 +2514,30 @@ class ActorSimulationCore:
                     break
                 if now_ms >= target_ms:
                     break
-                event = self.choose_behavior_event(
-                    actor["employee_id"],
-                    simulation_time_ms=now_ms,
-                    event_counter=int(actor["behavior"]["event_counter"]),
-                    cooldowns=actor["behavior"]["cooldowns"],
-                )
+                try:
+                    event = self.choose_behavior_event(
+                        actor["employee_id"],
+                        simulation_time_ms=now_ms,
+                        event_counter=int(actor["behavior"]["event_counter"]),
+                        cooldowns=actor["behavior"]["cooldowns"],
+                    )
+                except ActorSimulationError as exc:
+                    # A review host may shorten ``next_event_due_ms`` to make
+                    # behaviors visible, while each event still owns its
+                    # longer cooldown.  If all weighted events are cooling
+                    # down, wait for the earliest one instead of turning a
+                    # valid actor state into a fatal tick error.
+                    if str(exc) != "No eligible weighted recovery event":
+                        raise
+                    future_cooldowns = [
+                        int(value)
+                        for value in actor["behavior"]["cooldowns"].values()
+                        if int(value) > now_ms
+                    ]
+                    if not future_cooldowns:
+                        raise
+                    actor["behavior"]["next_event_due_ms"] = min(future_cooldowns)
+                    continue
                 self._start_event(
                     snapshot,
                     actor,

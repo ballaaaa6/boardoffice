@@ -18,6 +18,10 @@ def test_review_host_uses_fixed_simulation_slices_without_latency_double_wait():
 def test_review_host_swaps_only_after_image_decode_and_keeps_previous_frame():
     assert "target.decode()" in HTML
     assert "target.classList.add('visible'); previous.classList.remove('visible')" in HTML
+    # Discrete screenshots must swap atomically.  Cross-fading two full
+    # rasters makes the floor flash/shimmer when the stream is faster than the
+    # CSS transition.
+    assert "transition:opacity" not in HTML
     # A previously loaded alternate image must not be treated as the new frame
     # merely because its complete flag remained true from the prior request.
     assert "if(target.complete) target.onload();" not in HTML

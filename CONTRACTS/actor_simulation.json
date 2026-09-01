@@ -187,6 +187,13 @@
     ],
     "event_order": "employee_id_then_event_index"
   },
+  "work_presentation_clock": {
+    "phase_field": "behavior.work_loop_elapsed_ms",
+    "completed_loop_field": "behavior.work_loop_count",
+    "phase_policy": "bounded_720ms_normal_work_pose_phase",
+    "pc_policy": "NW_NE_advance_one_cell_after_each_completed_normal_work_loop; SE_SW_static_cell0",
+    "reset_policy": "reset_both_fields_when_working_restarts_after_event_or_route"
+  },
   "stamina": {
     "storage_unit": "milli_stamina",
     "display_unit": "stamina",

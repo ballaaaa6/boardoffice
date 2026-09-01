@@ -15,7 +15,11 @@
     .panel { background:rgba(24,33,44,.94); border:1px solid var(--line); border-radius:12px; padding:14px; box-shadow:0 10px 30px #0003; }
     .stage { min-height:530px; display:flex; flex-direction:column; gap:10px; }
     .scene-frame { position:relative; width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:8px; background:#0b0e13; border:1px solid #293849; }
-    #scene, #sceneAlt { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; image-rendering:auto; opacity:0; transition:opacity .04s linear; }
+    /* These are discrete raster snapshots, not tweenable scene layers.  A
+       cross-fade makes two screenshots bleed into one another every 60ms,
+       which reads as rapid flashing/shimmer.  Keep the last frame opaque
+       until the decoded replacement is ready, then swap atomically. */
+    #scene, #sceneAlt { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; image-rendering:auto; opacity:0; }
     #scene.visible, #sceneAlt.visible { opacity:1; }
     .toolbar { display:flex; flex-wrap:wrap; gap:7px; }
     button, select { background:#243449; color:#e5edf5; border:1px solid #425a73; border-radius:7px; padding:8px 10px; cursor:pointer; }
@@ -162,7 +166,8 @@
       const bubble = a.dialogue_visible ? ` · bubble: ${esc(a.dialogue_text||'')}` : '';
       const route = a.route_phase ? `<div class="detail route">route: ${esc(a.route_phase)}${a.ground_xy ? ` · @${a.ground_xy.map(v => Number(v).toFixed(1)).join(',')}` : ''}</div>` : '';
       const talk = a.speech_mode ? `<div class="detail talk">talk: ${esc(a.speech_mode)}${a.talk_partner_id ? ` ↔ ${esc(a.talk_partner_id)}` : ''}${a.speech_category ? ` · ${esc(a.speech_category)}` : ''}</div>` : '';
-      return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.action||'none')}/${esc(a.subaction||'')}${overlay}${bubble}</div>${route}${talk}<div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`;
+      const pc = a.pc_frame_count > 1 ? ` · PC cell ${Number(a.pc_frame_index) + 1}/${a.pc_frame_count}` : '';
+      return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.action||'none')}/${esc(a.subaction||'')}${pc}${overlay}${bubble}</div>${route}${talk}<div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`;
     }).join('');
     document.querySelectorAll('.card').forEach(el => el.onclick = () => { selected = el.dataset.id; render(state); });
     appendEvents(x.events); $('eventCount').textContent = seenEvents.size;

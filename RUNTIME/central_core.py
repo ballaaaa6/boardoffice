@@ -1682,9 +1682,8 @@ class CentralGameCore:
             # normal-work loop phase.  This keeps a critical actor visibly in
             # the same worknormal pose until its loop boundary, even when a
             # host renders a saved snapshot at a different wall-clock sample.
-            frame_clock_ms = int(
-                actor.get('behavior', {}).get('work_loop_elapsed_ms', sample_ms)
-            )
+            behavior = actor.get('behavior', {})
+            frame_clock_ms = int(behavior.get('work_loop_elapsed_ms', sample_ms))
         else:
             render_owner = 'none'
             action = None
@@ -1723,7 +1722,19 @@ class CentralGameCore:
             'frame_index': (frame_clock_ms // 360) % frame_count if action is not None else 0,
             'character_frame_index': (frame_clock_ms // 360) % frame_count if action is not None else 0,
             'character_frame_ms': 360,
-            'pc_frame_index': (frame_clock_ms // 720) % 5 if render_owner == 'work_seat' else None,
+            # ``frame_clock_ms`` is the bounded 720ms character phase.  The
+            # PC channel advances once per completed work loop, so use the
+            # actor's persistent loop count instead of dividing that phase
+            # (which would otherwise stay at cell 0 forever).
+            'pc_frame_index': (
+                int(actor.get('behavior', {}).get('work_loop_count', 0))
+                % self.work_seats.resolve_pc_frame_count(direction)
+                if render_owner == 'work_seat' else None
+            ),
+            'pc_frame_count': (
+                self.work_seats.resolve_pc_frame_count(direction)
+                if render_owner == 'work_seat' else None
+            ),
             'pc_frame_ms': 720,
             'dialogue_visible': False,
             'dialogue_opacity': 0.0,

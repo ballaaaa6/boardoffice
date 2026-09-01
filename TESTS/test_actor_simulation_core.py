@@ -238,6 +238,26 @@ def test_weighted_event_choice_is_stable_and_honors_cooldowns(actor_core: ActorS
         )
 
 
+def test_advance_waits_for_the_earliest_cooldown_when_all_recovery_events_are_locked(
+    actor_core: ActorSimulationCore,
+):
+    snapshot = actor_core.initial_snapshot("floor01")
+    actor = snapshot["actors"][ACTOR_ID]
+    actor["behavior"].update({
+        "next_event_due_ms": 0,
+        "cooldowns": {
+            event: 120
+            for event in actor_core.WEIGHTED_EVENTS
+        },
+    })
+
+    advanced = actor_core.advance_snapshot(snapshot, 60)
+    changed = advanced["snapshot"]["actors"][ACTOR_ID]
+    assert advanced["snapshot"]["clock"]["simulation_time_ms"] == 60
+    assert changed["behavior"]["next_event_due_ms"] == 120
+    assert changed["behavior"]["active_event"] is None
+
+
 def test_due_behavior_event_emits_one_ordered_start(actor_core: ActorSimulationCore):
     snapshot = actor_core.initial_snapshot()
     snapshot["actors"][ACTOR_ID]["behavior"]["next_event_due_ms"] = 0

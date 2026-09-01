@@ -17,6 +17,7 @@
     "snapshot",
     "state_vocabulary",
     "clock",
+    "work_presentation_clock",
     "stamina",
     "behavior",
     "routing",
@@ -349,6 +350,34 @@
         },
         "event_order": {
           "const": "employee_id_then_event_index"
+        }
+      }
+    },
+    "work_presentation_clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase_field",
+        "completed_loop_field",
+        "phase_policy",
+        "pc_policy",
+        "reset_policy"
+      ],
+      "properties": {
+        "phase_field": {
+          "const": "behavior.work_loop_elapsed_ms"
+        },
+        "completed_loop_field": {
+          "const": "behavior.work_loop_count"
+        },
+        "phase_policy": {
+          "const": "bounded_720ms_normal_work_pose_phase"
+        },
+        "pc_policy": {
+          "const": "NW_NE_advance_one_cell_after_each_completed_normal_work_loop; SE_SW_static_cell0"
+        },
+        "reset_policy": {
+          "const": "reset_both_fields_when_working_restarts_after_event_or_route"
         }
       }
     },

@@ -133,6 +133,43 @@ def test_workseat_lifecycle_exposes_pc_frame_after_each_complete_work_loop():
     assert all(payload["pc_frame_index"] == 0 for payload in se_payloads)
 
 
+def test_runtime_presentation_advances_pc_cell_from_persistent_completed_loop_count():
+    core = CentralGameCore(ROOT)
+    runtime = core.resolve_runtime_snapshot("floor06")
+    # Keep all actors in normal work so the sample is isolated from seeded
+    # behavior events.  Pick a native NW seat, whose authored PC has cells 1–5.
+    for speech_actor in runtime["speech_snapshot"]["actors"].values():
+        speech_actor.update({
+            "greeting_due_ms": None,
+            "greeting_emitted": True,
+            "work_start_due_ms": None,
+            "work_start_emitted": True,
+            "solo_next_due_ms": None,
+            "pair_next_due_ms": None,
+        })
+    for actor in runtime["actor_snapshot"]["actors"].values():
+        actor["behavior"]["next_event_due_ms"] = 10**9
+    nw_employee = next(
+        employee_id
+        for employee_id, actor in runtime["actor_snapshot"]["actors"].items()
+        if actor["assignment"]["facing"] == "NW"
+    )
+    actor = runtime["actor_snapshot"]["actors"][nw_employee]
+    actor["behavior"].update({
+        "work_loop_elapsed_ms": 0,
+        "work_loop_count": 0,
+    })
+    runtime = core.validate_runtime_snapshot(runtime)
+    first = core.resolve_runtime_presentation(runtime, floor_id="floor06")
+    assert first["actors"][nw_employee]["pc_frame_index"] == 0
+    advanced = core.advance_runtime_snapshot(runtime, 720)
+    second = core.resolve_runtime_presentation(advanced, floor_id="floor06")
+    advanced_actor = advanced["actor_snapshot"]["actors"][nw_employee]
+    assert advanced_actor["behavior"]["work_loop_elapsed_ms"] == 0
+    assert advanced_actor["behavior"]["work_loop_count"] == 1
+    assert second["actors"][nw_employee]["pc_frame_index"] == 1
+
+
 def test_derived_ne_workstation_uses_the_same_animated_pc_channel(monkeypatch):
     core = CentralGameCore(ROOT)
     original = core.directions.resolve_character_action_direction
