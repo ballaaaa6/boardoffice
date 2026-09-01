@@ -1,0 +1,742 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.actor_simulation.v1",
+  "title": "GDS persistent JSON-safe actor simulation contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema",
+    "contract_id",
+    "version",
+    "scope",
+    "runtime",
+    "api",
+    "source_registries",
+    "identity_binding",
+    "snapshot",
+    "state_vocabulary",
+    "clock",
+    "stamina",
+    "behavior",
+    "routing",
+    "presentation",
+    "assignment",
+    "output",
+    "error_policy"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "gds.actor_simulation.v1"
+    },
+    "schema": {
+      "const": "gds.actor_simulation.v1"
+    },
+    "contract_id": {
+      "const": "contract.gds.actor_simulation.v1"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "scope": {
+      "const": "persistent_json_safe_actor_snapshot_and_stamina_reducer"
+    },
+    "runtime": {
+      "const": "RUNTIME/actor_simulation_core.py"
+    },
+    "api": {
+      "const": [
+        "CentralGameCore.resolve_actor_snapshot",
+        "CentralGameCore.validate_actor_snapshot",
+        "CentralGameCore.advance_actor_snapshot",
+        "CentralGameCore.resolve_actor_behavior_event"
+      ]
+    },
+    "source_registries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "employee_metadata",
+        "employee_metadata_schema",
+        "conversation_behavior",
+        "work_seat_lifecycle",
+        "workstation_slot_resolver"
+      ],
+      "properties": {
+        "employee_metadata": {
+          "const": "CHARACTER/EMPLOYEES/employee_metadata.json"
+        },
+        "employee_metadata_schema": {
+          "const": "SCHEMA/CHARACTER/employee_metadata.schema.json"
+        },
+        "conversation_behavior": {
+          "const": "CONTRACTS/conversation_behavior.json"
+        },
+        "work_seat_lifecycle": {
+          "const": "CONTRACTS/work_seat_lifecycle.json"
+        },
+        "workstation_slot_resolver": {
+          "const": "RUNTIME/work_seat_core.py"
+        }
+      }
+    },
+    "identity_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actor_id",
+        "visual_template_id",
+        "employee_id_role",
+        "character_id_role",
+        "profile_source",
+        "unassigned_policy"
+      ],
+      "properties": {
+        "actor_id": {
+          "const": "employee_id"
+        },
+        "visual_template_id": {
+          "const": "character_id"
+        },
+        "employee_id_role": {
+          "const": "persistent_actor_instance_id"
+        },
+        "character_id_role": {
+          "const": "canonical_visual_template_id"
+        },
+        "profile_source": {
+          "const": "employee_metadata.employees[].stamina_profile"
+        },
+        "unassigned_policy": {
+          "const": "exclude_from_active_snapshot_until_explicit_assignment"
+        }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime_schema",
+        "runtime_schema_path",
+        "root_required_fields",
+        "actor_required_fields",
+        "assignment_is_authoritative",
+        "assignment_validation",
+        "position_policy",
+        "render_policy",
+        "conversation_policy",
+        "unassigned_actor_policy"
+      ],
+      "properties": {
+        "runtime_schema": {
+          "const": "gds.actor_snapshot.v1"
+        },
+        "runtime_schema_path": {
+          "const": "SCHEMA/actor_snapshot.schema.json"
+        },
+        "root_required_fields": {
+          "const": [
+            "schema",
+            "version",
+            "clock",
+            "determinism",
+            "actors"
+          ]
+        },
+        "actor_required_fields": {
+          "const": [
+            "employee_id",
+            "character_id",
+            "assignment",
+            "presence",
+            "activity",
+            "position",
+            "stamina",
+            "behavior",
+            "conversation_phase",
+            "last_event"
+          ]
+        },
+        "assignment_is_authoritative": {
+          "const": false
+        },
+        "assignment_validation": {
+          "const": "resolve_against_employee_metadata_and_runtime_workseat_slot"
+        },
+        "position_policy": {
+          "const": "floor_uv_or_route_reference_when_present; null_while_home"
+        },
+        "render_policy": {
+          "const": "render_action_and_render_owner_are_derived_presentation_outputs"
+        },
+        "conversation_policy": {
+          "const": "existing_conversation_phase_is_an_optional_activity_subphase"
+        },
+        "unassigned_actor_policy": {
+          "const": "not_eligible_for_runtime_behavior_or_workseat_render"
+        }
+      }
+    },
+    "state_vocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "presence",
+        "activity",
+        "threshold_bands",
+        "render_actions",
+        "conversation_phase_source",
+        "legal_state_pairs",
+        "legal_transitions"
+      ],
+      "properties": {
+        "presence": {
+          "const": [
+            "home",
+            "entering",
+            "present",
+            "leaving"
+          ]
+        },
+        "activity": {
+          "const": [
+            "walking_to_work",
+            "working",
+            "talking",
+            "wandering",
+            "popup_event",
+            "going_home",
+            "home_recovery",
+            "returning_to_work"
+          ]
+        },
+        "threshold_bands": {
+          "const": [
+            "normal",
+            "low",
+            "critical"
+          ]
+        },
+        "render_actions": {
+          "const": [
+            "idle",
+            "move",
+            "work",
+            "happy",
+            "sad"
+          ]
+        },
+        "conversation_phase_source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contract",
+            "field",
+            "allowed_when_activity",
+            "null_when_activity_is_not_talking"
+          ],
+          "properties": {
+            "contract": {
+              "const": "CONTRACTS/conversation_behavior.json"
+            },
+            "field": {
+              "const": "actor.conversation_phase"
+            },
+            "allowed_when_activity": {
+              "const": "talking"
+            },
+            "null_when_activity_is_not_talking": {
+              "const": true
+            }
+          }
+        },
+        "legal_state_pairs": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "presence",
+              "activity"
+            ],
+            "properties": {
+              "presence": {
+                "enum": [
+                  "home",
+                  "entering",
+                  "present",
+                  "leaving"
+                ]
+              },
+              "activity": {
+                "enum": [
+                  "walking_to_work",
+                  "working",
+                  "talking",
+                  "wandering",
+                  "popup_event",
+                  "going_home",
+                  "home_recovery",
+                  "returning_to_work"
+                ]
+              }
+            }
+          }
+        },
+        "legal_transitions": {
+          "type": "array",
+          "minItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "prefixItems": [
+              {
+                "type": "string",
+                "pattern": "^(entering/walking_to_work|present/working|present/talking|present/wandering|present/popup_event|leaving/going_home|home/home_recovery|entering/returning_to_work)$"
+              },
+              {
+                "type": "string",
+                "pattern": "^(entering/walking_to_work|present/working|present/talking|present/wandering|present/popup_event|leaving/going_home|home/home_recovery|entering/returning_to_work)$"
+              }
+            ],
+            "items": false
+          }
+        }
+      }
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "playback_tick_ms",
+        "timestamp_unit",
+        "advance_input",
+        "tick_remainder_policy",
+        "monotonic",
+        "deterministic_seed_material",
+        "event_order"
+      ],
+      "properties": {
+        "playback_tick_ms": {
+          "const": 60
+        },
+        "timestamp_unit": {
+          "const": "milliseconds"
+        },
+        "advance_input": {
+          "const": "non_negative_integer_elapsed_ms"
+        },
+        "tick_remainder_policy": {
+          "const": "carry_elapsed_remainder_without_float_rounding"
+        },
+        "monotonic": {
+          "const": true
+        },
+        "deterministic_seed_material": {
+          "const": [
+            "employee_id",
+            "profile_seed",
+            "event_counter",
+            "simulation_time_ms"
+          ]
+        },
+        "event_order": {
+          "const": "employee_id_then_event_index"
+        }
+      }
+    },
+    "stamina": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storage_unit",
+        "display_unit",
+        "display_to_storage_scale",
+        "max_display",
+        "max_milli",
+        "initial_display",
+        "low_threshold_display",
+        "low_threshold_milli",
+        "critical_threshold_display",
+        "critical_threshold_milli",
+        "threshold_band_policy",
+        "drain_scope",
+        "drain_profile_source",
+        "drain_range_milli_per_second",
+        "drain_remainder_policy",
+        "recovery_operation",
+        "recovery_profile_source",
+        "home_trigger",
+        "home_restore",
+        "home_delay_source"
+      ],
+      "properties": {
+        "storage_unit": {
+          "const": "milli_stamina"
+        },
+        "display_unit": {
+          "const": "stamina"
+        },
+        "display_to_storage_scale": {
+          "const": 1000
+        },
+        "max_display": {
+          "const": 100
+        },
+        "max_milli": {
+          "const": 100000
+        },
+        "initial_display": {
+          "const": 100
+        },
+        "low_threshold_display": {
+          "const": 30
+        },
+        "low_threshold_milli": {
+          "const": 30000
+        },
+        "critical_threshold_display": {
+          "const": 10
+        },
+        "critical_threshold_milli": {
+          "const": 10000
+        },
+        "threshold_band_policy": {
+          "const": "normal_gt_low; low_lte_low_and_gt_critical; critical_lte_critical"
+        },
+        "drain_scope": {
+          "const": "working_only"
+        },
+        "drain_profile_source": {
+          "const": "employee_metadata.employees[].stamina_profile.work_drain_milli_per_second"
+        },
+        "drain_range_milli_per_second": {
+          "const": [
+            600,
+            850
+          ]
+        },
+        "drain_remainder_policy": {
+          "const": "carry_numerator_remainder_modulo_1000"
+        },
+        "recovery_operation": {
+          "const": "add_then_clamp_to_max"
+        },
+        "recovery_profile_source": {
+          "const": "employee_metadata.stamina_policy.recovery_events"
+        },
+        "home_trigger": {
+          "const": "stamina_lte_critical_threshold"
+        },
+        "home_restore": {
+          "const": "full_on_home"
+        },
+        "home_delay_source": {
+          "const": "employee_metadata.employees[].stamina_profile.home_delay_seconds_range"
+        }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "weighted_recovery_events",
+        "selection_weights",
+        "selection_weights_sum",
+        "weight_source",
+        "cooldown_storage",
+        "event_counter_scope",
+        "visual_side_effect_policy",
+        "threshold_event_policy",
+        "critical_event_policy"
+      ],
+      "properties": {
+        "weighted_recovery_events": {
+          "const": [
+            "talk",
+            "background_effect",
+            "popup",
+            "wander"
+          ]
+        },
+        "selection_weights": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "talk",
+            "background_effect",
+            "popup",
+            "wander"
+          ],
+          "properties": {
+            "talk": {
+              "const": 45
+            },
+            "background_effect": {
+              "const": 20
+            },
+            "popup": {
+              "const": 15
+            },
+            "wander": {
+              "const": 20
+            }
+          }
+        },
+        "selection_weights_sum": {
+          "const": 100
+        },
+        "weight_source": {
+          "const": "employee_metadata.stamina_policy.recovery_events.*.selection_weight"
+        },
+        "cooldown_storage": {
+          "const": "absolute_simulation_time_ms"
+        },
+        "event_counter_scope": {
+          "const": "per_actor_and_root"
+        },
+        "visual_side_effect_policy": {
+          "const": "visual_registry_metadata_never_mutates_stamina"
+        },
+        "threshold_event_policy": {
+          "const": "emit_once_per_band_crossing"
+        },
+        "critical_event_policy": {
+          "const": "request_or_force_going_home_according_to_runtime_command"
+        }
+      }
+    },
+    "routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commands",
+        "route_phases",
+        "portal_fade_steps",
+        "home_recovery_policy",
+        "assignment_return_policy"
+      ],
+      "properties": {
+        "commands": {
+          "const": [
+            "request_home",
+            "request_return"
+          ]
+        },
+        "route_phases": {
+          "const": [
+            "to_portal",
+            "portal_exit",
+            "portal_entry",
+            "to_workseat",
+            "wander_out",
+            "wander_back"
+          ]
+        },
+        "portal_fade_steps": {
+          "const": 4
+        },
+        "home_recovery_policy": {
+          "const": "restore_full_stamina_at_portal_exit_then_wait_for_explicit_return"
+        },
+        "assignment_return_policy": {
+          "const": "same_owned_workstation_and_transition_gate"
+        }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_binding",
+        "channels",
+        "pose_policy",
+        "timing_ms"
+      ],
+      "properties": {
+        "event_binding": {
+          "const": "behavior_started.presentation"
+        },
+        "channels": {
+          "const": [
+            "conversation",
+            "vfx",
+            "humanball",
+            "movement"
+          ]
+        },
+        "pose_policy": {
+          "const": "presentation_events_do_not_mutate_stamina_or_workseat_assignment"
+        },
+        "timing_ms": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "simulation_tick",
+            "character_frame",
+            "effect_frame",
+            "humanball_frame"
+          ],
+          "properties": {
+            "simulation_tick": {
+              "const": 60
+            },
+            "character_frame": {
+              "const": 360
+            },
+            "effect_frame": {
+              "const": 240
+            },
+            "humanball_frame": {
+              "const": 240
+            }
+          }
+        }
+      }
+    },
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "slot_id_policy",
+        "ownership_policy",
+        "home_policy",
+        "duplicate_character_policy",
+        "duplicate_slot_policy",
+        "cross_floor_policy",
+        "explicit_unassignment_only",
+        "auto_fill_vacancies"
+      ],
+      "properties": {
+        "source": {
+          "const": "employee_metadata.employees[].assignment"
+        },
+        "slot_id_policy": {
+          "const": "runtime_derived_and_validated_not_a_second_registry"
+        },
+        "ownership_policy": {
+          "const": "behavior_never_mutates_assignment"
+        },
+        "home_policy": {
+          "const": "retain_same_owned_workstation"
+        },
+        "duplicate_character_policy": {
+          "const": "reject"
+        },
+        "duplicate_slot_policy": {
+          "const": "reject"
+        },
+        "cross_floor_policy": {
+          "const": "reject"
+        },
+        "explicit_unassignment_only": {
+          "const": true
+        },
+        "auto_fill_vacancies": {
+          "const": false
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reducer_input",
+        "reducer_output",
+        "storage_owner",
+        "database_or_network",
+        "hidden_process_state",
+        "snapshot_round_trip"
+      ],
+      "properties": {
+        "reducer_input": {
+          "const": [
+            "json_safe_snapshot",
+            "explicit_elapsed_window",
+            "explicit_commands_or_events"
+          ]
+        },
+        "reducer_output": {
+          "const": [
+            "next_snapshot",
+            "ordered_events"
+          ]
+        },
+        "storage_owner": {
+          "const": "dashboard_or_calling_application"
+        },
+        "database_or_network": {
+          "const": false
+        },
+        "hidden_process_state": {
+          "const": false
+        },
+        "snapshot_round_trip": {
+          "const": "json_load_dump_preserves_canonical_values"
+        }
+      }
+    },
+    "error_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unknown_schema_or_version",
+        "unknown_employee",
+        "character_id_mismatch",
+        "unassigned_employee",
+        "duplicate_actor_or_slot",
+        "assignment_mismatch",
+        "invalid_state_pair",
+        "invalid_transition",
+        "negative_or_non_integer_clock",
+        "stamina_out_of_range",
+        "invalid_threshold_band",
+        "fallback_guessing"
+      ],
+      "properties": {
+        "unknown_schema_or_version": {
+          "const": "error"
+        },
+        "unknown_employee": {
+          "const": "error"
+        },
+        "character_id_mismatch": {
+          "const": "error"
+        },
+        "unassigned_employee": {
+          "const": "refuse"
+        },
+        "duplicate_actor_or_slot": {
+          "const": "refuse"
+        },
+        "assignment_mismatch": {
+          "const": "refuse"
+        },
+        "invalid_state_pair": {
+          "const": "error"
+        },
+        "invalid_transition": {
+          "const": "refuse"
+        },
+        "negative_or_non_integer_clock": {
+          "const": "error"
+        },
+        "stamina_out_of_range": {
+          "const": "error"
+        },
+        "invalid_threshold_band": {
+          "const": "error"
+        },
+        "fallback_guessing": {
+          "const": false
+        }
+      }
+    }
+  }
+}

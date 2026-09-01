@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.runtime_presentation_snapshot.v1",
+  "title": "GDS read-only runtime presentation snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "clock", "timing_ms", "dialogue_layout_policy",
+    "actors", "active_speech_sessions", "paint_order"
+  ],
+  "properties": {
+    "schema": {"const": "gds.runtime_presentation_snapshot.v1"},
+    "version": {"const": "1.0.0"},
+    "clock": {
+      "type": "object", "additionalProperties": false,
+      "required": ["actor_sample_ms", "speech_sample_ms", "actor_clock_ms", "speech_clock_ms", "tick_ms"],
+      "properties": {
+        "actor_sample_ms": {"type": "integer", "minimum": 0},
+        "speech_sample_ms": {"type": "integer", "minimum": 0},
+        "actor_clock_ms": {"type": "integer", "minimum": 0},
+        "speech_clock_ms": {"type": "integer", "minimum": 0},
+        "tick_ms": {"const": 60}
+      }
+    },
+    "timing_ms": {
+      "type": "object", "additionalProperties": false,
+      "required": ["simulation_tick", "character_frame", "effect_frame", "humanball_frame", "bubble_visible", "bubble_fade"],
+      "properties": {
+        "simulation_tick": {"const": 60},
+        "character_frame": {"const": 360},
+        "effect_frame": {"const": 240},
+        "humanball_frame": {"const": 240},
+        "bubble_visible": {"const": 4000},
+        "bubble_fade": {"const": 300}
+      }
+    },
+    "dialogue_layout_policy": {"const": "direct_head_anchor_overlay_paint_order"},
+    "actors": {
+      "type": "object",
+      "propertyNames": {"pattern": "^EMP_W[12]_[0-9]{4}$"},
+      "additionalProperties": {"$ref": "#/$defs/actor"}
+    },
+    "active_speech_sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["session_id", "floor_id", "kind", "mode", "category", "participants", "relative_ms", "status"],
+        "properties": {
+          "session_id": {"type": "string"},
+          "floor_id": {"type": "string", "pattern": "^floor[0-9]+$"},
+          "kind": {"enum": ["solo", "pair", "lifecycle"]},
+          "mode": {"enum": ["self_talk", "ceo_front", "seated_host", "standing_pair"]},
+          "category": {"type": "string"},
+          "participants": {"type": "array", "items": {"type": "string"}},
+          "relative_ms": {"type": "integer"},
+          "status": {"enum": ["active", "returning"]}
+        }
+      }
+    },
+    "paint_order": {
+      "type": "object", "additionalProperties": false,
+      "required": ["characters", "dialogue_bubbles"],
+      "properties": {
+        "characters": {"type": "array", "items": {"type": "string"}},
+        "dialogue_bubbles": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  },
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["employee_id", "character_id", "floor_id", "presence", "activity", "render_owner", "visible", "action", "direction", "subaction", "dialogue_visible", "dialogue_opacity"],
+      "properties": {
+        "employee_id": {"type": "string", "pattern": "^EMP_W[12]_[0-9]{4}$"},
+        "character_id": {"type": "string"},
+        "floor_id": {"type": "string", "pattern": "^floor[0-9]+$"},
+        "presence": {"type": "string"},
+        "activity": {"type": "string"},
+        "render_owner": {"type": "string"},
+        "visible": {"type": "boolean"},
+        "action": {"type": ["string", "null"]},
+        "direction": {"type": "string"},
+        "subaction": {"type": ["string", "null"]},
+        "dialogue_visible": {"type": "boolean"},
+        "dialogue_opacity": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    }
+  }
+}

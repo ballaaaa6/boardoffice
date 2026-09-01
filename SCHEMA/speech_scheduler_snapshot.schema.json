@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.speech_scheduler_snapshot.v1",
+  "title": "GDS persistent speech scheduler snapshot",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema", "version", "clock", "determinism", "actors", "lanes", "active_sessions"],
+  "properties": {
+    "schema": {"const": "gds.speech_scheduler_snapshot.v1"},
+    "version": {"const": "1.0.0"},
+    "clock": {
+      "type": "object", "additionalProperties": false,
+      "required": ["simulation_time_ms", "tick_ms"],
+      "properties": {
+        "simulation_time_ms": {"type": "integer", "minimum": 0},
+        "tick_ms": {"const": 60}
+      }
+    },
+    "determinism": {
+      "type": "object", "additionalProperties": false,
+      "required": ["simulation_seed", "root_event_counter"],
+      "properties": {
+        "simulation_seed": {"type": "string", "minLength": 1},
+        "root_event_counter": {"type": "integer", "minimum": 0}
+      }
+    },
+    "actors": {
+      "type": "object",
+      "propertyNames": {"pattern": "^EMP_W[12]_[0-9]{4}$"},
+      "additionalProperties": {"$ref": "#/$defs/speechActor"}
+    },
+    "lanes": {
+      "type": "object",
+      "propertyNames": {"pattern": "^floor[0-9]+$"},
+      "additionalProperties": {"$ref": "#/$defs/lane"}
+    },
+    "active_sessions": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/session"}
+    }
+  },
+  "$defs": {
+    "nullableMs": {"type": ["integer", "null"], "minimum": 0},
+    "speechActor": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "employee_id", "floor_id", "role", "spawned_at_ms", "greeting_due_ms", "greeting_emitted",
+        "work_start_due_ms", "work_start_emitted", "solo_next_due_ms", "pair_next_due_ms",
+        "solo_pending", "pair_pending", "fatigue_pending", "fatigue_emitted", "leaving_pending",
+        "leaving_emitted", "departure_token", "speech_event_counter", "last_activity", "last_session_id", "last_partner_id",
+        "speech_phase", "emotion", "emotion_until_ms"
+      ],
+      "properties": {
+        "employee_id": {"type": "string", "pattern": "^EMP_W[12]_[0-9]{4}$"},
+        "floor_id": {"type": "string", "pattern": "^floor[0-9]+$"},
+        "role": {"enum": ["employee", "ceo"]},
+        "spawned_at_ms": {"type": "integer", "minimum": 0},
+        "greeting_due_ms": {"$ref": "#/$defs/nullableMs"},
+        "greeting_emitted": {"type": "boolean"},
+        "work_start_due_ms": {"$ref": "#/$defs/nullableMs"},
+        "work_start_emitted": {"type": "boolean"},
+        "solo_next_due_ms": {"$ref": "#/$defs/nullableMs"},
+        "pair_next_due_ms": {"$ref": "#/$defs/nullableMs"},
+        "solo_pending": {"type": "boolean"},
+        "pair_pending": {"type": "boolean"},
+        "external_talk_pending": {"type": "boolean"},
+        "external_talk_due_ms": {"$ref": "#/$defs/nullableMs"},
+        "fatigue_pending": {"type": "boolean"},
+        "fatigue_emitted": {"type": "boolean"},
+        "leaving_pending": {"type": "boolean"},
+        "leaving_emitted": {"type": "boolean"},
+        "leaving_due_ms": {"$ref": "#/$defs/nullableMs"},
+        "departure_token": {"type": "integer", "minimum": 0},
+        "speech_event_counter": {"type": "integer", "minimum": 0},
+        "last_activity": {"type": "string", "minLength": 1},
+        "last_session_id": {"type": ["string", "null"]},
+        "last_partner_id": {"type": ["string", "null"]},
+        "speech_phase": {"enum": ["idle", "active", "emotion"]},
+        "emotion": {"enum": ["sad", "happy", null]},
+        "emotion_until_ms": {"$ref": "#/$defs/nullableMs"}
+      }
+    },
+    "lane": {
+      "type": "object", "additionalProperties": false,
+      "required": ["floor_id", "active_session_id", "active_until_ms", "queued_session_ids", "last_completed_session_id"],
+      "properties": {
+        "floor_id": {"type": "string", "pattern": "^floor[0-9]+$"},
+        "active_session_id": {"type": ["string", "null"]},
+        "active_until_ms": {"$ref": "#/$defs/nullableMs"},
+        "queued_session_ids": {"type": "array", "items": {"type": "string"}},
+        "last_completed_session_id": {"type": ["string", "null"]}
+      }
+    },
+    "session": {
+      "type": "object", "additionalProperties": true,
+      "required": ["session_id", "floor_id", "kind", "mode", "category", "participants", "start_ms", "bubble_visible_end_ms", "fade_start_ms", "fade_end_ms"],
+      "properties": {
+        "session_id": {"type": "string", "minLength": 1},
+        "floor_id": {"type": "string", "pattern": "^floor[0-9]+$"},
+        "kind": {"enum": ["solo", "pair", "lifecycle"]},
+        "mode": {"enum": ["self_talk", "ceo_front", "seated_host", "standing_pair"]},
+        "category": {"type": "string", "minLength": 1},
+        "participants": {"type": "array", "minItems": 1, "maxItems": 2, "items": {"type": "string", "pattern": "^EMP_W[12]_[0-9]{4}$"}},
+        "start_ms": {"type": "integer", "minimum": 0},
+        "bubble_visible_end_ms": {"type": "integer", "minimum": 0},
+        "fade_start_ms": {"type": "integer", "minimum": 0},
+        "fade_end_ms": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

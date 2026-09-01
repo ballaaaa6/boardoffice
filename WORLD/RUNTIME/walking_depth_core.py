@@ -284,6 +284,43 @@ class WalkingDepthCore:
                 selected.append(row)
         return selected
 
+    def actor_draws_over_reception(
+        self,
+        floor_id: str,
+        character_ground: tuple[float, float] | list[float],
+    ) -> bool:
+        """Return whether an actor's ground depth is in front of reception.
+
+        This is the authored render-depth trigger used by the speech scheduler
+        for the one-shot ``leaving`` line.  It intentionally does not compare
+        a raw U/V threshold: the reception's own front-edge envelope and X
+        range decide when the actor may paint over it.
+        """
+        if not isinstance(character_ground, (tuple, list)) or len(character_ground) != 2:
+            raise WalkingDepthError('character ground position requires x and y')
+        x, y = float(character_ground[0]), float(character_ground[1])
+        reception = next(
+            (row for row in self.resolve_occluders(floor_id) if row['placement_id'] == 'reception'),
+            None,
+        )
+        if reception is None:
+            return False
+        # Use the full authored footprint for X overlap.  The depth front edge
+        # itself is allowed to clamp at its end points, matching
+        # ``occluders_in_front`` exactly for padded reception sprites.
+        corners = reception.get('footprint_corners_world_px') or reception.get('depth_footprint_corners_world_px') or []
+        if corners:
+            min_x = min(float(point[0]) for point in corners)
+            max_x = max(float(point[0]) for point in corners)
+            if not (min_x <= x <= max_x):
+                return False
+        front_edge = reception.get('depth_front_edge_world_px')
+        if front_edge:
+            front_y = self._front_edge_y_at_x(front_edge, x)
+        else:
+            front_y = reception.get('depth_anchor_y_px')
+        return front_y is not None and y >= float(front_y)
+
     @staticmethod
     def _actor_bbox(
         sprite: Image.Image,

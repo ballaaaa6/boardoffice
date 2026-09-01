@@ -47,6 +47,78 @@
     "conversation_runtime": "RUNTIME/conversation_behavior_core.py; one_loop_staggered_bubbles_4000ms_then_fade",
     "conversation_spot_runtime": "RUNTIME/conversation_spot_core.py"
   },
+  "actor_simulation": {
+    "contract": "CONTRACTS/actor_simulation.json",
+    "schema": "SCHEMA/actor_simulation.schema.json",
+    "snapshot_schema": "SCHEMA/actor_snapshot.schema.json",
+    "runtime": "RUNTIME/actor_simulation_core.py",
+    "api": [
+      "CentralGameCore.resolve_actor_snapshot",
+      "CentralGameCore.validate_actor_snapshot",
+      "CentralGameCore.advance_actor_snapshot",
+      "CentralGameCore.resolve_actor_behavior_event"
+    ],
+    "snapshot_policy": "persistent_json_safe_state_in_state_out",
+    "clock": {
+      "playback_tick_ms": 60,
+      "timestamp_unit": "milliseconds"
+    },
+    "assignment_policy": "behavior_never_mutates_owned_workstation",
+    "storage_policy": "caller_owned_no_database_or_network",
+    "routing_policy": "request_home_to_portal_exit_home_recovery_then_explicit_request_return_to_same_gate_and_workseat",
+    "route_sample_policy": "walking_depth_owner_on_shared_60ms_tick",
+    "presentation_bridge": {
+      "event_source": "behavior_started.presentation",
+      "channels": ["conversation", "vfx", "humanball", "movement"],
+      "independent_from_stamina": true
+    }
+  },
+  "speech_scheduler": {
+    "contract": "CONTRACTS/speech_scheduler.json",
+    "schema": "SCHEMA/speech_scheduler.schema.json",
+    "snapshot_schema": "SCHEMA/speech_scheduler_snapshot.schema.json",
+    "runtime": "RUNTIME/speech_scheduler_core.py",
+    "api": [
+      "CentralGameCore.resolve_speech_snapshot",
+      "CentralGameCore.validate_speech_snapshot",
+      "CentralGameCore.advance_speech_snapshot"
+    ],
+    "categories": {
+      "solo_recurring": ["encouragement", "uncertainty", "surprise", "work_progress", "idle_flavor"],
+      "pair_exchange": ["conversation_open", "conversation_reply"],
+      "lifecycle_one_shot": ["greeting", "work_start", "fatigue", "leaving"]
+    },
+    "timing_policy": "solo_30_60s_pair_45_75s_greeting_2_3s_bubble_4000ms_fade_300ms",
+    "lane_policy": "one_speech_lane_per_floor_until_fade_end",
+    "pose_policy": "speech_and_pose_are_independent_channels",
+    "leaving_trigger_source": "CentralGameCore.actor_draws_over_reception",
+    "assignment_mutation": false
+  },
+  "runtime_snapshot": {
+      "schema": "gds.runtime_snapshot.v1",
+      "composition": ["actor_snapshot", "speech_snapshot", "conversation_snapshot"],
+      "clock_policy": "actor_and_speech_advance_with_independent_channels",
+      "validate_api": "CentralGameCore.validate_runtime_snapshot",
+      "advance_api": "CentralGameCore.advance_runtime_snapshot",
+      "presentation_api": "CentralGameCore.resolve_runtime_presentation",
+      "presentation_schema": "gds.runtime_presentation_snapshot.v1",
+      "command_policy": "actor_commands_and_speech_commands_are_explicitly_separate"
+  },
+  "runtime_presentation": {
+    "contract": "CONTRACTS/runtime_presentation.json",
+    "schema": "SCHEMA/runtime_presentation.schema.json",
+    "snapshot_schema": "SCHEMA/runtime_presentation_snapshot.schema.json",
+    "runtime": "RUNTIME/central_core.py",
+    "api": ["CentralGameCore.resolve_runtime_presentation"],
+    "renderer": "RUNTIME/runtime_presentation_renderer.py",
+    "renderer_api": [
+      "RuntimePresentationRenderer.render_runtime_snapshot",
+      "RuntimePresentationRenderer.render_presentation",
+      "RuntimePresentationLoop.tick",
+      "RuntimePresentationLoop.render_current"
+    ],
+    "policy": "read_only_overlay_of_actor_state_speech_lane_and_conversation_tracks"
+  },
   "dialogue_presentation": {
     "content_csv": "CHARACTER/DIALOGUE/dialogue.csv",
     "content_policy": "editable_en_th_catalog_with_author_requested_reference_import",
@@ -76,11 +148,13 @@
     "spot_runtime": "RUNTIME/conversation_spot_core.py",
     "behavior_runtime": "RUNTIME/conversation_behavior_core.py",
     "modes": ["self_talk", "standing_pair", "ceo_front", "seated_host"],
-    "first_slice": ["standing_pair", "ceo_front", "self_talk"],
+    "first_slice": ["standing_pair", "ceo_front", "seated_host", "self_talk"],
     "ceo_policy": "host_only_no_outbound_leave_seat",
     "timing_policy": "one_loop_first_bubble_4000ms_then_global_fade_with_500ms_partner_gap",
     "timing_api": "CentralGameCore.resolve_conversation_timing",
     "dialogue_selection_api": "CentralGameCore.resolve_conversation_dialogue",
+    "automatic_selection_api": "CentralGameCore.resolve_automatic_conversation_plan",
+    "standing_pair_emotion": "one_shared_d6_after_fade_even_happy_odd_sad_then_return",
     "assignment_mutation": false
   },
   "phase_boundaries": {

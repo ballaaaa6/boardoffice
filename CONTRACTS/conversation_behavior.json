@@ -57,7 +57,16 @@
     "assignment_mutation": "never",
     "conversation_timing": "one_loop_first_bubble_4000ms_then_fade",
     "dialogue_selection": "pair_open_then_reply_self_general_deterministic",
-    "dialogue_layout": "direct_head_anchor_overlay_paint_order"
+    "dialogue_layout": "direct_head_anchor_overlay_paint_order",
+    "standing_pair_emotion": {
+      "trigger": "after_bubble_fade",
+      "roll": "one_shared_d6",
+      "even": "happy",
+      "odd": "sad",
+      "hold_ms": 1200,
+      "stamina_effect": "external_hook_no_numeric_delta_yet",
+      "return_after": true
+    }
   },
   "coordinate_contract": {
     "grid": "uv",

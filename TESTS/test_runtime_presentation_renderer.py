@@ -1,0 +1,407 @@
+from __future__ import annotations
+
+import copy
+from pathlib import Path
+
+import pytest
+from PIL import Image
+
+from RUNTIME.central_core import CentralGameCore
+from RUNTIME.runtime_presentation_renderer import (
+    RuntimePresentationLoop,
+    RuntimePresentationRenderError,
+    RuntimePresentationRenderer,
+)
+from RUNTIME.runtime_presentation_host import (
+    RuntimePresentationHostAdapter,
+    RuntimePresentationHostError,
+)
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def _quiet_runtime(core: CentralGameCore) -> dict:
+    runtime = core.resolve_runtime_snapshot("floor02")
+    for actor in runtime["speech_snapshot"]["actors"].values():
+        actor.update({
+            "greeting_due_ms": None,
+            "greeting_emitted": True,
+            "work_start_due_ms": None,
+            "work_start_emitted": True,
+            "solo_next_due_ms": None,
+            "pair_next_due_ms": None,
+        })
+    # Keep the actor reducer quiet while the render-only bridge is sampled.
+    for actor in runtime["actor_snapshot"]["actors"].values():
+        actor["behavior"]["next_event_due_ms"] = 10**9
+    return runtime
+
+
+def _ids(core: CentralGameCore) -> tuple[str, str, str]:
+    actors = core.resolve_actor_snapshot("floor02")["actors"]
+    rows = sorted(
+        actors.values(),
+        key=lambda item: (int(item["assignment"]["assignment_order"]), item["employee_id"]),
+    )
+    ceo = next(
+        row["employee_id"]
+        for row in rows
+        if row["assignment"]["workstation_id"] == "ceo"
+    )
+    employees = [
+        row["employee_id"]
+        for row in rows
+        if row["assignment"]["workstation_id"] != "ceo"
+    ]
+    return employees[0], employees[1], ceo
+
+
+@pytest.mark.parametrize("mode", ["ceo_front", "seated_host", "standing_pair"])
+def test_runtime_renderer_consumes_all_pair_modes_and_keeps_channels_separate(mode: str):
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    first_employee, second_employee, ceo = _ids(core)
+    if mode == "ceo_front":
+        initiator, partner = first_employee, ceo
+    else:
+        initiator, partner = first_employee, second_employee
+
+    def force_mode(_snapshot, initiator_id, *, counter):
+        if initiator_id != initiator:
+            return None
+        return {
+            "kind": "pair",
+            "initiator_id": initiator,
+            "partner_id": partner,
+            "participants": [initiator, partner],
+            "mode": mode,
+            "category": "conversation_open",
+            "dialogue_categories": ["conversation_open", "conversation_reply"],
+        }
+
+    core.speech_scheduler._mode_request = force_mode
+    core.actor_simulation.choose_behavior_event = lambda *args, **kwargs: "talk"
+    runtime["actor_snapshot"]["actors"][initiator]["behavior"]["next_event_due_ms"] = 0
+
+    advanced = core.advance_runtime_snapshot(runtime, 60)
+    started = next(
+        event
+        for event in advanced["speech_events"]
+        if event["type"] == "speech_session_started" and event["kind"] == "pair"
+    )
+    renderer = RuntimePresentationRenderer(core)
+    at_reply = int(started["bubble_start_ms"]) + 500
+    before_render = copy.deepcopy(advanced)
+    image, presentation = renderer.render_runtime_snapshot(
+        advanced,
+        at_ms=at_reply,
+        floor_id="floor02",
+    )
+    assert image.size == (600, 600)
+    assert presentation["actors"][initiator]["dialogue_visible"] is True
+    assert presentation["actors"][partner]["dialogue_visible"] is True
+    if mode == "ceo_front":
+        assert presentation["actors"][initiator]["action"] == "idle"
+        assert presentation["actors"][partner]["action"] == "work"
+        assert presentation["actors"][partner]["subaction"] == "normal_work"
+    elif mode == "seated_host":
+        assert presentation["actors"][initiator]["action"] == "idle"
+        assert presentation["actors"][partner]["action"] == "work"
+        assert presentation["actors"][partner]["subaction"].startswith("turn_side_")
+    else:
+        assert all(
+            presentation["actors"][employee_id]["action"] == "idle"
+            for employee_id in (initiator, partner)
+        )
+    # Rendering must be a pure consumer of the composed state.
+    assert advanced == before_render
+
+
+def test_runtime_renderer_paints_shared_emotion_and_return_window():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    first_employee, second_employee, _ceo = _ids(core)
+
+    def force_standing(_snapshot, initiator_id, *, counter):
+        if initiator_id != first_employee:
+            return None
+        return {
+            "kind": "pair",
+            "initiator_id": first_employee,
+            "partner_id": second_employee,
+            "participants": [first_employee, second_employee],
+            "mode": "standing_pair",
+            "category": "conversation_open",
+            "dialogue_categories": ["conversation_open", "conversation_reply"],
+        }
+
+    core.speech_scheduler._mode_request = force_standing
+    core.actor_simulation.choose_behavior_event = lambda *args, **kwargs: "talk"
+    runtime["actor_snapshot"]["actors"][first_employee]["behavior"]["next_event_due_ms"] = 0
+    advanced = core.advance_runtime_snapshot(runtime, 60)
+    started = next(
+        event
+        for event in advanced["speech_events"]
+        if event["type"] == "speech_session_started" and event["kind"] == "pair"
+    )
+    to_fade_end = int(started["fade_end_ms"]) - int(advanced["speech_snapshot"]["clock"]["simulation_time_ms"])
+    completed = core.advance_runtime_snapshot(advanced, to_fade_end)
+    emotion = next(
+        event for event in completed["speech_events"] if event["type"] == "emotion_started"
+    )
+    renderer = RuntimePresentationRenderer(core)
+    image, presentation = renderer.render_runtime_snapshot(
+        completed,
+        floor_id="floor02",
+    )
+    assert image.size == (600, 600)
+    assert presentation["actors"][first_employee]["action"] == emotion["emotion"]
+    assert presentation["actors"][second_employee]["action"] == emotion["emotion"]
+    assert presentation["actors"][first_employee]["presentation_phase"] == "emotion"
+    assert presentation["actors"][second_employee]["presentation_phase"] == "emotion"
+
+    returned = core.advance_runtime_snapshot(completed, 1200)
+    assert any(
+        event["type"] == "return_requested"
+        for event in returned["speech_events"]
+    )
+
+
+def test_lifecycle_bubble_preserves_departure_route_instead_of_seating_actor():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    employee_id, _second_employee, _ceo = _ids(core)
+    requested = core.advance_runtime_snapshot(
+        runtime,
+        0,
+        actor_commands=[{"type": "request_home", "employee_id": employee_id}],
+    )
+    started = next(
+        event
+        for event in requested["speech_events"]
+        if event["type"] == "speech_session_started"
+        and event["kind"] == "lifecycle"
+        and event["category"] == "fatigue"
+    )
+    assert started["conversation_plan"] is not None  # text selection remains available
+    presentation = core.resolve_runtime_presentation(requested, floor_id="floor02")
+    actor = presentation["actors"][employee_id]
+    assert actor["render_owner"] == "walking_depth"
+    assert actor["action"] == "move"
+    assert actor["ground_xy"] is not None
+    assert actor["dialogue_visible"] is True
+    assert actor["dialogue_text"]
+    image = RuntimePresentationRenderer(core).render_presentation(
+        presentation,
+        floor_id="floor02",
+    )
+    assert image.size == (600, 600)
+
+
+def test_workseat_compositor_honors_per_assignment_channel_indices():
+    core = CentralGameCore(ROOT)
+    actors = core.resolve_actor_snapshot("floor02")["actors"]
+    ordered = sorted(
+        actors.values(),
+        key=lambda item: int(item["assignment"]["assignment_order"]),
+    )[:2]
+    first, second = ordered
+    assignments = [
+        {
+            "workstation_id": first["assignment"]["workstation_id"],
+            "character_id": first["character_id"],
+            "subaction": "normal_work",
+            "character_frame_index": 1,
+            "effect_frame_index": 2,
+            "humanball_frame_index": 3,
+            "pc_frame_index": 4,
+            "effect_id": "coffee_energy",
+            "humanball_id": "controller",
+        },
+        {
+            "workstation_id": second["assignment"]["workstation_id"],
+            "character_id": second["character_id"],
+            "subaction": "normal_work",
+            "character_frame_index": 0,
+            "pc_frame_index": 0,
+        },
+    ]
+    by_workstation, _rendered = core.work_seats._resolve_floor_assignment_data(
+        "floor02",
+        assignments,
+        frame_index=0,
+        character_frame_index=0,
+        effect_frame_index=0,
+        humanball_frame_index=0,
+        pc_frame_index=0,
+    )
+    first_data = by_workstation[first["assignment"]["workstation_id"]]
+    second_data = by_workstation[second["assignment"]["workstation_id"]]
+    assert first_data["character_frame_index"] == 1
+    assert first_data["effect_frame_index"] == 2 % first_data["effect_frame_count"]
+    assert first_data["humanball_frame_index"] == 3 % first_data["humanball_frame_count"]
+    assert first_data["pc_frame_index"] == 4 % first_data["pc_frame_count"]
+    assert second_data["character_frame_index"] == 0
+    assert second_data["pc_frame_index"] == 0
+
+
+def test_runtime_loop_advances_and_renders_one_host_frame_without_mutating_input():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    original = copy.deepcopy(runtime)
+    loop = RuntimePresentationLoop(
+        core,
+        runtime_snapshot=runtime,
+        floor_id="floor02",
+    )
+
+    initial = loop.render_current()
+    assert initial["image"].size == (600, 600)
+    assert initial["runtime_snapshot"]["actor_snapshot"]["clock"]["simulation_time_ms"] == 0
+    assert runtime == original
+
+    frame = loop.tick(60)
+    assert frame["image"].size == (600, 600)
+    assert frame["runtime_snapshot"]["actor_snapshot"]["clock"]["simulation_time_ms"] == 60
+    assert frame["runtime_snapshot"]["speech_snapshot"]["clock"]["simulation_time_ms"] == 60
+    assert isinstance(frame["events"], list)
+    assert loop.runtime_snapshot == frame["runtime_snapshot"]
+    # The loop owns a defensive replacement; the caller's source snapshot is
+    # still safe to reuse for deterministic replay or another view.
+    assert runtime == original
+
+
+def test_runtime_loop_failed_tick_keeps_last_good_snapshot():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    loop = RuntimePresentationLoop(
+        core,
+        runtime_snapshot=runtime,
+        floor_id="floor02",
+    )
+    before = loop.runtime_snapshot
+    with pytest.raises(RuntimePresentationRenderError):
+        loop.tick(-1)
+    assert loop.runtime_snapshot == before
+
+
+def test_runtime_loop_render_failure_is_transactional(monkeypatch):
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    loop = RuntimePresentationLoop(
+        core,
+        runtime_snapshot=runtime,
+        floor_id="floor02",
+    )
+    before = loop.runtime_snapshot
+
+    def fail_render(*_args, **_kwargs):
+        raise RuntimePresentationRenderError("forced render failure")
+
+    monkeypatch.setattr(loop.renderer, "render_runtime_snapshot", fail_render)
+    with pytest.raises(RuntimePresentationRenderError):
+        loop.tick(60)
+    assert loop.runtime_snapshot == before
+
+
+def test_runtime_host_adapter_ticks_once_and_dispatches_defensive_frame_and_events():
+    core = CentralGameCore(ROOT)
+    loop = RuntimePresentationLoop(
+        core,
+        runtime_snapshot=_quiet_runtime(core),
+        floor_id="floor02",
+    )
+    calls = []
+    frame = {
+        "image": Image.new("RGBA", (2, 2), (1, 2, 3, 255)),
+        "presentation": {"schema": "gds.runtime_presentation_snapshot.v1"},
+        "runtime_snapshot": {"clock": 60},
+        "events": [{"source": "speech", "type": "bubble_started"}],
+        "actor_events": [],
+        "speech_events": [{"type": "bubble_started"}],
+    }
+
+    def fake_tick(elapsed_ms, *, actor_commands=None, speech_commands=None, at_ms=None):
+        calls.append((elapsed_ms, actor_commands, speech_commands, at_ms))
+        return frame
+
+    loop.tick = fake_tick
+    received_frames = []
+    received_events = []
+    host = RuntimePresentationHostAdapter(
+        loop,
+        frame_sink=received_frames.append,
+        event_sink=received_events.append,
+    )
+    result = host.tick(
+        60,
+        actor_commands=[{"type": "noop"}],
+        speech_commands=[{"type": "noop"}],
+        at_ms=120,
+    )
+
+    assert result is frame
+    assert calls == [(60, [{"type": "noop"}], [{"type": "noop"}], 120)]
+    assert host.frame_count == 1
+    assert received_events == frame["events"]
+    assert received_frames[0] is not frame
+    assert received_frames[0]["image"] is not frame["image"]
+    received_frames[0]["events"].clear()
+    assert frame["events"] == [{"source": "speech", "type": "bubble_started"}]
+    assert host.last_frame is not frame
+
+
+def test_runtime_host_adapter_render_current_does_not_advance_or_dispatch_events():
+    core = CentralGameCore(ROOT)
+    loop = RuntimePresentationLoop(
+        core,
+        runtime_snapshot=_quiet_runtime(core),
+        floor_id="floor02",
+    )
+    received_frames = []
+    received_events = []
+    host = RuntimePresentationHostAdapter(
+        loop,
+        frame_sink=received_frames.append,
+        event_sink=received_events.append,
+    )
+    frame = host.render_current()
+
+    assert frame["runtime_snapshot"]["actor_snapshot"]["clock"]["simulation_time_ms"] == 0
+    assert host.frame_count == 0
+    assert len(received_frames) == 1
+    assert received_events == []
+
+
+def test_runtime_host_adapter_rejects_reentrant_tick_without_second_loop_call():
+    core = CentralGameCore(ROOT)
+    loop = RuntimePresentationLoop(
+        core,
+        runtime_snapshot=_quiet_runtime(core),
+        floor_id="floor02",
+    )
+    calls = []
+    frame = {
+        "image": Image.new("RGBA", (1, 1)),
+        "presentation": {},
+        "runtime_snapshot": {},
+        "events": [],
+        "actor_events": [],
+        "speech_events": [],
+    }
+
+    def fake_tick(elapsed_ms, *, actor_commands=None, speech_commands=None, at_ms=None):
+        calls.append(elapsed_ms)
+        return frame
+
+    loop.tick = fake_tick
+    host = None
+
+    def reenter(_frame):
+        host.tick(60)
+
+    host = RuntimePresentationHostAdapter(loop, frame_sink=reenter)
+    with pytest.raises(RuntimePresentationHostError, match="re-entrant"):
+        host.tick(60)
+    assert calls == [60]

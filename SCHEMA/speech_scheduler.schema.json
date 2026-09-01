@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.speech_scheduler.v1",
+  "title": "GDS deterministic speech scheduler contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema", "contract_id", "version", "scope", "runtime", "api",
+    "categories", "timing", "conversation_modes", "emotion", "lane", "actor_bridge",
+    "assignment_policy", "render_policy", "leaving_trigger_source"
+  ],
+  "properties": {
+    "$schema": {"const": "gds.speech_scheduler.v1"},
+    "schema": {"const": "gds.speech_scheduler.v1"},
+    "contract_id": {"const": "contract.gds.speech_scheduler.v1"},
+    "version": {"const": "1.0.0"},
+    "scope": {"const": "deterministic_speech_lane_and_conversation_trigger_scheduler"},
+    "runtime": {"const": "RUNTIME/speech_scheduler_core.py"},
+    "api": {"type": "array", "minItems": 3, "uniqueItems": true, "items": {"type": "string"}},
+    "categories": {
+      "type": "object", "additionalProperties": false,
+      "required": ["solo_recurring", "pair_exchange", "lifecycle_one_shot"],
+      "properties": {
+        "solo_recurring": {"const": ["encouragement", "uncertainty", "surprise", "work_progress", "idle_flavor"]},
+        "pair_exchange": {"const": ["conversation_open", "conversation_reply"]},
+        "lifecycle_one_shot": {
+          "type": "object", "additionalProperties": false,
+          "required": ["greeting", "work_start", "fatigue", "leaving"],
+          "properties": {
+            "greeting": {"$ref": "#/$defs/oneShotGreeting"},
+            "work_start": {"$ref": "#/$defs/oneShot"},
+            "fatigue": {"$ref": "#/$defs/oneShot"},
+            "leaving": {"$ref": "#/$defs/oneShot"}
+          }
+        }
+      }
+    },
+    "timing": {
+      "type": "object", "additionalProperties": false,
+      "required": ["playback_tick_ms", "bubble_visible_ms", "bubble_fade_ms", "session_hold_ms", "solo_interval_seconds_range", "pair_interval_seconds_range", "retry_interval_seconds_range", "timer_semantics", "first_bubble_boundary", "no_overlap_scope", "same_session_pair_bubbles_may_overlap"],
+      "properties": {
+        "playback_tick_ms": {"const": 60},
+        "bubble_visible_ms": {"const": 4000},
+        "bubble_fade_ms": {"const": 300},
+        "session_hold_ms": {"const": 4300},
+        "solo_interval_seconds_range": {"const": [30, 60]},
+        "pair_interval_seconds_range": {"const": [45, 75]},
+        "retry_interval_seconds_range": {"const": [15, 30]},
+        "timer_semantics": {"const": "work_time_only_reset_after_return_to_work"},
+        "first_bubble_boundary": {"const": "conversation_talk_arrival"},
+        "no_overlap_scope": {"const": "one_speech_lane_per_floor"},
+        "same_session_pair_bubbles_may_overlap": {"const": true}
+      }
+    },
+    "conversation_modes": {
+      "type": "object", "additionalProperties": false,
+      "required": ["selection", "available_modes", "ceo_front", "seated_host", "standing_pair", "ceo_outbound", "cross_floor", "group_talk", "walk_and_talk"],
+      "properties": {
+        "selection": {"const": "uniform_among_currently_valid_modes"},
+        "available_modes": {"const": ["ceo_front", "seated_host", "standing_pair"]},
+        "ceo_front": {"$ref": "#/$defs/mode"},
+        "seated_host": {"$ref": "#/$defs/mode"},
+        "standing_pair": {"$ref": "#/$defs/mode"},
+        "ceo_outbound": {"const": false},
+        "cross_floor": {"const": false},
+        "group_talk": {"const": false},
+        "walk_and_talk": {"const": false}
+      }
+    },
+    "emotion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["standing_pair_only", "roll_scope", "even_result", "odd_result", "hold_ms", "stamina_effect", "return_after_emotion"],
+      "properties": {
+        "standing_pair_only": {"const": true},
+        "roll_scope": {"const": "one_shared_roll_per_completed_standing_pair"},
+        "even_result": {"const": "happy"},
+        "odd_result": {"const": "sad"},
+        "hold_ms": {"const": 1200},
+        "stamina_effect": {"const": "external_hook_no_numeric_delta_yet"},
+        "return_after_emotion": {"const": true}
+      }
+    },
+    "lane": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scope", "lock_window", "queue_policy", "priority_order"],
+      "properties": {
+        "scope": {"const": "floor"},
+        "lock_window": {"const": "first_bubble_until_fade_end"},
+        "queue_policy": {"const": "priority_then_due_time_then_employee_id"},
+        "priority_order": {"const": ["leaving", "fatigue", "greeting", "work_start", "pair", "solo"]}
+      }
+    },
+    "actor_bridge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "talk_behavior",
+        "reception_crossing",
+        "workseat_reentry",
+        "effective_timestamp_field"
+      ],
+      "properties": {
+        "talk_behavior": {
+          "const": "behavior_started.presentation_to_speech_lane"
+        },
+        "reception_crossing": {
+          "const": "actor_route_sample_draws_over_reception"
+        },
+        "workseat_reentry": {
+          "const": "workseat_reentered_to_returned_to_work"
+        },
+        "effective_timestamp_field": {
+          "const": "effective_at_ms"
+        }
+      }
+    },
+    "assignment_policy": {"const": "scheduler_never_mutates_workstation_ownership"},
+    "render_policy": {"const": "speech_and_pose_are_independent_channels"},
+    "leaving_trigger_source": {"const": "CentralGameCore.actor_draws_over_reception"}
+  },
+  "$defs": {
+    "oneShot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["trigger"],
+      "properties": {
+        "trigger": {"type": "string", "minLength": 1},
+        "once_per_work_session": {"const": true},
+        "once_per_departure": {"const": true}
+      }
+    },
+    "oneShotGreeting": {
+      "type": "object", "additionalProperties": false,
+      "required": ["trigger", "delay_seconds_range", "once_per_spawn"],
+      "properties": {
+        "trigger": {"const": "spawn_then_delay"},
+        "delay_seconds_range": {"const": [2, 3]},
+        "once_per_spawn": {"const": true}
+      }
+    },
+    "mode": {
+      "type": "object", "additionalProperties": false,
+      "required": ["initiator", "partner", "visitor_pose", "host_pose", "host_movement"],
+      "properties": {
+        "initiator": {"const": "employee"},
+        "partner": {"type": "string", "minLength": 1},
+        "visitor_pose": {"const": "idle"},
+        "host_pose": {"type": "string", "minLength": 1},
+        "host_movement": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

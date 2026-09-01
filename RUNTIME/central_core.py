@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from pathlib import Path
 from typing import Any
 
@@ -24,12 +25,13 @@ from WORLD.RUNTIME.navigation_occupancy_core import NavigationOccupancyCore
 from WORLD.RUNTIME.layout_core import LayoutCore
 from WORLD.RUNTIME.spatial_core import SpatialCore
 from WORLD.RUNTIME.pathfinding_core import PathfindingCore, PathfindingError
-from WORLD.RUNTIME.walking_depth_core import WalkingDepthCore
+from WORLD.RUNTIME.walking_depth_core import WalkingDepthCore, WalkingDepthError
 from WORLD.RUNTIME.gameplay_metadata_family_core import GameplayMetadataFamilyCore
 from RUNTIME.work_seat_core import WorkSeatCore, WorkSeatError
 from RUNTIME.work_seat_lifecycle import WorkSeatLifecycle, WorkSeatLifecycleError
 from RUNTIME.character_movement_core import CharacterMovementCore, CharacterMovementError
 from RUNTIME.employee_registry import EmployeeMetadataError, EmployeeMetadataRegistry
+from RUNTIME.actor_simulation_core import ActorSimulationCore, ActorSimulationError
 from RUNTIME.portal_actor_lifecycle import PortalActorLifecycle, PortalActorLifecycleError
 from RUNTIME.crowd_movement_core import (
     CrowdMovementReservationError,
@@ -37,6 +39,7 @@ from RUNTIME.crowd_movement_core import (
 )
 from RUNTIME.conversation_spot_core import ConversationSpotCore, ConversationSpotError
 from RUNTIME.conversation_behavior_core import ConversationBehaviorCore, ConversationBehaviorError
+from RUNTIME.speech_scheduler_core import SpeechSchedulerCore, SpeechSchedulerError
 
 
 class CentralGameCoreError(ValueError):
@@ -95,6 +98,15 @@ class CentralGameCore:
             work_seats=self.work_seats,
             characters=self.characters,
         )
+        self.actor_simulation = ActorSimulationCore(
+            self.root,
+            employee_registry=self.employee_metadata,
+            slot_resolver=self.work_seat_lifecycle.resolve_interaction_slot,
+            movement=self.character_movement,
+            pathfinding=self.pathfinding,
+            portal_lifecycle=self.portal_lifecycle,
+            work_seat_lifecycle=self.work_seat_lifecycle,
+        )
         self.conversation_spots = ConversationSpotCore(
             self.root,
             layout=self.world,
@@ -113,6 +125,11 @@ class CentralGameCore:
             work_seat_lifecycle=self.work_seat_lifecycle,
             spots=self.conversation_spots,
             crowd=self.crowd_movement,
+        )
+        self.speech_scheduler = SpeechSchedulerCore(
+            self.root,
+            employee_registry=self.employee_metadata,
+            conversation=self.conversation,
         )
 
     def resolve_asset_path(self, domain: str, asset_id: str) -> Path:
@@ -187,6 +204,52 @@ class CentralGameCore:
             'stamina_profile': dict(employee['stamina_profile']),
             'stamina_policy': self.employee_metadata.stamina_policy(),
         }
+
+    def resolve_actor_snapshot(self, floor_id: str | None = None) -> dict[str, Any]:
+        try:
+            return self.actor_simulation.initial_snapshot(floor_id)
+        except ActorSimulationError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def validate_actor_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
+        try:
+            return self.actor_simulation.validate_snapshot(snapshot)
+        except ActorSimulationError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def advance_actor_snapshot(
+        self,
+        snapshot: dict[str, Any],
+        elapsed_ms: int,
+        *,
+        commands: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        try:
+            return self.actor_simulation.advance_snapshot(
+                snapshot,
+                elapsed_ms,
+                commands=commands,
+            )
+        except ActorSimulationError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_actor_behavior_event(
+        self,
+        employee_id: str,
+        *,
+        simulation_time_ms: int = 0,
+        event_counter: int = 0,
+        cooldowns: dict[str, int] | None = None,
+    ) -> str:
+        try:
+            return self.actor_simulation.choose_behavior_event(
+                employee_id,
+                simulation_time_ms=simulation_time_ms,
+                event_counter=event_counter,
+                cooldowns=cooldowns,
+            )
+        except ActorSimulationError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
 
     def render_employee(
         self,
@@ -859,6 +922,17 @@ class CentralGameCore:
         except CrowdMovementReservationError as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
+    def actor_draws_over_reception(
+        self,
+        floor_id: str,
+        ground_xy,
+    ) -> bool:
+        """Use authored reception depth to gate the one-shot leaving line."""
+        try:
+            return self.walking_depth.actor_draws_over_reception(floor_id, ground_xy)
+        except (WalkingDepthError, KeyError, ValueError) as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
     def resolve_legacy_crowd_movement_schedule(self, actors) -> dict[str, Any]:
         """Resolve the legacy discrete reservation schedule for old tools."""
         try:
@@ -913,6 +987,33 @@ class CentralGameCore:
                 blocked_cells=blocked_cells,
                 reserved_cells=reserved_cells,
                 origin_uvs=origin_uvs,
+            )
+        except ConversationBehaviorError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_automatic_conversation_plan(
+        self,
+        initiator_id: str,
+        *,
+        snapshot: dict[str, Any] | None = None,
+        selection_seed: str | int = '0',
+        dialogue_locale: str = 'en',
+        dialogue_seed: str | int | None = None,
+        timing: dict[str, Any] | None = None,
+        blocked_cells=None,
+        reserved_cells=None,
+    ) -> dict[str, Any]:
+        """Choose a seeded valid conversation mode/partner and build its plan."""
+        try:
+            return self.conversation.plan_automatic_conversation(
+                initiator_id,
+                snapshot=snapshot,
+                selection_seed=selection_seed,
+                dialogue_locale=dialogue_locale,
+                dialogue_seed=dialogue_seed,
+                timing=timing,
+                blocked_cells=blocked_cells,
+                reserved_cells=reserved_cells,
             )
         except ConversationBehaviorError as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -1022,6 +1123,627 @@ class CentralGameCore:
             return self.conversation.cancel_conversation(snapshot, plan, reason=reason)
         except ConversationBehaviorError as exc:
             raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_speech_snapshot(
+        self,
+        actor_snapshot: dict[str, Any] | None = None,
+        *,
+        floor_id: str | None = None,
+        simulation_seed: str = 'gds-speech-scheduler-v1',
+        spawned_at_ms: int = 0,
+    ) -> dict[str, Any]:
+        """Create the independent speech timer/lane snapshot."""
+        try:
+            return self.speech_scheduler.initial_snapshot(
+                actor_snapshot,
+                floor_id=floor_id,
+                simulation_seed=simulation_seed,
+                spawned_at_ms=spawned_at_ms,
+            )
+        except SpeechSchedulerError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def validate_speech_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
+        try:
+            return self.speech_scheduler.validate_snapshot(snapshot)
+        except SpeechSchedulerError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def advance_speech_snapshot(
+        self,
+        snapshot: dict[str, Any],
+        elapsed_ms: int,
+        *,
+        actor_snapshot: dict[str, Any] | None = None,
+        conversation_snapshot: dict[str, Any] | None = None,
+        commands=None,
+        dialogue_locale: str = 'en',
+        dialogue_seed: str | int = '0',
+    ) -> dict[str, Any]:
+        """Advance speech timers without advancing pose, movement or stamina."""
+        try:
+            return self.speech_scheduler.advance_snapshot(
+                snapshot,
+                elapsed_ms,
+                actor_snapshot=actor_snapshot,
+                conversation_snapshot=conversation_snapshot,
+                commands=commands,
+                dialogue_locale=dialogue_locale,
+                dialogue_seed=dialogue_seed,
+            )
+        except SpeechSchedulerError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def resolve_runtime_snapshot(
+        self,
+        floor_id: str | None = None,
+        *,
+        simulation_seed: str = 'gds-speech-scheduler-v1',
+    ) -> dict[str, Any]:
+        """Compose actor/stamina and speech state while keeping their clocks separate."""
+        actor_snapshot = self.resolve_actor_snapshot(floor_id)
+        speech_snapshot = self.resolve_speech_snapshot(
+            actor_snapshot,
+            simulation_seed=simulation_seed,
+        )
+        conversation_snapshot = self.resolve_conversation_snapshot(floor_id)
+        return self.validate_runtime_snapshot({
+            'schema': 'gds.runtime_snapshot.v1',
+            'version': '1.0.0',
+            'actor_snapshot': actor_snapshot,
+            'speech_snapshot': speech_snapshot,
+            'conversation_snapshot': conversation_snapshot,
+        })
+
+    def validate_runtime_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
+        """Validate the composed actor/speech/conversation channels together."""
+        if not isinstance(snapshot, dict):
+            raise CentralGameCoreError('runtime snapshot must be an object')
+        if snapshot.get('schema') != 'gds.runtime_snapshot.v1':
+            raise CentralGameCoreError('runtime snapshot has an unsupported schema')
+        if snapshot.get('version') != '1.0.0':
+            raise CentralGameCoreError('runtime snapshot has an unsupported version')
+        actor_snapshot = snapshot.get('actor_snapshot')
+        speech_snapshot = snapshot.get('speech_snapshot')
+        conversation_snapshot = snapshot.get('conversation_snapshot')
+        if not all(isinstance(value, dict) for value in (
+            actor_snapshot, speech_snapshot, conversation_snapshot
+        )):
+            raise CentralGameCoreError(
+                'runtime snapshot needs actor_snapshot, speech_snapshot and conversation_snapshot'
+            )
+        try:
+            actor_snapshot = self.actor_simulation.validate_snapshot(actor_snapshot)
+            speech_snapshot = self.speech_scheduler.validate_snapshot(speech_snapshot)
+            conversation_snapshot = self.conversation.validate_snapshot(conversation_snapshot)
+        except (ActorSimulationError, SpeechSchedulerError, ConversationBehaviorError) as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+        actor_ids = set(actor_snapshot.get('actors', {}))
+        speech_ids = set(speech_snapshot.get('actors', {}))
+        conversation_ids = set(conversation_snapshot.get('actors', {}))
+        if actor_ids != speech_ids or actor_ids != conversation_ids:
+            raise CentralGameCoreError(
+                'runtime snapshot actor maps must contain the same employee IDs'
+            )
+        return {
+            'schema': 'gds.runtime_snapshot.v1',
+            'version': '1.0.0',
+            'actor_snapshot': actor_snapshot,
+            'speech_snapshot': speech_snapshot,
+            'conversation_snapshot': conversation_snapshot,
+        }
+
+    def advance_runtime_snapshot(
+        self,
+        snapshot: dict[str, Any],
+        elapsed_ms: int,
+        *,
+        actor_commands=None,
+        speech_commands=None,
+        dialogue_locale: str = 'en',
+        dialogue_seed: str | int = '0',
+    ) -> dict[str, Any]:
+        """Advance stamina and speech independently, then return both outputs.
+
+        Actor and speech clocks remain independent.  The small bridge below
+        forwards only presentation boundaries: a talk recovery event asks the
+        speech lane to choose a pair, a reception depth crossing arms the
+        one-shot leaving line, and a completed return re-arms work-start.
+        """
+        runtime_snapshot = self.validate_runtime_snapshot(snapshot)
+        actor_snapshot = runtime_snapshot['actor_snapshot']
+        speech_snapshot = runtime_snapshot['speech_snapshot']
+        try:
+            actor_result = self.actor_simulation.advance_snapshot(
+                actor_snapshot,
+                elapsed_ms,
+                commands=actor_commands,
+            )
+            bridge_commands = list(speech_commands or [])
+            bridge_keys = {
+                (command.get("type"), command.get("employee_id"))
+                for command in bridge_commands
+                if isinstance(command, dict)
+            }
+            crossed: set[str] = set()
+            for event in actor_result.get("events", []):
+                employee_id = event.get("employee_id")
+                if not isinstance(employee_id, str):
+                    continue
+                event_type = event.get("type")
+                if event_type == "behavior_started" and event.get("behavior") == "talk":
+                    key = ("behavior_started", employee_id)
+                    if key not in bridge_keys:
+                        bridge_commands.append({
+                            "type": "behavior_started",
+                            "employee_id": employee_id,
+                            "behavior": "talk",
+                            "effective_at_ms": int(event.get("timestamp_ms", 0)),
+                        })
+                        bridge_keys.add(key)
+                elif event_type == "workseat_reentered":
+                    key = ("returned_to_work", employee_id)
+                    if key not in bridge_keys:
+                        bridge_commands.append({
+                            "type": "returned_to_work",
+                            "employee_id": employee_id,
+                        })
+                        bridge_keys.add(key)
+                elif event_type == "actor_route_sample" and event.get("phase") in {
+                    "to_portal", "portal_exit"
+                } and employee_id not in crossed:
+                    ground_xy = event.get("ground_xy")
+                    if isinstance(ground_xy, (list, tuple)) and len(ground_xy) == 2:
+                        if self.actor_draws_over_reception(
+                            actor_snapshot["actors"][employee_id]["assignment"]["floor_id"],
+                            ground_xy,
+                        ):
+                            key = ("reception_depth_crossed", employee_id)
+                            if key not in bridge_keys:
+                                bridge_commands.append({
+                                    "type": "reception_depth_crossed",
+                                    "employee_id": employee_id,
+                                    "draws_over_reception": True,
+                                    "effective_at_ms": int(event.get("timestamp_ms", 0)),
+                                })
+                                bridge_keys.add(key)
+                            crossed.add(employee_id)
+            speech_result = self.speech_scheduler.advance_snapshot(
+                speech_snapshot,
+                elapsed_ms,
+                actor_snapshot=actor_result['snapshot'],
+                conversation_snapshot=runtime_snapshot['conversation_snapshot'],
+                commands=bridge_commands,
+                dialogue_locale=dialogue_locale,
+                dialogue_seed=dialogue_seed,
+            )
+        except (ActorSimulationError, SpeechSchedulerError) as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+        events = [
+            {'source': 'actor', **event} for event in actor_result.get('events', [])
+        ] + [
+            {'source': 'speech', **event} for event in speech_result.get('events', [])
+        ]
+        events.sort(key=lambda event: (int(event.get('timestamp_ms', 0)), event.get('source', ''), int(event.get('event_index', 0))))
+        return {
+            'schema': 'gds.runtime_snapshot.v1',
+            'version': '1.0.0',
+            'actor_snapshot': actor_result['snapshot'],
+            'speech_snapshot': speech_result['snapshot'],
+            'conversation_snapshot': runtime_snapshot['conversation_snapshot'],
+            'events': events,
+            'actor_events': actor_result.get('events', []),
+            'speech_events': speech_result.get('events', []),
+        }
+
+    def _runtime_frame_count(
+        self,
+        actor: dict[str, Any],
+        *,
+        action: str,
+        direction: str,
+        subaction: str | None,
+    ) -> int:
+        """Resolve a frame count without making presentation state authoritative."""
+        try:
+            return max(1, len(self.characters.render(
+                actor['character_id'], action, direction, subaction
+            ).frames))
+        except (CharacterSystemError, KeyError, TypeError, ValueError):
+            # A render-state read should not make a valid simulation snapshot
+            # unusable.  The canonical action resolver remains the owner of
+            # hard validation; this facade falls back to a single frame for
+            # an incomplete/temporary presentation request.
+            return 1
+
+    def _runtime_base_render_actor(
+        self,
+        actor: dict[str, Any],
+        *,
+        sample_ms: int,
+    ) -> dict[str, Any]:
+        """Build the renderer-facing baseline for one actor.
+
+        The actor reducer owns activity, stamina and routes.  This method only
+        derives a read-only visual record; speech/conversation overlays are
+        applied afterwards and never written back to the simulation snapshot.
+        """
+        assignment = actor['assignment']
+        position = actor.get('position', {})
+        route = position.get('route')
+        presence = str(actor.get('presence'))
+        visible = presence != 'home'
+        if isinstance(route, dict):
+            render_owner = str(route.get('render_owner') or 'walking_depth')
+            action = str(route.get('action') or 'move')
+            subaction = str(route.get('subaction') or 'idle')
+            direction = str(
+                route.get('direction') or route.get('raw_direction') or assignment.get('facing') or 'SE'
+            ).upper()
+            ground_xy = copy.deepcopy(position.get('ground_xy'))
+            current_uv = copy.deepcopy(position.get('uv'))
+            visibility_alpha = float(route.get('visibility_alpha', 1.0))
+            frame_clock_ms = int(route.get('elapsed_ms', 0))
+        elif visible:
+            render_owner = 'work_seat'
+            action = 'work'
+            subaction = 'normal_work'
+            direction = str(assignment.get('facing') or 'SE').upper()
+            ground_xy = None
+            current_uv = None
+            visibility_alpha = 1.0
+            frame_clock_ms = int(sample_ms)
+        else:
+            render_owner = 'none'
+            action = None
+            subaction = None
+            direction = str(assignment.get('facing') or 'SE').upper()
+            ground_xy = None
+            current_uv = None
+            visibility_alpha = 0.0
+            frame_clock_ms = 0
+
+        frame_count = self._runtime_frame_count(
+            actor,
+            action=action,
+            direction=direction,
+            subaction=subaction,
+        ) if action is not None else 1
+        row: dict[str, Any] = {
+            'employee_id': actor['employee_id'],
+            'character_id': actor['character_id'],
+            'floor_id': assignment['floor_id'],
+            'workstation_id': assignment['workstation_id'],
+            'slot_id': assignment['slot_id'],
+            'assignment_order': assignment['assignment_order'],
+            'assignment_retained': True,
+            'presence': presence,
+            'activity': actor.get('activity'),
+            'stamina': copy.deepcopy(actor.get('stamina')),
+            'render_owner': render_owner,
+            'visible': bool(visible and visibility_alpha > 0),
+            'visibility_alpha': round(max(0.0, min(1.0, visibility_alpha)), 4),
+            'action': action,
+            'direction': direction,
+            'subaction': subaction,
+            'current_uv': current_uv,
+            'ground_xy': ground_xy,
+            'frame_index': (frame_clock_ms // 360) % frame_count if action is not None else 0,
+            'character_frame_index': (frame_clock_ms // 360) % frame_count if action is not None else 0,
+            'character_frame_ms': 360,
+            'pc_frame_index': (frame_clock_ms // 720) % 5 if render_owner == 'work_seat' else None,
+            'pc_frame_ms': 720,
+            'dialogue_visible': False,
+            'dialogue_opacity': 0.0,
+            'dialogue_phase': 'hidden',
+            'dialogue_id': None,
+            'dialogue_line_index': None,
+            'dialogue_text': None,
+            'dialogue_locale': None,
+            'dialogue_bubble_offset_px': [0, 0],
+            'presentation_phase': None,
+            'speech_session_id': None,
+            'speech_mode': None,
+            'speech_category': None,
+            'channels': {},
+        }
+
+        active_event = actor.get('behavior', {}).get('active_event')
+        if active_event in {'background_effect', 'popup'} and visible:
+            try:
+                employee = self.employee_metadata.get(actor['employee_id'])
+                binding = self.actor_simulation._presentation_for_behavior(
+                    employee,
+                    active_event,
+                    counter=int(actor.get('behavior', {}).get('event_counter', 0)),
+                )
+            except (EmployeeMetadataError, ActorSimulationError, KeyError, TypeError, ValueError):
+                binding = None
+            if isinstance(binding, dict):
+                channel = str(binding.get('channel'))
+                channel_payload = copy.deepcopy(binding)
+                elapsed = max(0, int(sample_ms) - int(
+                    actor.get('behavior', {}).get('activity_started_ms', sample_ms)
+                ))
+                if channel == 'vfx':
+                    channel_payload['effect_frame_index'] = (elapsed // 240)
+                    channel_payload['effect_frame_ms'] = 240
+                elif channel == 'humanball':
+                    channel_payload['humanball_frame_index'] = (elapsed // 240)
+                    channel_payload['humanball_frame_ms'] = 240
+                row['channels'][channel] = channel_payload
+        return row
+
+    @staticmethod
+    def _runtime_timeline_row(plan: dict[str, Any], relative_ms: int) -> dict[str, Any] | None:
+        timeline = plan.get('timeline')
+        if not isinstance(timeline, list) or not timeline:
+            return None
+        rows = [row for row in timeline if isinstance(row, dict)]
+        if not rows:
+            return None
+        prior = [row for row in rows if int(row.get('timestamp_ms', 0)) <= int(relative_ms)]
+        return copy.deepcopy(prior[-1] if prior else rows[0])
+
+    @staticmethod
+    def _runtime_bubble_from_schedule(
+        session: dict[str, Any],
+        employee_id: str,
+        *,
+        sample_ms: int,
+    ) -> dict[str, Any] | None:
+        for item in session.get('bubble_schedule', []):
+            if item.get('employee_id') != employee_id:
+                continue
+            start_ms = int(item.get('start_ms', session.get('bubble_start_ms', 0)))
+            visible_end_ms = int(item.get(
+                'visible_end_ms', start_ms + SpeechSchedulerCore.BUBBLE_VISIBLE_MS
+            ))
+            fade_end_ms = int(item.get(
+                'fade_end_ms', visible_end_ms + SpeechSchedulerCore.BUBBLE_FADE_MS
+            ))
+            if sample_ms < start_ms or sample_ms >= fade_end_ms:
+                continue
+            if sample_ms <= visible_end_ms:
+                opacity = 1.0
+                phase = 'visible'
+            else:
+                opacity = max(0.0, min(1.0, 1.0 - (
+                    (sample_ms - visible_end_ms) / max(1, fade_end_ms - visible_end_ms)
+                )))
+                phase = 'fading' if opacity > 0 else 'hidden'
+            dialogue = item.get('dialogue')
+            if not isinstance(dialogue, dict):
+                plan = session.get('conversation_plan')
+                plan_lines = plan.get('dialogue_by_actor') if isinstance(plan, dict) else None
+                dialogue = plan_lines.get(employee_id) if isinstance(plan_lines, dict) else None
+            if not isinstance(dialogue, dict):
+                dialogue = {}
+            return {
+                'dialogue_visible': opacity > 0,
+                'dialogue_opacity': round(opacity, 4),
+                'dialogue_phase': phase,
+                'turn_index': int(item.get('turn_index', 0)),
+                'speaker_id': employee_id,
+                'dialogue_id': dialogue.get('dialogue_id'),
+                'dialogue_line_index': dialogue.get('line_index'),
+                'dialogue_text': dialogue.get('text'),
+                'dialogue_locale': dialogue.get('locale'),
+            }
+        return None
+
+    def resolve_runtime_presentation(
+        self,
+        runtime_snapshot: dict[str, Any],
+        *,
+        at_ms: int | None = None,
+        floor_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Materialize a read-only render snapshot from the three runtime channels.
+
+        Actor/stamina state and speech timing stay independent.  The only
+        cross-channel operation is selecting the active conversation track at
+        the speech sample time and overlaying its pose/bubble fields on the
+        actor's baseline render record.  This is the seam a real renderer can
+        consume each frame without mutating gameplay state or workstation
+        ownership.
+        """
+        runtime = self.validate_runtime_snapshot(runtime_snapshot)
+        actor_snapshot = runtime['actor_snapshot']
+        speech_snapshot = runtime['speech_snapshot']
+        actor_clock_ms = int(actor_snapshot['clock']['simulation_time_ms'])
+        speech_clock_ms = int(speech_snapshot['clock']['simulation_time_ms'])
+        if at_ms is None:
+            actor_sample_ms = actor_clock_ms
+            speech_sample_ms = speech_clock_ms
+        else:
+            if isinstance(at_ms, bool) or not isinstance(at_ms, int) or at_ms < 0:
+                raise CentralGameCoreError('at_ms must be an integer >= 0')
+            actor_sample_ms = int(at_ms)
+            speech_sample_ms = int(at_ms)
+
+        actors = {
+            employee_id: self._runtime_base_render_actor(
+                actor,
+                sample_ms=actor_sample_ms,
+            )
+            for employee_id, actor in actor_snapshot['actors'].items()
+            if floor_id is None or actor['assignment']['floor_id'] == str(floor_id)
+        }
+        sessions: list[dict[str, Any]] = []
+        active_ids = set(speech_snapshot.get('active_sessions', {}))
+        all_sessions = list(speech_snapshot.get('active_sessions', {}).values())
+        all_sessions += list(speech_snapshot.get('completed_sessions', {}).values())
+        # Apply older return tracks first so a newer speech session wins if a
+        # caller deliberately starts it as soon as the lane's fade lock ends.
+        all_sessions.sort(key=lambda item: (
+            int(item.get('movement_started_ms', item.get('start_ms', 0))),
+            str(item.get('session_id', '')),
+        ))
+        for session in all_sessions:
+            if not isinstance(session, dict):
+                continue
+            if floor_id is not None and session.get('floor_id') != str(floor_id):
+                continue
+            participants = [
+                employee_id for employee_id in session.get('participants', [])
+                if employee_id in actors
+            ]
+            if not participants:
+                continue
+            origin_ms = int(session.get(
+                'movement_started_ms', session.get('start_ms', 0)
+            ))
+            relative_ms = speech_sample_ms - origin_ms
+            if relative_ms < 0:
+                continue
+            plan = session.get('conversation_plan')
+            # Lifecycle lines (greeting/work-start/fatigue/leaving) may use a
+            # self-talk plan solely to select localized text.  Their visual
+            # pose must remain the actor reducer's current route/WorkSeat
+            # state, so only pair/solo plans drive a timeline overlay.
+            plan_for_overlay = plan if session.get('kind') != 'lifecycle' else None
+            plan_row = (
+                self._runtime_timeline_row(plan_for_overlay, relative_ms)
+                if isinstance(plan_for_overlay, dict) and plan_for_overlay.get('ready') else None
+            )
+            plan_end = None
+            if (
+                isinstance(plan_for_overlay, dict)
+                and isinstance(plan_for_overlay.get('timeline'), list)
+                and plan_for_overlay['timeline']
+            ):
+                plan_end = max(
+                    int(row.get('timestamp_ms', 0))
+                    for row in plan_for_overlay['timeline']
+                )
+            if plan_end is not None and relative_ms > plan_end:
+                continue
+            if plan_end is None and session.get('session_id') not in active_ids:
+                if speech_sample_ms >= int(session.get('fade_end_ms', 0)):
+                    continue
+            sessions.append({
+                'session_id': session.get('session_id'),
+                'floor_id': session.get('floor_id'),
+                'kind': session.get('kind'),
+                'mode': session.get('mode'),
+                'category': session.get('category'),
+                'participants': participants,
+                'relative_ms': relative_ms,
+                'status': 'active' if session.get('session_id') in active_ids else 'returning',
+            })
+            if plan_row and isinstance(plan_row.get('actors'), dict):
+                source_rows = plan_row['actors']
+                for employee_id in participants:
+                    track = source_rows.get(employee_id)
+                    if not isinstance(track, dict):
+                        continue
+                    row = actors[employee_id]
+                    for key in (
+                        'phase', 'current_uv', 'ground_xy', 'path_cells_uv',
+                        'direction', 'raw_direction', 'render_owner', 'action',
+                        'subaction', 'frame_index', 'cumulative_distance_px',
+                        'dialogue_visible', 'dialogue_opacity', 'dialogue_phase',
+                        'dialogue_id', 'dialogue_line_index', 'dialogue_text',
+                        'dialogue_locale', 'dialogue_bubble_offset_px',
+                        'speaker_id', 'listener_id', 'loop_index', 'turn_index',
+                    ):
+                        if key in track:
+                            row[key] = copy.deepcopy(track[key])
+                    if row.get('action') in {'move', 'idle'} and 'subaction' not in track:
+                        row['subaction'] = 'idle'
+                    row['visible'] = bool(
+                        row.get('render_owner') != 'none'
+                        and float(row.get('visibility_alpha', 1.0)) > 0
+                    )
+                    row['presentation_phase'] = track.get('phase')
+                    row['speech_session_id'] = session.get('session_id')
+                    row['speech_mode'] = session.get('mode')
+                    row['speech_category'] = session.get('category')
+            else:
+                bindings = session.get('pose_bindings', {})
+                for employee_id in participants:
+                    binding = bindings.get(employee_id) if isinstance(bindings, dict) else None
+                    if isinstance(binding, dict):
+                        actors[employee_id].update({
+                            key: copy.deepcopy(binding[key])
+                            for key in ('render_owner', 'action', 'subaction')
+                            if key in binding
+                        })
+                    bubble = self._runtime_bubble_from_schedule(
+                        session,
+                        employee_id,
+                        sample_ms=speech_sample_ms,
+                    )
+                    if bubble:
+                        actors[employee_id].update(bubble)
+                    actors[employee_id]['speech_session_id'] = session.get('session_id')
+                    actors[employee_id]['speech_mode'] = session.get('mode')
+                    actors[employee_id]['speech_category'] = session.get('category')
+
+        # A completed standing-pair session may be in the shared emotion hold
+        # after the lane is released.  Keep its pose visible until the plan's
+        # return track takes over, using the speech state as the gate.
+        for employee_id, speech_actor in speech_snapshot.get('actors', {}).items():
+            if employee_id not in actors or speech_actor.get('speech_phase') != 'emotion':
+                continue
+            emotion = speech_actor.get('emotion')
+            if emotion not in {'sad', 'happy'}:
+                continue
+            actors[employee_id].update({
+                'render_owner': 'walking_depth',
+                'action': emotion,
+                'subaction': emotion,
+                'visible': True,
+                'presentation_phase': 'emotion',
+                'emotion': emotion,
+                'speech_session_id': speech_actor.get('last_session_id'),
+            })
+
+        character_order = sorted(
+            actors,
+            key=lambda employee_id: (
+                1 if actors[employee_id].get('ground_xy') is None else 0,
+                float((actors[employee_id].get('ground_xy') or [0, 0])[1]),
+                int(actors[employee_id].get('assignment_order', 0)),
+                employee_id,
+            ),
+        )
+        bubble_order = sorted(
+            (
+                employee_id for employee_id, actor in actors.items()
+                if actor.get('dialogue_visible')
+            ),
+            key=lambda employee_id: (
+                int(actors[employee_id].get('turn_index', 0)), employee_id
+            ),
+        )
+        return {
+            'schema': 'gds.runtime_presentation_snapshot.v1',
+            'version': '1.0.0',
+            'clock': {
+                'actor_sample_ms': actor_sample_ms,
+                'speech_sample_ms': speech_sample_ms,
+                'actor_clock_ms': actor_clock_ms,
+                'speech_clock_ms': speech_clock_ms,
+                'tick_ms': 60,
+            },
+            'timing_ms': {
+                'simulation_tick': 60,
+                'character_frame': 360,
+                'effect_frame': 240,
+                'humanball_frame': 240,
+                'bubble_visible': 4000,
+                'bubble_fade': 300,
+            },
+            'dialogue_layout_policy': 'direct_head_anchor_overlay_paint_order',
+            'actors': actors,
+            'active_speech_sessions': sessions,
+            'paint_order': {
+                'characters': character_order,
+                'dialogue_bubbles': bubble_order,
+            },
+        }
 
     def render_floor_with_work_effects(
         self,

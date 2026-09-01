@@ -32,7 +32,7 @@
       "required": [
         "ceo_workstation_id", "ceo_outbound_talk", "ceo_self_talk", "ceo_inbound_employee_talk",
         "employee_to_employee", "employee_to_ceo", "general_seated_host", "cross_floor",
-        "group_talk", "walk_and_talk", "partner_selection", "assignment_mutation", "conversation_timing", "dialogue_selection", "dialogue_layout"
+        "group_talk", "walk_and_talk", "partner_selection", "assignment_mutation", "conversation_timing", "dialogue_selection", "dialogue_layout", "standing_pair_emotion"
       ],
       "properties": {
         "ceo_workstation_id": {"const": "ceo"},
@@ -49,7 +49,20 @@
         "assignment_mutation": {"const": "never"},
         "conversation_timing": {"const": "one_loop_first_bubble_4000ms_then_fade"},
         "dialogue_selection": {"const": "pair_open_then_reply_self_general_deterministic"},
-        "dialogue_layout": {"const": "direct_head_anchor_overlay_paint_order"}
+        "dialogue_layout": {"const": "direct_head_anchor_overlay_paint_order"},
+        "standing_pair_emotion": {
+          "type": "object", "additionalProperties": false,
+          "required": ["trigger", "roll", "even", "odd", "hold_ms", "stamina_effect", "return_after"],
+          "properties": {
+            "trigger": {"const": "after_bubble_fade"},
+            "roll": {"const": "one_shared_d6"},
+            "even": {"const": "happy"},
+            "odd": {"const": "sad"},
+            "hold_ms": {"const": 1200},
+            "stamina_effect": {"const": "external_hook_no_numeric_delta_yet"},
+            "return_after": {"const": true}
+          }
+        }
       }
     },
     "coordinate_contract": {"type": "object", "required": ["grid", "axis_direction_convention", "standing_pair", "seated_host", "ceo_front"]},

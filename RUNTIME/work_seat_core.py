@@ -410,7 +410,24 @@ class WorkSeatCore:
             action = self.characters.render(character_id, 'work', seat['direction'], subaction)
             if not action.frames:
                 raise WorkSeatError(f'{character_id} produced no work frames')
-            human = action.frames[character_frame_index % len(action.frames)].convert('RGBA')
+            # Runtime presentation can carry independent clocks per actor.
+            # Keep the floor-level arguments as defaults for legacy callers,
+            # while allowing a composed assignment row to override each
+            # channel without synchronising it to another workstation.
+            requested_character_frame_index = assignment.get('character_frame_index')
+            if requested_character_frame_index is None:
+                requested_character_frame_index = character_frame_index
+            if isinstance(requested_character_frame_index, bool):
+                raise WorkSeatError('assignment.character_frame_index must be an integer >= 0')
+            try:
+                requested_character_frame_index = int(requested_character_frame_index)
+            except (TypeError, ValueError) as exc:
+                raise WorkSeatError(
+                    'assignment.character_frame_index must be an integer >= 0'
+                ) from exc
+            if requested_character_frame_index < 0:
+                raise WorkSeatError('assignment.character_frame_index must be an integer >= 0')
+            human = action.frames[requested_character_frame_index % len(action.frames)].convert('RGBA')
             chair = self.world.load_asset(seat['chair_asset_id']).convert('RGBA')
             offset = self.resolve_world_offset(
                 seat['direction'], chair_size=chair.size, human_size=human.size
@@ -433,7 +450,7 @@ class WorkSeatCore:
                     # counter when no independent PC channel is supplied.
                     # Dividing by the action frame count advances the PC only
                     # after a complete looping work action.
-                    requested_pc_frame_index = character_frame_index // len(action.frames)
+                    requested_pc_frame_index = requested_character_frame_index // len(action.frames)
             (
                 pc_asset_id,
                 pc_variant_id,
@@ -441,6 +458,7 @@ class WorkSeatCore:
                 pc_frame_count,
             ) = self.resolve_pc_frame_asset(seat, requested_pc_frame_index)
             data.update({
+                'character_frame_index': requested_character_frame_index % len(action.frames),
                 'pc_frame_index': resolved_pc_frame_index,
                 'pc_frame_count': pc_frame_count,
                 'pc_asset_id': pc_asset_id,
@@ -454,7 +472,22 @@ class WorkSeatCore:
                 effect = self.characters.render_effect(effect_id, seat['direction'])
                 if not effect.frames:
                     raise WorkSeatError(f'{effect_id} produced no VFX frames')
-                effect_frame = effect.frames[effect_frame_index % len(effect.frames)].convert('RGBA')
+                requested_effect_frame_index = assignment.get('effect_frame_index')
+                if requested_effect_frame_index is None:
+                    requested_effect_frame_index = effect_frame_index
+                if requested_effect_frame_index is None:
+                    requested_effect_frame_index = requested_character_frame_index
+                if isinstance(requested_effect_frame_index, bool):
+                    raise WorkSeatError('assignment.effect_frame_index must be an integer >= 0')
+                try:
+                    requested_effect_frame_index = int(requested_effect_frame_index)
+                except (TypeError, ValueError) as exc:
+                    raise WorkSeatError(
+                        'assignment.effect_frame_index must be an integer >= 0'
+                    ) from exc
+                if requested_effect_frame_index < 0:
+                    raise WorkSeatError('assignment.effect_frame_index must be an integer >= 0')
+                effect_frame = effect.frames[requested_effect_frame_index % len(effect.frames)].convert('RGBA')
                 effect_x, effect_y = self.resolve_effect_world_position(
                     seat['direction'],
                     human_top_left_px=(data['human_x_px'], data['human_y_px']),
@@ -466,6 +499,7 @@ class WorkSeatCore:
                     'effect': effect_frame,
                     'effect_x_px': effect_x,
                     'effect_y_px': effect_y,
+                    'effect_frame_index': requested_effect_frame_index % len(effect.frames),
                     'effect_frame_ms': int(effect.frame_ms),
                     'effect_frame_count': len(effect.frames),
                 })
@@ -479,7 +513,22 @@ class WorkSeatCore:
                 )
                 if not popup.frames:
                     raise WorkSeatError(f'{humanball_id} produced no HumanBall frames')
-                popup_index = humanball_frame_index % len(popup.frames)
+                requested_humanball_frame_index = assignment.get('humanball_frame_index')
+                if requested_humanball_frame_index is None:
+                    requested_humanball_frame_index = humanball_frame_index
+                if requested_humanball_frame_index is None:
+                    requested_humanball_frame_index = requested_character_frame_index
+                if isinstance(requested_humanball_frame_index, bool):
+                    raise WorkSeatError('assignment.humanball_frame_index must be an integer >= 0')
+                try:
+                    requested_humanball_frame_index = int(requested_humanball_frame_index)
+                except (TypeError, ValueError) as exc:
+                    raise WorkSeatError(
+                        'assignment.humanball_frame_index must be an integer >= 0'
+                    ) from exc
+                if requested_humanball_frame_index < 0:
+                    raise WorkSeatError('assignment.humanball_frame_index must be an integer >= 0')
+                popup_index = requested_humanball_frame_index % len(popup.frames)
                 popup_frame = popup.frames[popup_index]
                 popup_offset = popup.offsets[popup_index]
                 popup_x = popup_y = None
@@ -492,6 +541,7 @@ class WorkSeatCore:
                     'humanball': popup_frame,
                     'humanball_x_px': popup_x,
                     'humanball_y_px': popup_y,
+                    'humanball_frame_index': popup_index,
                     'humanball_frame_ms': int(popup.frame_ms),
                     'humanball_frame_count': len(popup.frames),
                     'humanball_visible_frame_count': int(popup.visible_frame_count),

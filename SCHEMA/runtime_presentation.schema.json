@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.runtime_presentation.v1",
+  "title": "GDS read-only runtime presentation contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schema", "contract_id", "version", "scope", "runtime", "api", "renderer", "renderer_api", "host_adapter", "host_api", "snapshot_schema",
+    "source_channels", "ownership", "timing_ms", "render_policy", "emotion_policy"
+  ],
+  "properties": {
+    "$schema": {"const": "gds.runtime_presentation.v1"},
+    "schema": {"const": "gds.runtime_presentation.v1"},
+    "contract_id": {"const": "contract.gds.runtime_presentation.v1"},
+    "version": {"const": "1.0.0"},
+    "scope": {"const": "read_only_cross_channel_render_snapshot"},
+    "runtime": {"const": "RUNTIME/central_core.py"},
+    "snapshot_schema": {"const": "SCHEMA/runtime_presentation_snapshot.schema.json"},
+    "api": {"const": ["CentralGameCore.resolve_runtime_presentation"]},
+    "renderer": {"const": "RUNTIME/runtime_presentation_renderer.py"},
+    "renderer_api": {"const": [
+      "RuntimePresentationRenderer.render_runtime_snapshot",
+      "RuntimePresentationRenderer.render_presentation",
+      "RuntimePresentationLoop.tick",
+      "RuntimePresentationLoop.render_current"
+    ]},
+    "host_adapter": {"const": "RUNTIME/runtime_presentation_host.py"},
+    "host_api": {"const": [
+      "RuntimePresentationHostAdapter.tick",
+      "RuntimePresentationHostAdapter.render_current"
+    ]},
+    "source_channels": {"const": ["actor_snapshot", "speech_snapshot", "conversation_plan"]},
+    "ownership": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "actor_activity_stamina_assignment", "speech_timing_bubble_lane",
+        "movement_pose_and_dialogue_track", "mutation"
+      ],
+      "properties": {
+        "actor_activity_stamina_assignment": {"const": "actor_snapshot"},
+        "speech_timing_bubble_lane": {"const": "speech_snapshot"},
+        "movement_pose_and_dialogue_track": {"const": "conversation_plan"},
+        "mutation": {"const": false}
+      }
+    },
+    "timing_ms": {
+      "type": "object", "additionalProperties": false,
+      "required": ["simulation_tick", "character_frame", "effect_frame", "humanball_frame", "bubble_visible", "bubble_fade"],
+      "properties": {
+        "simulation_tick": {"const": 60},
+        "character_frame": {"const": 360},
+        "effect_frame": {"const": 240},
+        "humanball_frame": {"const": 240},
+        "bubble_visible": {"const": 4000},
+        "bubble_fade": {"const": 300}
+      }
+    },
+    "render_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["speech_and_pose_are_independent", "workseat_and_walking_are_mutually_exclusive", "bubble_anchor", "bubble_paint_order", "assignment_mutation"],
+      "properties": {
+        "speech_and_pose_are_independent": {"const": true},
+        "workseat_and_walking_are_mutually_exclusive": {"const": true},
+        "bubble_anchor": {"const": "direct_head_anchor"},
+        "bubble_paint_order": {"const": "turn_index_then_employee_id"},
+        "assignment_mutation": {"const": false}
+      }
+    },
+    "emotion_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["standing_pair_only", "outcome", "hold_ms", "numeric_stamina_delta"],
+      "properties": {
+        "standing_pair_only": {"const": true},
+        "outcome": {"const": "shared_d6_even_happy_odd_sad"},
+        "hold_ms": {"const": 1200},
+        "numeric_stamina_delta": {"const": "external_hook_not_yet_tuned"}
+      }
+    }
+  }
+}

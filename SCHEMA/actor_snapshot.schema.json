@@ -1,0 +1,599 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.actor_snapshot.v1",
+  "title": "GDS persistent actor simulation snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "clock",
+    "determinism",
+    "actors"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gds.actor_snapshot.v1"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "clock": {
+      "$ref": "#/$defs/clock"
+    },
+    "determinism": {
+      "$ref": "#/$defs/determinism"
+    },
+    "actors": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^EMP_W[12]_[0-9]{4}$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/actor"
+      }
+    }
+  },
+  "$defs": {
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "simulation_time_ms",
+        "tick_ms"
+      ],
+      "properties": {
+        "simulation_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tick_ms": {
+          "const": 60
+        }
+      }
+    },
+    "determinism": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "simulation_seed",
+        "root_event_counter"
+      ],
+      "properties": {
+        "simulation_seed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "root_event_counter": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "floor_id",
+        "workstation_id",
+        "slot_id",
+        "assignment_order",
+        "facing"
+      ],
+      "properties": {
+        "floor_id": {
+          "type": "string",
+          "pattern": "^floor[0-9]+$"
+        },
+        "workstation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slot_id": {
+          "type": "string",
+          "pattern": "^workseat:floor[0-9]+:[^:]+:primary$"
+        },
+        "assignment_order": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 218
+        },
+        "facing": {
+          "enum": [
+            "NW",
+            "SE",
+            "SW",
+            "NE"
+          ]
+        }
+      }
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "floor_id",
+        "uv",
+        "ground_xy",
+        "route"
+      ],
+      "properties": {
+        "floor_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^floor[0-9]+$"
+        },
+        "uv": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2,
+              "items": false
+            }
+          ]
+        },
+        "ground_xy": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2,
+              "items": false
+            }
+          ]
+        },
+        "route": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "target_uv",
+                "path_cells_uv"
+              ],
+              "properties": {
+                "phase": {
+                  "enum": [
+                    "to_portal",
+                    "portal_exit",
+                    "portal_entry",
+                    "to_workseat",
+                    "wander_out",
+                    "wander_back"
+                  ]
+                },
+                "start_uv": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ],
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": false
+                },
+                "target_uv": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ],
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": false
+                },
+                "path_cells_uv": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ],
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": false
+                  }
+                },
+                "elapsed_ms": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "duration_ms": {
+                  "type": "integer",
+                  "minimum": 60
+                },
+                "render_owner": {
+                  "const": "walking_depth"
+                },
+                "action": {
+                  "const": "move"
+                },
+                "subaction": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "direction": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    null,
+                    "NW",
+                    "SE",
+                    "SW",
+                    "NE"
+                  ]
+                },
+                "raw_direction": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    null,
+                    "NW",
+                    "SE",
+                    "SW",
+                    "NE"
+                  ]
+                },
+                "visibility_alpha": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "stamina": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "current_milli",
+        "max_milli",
+        "threshold_band",
+        "drain_remainder"
+      ],
+      "properties": {
+        "current_milli": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "max_milli": {
+          "const": 100000
+        },
+        "threshold_band": {
+          "enum": [
+            "normal",
+            "low",
+            "critical"
+          ]
+        },
+        "drain_remainder": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999
+        }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_seed",
+        "event_counter",
+        "next_event_due_ms",
+        "activity_started_ms",
+        "activity_until_ms",
+        "active_event",
+        "cooldowns"
+      ],
+      "properties": {
+        "profile_seed": {
+          "const": "gds-employee-stamina-profile-v1"
+        },
+        "event_counter": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "next_event_due_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "activity_started_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "activity_until_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "active_event": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            null,
+            "talk",
+            "background_effect",
+            "popup",
+            "wander"
+          ]
+        },
+        "cooldowns": {
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "talk",
+              "background_effect",
+              "popup",
+              "wander",
+              "going_home"
+            ]
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "employee_id",
+        "character_id",
+        "assignment",
+        "presence",
+        "activity",
+        "position",
+        "stamina",
+        "behavior",
+        "conversation_phase",
+        "last_event"
+      ],
+      "properties": {
+        "employee_id": {
+          "type": "string",
+          "pattern": "^EMP_W[12]_[0-9]{4}$"
+        },
+        "character_id": {
+          "type": "string",
+          "pattern": "^(TP|RND_[MF])_[0-9]{3}$"
+        },
+        "assignment": {
+          "$ref": "#/$defs/assignment"
+        },
+        "presence": {
+          "enum": [
+            "home",
+            "entering",
+            "present",
+            "leaving"
+          ]
+        },
+        "activity": {
+          "enum": [
+            "walking_to_work",
+            "working",
+            "talking",
+            "wandering",
+            "popup_event",
+            "going_home",
+            "home_recovery",
+            "returning_to_work"
+          ]
+        },
+        "position": {
+          "$ref": "#/$defs/position"
+        },
+        "stamina": {
+          "$ref": "#/$defs/stamina"
+        },
+        "behavior": {
+          "$ref": "#/$defs/behavior"
+        },
+        "conversation_phase": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            null,
+            "talk_pending",
+            "leaving_workseat",
+            "walking_to_talk",
+            "talk_arrival",
+            "talking",
+            "talk_complete",
+            "returning_to_work",
+            "cancelled",
+            "no_path",
+            "blocked",
+            "self_talk"
+          ]
+        },
+        "last_event": {
+          "enum": [
+            "none",
+            "initial",
+            "work_tick",
+            "talk_recovery",
+            "background_effect_recovery",
+            "popup_recovery",
+            "wander_recovery",
+            "low_threshold",
+            "critical_threshold",
+            "home_requested",
+            "home_recovered",
+            "return_requested",
+            "conversation_cancelled"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "presence": {
+                  "const": "entering"
+                },
+                "activity": {
+                  "const": "walking_to_work"
+                }
+              }
+            },
+            {
+              "properties": {
+                "presence": {
+                  "const": "present"
+                },
+                "activity": {
+                  "const": "working"
+                }
+              }
+            },
+            {
+              "properties": {
+                "presence": {
+                  "const": "present"
+                },
+                "activity": {
+                  "const": "talking"
+                }
+              }
+            },
+            {
+              "properties": {
+                "presence": {
+                  "const": "present"
+                },
+                "activity": {
+                  "const": "wandering"
+                }
+              }
+            },
+            {
+              "properties": {
+                "presence": {
+                  "const": "present"
+                },
+                "activity": {
+                  "const": "popup_event"
+                }
+              }
+            },
+            {
+              "properties": {
+                "presence": {
+                  "const": "leaving"
+                },
+                "activity": {
+                  "const": "going_home"
+                }
+              }
+            },
+            {
+              "properties": {
+                "presence": {
+                  "const": "home"
+                },
+                "activity": {
+                  "const": "home_recovery"
+                }
+              }
+            },
+            {
+              "properties": {
+                "presence": {
+                  "const": "entering"
+                },
+                "activity": {
+                  "const": "returning_to_work"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "if": {
+            "properties": {
+              "activity": {
+                "const": "talking"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "conversation_phase": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "conversation_phase": {
+                "const": null
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

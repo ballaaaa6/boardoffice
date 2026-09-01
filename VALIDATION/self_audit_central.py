@@ -175,6 +175,9 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         ('SCHEMA/WORLD/walking_depth_profiles.schema.json', 'WORLD/REGISTRY/walking_depth_profiles.json'),
         ('SCHEMA/work_seat_lifecycle.schema.json', 'CONTRACTS/work_seat_lifecycle.json'),
         ('SCHEMA/conversation_behavior.schema.json', 'CONTRACTS/conversation_behavior.json'),
+        ('SCHEMA/actor_simulation.schema.json', 'CONTRACTS/actor_simulation.json'),
+        ('SCHEMA/speech_scheduler.schema.json', 'CONTRACTS/speech_scheduler.json'),
+        ('SCHEMA/runtime_presentation.schema.json', 'CONTRACTS/runtime_presentation.json'),
     ]
     schema_errors: list[dict[str, Any]] = []
     for schema_rel, data_rel in schema_pairs:
