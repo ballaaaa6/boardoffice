@@ -26,7 +26,7 @@ def test_floor_assignment_anchors_humanball_to_resolved_human_top_left():
     )
     assert data['humanball'].size == (18, 18)
     assert data['humanball_frame_count'] == 12
-    assert data['humanball_frame_ms'] == 140
+    assert data['humanball_frame_ms'] == 240
 
 
 def test_floor_humanball_is_hidden_on_frames_10_and_11():

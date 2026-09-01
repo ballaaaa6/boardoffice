@@ -140,6 +140,14 @@
     "runtime": "RUNTIME/work_seat_core.py",
     "static_floor_rendering_changes": false,
     "visual_offsets_are_gameplay_anchors": false,
+    "timing_policy": {
+      "source": "CONTRACTS/work_seat_lifecycle.json",
+      "playback_tick_ms": 60,
+      "character_frame_ms": 360,
+      "effect_frame_ms": 240,
+      "humanball_frame_ms": 240,
+      "pc_frame_loop_source": "character_frame_ms multiplied by resolved_work_action_frame_count"
+    },
     "work_pose_contract": "CONTRACTS/work_pose_profiles.json",
     "turn_side_axis_mapping": {
       "source": "CONTRACTS/work_pose_profiles.json",

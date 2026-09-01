@@ -32,7 +32,7 @@
   ],
   "floor_id": "floor06",
   "frame_count": 12,
-  "frame_duration_ms": 140,
+  "frame_duration_ms": 240,
   "humanball_contract": {
     "cell_px": [
       18,

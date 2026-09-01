@@ -75,7 +75,7 @@ class CharacterExporter:
         output_root: str | Path,
         format: str = 'gif',
         scale: int = 1,
-        frame_ms: int = 220,
+        frame_ms: int = 360,
     ) -> dict:
         if format not in {'png', 'gif', 'both'}:
             raise CharacterSystemError("format must be 'png', 'gif', or 'both'")
@@ -133,7 +133,7 @@ class CharacterExporter:
         output_root: str | Path,
         format: str = 'gif',
         scale: int = 1,
-        frame_ms: int = 220,
+        frame_ms: int = 360,
     ) -> dict:
         if character_id not in self.system.core.characters:
             raise CharacterSystemError(f'Unknown character: {character_id}')
@@ -202,7 +202,7 @@ class CharacterExporter:
         *,
         format: str = 'gif',
         scale: int = 1,
-        frame_ms: int = 220,
+        frame_ms: int = 360,
     ) -> dict:
         if character_id not in self.system.core.characters:
             raise CharacterSystemError(f'Unknown character: {character_id}')
@@ -252,7 +252,7 @@ class CharacterExporter:
         character_ids: list[str] | None = None,
         format: str = 'gif',
         scale: int = 1,
-        frame_ms: int = 220,
+        frame_ms: int = 360,
     ) -> dict:
         root = Path(output_root)
         ids = sorted(character_ids) if character_ids is not None else self.system.list_characters()

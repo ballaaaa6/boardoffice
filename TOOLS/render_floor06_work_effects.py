@@ -65,7 +65,7 @@ def main() -> int:
         'random_seed': seed,
         'assignments': [],
         'frame_count': 0,
-        'frame_duration_ms': 140,
+        'frame_duration_ms': core.work_seat_lifecycle.effect_frame_ms,
         'outputs': {},
         'visual_approval': 'pending_author_review',
         'notes': [
@@ -91,7 +91,7 @@ def main() -> int:
         })
 
     frame_count = 1
-    frame_ms = 140
+    frame_ms = core.work_seat_lifecycle.effect_frame_ms
     for a in base_assignments:
         seat = core.resolve_work_seat('floor06', a['workstation_id'])
         human = core.render_character(a['character'], 'work', seat['direction'], 'normal_work')

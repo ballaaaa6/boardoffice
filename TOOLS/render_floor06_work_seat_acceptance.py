@@ -44,6 +44,7 @@ def to_palette(im: Image.Image, palette: list[int]) -> Image.Image:
 
 def main() -> int:
     core = CentralGameCore(ROOT)
+    timing = core.work_seat_lifecycle
     out = ROOT / 'PREVIEW' / 'work_seat' / 'floor06'
     out.mkdir(parents=True, exist_ok=True)
 
@@ -53,12 +54,19 @@ def main() -> int:
         {'workstation_id': ws, 'character': q}
         for ws, q in zip(workstations, character_queries)
     ]
-    subactions = ['normal_work', 'turn_side_sw', 'turn_side_ne', 'happy']
+    subactions = ['normal_work', 'turn_side_sw', 'turn_side_ne', 'turn_side_se', 'turn_side_nw', 'happy']
     report = {
         'schema': 'gds.floor06_work_seat_acceptance.v1',
         'floor_id': 'floor06',
         'source_core_version': '1.4.1',
         'artwork_policy': 'project_assets_only_no_generative_image',
+        'timing_policy': {
+            'playback_tick_ms': timing.tick_ms,
+            'character_frame_ms': timing.character_frame_ms,
+            'effect_frame_ms': timing.effect_frame_ms,
+            'humanball_frame_ms': timing.humanball_frame_ms,
+            'pc_frame_loop_source': 'character_frame_ms multiplied by resolved_work_action_frame_count',
+        },
         'assignments': [],
         'subactions': {},
         'visual_approval': 'pending_author_review',
@@ -88,11 +96,22 @@ def main() -> int:
         })
 
     for subaction in subactions:
-        assignments = [{**a, 'subaction': subaction} for a in base_assignments]
+        assignments = []
+        resolved_subactions = {}
+        for a in base_assignments:
+            seat = core.resolve_work_seat('floor06', a['workstation_id'])
+            supported = core.work_seats.TURN_SIDE_SUBACTIONS_BY_WORK_DIRECTION[seat['direction']]
+            resolved = (
+                subaction
+                if subaction in {'normal_work', 'happy'} or subaction in supported
+                else 'normal_work'
+            )
+            assignments.append({**a, 'subaction': resolved})
+            resolved_subactions[a['workstation_id']] = resolved
         frame_counts = []
         for a in assignments:
             seat = core.resolve_work_seat('floor06', a['workstation_id'])
-            r = core.render_character(a['character'], 'work', seat['direction'], subaction)
+            r = core.render_character(a['character'], 'work', seat['direction'], a['subaction'])
             frame_counts.append(len(r.frames))
         frame_count = max(frame_counts)
         frames = [core.render_floor_with_work('floor06', assignments, frame_index=i) for i in range(frame_count)]
@@ -106,7 +125,7 @@ def main() -> int:
             gif_path,
             save_all=True,
             append_images=pframes[1:],
-            duration=[220] * len(pframes),
+            duration=[timing.character_frame_ms] * len(pframes),
             loop=0,
             disposal=2,
         )
@@ -117,6 +136,7 @@ def main() -> int:
         sheet.save(sheet_path)
         report['subactions'][subaction] = {
             'frame_count': frame_count,
+            'resolved_subactions': resolved_subactions,
             'png': png_path.relative_to(ROOT).as_posix(),
             'gif': gif_path.relative_to(ROOT).as_posix(),
             'sheet': sheet_path.relative_to(ROOT).as_posix(),

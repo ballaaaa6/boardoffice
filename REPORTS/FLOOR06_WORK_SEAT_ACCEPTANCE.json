@@ -156,7 +156,6 @@
     }
   ],
   "floor_id": "floor06",
-  "master_preview": "PREVIEW/work_seat/floor06/all_work_subactions_preview.png",
   "schema": "gds.floor06_work_seat_acceptance.v1",
   "source_core_version": "1.4.1",
   "subactions": {
@@ -164,26 +163,111 @@
       "frame_count": 1,
       "gif": "PREVIEW/work_seat/floor06/happy.gif",
       "png": "PREVIEW/work_seat/floor06/happy_frame00.png",
+      "resolved_subactions": {
+        "ceo": "happy",
+        "ws1": "happy",
+        "ws2": "happy",
+        "ws3": "happy",
+        "ws4": "happy",
+        "ws5": "happy",
+        "ws6": "happy",
+        "ws7": "happy",
+        "ws8": "happy"
+      },
       "sheet": "PREVIEW/work_seat/floor06/happy_sheet.png"
     },
     "normal_work": {
       "frame_count": 2,
       "gif": "PREVIEW/work_seat/floor06/normal_work.gif",
       "png": "PREVIEW/work_seat/floor06/normal_work_frame00.png",
+      "resolved_subactions": {
+        "ceo": "normal_work",
+        "ws1": "normal_work",
+        "ws2": "normal_work",
+        "ws3": "normal_work",
+        "ws4": "normal_work",
+        "ws5": "normal_work",
+        "ws6": "normal_work",
+        "ws7": "normal_work",
+        "ws8": "normal_work"
+      },
       "sheet": "PREVIEW/work_seat/floor06/normal_work_sheet.png"
-    },
-    "turn_side_sw": {
-      "frame_count": 2,
-      "gif": "PREVIEW/work_seat/floor06/turn_side_sw.gif",
-      "png": "PREVIEW/work_seat/floor06/turn_side_sw_frame00.png",
-      "sheet": "PREVIEW/work_seat/floor06/turn_side_sw_sheet.png"
     },
     "turn_side_ne": {
       "frame_count": 2,
       "gif": "PREVIEW/work_seat/floor06/turn_side_ne.gif",
       "png": "PREVIEW/work_seat/floor06/turn_side_ne_frame00.png",
+      "resolved_subactions": {
+        "ceo": "normal_work",
+        "ws1": "turn_side_ne",
+        "ws2": "turn_side_ne",
+        "ws3": "turn_side_ne",
+        "ws4": "turn_side_ne",
+        "ws5": "turn_side_ne",
+        "ws6": "turn_side_ne",
+        "ws7": "turn_side_ne",
+        "ws8": "turn_side_ne"
+      },
       "sheet": "PREVIEW/work_seat/floor06/turn_side_ne_sheet.png"
+    },
+    "turn_side_nw": {
+      "frame_count": 2,
+      "gif": "PREVIEW/work_seat/floor06/turn_side_nw.gif",
+      "png": "PREVIEW/work_seat/floor06/turn_side_nw_frame00.png",
+      "resolved_subactions": {
+        "ceo": "turn_side_nw",
+        "ws1": "normal_work",
+        "ws2": "normal_work",
+        "ws3": "normal_work",
+        "ws4": "normal_work",
+        "ws5": "normal_work",
+        "ws6": "normal_work",
+        "ws7": "normal_work",
+        "ws8": "normal_work"
+      },
+      "sheet": "PREVIEW/work_seat/floor06/turn_side_nw_sheet.png"
+    },
+    "turn_side_se": {
+      "frame_count": 2,
+      "gif": "PREVIEW/work_seat/floor06/turn_side_se.gif",
+      "png": "PREVIEW/work_seat/floor06/turn_side_se_frame00.png",
+      "resolved_subactions": {
+        "ceo": "turn_side_se",
+        "ws1": "normal_work",
+        "ws2": "normal_work",
+        "ws3": "normal_work",
+        "ws4": "normal_work",
+        "ws5": "normal_work",
+        "ws6": "normal_work",
+        "ws7": "normal_work",
+        "ws8": "normal_work"
+      },
+      "sheet": "PREVIEW/work_seat/floor06/turn_side_se_sheet.png"
+    },
+    "turn_side_sw": {
+      "frame_count": 2,
+      "gif": "PREVIEW/work_seat/floor06/turn_side_sw.gif",
+      "png": "PREVIEW/work_seat/floor06/turn_side_sw_frame00.png",
+      "resolved_subactions": {
+        "ceo": "normal_work",
+        "ws1": "turn_side_sw",
+        "ws2": "turn_side_sw",
+        "ws3": "turn_side_sw",
+        "ws4": "turn_side_sw",
+        "ws5": "turn_side_sw",
+        "ws6": "turn_side_sw",
+        "ws7": "turn_side_sw",
+        "ws8": "turn_side_sw"
+      },
+      "sheet": "PREVIEW/work_seat/floor06/turn_side_sw_sheet.png"
     }
+  },
+  "timing_policy": {
+    "character_frame_ms": 360,
+    "effect_frame_ms": 240,
+    "humanball_frame_ms": 240,
+    "pc_frame_loop_source": "character_frame_ms multiplied by resolved_work_action_frame_count",
+    "playback_tick_ms": 60
   },
   "visual_approval": "pending_author_review"
 }

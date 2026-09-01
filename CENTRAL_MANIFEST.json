@@ -174,6 +174,15 @@
     "work_seat_lifecycle_runtime": "RUNTIME/work_seat_lifecycle.py",
     "work_seat_lifecycle_contract": "CONTRACTS/work_seat_lifecycle.json",
     "work_seat_lifecycle_schema": "SCHEMA/work_seat_lifecycle.schema.json",
+    "work_seat_timing_policy": {
+      "playback_tick_ms": 60,
+      "character_frame_ms": 360,
+      "effect_frame_ms": 240,
+      "humanball_frame_ms": 240,
+      "pc_frame_loop_source": "character_frame_ms multiplied by resolved_work_action_frame_count"
+    },
+    "work_seat_timing_policy_visual_qa_report": "LOCAL_REVIEW/PHASE8E_TIMING_POLICY_QA_20260901/report.json",
+    "work_seat_timing_policy_author_acceptance_pending": true,
     "work_seat_interaction_slot_runtime_derived": true,
     "work_seat_interaction_slot_capacity": 1,
     "work_seat_interaction_slots_validated": 219,

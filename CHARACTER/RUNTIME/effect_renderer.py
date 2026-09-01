@@ -92,5 +92,5 @@ class EffectRenderer:
             frame_asset_ids=ids,
             frames=frames,
             loop=anim.get('mode', 'loop') == 'loop',
-            frame_ms=int(anim.get('frame_ms', 140)),
+            frame_ms=int(anim.get('frame_ms', 240)),
         )

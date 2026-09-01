@@ -95,7 +95,7 @@
         "mode": "loop",
         "source_frames": 4,
         "output_frames": 8,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           0,
@@ -145,7 +145,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -203,7 +203,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -261,7 +261,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -319,7 +319,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -377,7 +377,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -435,7 +435,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -493,7 +493,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -551,7 +551,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -609,7 +609,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,
@@ -667,7 +667,7 @@
         "mode": "loop",
         "source_frames": 10,
         "output_frames": 10,
-        "frame_ms": 140,
+        "frame_ms": 240,
         "frame_order": [
           0,
           1,

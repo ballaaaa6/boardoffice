@@ -52,7 +52,7 @@ def build_review_assignments(core: CentralGameCore) -> tuple[list[dict], list[di
     return primary, combined
 
 
-def save_global_palette_gif(frames: list[Image.Image], out_path: Path, *, frame_ms: int = 140) -> None:
+def save_global_palette_gif(frames: list[Image.Image], out_path: Path, *, frame_ms: int = 240) -> None:
     palette = build_global_palette(frames)
     source = frames if len(frames) > 1 else [frames[0], frames[0].copy()]
     pal_frames = [to_palette(frame, palette) for frame in source]
@@ -101,7 +101,7 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
 
     frame_count = 12
-    frame_ms = 140
+    frame_ms = core.work_seat_lifecycle.humanball_frame_ms
     primary_frames = [
         core.render_floor_with_work_effects('floor06', primary, frame_index=i)
         for i in range(frame_count)

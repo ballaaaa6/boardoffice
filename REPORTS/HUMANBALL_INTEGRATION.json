@@ -17,7 +17,7 @@
     ],
     "sw_policy": "derive popup relation from SE without mirroring HumanBall artwork or authored world furniture",
     "timeline": {
-      "frame_ms": 140,
+      "frame_ms": 240,
       "frames": 12,
       "hidden": 2,
       "loop": true,
@@ -59,7 +59,7 @@
     "central_audit": "PASS",
     "global_palette_gif": "PASS",
     "ground_footprint_audit": "PASS",
-    "humanball_gif_timeline": "12 frames x 140 ms PASS",
+    "humanball_gif_timeline": "12 frames x 240 ms PASS",
     "navigation_failed_floors": 0,
     "navigation_failed_workstations": 0,
     "navigation_floors": 25,

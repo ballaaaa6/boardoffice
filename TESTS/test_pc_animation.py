@@ -118,8 +118,8 @@ def test_workseat_lifecycle_exposes_pc_frame_after_each_complete_work_loop():
     seated = [state["work_render"] for state in cycle["states"] if state["phase"] == "seated_work"]
     assert seated
     assert all(payload["pc_frame_count"] == 5 for payload in seated)
-    assert all(payload["pc_frame_loop_ms"] == 440 for payload in seated)
-    assert [payload["pc_frame_index"] for payload in seated[:9]] == [0] * 8 + [1]
+    assert all(payload["pc_frame_loop_ms"] == 720 for payload in seated)
+    assert [payload["pc_frame_index"] for payload in seated[:14]] == [0] * 12 + [1, 1]
 
     se_cycle = core.resolve_employee_work_seat_actor_cycle(
         "EMP_W1_0020",

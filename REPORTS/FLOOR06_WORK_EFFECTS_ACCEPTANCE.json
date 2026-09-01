@@ -103,7 +103,7 @@
   ],
   "floor_id": "floor06",
   "frame_count": 10,
-  "frame_duration_ms": 140,
+  "frame_duration_ms": 240,
   "notes": [
     "Effect is inserted as underlay before authored chair layer.",
     "GIF export uses one global palette across all frames to avoid static-floor flicker."

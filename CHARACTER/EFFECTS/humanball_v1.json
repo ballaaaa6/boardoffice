@@ -19,7 +19,7 @@
     "total_frames": 12,
     "visible_frames": 10,
     "hidden_frames": 2,
-    "frame_ms": 140
+    "frame_ms": 240
   },
   "direction_rules": {
     "NW": {"source": "native_verified"},

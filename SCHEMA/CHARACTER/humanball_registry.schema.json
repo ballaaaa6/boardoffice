@@ -35,7 +35,7 @@
         "total_frames": {"const": 12},
         "visible_frames": {"const": 10},
         "hidden_frames": {"const": 2},
-        "frame_ms": {"const": 140}
+        "frame_ms": {"const": 240}
       },
       "additionalProperties": false
     },

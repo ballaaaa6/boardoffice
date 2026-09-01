@@ -34,8 +34,8 @@ TICK_MS = 60
 FRAME_STEP_MS = 120
 WORK_TICKS = 24
 WORK_DURATION_MS = WORK_TICKS * TICK_MS
-CHARACTER_FRAME_MS = 220
-EFFECT_FRAME_MS = 140
+CHARACTER_FRAME_MS = 360
+EFFECT_FRAME_MS = 240
 IMPORTANT_COLORS = (
     (255, 92, 92, 220),
     (85, 220, 255, 220),
@@ -649,6 +649,13 @@ def render(root: str | Path, output: str | Path | None = None) -> dict[str, Any]
         "max_gif_bytes": max(case["gif_bytes"] for case in cases),
         "cases": cases,
         "frame_step_ms": FRAME_STEP_MS,
+        "timing_policy": {
+            "playback_tick_ms": TICK_MS,
+            "character_frame_ms": CHARACTER_FRAME_MS,
+            "effect_frame_ms": EFFECT_FRAME_MS,
+            "humanball_frame_ms": EFFECT_FRAME_MS,
+            "pc_frame_loop_ms": CHARACTER_FRAME_MS * 2,
+        },
         "work_ticks": WORK_TICKS,
         "work_duration_ms": WORK_DURATION_MS,
         "acceptance": "visual_author_acceptance_pending",

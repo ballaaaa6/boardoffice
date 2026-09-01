@@ -19,6 +19,15 @@ def test_work_seat_lifecycle_contract_validates_and_action_semantics_are_explici
         (ROOT / "CONTRACTS" / "work_seat_lifecycle.json").read_text(encoding="utf-8")
     )
     assert list(Draft202012Validator(schema).iter_errors(contract)) == []
+    timing = contract["timing"]
+    assert timing["playback_tick_ms"] == 60
+    assert timing["work_character_frame_ms"] == 360
+    assert timing["work_effect_frame_ms"] == 240
+    assert timing["work_humanball_frame_ms"] == 240
+    assert all(
+        timing[key] % timing["playback_tick_ms"] == 0
+        for key in ("work_character_frame_ms", "work_effect_frame_ms", "work_humanball_frame_ms")
+    )
 
     actions = json.loads(
         (ROOT / "CHARACTER" / "ACTIONS" / "gds_standard_v1.json").read_text(encoding="utf-8")

@@ -25,7 +25,7 @@ from RUNTIME.central_core import CentralGameCore
 FLOOR_ID = "floor06"
 FRAME_MS = 60
 SIM_TICKS_PER_OUTPUT_FRAME = 2  # review preview only; keeps the GIF compact
-CHARACTER_FRAME_MS = 220
+CHARACTER_FRAME_MS = 360
 PC_LOOP_MS = CHARACTER_FRAME_MS * 2  # normal_work has two character frames
 PC_LOOP_TICKS = PC_LOOP_MS / FRAME_MS
 WORK_TAIL_TICKS = 80

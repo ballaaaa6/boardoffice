@@ -46,8 +46,8 @@ class WorkSeatLifecycle:
 
     DEFAULT_TICK_MS = 60
     DEFAULT_WORK_TICKS = 24
-    DEFAULT_CHARACTER_FRAME_MS = 220
-    DEFAULT_OVERLAY_FRAME_MS = 140
+    DEFAULT_CHARACTER_FRAME_MS = 360
+    DEFAULT_OVERLAY_FRAME_MS = 240
 
     def __init__(
         self,

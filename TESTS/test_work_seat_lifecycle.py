@@ -29,6 +29,10 @@ def test_single_actor_cycle_keeps_actor_slot_and_render_tracks_in_lockstep():
     assert cycle["final_slot_state"] == "free"
     assert cycle["final_state"]["current_uv"] == list(start)
     assert cycle["timing"]["work_duration_ms"] == 1440
+    assert cycle["timing"]["work_character_frame_ms"] == 360
+    assert cycle["timing"]["work_effect_frame_ms"] == 240
+    assert cycle["timing"]["work_humanball_frame_ms"] == 240
+    assert cycle["timing"]["work_pc_frame_loop_ms"] == 720
     _assert_four_neighbor_path(core, "floor02", cycle["inbound_path_cells_uv"])
     _assert_four_neighbor_path(core, "floor02", cycle["outbound_path_cells_uv"])
     gate = cycle["slot"]["transition_gate_uv"]
@@ -53,6 +57,10 @@ def test_single_actor_cycle_keeps_actor_slot_and_render_tracks_in_lockstep():
     assert all(state["current_uv"] is None for state in seated)
     assert all(state["work_render"]["effect_id"] == "thunder_cloud" for state in seated)
     assert all(state["work_render"]["humanball_id"] == "coin" for state in seated)
+    assert all(state["work_render"]["character_frame_ms"] == 360 for state in seated)
+    assert all(state["work_render"]["effect_frame_ms"] == 240 for state in seated)
+    assert all(state["work_render"]["humanball_frame_ms"] == 240 for state in seated)
+    assert all(state["work_render"]["pc_frame_loop_ms"] == 720 for state in seated)
     assert len({state["work_render"]["character_frame_index"] for state in seated}) >= 2
     assert len({state["work_render"]["effect_frame_index"] for state in seated}) >= 2
     assert len({state["work_render"]["humanball_frame_index"] for state in seated}) >= 2

@@ -96,9 +96,9 @@
         "playback_tick_ms": {"const": 60},
         "approach_ticks": {"const": 1},
         "exit_ticks": {"const": 1},
-        "work_character_frame_ms": {"const": 220},
-        "work_effect_frame_ms": {"const": 140},
-        "work_humanball_frame_ms": {"const": 140},
+        "work_character_frame_ms": {"const": 360},
+        "work_effect_frame_ms": {"const": 240},
+        "work_humanball_frame_ms": {"const": 240},
         "work_duration_policy": {"type": "string", "minLength": 1},
         "transition_tween_policy": {"const": "none"}
       }

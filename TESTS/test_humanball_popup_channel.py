@@ -60,7 +60,7 @@ def test_humanball_nw_and_se_use_locked_native_motion_with_two_hidden_frames():
     for direction, expected in [('NW', NW_OFFSETS), ('SE', SE_OFFSETS)]:
         result = system.render_humanball('controller', direction)
         assert result.direction == direction
-        assert result.frame_ms == 140
+        assert result.frame_ms == 240
         assert result.loop is True
         assert result.visible_frame_count == 10
         assert len(result.frames) == 12

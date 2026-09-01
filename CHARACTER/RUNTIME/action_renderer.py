@@ -160,7 +160,7 @@ class CharacterActionRenderer:
         output_root: str | Path,
         format: str = 'gif',
         scale: int = 1,
-        frame_ms: int = 220,
+        frame_ms: int = 360,
     ) -> dict:
         if format not in {'png', 'gif', 'both'}:
             raise ActionRenderError("format must be 'png', 'gif', or 'both'")

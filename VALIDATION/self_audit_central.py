@@ -107,7 +107,13 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         # authored floor placement hashes, or the current three-way slots.
         'CHARACTER/EFFECTS/gds_effects_v1.json',
         'CHARACTER/EFFECTS/humanball_v1.json',
+        # Phase 8E central timing policy aligns character, VFX and HumanBall
+        # presentation to the 60 ms simulation tick (360/240/240).
+        'CHARACTER/BUILD_MANIFEST.json',
+        'CHARACTER/FINAL_MANIFEST.json',
+        'CHARACTER/RUNTIME/action_renderer.py',
         'CHARACTER/RUNTIME/effect_renderer.py',
+        'CHARACTER/RUNTIME/exporter.py',
         'CHARACTER/RUNTIME/humanball_renderer.py',
         'CHARACTER/RUNTIME/presentation_renderer.py',
         'CONTRACTS/central_contract.json',

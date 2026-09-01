@@ -93,7 +93,7 @@ class HumanBallRenderer:
             offsets=offsets,
             visible_frame_count=visible_count,
             loop=animation.get('mode', 'loop') == 'loop',
-            frame_ms=int(animation.get('frame_ms', 140)),
+            frame_ms=int(animation.get('frame_ms', 240)),
             derived_from=derived_from,
             transform=transform,
         )

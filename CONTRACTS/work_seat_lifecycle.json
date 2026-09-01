@@ -84,9 +84,9 @@
     "playback_tick_ms": 60,
     "approach_ticks": 1,
     "exit_ticks": 1,
-    "work_character_frame_ms": 220,
-    "work_effect_frame_ms": 140,
-    "work_humanball_frame_ms": 140,
+    "work_character_frame_ms": 360,
+    "work_effect_frame_ms": 240,
+    "work_humanball_frame_ms": 240,
     "work_duration_policy": "positive_caller_supplied_work_ticks",
     "transition_tween_policy": "none"
   },
