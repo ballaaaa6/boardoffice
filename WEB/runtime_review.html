@@ -15,7 +15,7 @@
     .panel { background:rgba(24,33,44,.94); border:1px solid var(--line); border-radius:12px; padding:14px; box-shadow:0 10px 30px #0003; }
     .stage { min-height:530px; display:flex; flex-direction:column; gap:10px; }
     .scene-frame { position:relative; width:100%; aspect-ratio:1/1; overflow:hidden; border-radius:8px; background:#0b0e13; border:1px solid #293849; }
-    #scene, #sceneAlt { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; image-rendering:auto; opacity:0; transition:opacity .09s linear; }
+    #scene, #sceneAlt { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; image-rendering:auto; opacity:0; transition:opacity .04s linear; }
     #scene.visible, #sceneAlt.visible { opacity:1; }
     .toolbar { display:flex; flex-wrap:wrap; gap:7px; }
     button, select { background:#243449; color:#e5edf5; border:1px solid #425a73; border-radius:7px; padding:8px 10px; cursor:pointer; }
@@ -68,9 +68,10 @@
         <label>Dialogue <select id="locale"><option value="en">English</option><option value="th">ไทย</option></select></label>
         <label>Seed <input id="seed" type="text" value="0" spellcheck="false"></label>
         <label><input id="showRoutes" type="checkbox" checked> show route samples</label>
+        <label><input id="autoPauseDemo" type="checkbox"> pause when demo ends</label>
       </div>
       <div class="meta"><span>Mode: <b id="mode">LIVE</b></span><span>Clock: <b id="clock">0</b>ms</span><span>Frames: <b id="frames">0</b></span><span>Events: <b id="eventCount">0</b></span><span id="note"></span></div>
-      <div class="hint">The preview advances with requestAnimationFrame pacing and crossfades ready images, while the simulation remains deterministic 60ms slices. Talk demo pauses unrelated behavior timers so the route, bubble/fade window and return are easy to verify.</div>
+      <div class="hint">The preview advances on deterministic 60ms simulation slices and swaps only after the next image is decoded. Live reconnects after transient request errors; enable “pause when demo ends” when you want a demo to stop at its authored boundary.</div>
     </section>
     <aside class="panel">
       <h2>Actors on floor02</h2>
@@ -84,23 +85,44 @@
   const $ = (id) => document.getElementById(id);
   let state = null; let selected = null; let saved = null;
   let live = true; let autoSpeed = 1; let busy = false; let rafId = null; let nextLiveAt = 0; let liveGeneration = 0;
+  let retryAttempt = 0; let demoCompletionShown = false;
   let visibleScene = 'scene'; let sceneToken = 0;
-  const AUTO_WALL_MS = 120; const MIN_WALL_MS = 80; const seenEvents = new Set();
+  const SIM_STEP_MS = 60; const MIN_FRAME_WALL_MS = 16; const REQUEST_TIMEOUT_MS = 5000;
+  const RETRY_BASE_MS = 250; const RETRY_MAX_MS = 4000; const seenEvents = new Set();
   const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const API_ROOT = location.protocol === 'file:' ? 'http://127.0.0.1:8765' : '';
   async function api(path, body) {
-    const r = await fetch(`${API_ROOT}${path}`, body === undefined ? {} : {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    let x; try { x = await r.json(); } catch (_) { throw new Error(`HTTP ${r.status}`); }
-    if(!r.ok) throw new Error(x.error || r.statusText); return x;
+    const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const r = await fetch(`${API_ROOT}${path}`, body === undefined ? {signal:controller.signal} : {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+      let x; try { x = await r.json(); } catch (_) { throw new Error(`HTTP ${r.status}`); }
+      if(!r.ok) throw new Error(x.error || r.statusText); return x;
+    } catch(e) {
+      if(e?.name === 'AbortError') throw new Error(`request timeout after ${REQUEST_TIMEOUT_MS}ms`);
+      throw e;
+    } finally { clearTimeout(timeout); }
   }
   function settings() { return {dialogue_locale:$('locale').value, dialogue_seed:$('seed').value.trim() || '0'}; }
+  function commitScene(target, previous, token, requestedSrc) {
+    if(token !== sceneToken || target.src !== requestedSrc || !target.naturalWidth) return;
+    requestAnimationFrame(() => {
+      if(token !== sceneToken || target.src !== requestedSrc || !target.naturalWidth) return;
+      target.classList.add('visible'); previous.classList.remove('visible'); visibleScene = target.id;
+    });
+  }
   function setScene(src) {
     if(!src) return;
     const target = $(visibleScene === 'scene' ? 'sceneAlt' : 'scene');
     const previous = $(visibleScene); const token = ++sceneToken;
-    target.onload = () => { if(token !== sceneToken) return; target.classList.add('visible'); previous.classList.remove('visible'); visibleScene = target.id; };
+    const requestedSrc = src;
+    target.onload = () => {
+      if(token !== sceneToken || target.src !== requestedSrc) return;
+      const decoded = typeof target.decode === 'function' ? target.decode().catch(() => undefined) : Promise.resolve();
+      decoded.then(() => commitScene(target, previous, token, requestedSrc));
+    };
+    target.onerror = () => { if(token === sceneToken) target.classList.remove('visible'); };
+    target.classList.remove('visible');
     target.src = src;
-    if(target.complete) target.onload();
   }
   function formatEvent(e) {
     const time = `${e.timestamp_ms ?? 0}ms`;
@@ -144,16 +166,24 @@
     }).join('');
     document.querySelectorAll('.card').forEach(el => el.onclick = () => { selected = el.dataset.id; render(state); });
     appendEvents(x.events); $('eventCount').textContent = seenEvents.size;
-    if(x.demo_complete && live) {
-      setLive(false);
-      $('note').textContent = x.demo_kind === 'effects'
+    if(!x.demo_complete) demoCompletionShown = false;
+    if(x.demo_complete && live && !demoCompletionShown) {
+      demoCompletionShown = true;
+      const completeNote = x.demo_kind === 'effects'
         ? 'effects demo complete — channels finished and actors are seated'
         : 'talk demo complete — returned to the owned WorkSeat';
+      if($('autoPauseDemo').checked) {
+        setLive(false);
+        $('note').textContent = completeNote;
+      } else {
+        $('note').textContent = `${completeNote} — live continues`;
+      }
     }
   }
   function setLive(value) {
     live = Boolean(value); const generation = ++liveGeneration; $('mode').textContent = live ? 'LIVE' : 'PAUSED'; $('liveToggle').textContent = live ? 'Pause live' : 'Resume live';
     $('liveToggle').classList.toggle('primary', live); $('liveStatus').textContent = live ? '● LIVE' : '● PAUSED'; $('liveStatus').classList.toggle('paused', !live);
+    if(live) retryAttempt = 0;
     if(rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
     if(live) { nextLiveAt = performance.now(); rafId = requestAnimationFrame(now => pumpLive(now, generation)); }
   }
@@ -161,22 +191,38 @@
     if(!live || generation !== liveGeneration) { return; }
     if(!busy && now >= nextLiveAt) {
       busy = true;
+      let retryScheduled = false;
       try {
-        const next = await api('/api/tick',{elapsed_ms:AUTO_WALL_MS * autoSpeed, autopilot:true, compact:true, ...settings()});
+        const next = await api('/api/tick',{elapsed_ms:SIM_STEP_MS * autoSpeed, autopilot:true, compact:true, ...settings()});
         if(generation !== liveGeneration || !live) return;
+        retryAttempt = 0;
+        $('liveStatus').textContent = '● LIVE'; $('liveStatus').classList.remove('paused');
         render(next);
       }
-      catch(e) { if(generation === liveGeneration) { setLive(false); $('note').textContent = `live stopped: ${e.message}`; } }
-      finally { busy = false; nextLiveAt = performance.now() + Math.max(MIN_WALL_MS, AUTO_WALL_MS / autoSpeed); }
+      catch(e) {
+        if(generation === liveGeneration && live) {
+          retryAttempt = Math.min(retryAttempt + 1, 6);
+          const delay = Math.min(RETRY_BASE_MS * (2 ** (retryAttempt - 1)), RETRY_MAX_MS);
+          nextLiveAt = performance.now() + delay; retryScheduled = true;
+          $('note').textContent = `live reconnecting in ${delay}ms: ${e.message}`;
+        }
+      }
+      finally {
+        busy = false;
+        if(generation === liveGeneration && live && !retryScheduled) {
+          const targetWallMs = Math.max(MIN_FRAME_WALL_MS, SIM_STEP_MS / autoSpeed);
+          nextLiveAt = Math.max(nextLiveAt + targetWallMs, performance.now());
+        }
+      }
     }
     if(live && generation === liveGeneration) rafId = requestAnimationFrame(next => pumpLive(next, generation));
   }
   document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { autoSpeed = Number(b.dataset.speed); document.querySelectorAll('[data-speed]').forEach(x => x.classList.toggle('active', x===b)); $('note').textContent = `live speed ${autoSpeed}×`; });
   $('liveToggle').onclick = () => setLive(!live);
   document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { setLive(false); try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick),...settings()})); } catch(e){ alert(e.message); } });
-  $('reset').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/live-start',{compact:true,...settings()})); setLive(true); } catch(e){ alert(e.message); } };
-  $('talkDemo').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/demo-talk',{employee_id:selected,...settings(),compact:true})); setLive(true); } catch(e){ alert(e.message); } };
-  $('effectsDemo').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); render(await api('/api/demo-effects',{...settings(),compact:true})); setLive(true); } catch(e){ alert(e.message); } };
+  $('reset').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); demoCompletionShown=false; render(await api('/api/live-start',{compact:true,...settings()})); setLive(true); } catch(e){ $('note').textContent=`restart failed: ${e.message}`; } };
+  $('talkDemo').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); demoCompletionShown=false; render(await api('/api/demo-talk',{employee_id:selected,...settings(),compact:true})); setLive(true); } catch(e){ $('note').textContent=`talk demo failed: ${e.message}`; } };
+  $('effectsDemo').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); demoCompletionShown=false; render(await api('/api/demo-effects',{...settings(),compact:true})); setLive(true); } catch(e){ $('note').textContent=`effects demo failed: ${e.message}`; } };
   $('critical').onclick = async () => { setLive(false); try { if(!selected) throw new Error('Select an actor first'); render(await api('/api/demo-critical',{employee_id:selected})); } catch(e){ alert(e.message); } };
   $('save').onclick = async () => { setLive(false); try { const x = await api('/api/save',{}); saved = x.runtime_snapshot; localStorage.setItem('gds-runtime-snapshot',x.snapshot_json); localStorage.setItem('gds-runtime-replay',x.replay_json); $('note').textContent='snapshot saved (live paused)'; } catch(e){ alert(e.message); } };
   $('load').onclick = async () => { setLive(false); try { const raw = localStorage.getItem('gds-runtime-snapshot'); if(!raw && !saved) throw new Error('No saved snapshot'); render(await api('/api/load',{runtime_snapshot:saved || JSON.parse(raw)})); } catch(e){ alert(e.message); } };
