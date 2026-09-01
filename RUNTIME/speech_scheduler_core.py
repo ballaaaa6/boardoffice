@@ -2,11 +2,10 @@ from __future__ import annotations
 
 """Deterministic speech timing and conversation trigger scheduler.
 
-Speech is intentionally a presentation channel.  This runtime owns when a
-line may start, which floor lane is occupied, and which conversation mode is
-eligible; it does not mutate workstation ownership, animation registries or
-stamina.  A movement/conversation planner may be supplied to enrich a pair
-request with its already-authored paths and pose bindings.
+Speech owns when a line may start, which floor lane is occupied, and which
+conversation mode/plan is eligible.  It does not mutate workstation
+ownership, animation registries or stamina.  Central commits an accepted
+plan into the actor reducer, which owns the physical talk route and return.
 """
 
 import copy
@@ -41,12 +40,17 @@ class SpeechSchedulerCore:
     )
     PAIR_CATEGORIES = ("conversation_open", "conversation_reply")
     MODES = ("ceo_front", "seated_host", "standing_pair")
+    # Safety lifecycle speech still wins, but a real actor talk request must
+    # be serviced before routine greeting/work-start/solo chatter.  Pair
+    # requests are represented by the conversation_open category, so keep
+    # that key explicit instead of falling through to the solo default.
     PRIORITY = {
         "leaving": 0,
         "fatigue": 1,
-        "greeting": 2,
-        "work_start": 3,
-        "pair": 4,
+        "conversation_open": 2,
+        "pair": 2,
+        "greeting": 3,
+        "work_start": 4,
         "solo": 5,
     }
 
@@ -149,6 +153,8 @@ class SpeechSchedulerCore:
             return False
         if actor.get("locked"):
             return False
+        if actor.get("stamina_band") == "critical":
+            return False
         if actor.get("speech_phase") not in (None, "idle"):
             return False
         return True
@@ -166,6 +172,8 @@ class SpeechSchedulerCore:
             key: result["active_sessions"][key]
             for key in sorted(result.get("active_sessions", {}))
         }
+        for actor in result["actors"].values():
+            actor.setdefault("stamina_band", "normal")
         return result
 
     def _delay_ms(
@@ -205,6 +213,7 @@ class SpeechSchedulerCore:
         activity = self._actor_activity(actor)
         working = activity == "working"
         role = self._actor_role(actor)
+        stamina = actor.get("stamina") if isinstance(actor.get("stamina"), dict) else {}
         return {
             "employee_id": employee_id,
             "floor_id": floor_id,
@@ -234,6 +243,7 @@ class SpeechSchedulerCore:
             "departure_token": 0,
             "speech_event_counter": 0,
             "last_activity": activity,
+            "stamina_band": str(stamina.get("threshold_band") or "normal"),
             "last_session_id": None,
             "last_partner_id": None,
             "speech_phase": "idle",
@@ -329,6 +339,8 @@ class SpeechSchedulerCore:
                 raise SpeechSchedulerError(f"speech actor key mismatch: {employee_id!r}")
             if actor.get("role") not in {"employee", "ceo"}:
                 raise SpeechSchedulerError(f"{employee_id}: unknown speech actor role")
+            if actor.get("stamina_band") not in {"normal", "low", "critical"}:
+                raise SpeechSchedulerError(f"{employee_id}: unknown stamina band")
             if "external_talk_pending" in actor and not isinstance(
                 actor.get("external_talk_pending"), bool
             ):
@@ -415,6 +427,9 @@ class SpeechSchedulerCore:
             if not isinstance(source, dict):
                 continue
             activity = self._actor_activity(source)
+            source_stamina = source.get("stamina") if isinstance(source.get("stamina"), dict) else {}
+            if source_stamina.get("threshold_band") in {"normal", "low", "critical"}:
+                speech_actor["stamina_band"] = str(source_stamina["threshold_band"])
             previous = speech_actor.get("last_activity")
             if activity != previous:
                 if activity == "working":
@@ -466,6 +481,17 @@ class SpeechSchedulerCore:
             effective_at = command.get("effective_at_ms", timestamp_ms)
             actor["external_talk_due_ms"] = self._require_int(
                 effective_at, "behavior_started.effective_at_ms"
+            )
+            return
+        if command_type == "cancel_talk":
+            actor["external_talk_pending"] = False
+            actor["external_talk_due_ms"] = None
+            actor["pair_pending"] = False
+            actor["pair_next_due_ms"] = timestamp_ms + self._delay_ms(
+                snapshot,
+                employee_id,
+                "retry",
+                int(actor.get("departure_token", 0)) + 1,
             )
             return
         if command_type == "spawned":
@@ -721,7 +747,10 @@ class SpeechSchedulerCore:
                         candidate["initiator_id"],
                         snapshot=conversation_snapshot,
                         dialogue_locale=dialogue_locale,
-                        dialogue_category=candidate.get("category"),
+                        dialogue_category=(
+                            None if candidate.get("fallback") == "self_talk"
+                            else candidate.get("category")
+                        ),
                         dialogue_seed=dialogue_seed,
                     )
             except Exception:
@@ -730,6 +759,32 @@ class SpeechSchedulerCore:
                 continue
             if plan.get("ready"):
                 return candidate, plan
+        if request.get("external") and request.get("kind") == "pair":
+            # A valid partner may exist while every pair geometry candidate is
+            # temporarily unavailable.  Do not leave the actor in an
+            # unbounded pending state: use the declared seated self-talk
+            # fallback and let the actor reducer own the same completion path.
+            fallback = {
+                "kind": "solo",
+                "category": "idle_flavor",
+                "mode": "self_talk",
+                "participants": [request["initiator_id"]],
+                "initiator_id": request["initiator_id"],
+                "external": True,
+                "fallback": "self_talk",
+            }
+            try:
+                plan = self.conversation.plan_self_talk(
+                    fallback["initiator_id"],
+                    snapshot=conversation_snapshot,
+                    dialogue_locale=dialogue_locale,
+                    dialogue_category=None,
+                    dialogue_seed=dialogue_seed,
+                )
+            except Exception:
+                plan = None
+            if isinstance(plan, dict) and plan.get("ready"):
+                return fallback, plan
         return None
 
     def _start_session(
@@ -1109,6 +1164,65 @@ class SpeechSchedulerCore:
                 "kind": "lifecycle", "category": "fatigue", "mode": "self_talk",
                 "participants": [employee_id], "initiator_id": employee_id,
             }
+        # A bridge-requested talk is an actor lifecycle request, not a
+        # presentation-only hint.  Service it before routine lifecycle lines
+        # so the actor can leave the workstation promptly.
+        if (
+            actor.get("external_talk_pending")
+            and (
+                actor.get("external_talk_due_ms") is None
+                or int(actor.get("external_talk_due_ms")) <= now_ms
+            )
+        ):
+            # The CEO is host-only: an actor-generated talk request cannot
+            # make the CEO leave the desk, so its declared fallback is a
+            # seated self-talk session.  Employees use the same fallback
+            # when no same-floor partner/mode is currently available.
+            if actor.get("role") == "ceo":
+                return {
+                    "kind": "solo",
+                    "category": "idle_flavor",
+                    "mode": "self_talk",
+                    "participants": [employee_id],
+                    "initiator_id": employee_id,
+                    "external": True,
+                    "fallback": "self_talk",
+                }
+            request = self._mode_request(
+                snapshot,
+                employee_id,
+                counter=int(actor.get("speech_event_counter", 0)) + 1,
+            )
+            if request is not None:
+                request["external"] = True
+                return request
+            return {
+                "kind": "solo",
+                "category": "idle_flavor",
+                "mode": "self_talk",
+                "participants": [employee_id],
+                "initiator_id": employee_id,
+                "external": True,
+                "fallback": "self_talk",
+            }
+        if not self._actor_available(actor):
+            return None
+        if actor.get("role") != "ceo" and (
+            actor.get("pair_pending")
+            or (
+                actor.get("pair_next_due_ms") is not None
+                and int(actor["pair_next_due_ms"]) <= now_ms
+            )
+        ):
+            request = self._mode_request(
+                snapshot,
+                employee_id,
+            counter=int(actor.get("speech_event_counter", 0)) + 1,
+            )
+            if request is not None:
+                return request
+            actor["pair_pending"] = True
+            actor["pair_next_due_ms"] = None
         if (
             self._actor_present(actor)
             and not actor.get("greeting_emitted")
@@ -1129,39 +1243,6 @@ class SpeechSchedulerCore:
                 "kind": "lifecycle", "category": "work_start", "mode": "self_talk",
                 "participants": [employee_id], "initiator_id": employee_id,
             }
-        if (
-            actor.get("external_talk_pending")
-            and actor.get("role") != "ceo"
-            and (
-                actor.get("external_talk_due_ms") is None
-                or int(actor.get("external_talk_due_ms")) <= now_ms
-            )
-        ):
-            request = self._mode_request(
-                snapshot,
-                employee_id,
-                counter=int(actor.get("speech_event_counter", 0)) + 1,
-            )
-            if request is not None:
-                return request
-        if not self._actor_available(actor):
-            return None
-        if actor.get("role") != "ceo" and (
-            actor.get("pair_pending")
-            or (
-                actor.get("pair_next_due_ms") is not None
-                and int(actor["pair_next_due_ms"]) <= now_ms
-            )
-        ):
-            request = self._mode_request(
-                snapshot,
-                employee_id,
-            counter=int(actor.get("speech_event_counter", 0)) + 1,
-            )
-            if request is not None:
-                return request
-            actor["pair_pending"] = True
-            actor["pair_next_due_ms"] = None
         if actor.get("solo_pending") or (
             actor.get("solo_next_due_ms") is not None and int(actor["solo_next_due_ms"]) <= now_ms
         ):
@@ -1177,7 +1258,15 @@ class SpeechSchedulerCore:
     def _retry_request(self, snapshot: dict[str, Any], request: dict[str, Any], *, now_ms: int) -> None:
         employee_id = request["initiator_id"]
         actor = snapshot["actors"][employee_id]
-        if request["kind"] == "pair":
+        if request.get("external"):
+            # Keep the actor-owned request pending.  A failed geometry/partner
+            # plan must retry deterministically instead of being silently
+            # converted into routine chatter.
+            actor["external_talk_pending"] = True
+            actor["external_talk_due_ms"] = now_ms + self._delay_ms(
+                snapshot, employee_id, "retry", int(actor.get("departure_token", 0)) + 1
+            )
+        elif request["kind"] == "pair":
             actor["pair_pending"] = False
             actor["pair_next_due_ms"] = now_ms + self._delay_ms(
                 snapshot, employee_id, "retry", int(actor.get("departure_token", 0)) + 1

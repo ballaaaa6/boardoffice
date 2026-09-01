@@ -190,7 +190,18 @@ def test_actor_simulation_contract_keeps_snapshot_storage_renderer_agnostic():
 
 def test_actor_simulation_contract_declares_route_and_presentation_bridges():
     contract = _load(CONTRACT_PATH)
-    assert contract["routing"]["commands"] == ["request_home", "request_return"]
+    assert contract["routing"]["commands"] == [
+        "start_talk_session", "cancel_talk", "request_home", "request_return"
+    ]
+    assert contract["behavior"]["talk_session_policy"]["route_phases"] == [
+        "talk_outbound", "talk_hold", "talk_return"
+    ]
+    assert contract["behavior"]["talk_session_policy"]["unavailable_partner_policy"] == (
+        "seated_self_talk_fallback"
+    )
+    assert contract["behavior"]["talk_session_policy"]["ceo_request_policy"] == (
+        "seated_self_talk_no_outbound_route"
+    )
     assert contract["routing"]["portal_fade_steps"] == 4
     assert contract["routing"]["assignment_return_policy"] == (
         "same_owned_workstation_and_transition_gate"

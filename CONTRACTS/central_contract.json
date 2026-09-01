@@ -69,6 +69,15 @@
     "storage_policy": "caller_owned_no_database_or_network",
     "routing_policy": "critical_stamina_queues_home_at_normal_work_loop_boundary_then_portal_exit_home_recovery_then_explicit_request_return_to_same_gate_and_workseat",
     "route_sample_policy": "walking_depth_owner_on_shared_60ms_tick",
+    "talk_runtime": {
+      "request_bridge": "behavior_started.actor_request_to_speech_plan",
+      "commit_bridge": "speech_session_plan_to_actor_start_talk_session",
+      "route_phases": ["talk_outbound", "talk_hold", "talk_return"],
+      "completion_bridge": "talk_returned_to_returned_to_work",
+      "queue_timeout_ms": 30000,
+      "unavailable_partner_fallback": "seated_self_talk",
+      "ceo_request_fallback": "seated_self_talk_no_outbound_route"
+    },
     "presentation_bridge": {
       "event_source": "behavior_started.presentation",
       "channels": ["conversation", "vfx", "humanball", "movement"],
@@ -93,19 +102,20 @@
     },
     "timing_policy": "solo_30_60s_pair_45_75s_greeting_2_3s_bubble_4000ms_fade_300ms",
     "lane_policy": "one_speech_lane_per_floor_until_fade_end",
-    "pose_policy": "speech_and_pose_are_independent_channels",
+    "pose_policy": "speech_selects_timing_and_actor_commits_pose_route",
     "leaving_trigger_source": "CentralGameCore.actor_draws_over_reception",
     "assignment_mutation": false
   },
   "runtime_snapshot": {
       "schema": "gds.runtime_snapshot.v1",
       "composition": ["actor_snapshot", "speech_snapshot", "conversation_snapshot"],
-      "clock_policy": "actor_and_speech_advance_with_independent_channels",
+      "clock_policy": "actor_and_speech_advance_in_shared_60ms_commit_slices",
       "validate_api": "CentralGameCore.validate_runtime_snapshot",
       "advance_api": "CentralGameCore.advance_runtime_snapshot",
       "presentation_api": "CentralGameCore.resolve_runtime_presentation",
       "presentation_schema": "gds.runtime_presentation_snapshot.v1",
-      "command_policy": "actor_commands_and_speech_commands_are_explicitly_separate"
+      "command_policy": "actor_commands_and_speech_commands_are_explicitly_separate",
+      "talk_policy": "speech_plan_is_committed_to_actor_before_render_overlay"
   },
   "runtime_persistence": {
       "contract": "CONTRACTS/runtime_persistence.json",

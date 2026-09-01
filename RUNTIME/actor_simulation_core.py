@@ -4,8 +4,10 @@ from __future__ import annotations
 
 This module owns only JSON-safe simulation state.  Employee metadata remains
 the immutable source for identity, workstation ownership and per-employee
-stamina profiles.  Conversation, movement and WorkSeat renderers may consume
-the returned state/events, but visual registries never mutate stamina here.
+stamina profiles.  Conversation plans are accepted through an explicit
+``start_talk_session`` command; this reducer then owns the outbound/hold/
+return route and the recovery-owner completion.  Renderers may consume the
+returned state/events, but visual registries never mutate stamina here.
 """
 
 import copy
@@ -78,9 +80,14 @@ class ActorSimulationCore:
         "to_workseat",
         "wander_out",
         "wander_back",
+        "talk_outbound",
+        "talk_hold",
+        "talk_return",
     )
     ROUTE_ACTIVITIES = ("going_home", "returning_to_work")
     WANDER_ROUTE_PHASES = ("wander_out", "wander_back")
+    TALK_ROUTE_PHASES = ("talk_outbound", "talk_hold", "talk_return")
+    TALK_QUEUE_TIMEOUT_MS = 30_000
 
     def __init__(
         self,
@@ -119,6 +126,15 @@ class ActorSimulationCore:
         self._snapshot_validator = Draft202012Validator(self.snapshot_schema)
         stamina = self.contract.get("stamina", {})
         behavior = self.contract.get("behavior", {})
+        talk_policy = behavior.get("talk_session_policy", {})
+        try:
+            self.TALK_QUEUE_TIMEOUT_MS = int(
+                talk_policy.get("queue_timeout_ms", self.TALK_QUEUE_TIMEOUT_MS)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ActorSimulationError("Actor talk queue timeout is invalid") from exc
+        if self.TALK_QUEUE_TIMEOUT_MS <= 0:
+            raise ActorSimulationError("Actor talk queue timeout must be positive")
         self._selection_weights = {
             event: int(weight)
             for event, weight in behavior.get("selection_weights", {}).items()
@@ -394,10 +410,14 @@ class ActorSimulationCore:
         duration_ms: int,
         elapsed_ms: int = 0,
         direction: str | None = None,
+        action: str = "move",
+        subaction: str = "idle",
         visibility_alpha: float = 1.0,
     ) -> dict[str, Any]:
         if phase not in self.ROUTE_PHASES:
             raise ActorSimulationError(f"Unknown actor route phase: {phase!r}")
+        if action not in {"move", "idle", "happy", "sad"}:
+            raise ActorSimulationError(f"Unknown actor route action: {action!r}")
         return {
             "phase": phase,
             "start_uv": list(start_uv),
@@ -406,8 +426,8 @@ class ActorSimulationCore:
             "elapsed_ms": int(elapsed_ms),
             "duration_ms": int(duration_ms),
             "render_owner": "walking_depth",
-            "action": "move",
-            "subaction": "idle",
+            "action": action,
+            "subaction": subaction,
             "direction": direction,
             "raw_direction": direction,
             "visibility_alpha": round(max(0.0, min(1.0, float(visibility_alpha))), 4),
@@ -743,6 +763,7 @@ class ActorSimulationCore:
                 "work_loop_elapsed_ms": 0,
                 "pending_home": False,
                 "pending_home_due_ms": None,
+                "talk": None,
             },
             "conversation_phase": None,
             "last_event": "initial",
@@ -802,6 +823,7 @@ class ActorSimulationCore:
             behavior.setdefault("work_loop_elapsed_ms", 0)
             behavior.setdefault("pending_home", False)
             behavior.setdefault("pending_home_due_ms", None)
+            behavior.setdefault("talk", None)
             behavior["cooldowns"] = {
                 key: behavior["cooldowns"][key]
                 for key in sorted(behavior["cooldowns"])
@@ -906,6 +928,8 @@ class ActorSimulationCore:
                     raise ActorSimulationError(f"{employee_id}: inbound route has wrong activity")
                 if phase in self.WANDER_ROUTE_PHASES and activity != "wandering":
                     raise ActorSimulationError(f"{employee_id}: wander route has wrong activity")
+                if phase in self.TALK_ROUTE_PHASES and activity != "talking":
+                    raise ActorSimulationError(f"{employee_id}: talk route has wrong activity")
             elif activity in self.ROUTE_ACTIVITIES:
                 raise ActorSimulationError(f"{employee_id}: routed activity needs a route")
             if presence == "home" and activity != "home_recovery":
@@ -963,7 +987,50 @@ class ActorSimulationCore:
                     raise ActorSimulationError(f"{employee_id}: activity window is reversed")
                 if behavior["activity_until_ms"] < simulation_time_ms and activity != "home_recovery":
                     raise ActorSimulationError(f"{employee_id}: activity window is stale")
-            if activity in self.EVENT_ACTIVITY.values():
+            talk = behavior.get("talk")
+            if talk is not None:
+                if not isinstance(talk, dict):
+                    raise ActorSimulationError(f"{employee_id}: talk metadata must be an object or null")
+                talk_start = self._require_int(talk.get("talk_start_at_ms"), f"{employee_id}.talk.talk_start_at_ms")
+                talk_end = self._require_int(talk.get("talk_end_at_ms"), f"{employee_id}.talk.talk_end_at_ms")
+                return_start = self._require_int(talk.get("return_start_at_ms"), f"{employee_id}.talk.return_start_at_ms")
+                effective_at = self._require_int(talk.get("effective_at_ms"), f"{employee_id}.talk.effective_at_ms")
+                if not effective_at <= talk_start <= talk_end <= return_start:
+                    raise ActorSimulationError(f"{employee_id}: talk metadata timing is not monotonic")
+                if talk.get("emotion") not in {None, "sad", "happy"}:
+                    raise ActorSimulationError(f"{employee_id}: talk emotion is invalid")
+                emotion_until = talk.get("emotion_until_at_ms")
+                if emotion_until is not None:
+                    self._require_int(emotion_until, f"{employee_id}.talk.emotion_until_at_ms")
+                    if int(emotion_until) < talk_end or int(emotion_until) > return_start:
+                        raise ActorSimulationError(f"{employee_id}: talk emotion hold timing is invalid")
+                for path_name in ("outbound_path_cells_uv", "inbound_path_cells_uv"):
+                    if not isinstance(talk.get(path_name), list):
+                        raise ActorSimulationError(f"{employee_id}.talk.{path_name} must be a list")
+                if talk.get("outbound_path_cells_uv"):
+                    endpoint = self._normalize_uv(talk.get("endpoint_uv"), name=f"{employee_id}.talk.endpoint_uv")
+                    gate = self._normalize_uv(talk.get("gate_uv"), name=f"{employee_id}.talk.gate_uv")
+                    outbound = self._talk_path(talk.get("outbound_path_cells_uv"), name=f"{employee_id}.talk.outbound_path_cells_uv")
+                    inbound = self._talk_path(talk.get("inbound_path_cells_uv"), name=f"{employee_id}.talk.inbound_path_cells_uv")
+                    if outbound[0] != gate or outbound[-1] != endpoint:
+                        raise ActorSimulationError(f"{employee_id}: talk outbound path endpoints are invalid")
+                    if inbound[0] != endpoint or inbound[-1] != gate:
+                        raise ActorSimulationError(f"{employee_id}: talk inbound path endpoints are invalid")
+            if activity == "talking":
+                pending = actor["conversation_phase"] == "talk_pending" and talk is None
+                participant = behavior["active_event"] is None and talk is not None
+                if pending:
+                    if behavior["active_event"] != "talk":
+                        raise ActorSimulationError(f"{employee_id}: pending talk needs an active talk request")
+                elif talk is None:
+                    raise ActorSimulationError(f"{employee_id}: talking actor lacks talk metadata")
+                elif behavior["active_event"] not in {None, "talk"}:
+                    raise ActorSimulationError(f"{employee_id}: talking actor has a non-talk active event")
+                if not pending and not participant and behavior["active_event"] != "talk":
+                    raise ActorSimulationError(f"{employee_id}: talk session has no recovery owner or participant")
+            elif talk is not None:
+                raise ActorSimulationError(f"{employee_id}: non-talking actor retains talk metadata")
+            if activity in self.EVENT_ACTIVITY.values() and activity != "talking":
                 if behavior["active_event"] is None or behavior["activity_until_ms"] is None:
                     raise ActorSimulationError(f"{employee_id}: active recovery event lacks a window")
             elif activity in self.ROUTE_ACTIVITIES or activity == "home_recovery":
@@ -971,7 +1038,7 @@ class ActorSimulationCore:
                     raise ActorSimulationError(f"{employee_id}: administrative activity has an active recovery event")
                 if behavior["activity_until_ms"] is None:
                     raise ActorSimulationError(f"{employee_id}: administrative activity lacks a window")
-            elif behavior["active_event"] is not None or behavior["activity_until_ms"] is not None:
+            elif activity != "talking" and (behavior["active_event"] is not None or behavior["activity_until_ms"] is not None):
                 raise ActorSimulationError(f"{employee_id}: inactive actor has an active recovery window")
             if activity == "talking" and actor["conversation_phase"] is None:
                 raise ActorSimulationError(f"{employee_id}: talking actor needs a conversation phase")
@@ -1230,8 +1297,8 @@ class ActorSimulationCore:
             route_elapsed_ms=int(route["elapsed_ms"]),
             route_duration_ms=int(route["duration_ms"]),
             render_owner="walking_depth",
-            action="move",
-            subaction="idle",
+            action=str(route.get("action") or "move"),
+            subaction=str(route.get("subaction") or "idle"),
         )
 
     def _start_route(
@@ -1245,6 +1312,8 @@ class ActorSimulationCore:
         path: list[tuple[int, int]],
         duration_ms: int | None = None,
         update_window: bool = True,
+        action: str = "move",
+        subaction: str = "idle",
     ) -> None:
         duration = duration_ms if duration_ms is not None else self._route_duration_ms(path, employee)
         direction = None
@@ -1259,6 +1328,8 @@ class ActorSimulationCore:
             target_uv=target_uv,
             path=path,
             duration_ms=duration,
+            action=action,
+            subaction=subaction,
             direction=direction,
         )
         actor["position"]["floor_id"] = actor["assignment"]["floor_id"]
@@ -1268,6 +1339,388 @@ class ActorSimulationCore:
             actor["behavior"]["activity_until_ms"] = (
                 int(actor["behavior"]["activity_started_ms"]) + int(duration)
             )
+
+    @staticmethod
+    def _talk_path(value: Any, *, name: str) -> list[tuple[int, int]]:
+        if not isinstance(value, list) or not value:
+            raise ActorSimulationError(f"{name} must be a non-empty path")
+        path: list[tuple[int, int]] = []
+        for index, cell in enumerate(value):
+            if not isinstance(cell, (list, tuple)) or len(cell) != 2:
+                raise ActorSimulationError(f"{name}[{index}] must be a two-item coordinate")
+            if any(isinstance(value, bool) or not isinstance(value, int) for value in cell):
+                raise ActorSimulationError(f"{name}[{index}] must contain integer coordinates")
+            path.append((int(cell[0]), int(cell[1])))
+        return path
+
+    def _talk_pose(
+        self,
+        route: dict[str, Any],
+        elapsed_ms: int,
+        employee: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Resolve a talk route pose, including the stationary talk hold."""
+        if route.get("phase") == "talk_hold":
+            endpoint = self._normalize_uv(route["target_uv"], name="talk endpoint_uv")
+            ground_xy = self.movement.uv_cell_center_to_pixel(*endpoint)
+            direction = str(route.get("direction") or employee.get("assignment", {}).get("facing") or "SE").upper()
+            return {
+                "ground_xy": self._round_xy(ground_xy),
+                "current_uv": list(endpoint),
+                "from_uv": list(endpoint),
+                "to_uv": list(endpoint),
+                "progress_t": 1.0,
+                "direction": direction,
+                "raw_direction": direction,
+                "cumulative_distance_px": 0.0,
+            }
+        return self._path_pose(
+            [self._normalize_uv(cell, name="talk route.path_cells_uv") for cell in route["path_cells_uv"]],
+            int(elapsed_ms),
+            employee,
+        )
+
+    def _begin_talk_return_route(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        events: list[dict[str, Any]],
+    ) -> None:
+        talk = actor["behavior"].get("talk")
+        if not isinstance(talk, dict):
+            raise ActorSimulationError(f"{actor['employee_id']}: talk return metadata is missing")
+        inbound = self._talk_path(talk.get("inbound_path_cells_uv"), name="talk.inbound_path_cells_uv")
+        endpoint = self._normalize_uv(talk.get("endpoint_uv"), name="talk.endpoint_uv")
+        gate_value = talk.get("gate_uv")
+        gate = (
+            self._normalize_uv(gate_value, name="talk.gate_uv")
+            if gate_value is not None
+            else None
+        )
+        if inbound[0] != endpoint or inbound[-1] != gate:
+            raise ActorSimulationError(f"{actor['employee_id']}: talk return path endpoints are invalid")
+        duration = int(talk.get("return_duration_ms", 0))
+        if duration <= 0:
+            duration = self._route_duration_ms(inbound, employee)
+        actor["conversation_phase"] = "returning_to_work"
+        actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
+        actor["behavior"]["activity_until_ms"] = int(timestamp_ms) + int(duration)
+        self._start_route(
+            actor,
+            employee,
+            phase="talk_return",
+            start_uv=endpoint,
+            target_uv=gate,
+            path=inbound,
+            duration_ms=duration,
+            update_window=False,
+        )
+        self._append_event(
+            snapshot,
+            events,
+            timestamp_ms=int(timestamp_ms),
+            employee_id=actor["employee_id"],
+            event_type="talk_return_started",
+            session_id=talk.get("session_id"),
+            mode=talk.get("mode"),
+            partner_id=talk.get("partner_id"),
+            return_duration_ms=int(duration),
+        )
+
+    def _finish_talk_actor(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        events: list[dict[str, Any]],
+    ) -> None:
+        talk = actor["behavior"].get("talk")
+        if not isinstance(talk, dict):
+            raise ActorSimulationError(f"{actor['employee_id']}: talk completion metadata is missing")
+        floor_id = actor["assignment"]["floor_id"]
+        gate_value = talk.get("gate_uv")
+        gate = (
+            self._normalize_uv(gate_value, name="talk.gate_uv")
+            if gate_value is not None
+            else None
+        )
+        actor["position"] = {
+            "floor_id": floor_id,
+            "uv": None,
+            "ground_xy": None,
+            "route": None,
+        }
+        actor["presence"] = "present"
+        actor["conversation_phase"] = None
+        self._append_event(
+            snapshot,
+            events,
+            timestamp_ms=int(timestamp_ms),
+            employee_id=actor["employee_id"],
+            event_type="talk_returned",
+            session_id=talk.get("session_id"),
+            mode=talk.get("mode"),
+            partner_id=talk.get("partner_id"),
+            gate_uv=list(gate) if gate is not None else None,
+            assignment_retained=True,
+        )
+        recovery_owner = bool(talk.get("recovery_owner", False))
+        actor["behavior"]["talk"] = None
+        if recovery_owner and actor["behavior"].get("active_event") == "talk":
+            self._complete_event(
+                snapshot,
+                actor,
+                employee,
+                timestamp_ms=int(timestamp_ms),
+                events=events,
+            )
+            return
+        actor["activity"] = "working"
+        actor["behavior"]["active_event"] = None
+        actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
+        actor["behavior"]["activity_until_ms"] = None
+        actor["behavior"]["work_loop_elapsed_ms"] = 0
+        actor["behavior"]["next_event_due_ms"] = self._schedule_next_event(
+            actor,
+            employee,
+            now_ms=int(timestamp_ms),
+        )
+
+    def _start_talk_session(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        command: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        events: list[dict[str, Any]],
+    ) -> None:
+        session_id = command.get("session_id")
+        if not isinstance(session_id, str) or not session_id:
+            raise ActorSimulationError("start_talk_session.session_id is required")
+        mode = str(command.get("mode") or "standing_pair")
+        if mode not in {"self_talk", "ceo_front", "seated_host", "standing_pair"}:
+            raise ActorSimulationError(f"Unknown talk mode: {mode!r}")
+        role = str(command.get("role") or "initiator")
+        if role not in {"initiator", "participant", "visitor"}:
+            raise ActorSimulationError(f"Unknown talk role: {role!r}")
+        if actor["presence"] != "present":
+            raise ActorSimulationError(f"{actor['employee_id']}: talk session requires a present actor")
+        if actor["activity"] == "talking" and actor["conversation_phase"] not in {"talk_pending", "self_talk"}:
+            raise ActorSimulationError(f"{actor['employee_id']}: actor is already in a talk session")
+        if actor["activity"] == "working" and actor["behavior"].get("active_event") is not None:
+            raise ActorSimulationError(f"{actor['employee_id']}: working actor has another active event")
+        if actor["activity"] == "working" and (
+            actor["behavior"].get("pending_home")
+            or actor["stamina"].get("threshold_band") == "critical"
+        ):
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: critical actor cannot enter a talk session"
+            )
+        effective_at = self._require_int(
+            command.get("effective_at_ms", timestamp_ms),
+            "start_talk_session.effective_at_ms",
+        )
+        if effective_at > int(timestamp_ms):
+            raise ActorSimulationError(f"{actor['employee_id']}: talk session starts in the future")
+        talk_start = self._require_int(
+            command.get("talk_start_at_ms", timestamp_ms),
+            "start_talk_session.talk_start_at_ms",
+        )
+        talk_end = self._require_int(
+            command.get("talk_end_at_ms", talk_start),
+            "start_talk_session.talk_end_at_ms",
+        )
+        return_start = self._require_int(
+            command.get("return_start_at_ms", talk_end),
+            "start_talk_session.return_start_at_ms",
+        )
+        if not effective_at <= talk_start <= talk_end <= return_start:
+            raise ActorSimulationError(f"{actor['employee_id']}: talk session timing is not monotonic")
+        partner_id = command.get("partner_id")
+        if partner_id is not None and not isinstance(partner_id, str):
+            raise ActorSimulationError("start_talk_session.partner_id must be text or null")
+        emotion = command.get("emotion")
+        if emotion not in {None, "sad", "happy"}:
+            raise ActorSimulationError("start_talk_session.emotion is invalid")
+        emotion_until = command.get("emotion_until_at_ms")
+        if emotion_until is not None:
+            emotion_until = self._require_int(
+                emotion_until,
+                "start_talk_session.emotion_until_at_ms",
+            )
+            if emotion_until < talk_end or emotion_until > return_start:
+                raise ActorSimulationError(f"{actor['employee_id']}: emotion hold timing is invalid")
+        route_info = command.get("route_info")
+        outbound: list[tuple[int, int]] | None = None
+        inbound: list[tuple[int, int]] | None = None
+        endpoint: tuple[int, int] | None = None
+        gate: tuple[int, int] | None = None
+        outbound_duration = 0
+        return_duration = 0
+        if route_info is not None:
+            if not isinstance(route_info, dict):
+                raise ActorSimulationError("start_talk_session.route_info must be an object")
+            outbound = self._talk_path(
+                route_info.get("outbound_path_cells_uv"),
+                name="route_info.outbound_path_cells_uv",
+            )
+            inbound = self._talk_path(
+                route_info.get("inbound_path_cells_uv"),
+                name="route_info.inbound_path_cells_uv",
+            )
+            gate = self._normalize_uv(route_info.get("gate_uv"), name="route_info.gate_uv")
+            endpoint = self._normalize_uv(command.get("endpoint_uv"), name="start_talk_session.endpoint_uv")
+            if outbound[0] != gate or outbound[-1] != endpoint:
+                raise ActorSimulationError(f"{actor['employee_id']}: talk outbound path endpoints are invalid")
+            if inbound[0] != endpoint or inbound[-1] != gate:
+                raise ActorSimulationError(f"{actor['employee_id']}: talk inbound path endpoints are invalid")
+            outbound_duration = int(route_info.get("arrival_ms", 0))
+            if outbound_duration <= 0:
+                outbound_duration = self._route_duration_ms(outbound, employee)
+            return_duration = int(route_info.get("return_ms", 0)) - int(route_info.get("return_start_ms", 0))
+            if return_duration <= 0:
+                return_duration = self._route_duration_ms(inbound, employee)
+            if talk_start < effective_at + outbound_duration:
+                raise ActorSimulationError(f"{actor['employee_id']}: talk starts before route arrival")
+        is_initiator = bool(command.get("recovery_owner", role == "initiator"))
+        if actor["activity"] == "working" and is_initiator:
+            actor["behavior"]["event_counter"] = int(actor["behavior"].get("event_counter", 0)) + 1
+            actor["behavior"]["active_event"] = "talk"
+            actor["behavior"]["cooldowns"]["talk"] = int(timestamp_ms) + self._next_interval_ms(
+                employee,
+                counter=int(actor["behavior"]["event_counter"]),
+                now_ms=int(timestamp_ms),
+                event="talk",
+            )
+        actor["presence"] = "present"
+        actor["activity"] = "talking"
+        actor["behavior"]["next_event_due_ms"] = None
+        actor["behavior"]["activity_started_ms"] = int(effective_at)
+        actor["behavior"]["activity_until_ms"] = int(return_start) + int(return_duration)
+        actor["behavior"]["talk"] = {
+            "session_id": session_id,
+            "mode": mode,
+            "role": role,
+            "partner_id": partner_id,
+            "recovery_owner": is_initiator,
+            "effective_at_ms": int(effective_at),
+            "talk_start_at_ms": int(talk_start),
+            "talk_end_at_ms": int(talk_end),
+            "return_start_at_ms": int(return_start),
+            "emotion": emotion,
+            "emotion_until_at_ms": emotion_until,
+            "endpoint_uv": list(endpoint) if endpoint is not None else None,
+            "gate_uv": list(gate) if gate is not None else None,
+            "outbound_path_cells_uv": [list(cell) for cell in outbound] if outbound is not None else [],
+            "inbound_path_cells_uv": [list(cell) for cell in inbound] if inbound is not None else [],
+            "outbound_duration_ms": int(outbound_duration),
+            "return_duration_ms": int(return_duration),
+        }
+        if outbound is None:
+            actor["conversation_phase"] = (
+                "self_talk"
+                if mode == "self_talk"
+                else ("talking" if int(timestamp_ms) >= int(talk_start) else "talk_arrival")
+            )
+            actor["position"]["route"] = None
+            actor["position"]["uv"] = None
+            actor["position"]["ground_xy"] = None
+        else:
+            actor["conversation_phase"] = "walking_to_talk"
+            self._start_route(
+                actor,
+                employee,
+                phase="talk_outbound",
+                start_uv=gate,
+                target_uv=endpoint,
+                path=outbound,
+                duration_ms=outbound_duration,
+                update_window=False,
+            )
+        self._append_event(
+            snapshot,
+            events,
+            timestamp_ms=int(effective_at),
+            employee_id=actor["employee_id"],
+            event_type="talk_session_accepted",
+            session_id=session_id,
+            mode=mode,
+            role=role,
+            partner_id=partner_id,
+            route_committed=outbound is not None,
+            talk_start_at_ms=int(talk_start),
+            talk_end_at_ms=int(talk_end),
+            return_start_at_ms=int(return_start),
+        )
+        # The actor clock may be one host slice beyond the acceptance boundary
+        # because Central accepts the speech plan after advancing that slice.
+        # Materialize that small elapsed portion immediately so the next frame
+        # does not visibly snap back to the gate.
+        elapsed_since_accept = max(0, int(timestamp_ms) - int(effective_at))
+        if outbound is not None and elapsed_since_accept:
+            route = actor["position"].get("route")
+            if isinstance(route, dict):
+                route["elapsed_ms"] = min(int(route["duration_ms"]), elapsed_since_accept)
+                pose = self._talk_pose(route, int(route["elapsed_ms"]), employee)
+                self._emit_route_sample(
+                    snapshot,
+                    actor,
+                    route,
+                    pose,
+                    timestamp_ms=int(timestamp_ms),
+                    events=events,
+                )
+                if int(route["elapsed_ms"]) >= int(route["duration_ms"]):
+                    self._finish_route_segment(
+                        snapshot,
+                        actor,
+                        employee,
+                        timestamp_ms=int(timestamp_ms),
+                        events=events,
+                    )
+
+    def _cancel_talk(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        events: list[dict[str, Any]],
+        reason: str,
+    ) -> None:
+        if actor["activity"] != "talking" or actor["conversation_phase"] != "talk_pending":
+            raise ActorSimulationError(f"{actor['employee_id']}: only pending talk can be cancelled")
+        actor["position"]["route"] = None
+        actor["position"]["uv"] = None
+        actor["position"]["ground_xy"] = None
+        actor["activity"] = "working"
+        actor["conversation_phase"] = None
+        actor["behavior"]["active_event"] = None
+        actor["behavior"]["talk"] = None
+        actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
+        actor["behavior"]["activity_until_ms"] = None
+        actor["behavior"]["next_event_due_ms"] = self._schedule_next_event(
+            actor,
+            employee,
+            now_ms=int(timestamp_ms),
+        )
+        actor["last_event"] = "conversation_cancelled"
+        self._append_event(
+            snapshot,
+            events,
+            timestamp_ms=int(timestamp_ms),
+            employee_id=actor["employee_id"],
+            event_type="talk_cancelled",
+            reason=str(reason),
+        )
 
     def _finish_route_segment(
         self,
@@ -1283,6 +1736,72 @@ class ActorSimulationCore:
             raise ActorSimulationError(f"{actor['employee_id']}: route segment is missing")
         phase = route.get("phase")
         floor_id = actor["assignment"]["floor_id"]
+        if phase == "talk_outbound":
+            talk = actor["behavior"].get("talk")
+            if not isinstance(talk, dict):
+                raise ActorSimulationError(f"{actor['employee_id']}: talk outbound metadata is missing")
+            endpoint = self._normalize_uv(talk.get("endpoint_uv"), name="talk.endpoint_uv")
+            actor["position"]["floor_id"] = floor_id
+            actor["position"]["uv"] = list(endpoint)
+            actor["position"]["ground_xy"] = list(
+                self.movement.uv_cell_center_to_pixel(*endpoint)
+            )
+            actor["position"]["route"] = self._route_record(
+                phase="talk_hold",
+                start_uv=endpoint,
+                target_uv=endpoint,
+                path=[endpoint],
+                duration_ms=max(
+                    self.TICK_MS,
+                    int(talk.get("return_start_at_ms", timestamp_ms)) - int(timestamp_ms),
+                ),
+                action="idle",
+                subaction="idle",
+                direction=str(route.get("direction") or actor["assignment"].get("facing") or "SE"),
+            )
+            actor["conversation_phase"] = "talk_arrival"
+            actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
+            actor["behavior"]["activity_until_ms"] = int(
+                talk.get("return_start_at_ms", timestamp_ms)
+            )
+            self._append_event(
+                snapshot,
+                events,
+                timestamp_ms=int(timestamp_ms),
+                employee_id=actor["employee_id"],
+                event_type="talk_arrived",
+                session_id=talk.get("session_id"),
+                mode=talk.get("mode"),
+                partner_id=talk.get("partner_id"),
+                endpoint_uv=list(endpoint),
+            )
+            if int(talk.get("return_start_at_ms", timestamp_ms)) <= int(timestamp_ms):
+                self._begin_talk_return_route(
+                    snapshot,
+                    actor,
+                    employee,
+                    timestamp_ms=int(timestamp_ms),
+                    events=events,
+                )
+            return
+        if phase == "talk_hold":
+            self._begin_talk_return_route(
+                snapshot,
+                actor,
+                employee,
+                timestamp_ms=int(timestamp_ms),
+                events=events,
+            )
+            return
+        if phase == "talk_return":
+            self._finish_talk_actor(
+                snapshot,
+                actor,
+                employee,
+                timestamp_ms=int(timestamp_ms),
+                events=events,
+            )
+            return
         if phase == "to_portal":
             inside, outside = self._portal_pair(floor_id)
             actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
@@ -1470,6 +1989,10 @@ class ActorSimulationCore:
                 actor["activity"] == "wandering"
                 and actor["position"].get("route") is not None
             )
+            or (
+                actor["activity"] == "talking"
+                and (actor["position"].get("route") or {}).get("phase") in self.TALK_ROUTE_PHASES
+            )
         ):
             route = actor["position"].get("route")
             if not isinstance(route, dict):
@@ -1495,14 +2018,40 @@ class ActorSimulationCore:
             route["elapsed_ms"] = elapsed + step
             now_ms += step
             phase = route["phase"]
-            if phase in {"to_portal", "to_workseat", "wander_out", "wander_back"}:
+            if phase == "talk_outbound":
+                actor["conversation_phase"] = "walking_to_talk"
+            if phase in {"to_portal", "to_workseat", "wander_out", "wander_back", "talk_outbound", "talk_return"}:
                 pose = self._path_pose(
                     [self._normalize_uv(cell, name="route.path_cells_uv") for cell in route["path_cells_uv"]],
                     int(route["elapsed_ms"]),
                     employee,
                 )
+            elif phase == "talk_hold":
+                pose = self._talk_pose(route, int(route["elapsed_ms"]), employee)
             else:
                 pose = self._portal_pose(route, int(route["elapsed_ms"]))
+            if phase == "talk_hold":
+                talk = actor["behavior"].get("talk") or {}
+                talk_start = int(talk.get("talk_start_at_ms", now_ms))
+                talk_end = int(talk.get("talk_end_at_ms", talk_start))
+                return_start = int(talk.get("return_start_at_ms", talk_end))
+                emotion = talk.get("emotion")
+                if now_ms < talk_start:
+                    actor["conversation_phase"] = "talk_arrival"
+                    route["action"] = "idle"
+                    route["subaction"] = "idle"
+                elif now_ms < talk_end:
+                    actor["conversation_phase"] = "talking"
+                    route["action"] = "idle"
+                    route["subaction"] = "idle"
+                elif emotion in {"sad", "happy"} and now_ms < return_start:
+                    actor["conversation_phase"] = "talk_complete"
+                    route["action"] = str(emotion)
+                    route["subaction"] = str(emotion)
+                else:
+                    actor["conversation_phase"] = "talk_complete"
+                    route["action"] = "idle"
+                    route["subaction"] = "idle"
             self._emit_route_sample(
                 snapshot, actor, route, pose, timestamp_ms=now_ms, events=events
             )
@@ -1536,12 +2085,17 @@ class ActorSimulationCore:
         actor["behavior"]["event_counter"] = counter
         actor["behavior"]["active_event"] = event
         actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
-        actor["behavior"]["activity_until_ms"] = int(timestamp_ms) + self._activity_duration_ms(
-            employee,
-            event,
-            counter=counter,
+        actor["behavior"]["activity_until_ms"] = (
+            None
+            if event == "talk"
+            else int(timestamp_ms) + self._activity_duration_ms(
+                employee,
+                event,
+                counter=counter,
+            )
         )
         actor["behavior"]["next_event_due_ms"] = None
+        actor["behavior"]["talk"] = None
         actor["behavior"]["cooldowns"][event] = int(timestamp_ms) + self._next_interval_ms(
             employee,
             counter=counter,
@@ -1766,6 +2320,9 @@ class ActorSimulationCore:
             activity = actor["activity"]
             if activity in self.ROUTE_ACTIVITIES or (
                 activity == "wandering" and actor["position"].get("route") is not None
+            ) or (
+                activity == "talking"
+                and (actor["position"].get("route") or {}).get("phase") in self.TALK_ROUTE_PHASES
             ):
                 advanced_to = self._advance_route(
                     snapshot,
@@ -1779,6 +2336,66 @@ class ActorSimulationCore:
                     break
                 now_ms = advanced_to
                 continue
+            if activity == "talking":
+                # A weighted talk event is a request until Central accepts a
+                # speech/conversation session.  It must not consume the old
+                # generic 5–8 second activity window while waiting in the
+                # speech lane.
+                talk = actor["behavior"].get("talk")
+                if actor["conversation_phase"] == "talk_pending" and talk is None:
+                    queue_deadline = int(actor["behavior"].get("activity_started_ms", now_ms)) + self.TALK_QUEUE_TIMEOUT_MS
+                    if queue_deadline <= target_ms:
+                        now_ms = queue_deadline
+                        self._cancel_talk(
+                            snapshot,
+                            actor,
+                            employee,
+                            timestamp_ms=now_ms,
+                            events=events,
+                            reason="talk_queue_timeout",
+                        )
+                        continue
+                    break
+                if talk is None:
+                    raise ActorSimulationError(
+                        f"{actor['employee_id']}: talking actor lacks talk session metadata"
+                    )
+                # Stationary hosts (CEO/seated-host) have no locomotion route,
+                # but their actor phase still follows the shared speech clock.
+                # Keep the phase observable even while the host remains seated.
+                if actor["position"].get("route") is None and actor["conversation_phase"] != "self_talk":
+                    talk_start = int(talk.get("talk_start_at_ms", now_ms))
+                    talk_end = int(talk.get("talk_end_at_ms", talk_start))
+                    return_start = int(talk.get("return_start_at_ms", talk_end))
+                    emotion = talk.get("emotion")
+                    if now_ms < talk_start:
+                        actor["conversation_phase"] = "talk_arrival"
+                    elif now_ms < talk_end:
+                        actor["conversation_phase"] = "talking"
+                    elif emotion in {"sad", "happy"} and now_ms < return_start:
+                        actor["conversation_phase"] = "talk_complete"
+                    else:
+                        actor["conversation_phase"] = "talk_complete"
+                until = actor["behavior"].get("activity_until_ms")
+                if until is None:
+                    break
+                if int(until) > target_ms:
+                    break
+                now_ms = int(until)
+                if actor["position"].get("route") is None:
+                    self._finish_talk_actor(
+                        snapshot,
+                        actor,
+                        employee,
+                        timestamp_ms=now_ms,
+                        events=events,
+                    )
+                    continue
+                # A routed talk session should always transition through its
+                # talk_return route before this branch is reached.
+                raise ActorSimulationError(
+                    f"{actor['employee_id']}: routed talk reached its end without a return route"
+                )
             if activity == "working":
                 behavior = actor["behavior"]
                 if actor["stamina"]["threshold_band"] == "critical" and not behavior.get(
@@ -1886,7 +2503,7 @@ class ActorSimulationCore:
                 )
                 continue
 
-            if activity in self.EVENT_ACTIVITY.values():
+            if activity in self.EVENT_ACTIVITY.values() and activity != "talking":
                 until = actor["behavior"].get("activity_until_ms")
                 if until is None:
                     raise ActorSimulationError(
@@ -1926,6 +2543,26 @@ class ActorSimulationCore:
         actor = snapshot["actors"].get(employee_id)
         if actor is None:
             raise ActorSimulationError(f"Unknown or inactive employee: {employee_id!r}")
+        if command_type == "start_talk_session":
+            self._start_talk_session(
+                snapshot,
+                actor,
+                self.employee_registry.get(employee_id),
+                command,
+                timestamp_ms=timestamp_ms,
+                events=events,
+            )
+            return
+        if command_type == "cancel_talk":
+            self._cancel_talk(
+                snapshot,
+                actor,
+                self.employee_registry.get(employee_id),
+                timestamp_ms=timestamp_ms,
+                events=events,
+                reason=str(command.get("reason") or "cancelled_by_caller"),
+            )
+            return
         if command_type == "request_home":
             if actor["presence"] != "present" or actor["activity"] == "talking":
                 raise ActorSimulationError(f"{employee_id}: actor cannot request home in current state")

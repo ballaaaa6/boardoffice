@@ -54,7 +54,7 @@
     },
     "conversation_modes": {
       "type": "object", "additionalProperties": false,
-      "required": ["selection", "available_modes", "ceo_front", "seated_host", "standing_pair", "ceo_outbound", "cross_floor", "group_talk", "walk_and_talk"],
+      "required": ["selection", "available_modes", "ceo_front", "seated_host", "standing_pair", "ceo_outbound", "unavailable_partner_fallback", "ceo_request_fallback", "cross_floor", "group_talk", "walk_and_talk"],
       "properties": {
         "selection": {"const": "uniform_among_currently_valid_modes"},
         "available_modes": {"const": ["ceo_front", "seated_host", "standing_pair"]},
@@ -62,6 +62,8 @@
         "seated_host": {"$ref": "#/$defs/mode"},
         "standing_pair": {"$ref": "#/$defs/mode"},
         "ceo_outbound": {"const": false},
+        "unavailable_partner_fallback": {"const": "seated_self_talk"},
+        "ceo_request_fallback": {"const": "seated_self_talk_no_outbound_route"},
         "cross_floor": {"const": false},
         "group_talk": {"const": false},
         "walk_and_talk": {"const": false}
@@ -98,7 +100,7 @@
         "scope": {"const": "floor"},
         "lock_window": {"const": "first_bubble_until_fade_end"},
         "queue_policy": {"const": "priority_then_due_time_then_employee_id"},
-        "priority_order": {"const": ["leaving", "fatigue", "greeting", "work_start", "pair", "solo"]}
+        "priority_order": {"const": ["leaving", "fatigue", "pair", "greeting", "work_start", "solo"]}
       }
     },
     "actor_bridge": {
@@ -106,13 +108,17 @@
       "additionalProperties": false,
       "required": [
         "talk_behavior",
+        "talk_commit",
         "reception_crossing",
         "workseat_reentry",
         "effective_timestamp_field"
       ],
       "properties": {
         "talk_behavior": {
-          "const": "behavior_started.presentation_to_speech_lane"
+          "const": "behavior_started.actor_request_to_speech_plan"
+        },
+        "talk_commit": {
+          "const": "speech_session_plan_to_actor_start_talk_session"
         },
         "reception_crossing": {
           "const": "actor_route_sample_draws_over_reception"
@@ -122,11 +128,17 @@
         },
         "effective_timestamp_field": {
           "const": "effective_at_ms"
+        },
+        "unavailable_partner_fallback": {
+          "const": "seated_self_talk"
+        },
+        "ceo_request_fallback": {
+          "const": "seated_self_talk_no_outbound_route"
         }
       }
     },
     "assignment_policy": {"const": "scheduler_never_mutates_workstation_ownership"},
-    "render_policy": {"const": "speech_and_pose_are_independent_channels"},
+    "render_policy": {"const": "speech_selects_timing_and_actor_commits_pose_route"},
     "leaving_trigger_source": {"const": "CentralGameCore.actor_draws_over_reception"}
   },
   "$defs": {

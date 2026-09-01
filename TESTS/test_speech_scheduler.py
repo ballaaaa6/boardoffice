@@ -43,6 +43,10 @@ def test_speech_contract_and_snapshot_schema_validate():
     assert list(Draft202012Validator(snapshot_schema).iter_errors(snapshot)) == []
     assert json.loads(json.dumps(snapshot, sort_keys=True)) == snapshot
     assert contract["actor_bridge"]["effective_timestamp_field"] == "effective_at_ms"
+    assert contract["conversation_modes"]["unavailable_partner_fallback"] == "seated_self_talk"
+    assert contract["conversation_modes"]["ceo_request_fallback"] == (
+        "seated_self_talk_no_outbound_route"
+    )
 
 
 def test_initial_timers_use_authorized_categories_and_ranges():
@@ -362,17 +366,23 @@ def test_runtime_presentation_crosses_speech_tracks_without_mutating_simulation(
     mode = started["mode"]
     if mode == "ceo_front":
         visitor, host = started["participants"]
-        assert presentation["actors"][visitor]["action"] == "idle"
+        # Central now commits the visitor's physical talk route into the actor
+        # snapshot; presentation must not overwrite the walking action with
+        # the old pose-only timeline.
+        assert presentation["actors"][visitor]["action"] == "move"
+        assert presentation["actors"][visitor]["ground_xy"] is not None
         assert presentation["actors"][host]["action"] == "work"
         assert presentation["actors"][host]["subaction"] == "normal_work"
     elif mode == "seated_host":
         visitor, host = started["participants"]
-        assert presentation["actors"][visitor]["action"] == "idle"
+        assert presentation["actors"][visitor]["action"] == "move"
+        assert presentation["actors"][visitor]["ground_xy"] is not None
         assert presentation["actors"][host]["action"] == "work"
         assert presentation["actors"][host]["subaction"].startswith("turn_side_")
     else:
         assert all(
-            presentation["actors"][employee_id]["action"] == "idle"
+            presentation["actors"][employee_id]["action"] == "move"
+            and presentation["actors"][employee_id]["ground_xy"] is not None
             for employee_id in started["participants"]
         )
     # The render seam is a pure read: no actor activity, stamina or assignment

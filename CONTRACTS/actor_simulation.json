@@ -54,7 +54,7 @@
     "assignment_validation": "resolve_against_employee_metadata_and_runtime_workseat_slot",
     "position_policy": "floor_uv_or_route_reference_when_present; null_while_home",
     "render_policy": "render_action_and_render_owner_are_derived_presentation_outputs",
-    "conversation_policy": "existing_conversation_phase_is_an_optional_activity_subphase",
+    "conversation_policy": "actor_talk_session_is_authoritative_and_speech_lane_is_a_commit_gate",
     "unassigned_actor_policy": "not_eligible_for_runtime_behavior_or_workseat_render"
   },
   "state_vocabulary": {
@@ -236,10 +236,25 @@
     "event_counter_scope": "per_actor_and_root",
     "visual_side_effect_policy": "visual_registry_metadata_never_mutates_stamina",
     "threshold_event_policy": "emit_once_per_band_crossing",
-    "critical_event_policy": "auto_queue_home_at_critical_then_finish_current_normal_work_loop"
+    "critical_event_policy": "auto_queue_home_at_critical_then_finish_current_normal_work_loop",
+    "talk_session_policy": {
+      "request_phase": "talk_pending_without_activity_window",
+      "queue_timeout_ms": 30000,
+      "acceptance_command": "start_talk_session",
+      "route_ownership": "actor_reducer",
+      "route_phases": ["talk_outbound", "talk_hold", "talk_return"],
+      "completion_policy": "return_to_owned_workseat_then_complete_recovery_owner_event",
+      "stationary_participant_policy": "remain_talking_at_workseat_until_shared_return_boundary",
+      "failure_command": "cancel_talk",
+      "speech_scheduler_role": "queue_plan_and_timing_only",
+      "unavailable_partner_policy": "seated_self_talk_fallback",
+      "ceo_request_policy": "seated_self_talk_no_outbound_route"
+    }
   },
   "routing": {
     "commands": [
+      "start_talk_session",
+      "cancel_talk",
       "request_home",
       "request_return"
     ],
@@ -249,7 +264,10 @@
       "portal_entry",
       "to_workseat",
       "wander_out",
-      "wander_back"
+      "wander_back",
+      "talk_outbound",
+      "talk_hold",
+      "talk_return"
     ],
     "portal_fade_steps": 4,
     "home_recovery_policy": "restore_full_stamina_at_portal_exit_then_wait_for_explicit_return",
@@ -264,7 +282,7 @@
       "humanball",
       "movement"
     ],
-    "pose_policy": "presentation_events_do_not_mutate_stamina_or_workseat_assignment",
+    "pose_policy": "presentation_reads_actor_talk_route_without_owning_gameplay_state",
     "timing_ms": {
       "simulation_tick": 60,
       "character_frame": 360,

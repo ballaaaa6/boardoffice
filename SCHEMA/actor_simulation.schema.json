@@ -172,7 +172,7 @@
           "const": "render_action_and_render_owner_are_derived_presentation_outputs"
         },
         "conversation_policy": {
-          "const": "existing_conversation_phase_is_an_optional_activity_subphase"
+          "const": "actor_talk_session_is_authoritative_and_speech_lane_is_a_commit_gate"
         },
         "unassigned_actor_policy": {
           "const": "not_eligible_for_runtime_behavior_or_workseat_render"
@@ -534,6 +534,42 @@
         },
         "critical_event_policy": {
           "const": "auto_queue_home_at_critical_then_finish_current_normal_work_loop"
+        },
+        "talk_session_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "request_phase",
+            "queue_timeout_ms",
+            "acceptance_command",
+            "route_ownership",
+            "route_phases",
+            "completion_policy",
+            "stationary_participant_policy",
+            "failure_command",
+            "speech_scheduler_role",
+            "unavailable_partner_policy",
+            "ceo_request_policy"
+          ],
+          "properties": {
+            "request_phase": {"const": "talk_pending_without_activity_window"},
+            "queue_timeout_ms": {"const": 30000},
+            "acceptance_command": {"const": "start_talk_session"},
+            "route_ownership": {"const": "actor_reducer"},
+            "route_phases": {
+              "const": ["talk_outbound", "talk_hold", "talk_return"]
+            },
+            "completion_policy": {
+              "const": "return_to_owned_workseat_then_complete_recovery_owner_event"
+            },
+            "stationary_participant_policy": {
+              "const": "remain_talking_at_workseat_until_shared_return_boundary"
+            },
+            "failure_command": {"const": "cancel_talk"},
+            "speech_scheduler_role": {"const": "queue_plan_and_timing_only"},
+            "unavailable_partner_policy": {"const": "seated_self_talk_fallback"},
+            "ceo_request_policy": {"const": "seated_self_talk_no_outbound_route"}
+          }
         }
       }
     },
@@ -551,6 +587,8 @@
       "properties": {
         "commands": {
           "const": [
+            "start_talk_session",
+            "cancel_talk",
             "request_home",
             "request_return"
           ]
@@ -562,7 +600,10 @@
             "portal_entry",
             "to_workseat",
             "wander_out",
-            "wander_back"
+            "wander_back",
+            "talk_outbound",
+            "talk_hold",
+            "talk_return"
           ]
         },
         "portal_fade_steps": {
@@ -601,7 +642,7 @@
           ]
         },
         "pose_policy": {
-          "const": "presentation_events_do_not_mutate_stamina_or_workseat_assignment"
+          "const": "presentation_reads_actor_talk_route_without_owning_gameplay_state"
         },
         "timing_ms": {
           "type": "object",

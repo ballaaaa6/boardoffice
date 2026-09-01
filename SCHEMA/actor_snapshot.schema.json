@@ -187,7 +187,10 @@
                     "portal_entry",
                     "to_workseat",
                     "wander_out",
-                    "wander_back"
+                    "wander_back",
+                    "talk_outbound",
+                    "talk_hold",
+                    "talk_return"
                   ]
                 },
                 "start_uv": {
@@ -247,7 +250,7 @@
                   "const": "walking_depth"
                 },
                 "action": {
-                  "const": "move"
+                  "enum": ["move", "idle", "happy", "sad"]
                 },
                 "subaction": {
                   "type": "string",
@@ -403,6 +406,105 @@
             "null"
           ],
           "minimum": 0
+        },
+        "talk": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "session_id",
+                "mode",
+                "role",
+                "partner_id",
+                "recovery_owner",
+                "effective_at_ms",
+                "talk_start_at_ms",
+                "talk_end_at_ms",
+                "return_start_at_ms",
+                "emotion",
+                "emotion_until_at_ms",
+                "endpoint_uv",
+                "gate_uv",
+                "outbound_path_cells_uv",
+                "inbound_path_cells_uv",
+                "outbound_duration_ms",
+                "return_duration_ms"
+              ],
+              "properties": {
+                "session_id": {"type": "string", "minLength": 1},
+                "mode": {
+                  "enum": ["self_talk", "ceo_front", "seated_host", "standing_pair"]
+                },
+                "role": {
+                  "enum": ["initiator", "participant", "visitor"]
+                },
+                "partner_id": {
+                  "type": ["string", "null"],
+                  "pattern": "^EMP_W[12]_[0-9]{4}$"
+                },
+                "recovery_owner": {"type": "boolean"},
+                "effective_at_ms": {"type": "integer", "minimum": 0},
+                "talk_start_at_ms": {"type": "integer", "minimum": 0},
+                "talk_end_at_ms": {"type": "integer", "minimum": 0},
+                "return_start_at_ms": {"type": "integer", "minimum": 0},
+                "emotion": {"enum": ["sad", "happy", null]},
+                "emotion_until_at_ms": {
+                  "type": ["integer", "null"],
+                  "minimum": 0
+                },
+                "endpoint_uv": {
+                  "anyOf": [
+                    {"type": "null"},
+                    {
+                      "type": "array",
+                      "prefixItems": [{"type": "integer"}, {"type": "integer"}],
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": false
+                    }
+                  ]
+                },
+                "gate_uv": {
+                  "anyOf": [
+                    {"type": "null"},
+                    {
+                      "type": "array",
+                      "prefixItems": [{"type": "integer"}, {"type": "integer"}],
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": false
+                    }
+                  ]
+                },
+                "outbound_path_cells_uv": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [{"type": "integer"}, {"type": "integer"}],
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": false
+                  }
+                },
+                "inbound_path_cells_uv": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [{"type": "integer"}, {"type": "integer"}],
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": false
+                  }
+                },
+                "outbound_duration_ms": {"type": "integer", "minimum": 0},
+                "return_duration_ms": {"type": "integer", "minimum": 0}
+              }
+            }
+          ]
         }
       }
     },

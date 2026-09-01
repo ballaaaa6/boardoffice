@@ -73,6 +73,7 @@
         "departure_token": {"type": "integer", "minimum": 0},
         "speech_event_counter": {"type": "integer", "minimum": 0},
         "last_activity": {"type": "string", "minLength": 1},
+        "stamina_band": {"enum": ["normal", "low", "critical"]},
         "last_session_id": {"type": ["string", "null"]},
         "last_partner_id": {"type": ["string", "null"]},
         "speech_phase": {"enum": ["idle", "active", "emotion"]},

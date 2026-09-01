@@ -1266,30 +1266,43 @@ class CentralGameCore:
         dialogue_locale: str = 'en',
         dialogue_seed: str | int = '0',
     ) -> dict[str, Any]:
-        """Advance stamina and speech independently, then return both outputs.
+        """Advance the authoritative actor/speech loop in deterministic slices.
 
-        Actor and speech clocks remain independent.  The small bridge below
-        forwards only presentation boundaries: a talk recovery event asks the
-        speech lane to choose a pair, a reception depth crossing arms the
-        one-shot leaving line, and a completed return re-arms work-start.
+        The actor reducer owns activity, locomotion and stamina.  Speech owns
+        lane timing and dialogue selection.  A talk request is accepted only
+        after the speech lane has a valid plan; Central then commits that plan
+        back into the actor reducer (outbound route, hold/emotion boundary and
+        return route).  Keeping the bridge at the shared 60 ms boundary avoids
+        the old failure mode where speech showed a conversation while the
+        actor had already returned to ``working`` at its workstation.
         """
         runtime_snapshot = self.validate_runtime_snapshot(snapshot)
+        if isinstance(elapsed_ms, bool) or not isinstance(elapsed_ms, int) or elapsed_ms < 0:
+            raise CentralGameCoreError("elapsed_ms must be an integer >= 0")
+
         actor_snapshot = runtime_snapshot['actor_snapshot']
         speech_snapshot = runtime_snapshot['speech_snapshot']
-        try:
-            actor_result = self.actor_simulation.advance_snapshot(
-                actor_snapshot,
-                elapsed_ms,
-                commands=actor_commands,
-            )
-            bridge_commands = list(speech_commands or [])
+        conversation_snapshot = runtime_snapshot['conversation_snapshot']
+        pending_actor_commands = list(actor_commands or [])
+        pending_speech_commands = list(speech_commands or [])
+        actor_events_all: list[dict[str, Any]] = []
+        speech_events_all: list[dict[str, Any]] = []
+        started_session_ids: set[str] = set()
+        remaining = int(elapsed_ms)
+        first_slice = True
+
+        def _bridge_from_actor_events(
+            actor_events: list[dict[str, Any]],
+            commands: list[dict[str, Any]],
+        ) -> list[dict[str, Any]]:
+            bridge = list(commands)
             bridge_keys = {
                 (command.get("type"), command.get("employee_id"))
-                for command in bridge_commands
+                for command in bridge
                 if isinstance(command, dict)
             }
             crossed: set[str] = set()
-            for event in actor_result.get("events", []):
+            for event in actor_events:
                 employee_id = event.get("employee_id")
                 if not isinstance(employee_id, str):
                     continue
@@ -1297,18 +1310,26 @@ class CentralGameCore:
                 if event_type == "behavior_started" and event.get("behavior") == "talk":
                     key = ("behavior_started", employee_id)
                     if key not in bridge_keys:
-                        bridge_commands.append({
+                        bridge.append({
                             "type": "behavior_started",
                             "employee_id": employee_id,
                             "behavior": "talk",
                             "effective_at_ms": int(event.get("timestamp_ms", 0)),
                         })
                         bridge_keys.add(key)
-                elif event_type == "workseat_reentered":
+                elif event_type in {"workseat_reentered", "talk_returned"}:
                     key = ("returned_to_work", employee_id)
                     if key not in bridge_keys:
-                        bridge_commands.append({
+                        bridge.append({
                             "type": "returned_to_work",
+                            "employee_id": employee_id,
+                        })
+                        bridge_keys.add(key)
+                elif event_type == "talk_cancelled":
+                    key = ("cancel_talk", employee_id)
+                    if key not in bridge_keys:
+                        bridge.append({
+                            "type": "cancel_talk",
                             "employee_id": employee_id,
                         })
                         bridge_keys.add(key)
@@ -1316,14 +1337,19 @@ class CentralGameCore:
                     "to_portal", "portal_exit"
                 } and employee_id not in crossed:
                     ground_xy = event.get("ground_xy")
-                    if isinstance(ground_xy, (list, tuple)) and len(ground_xy) == 2:
+                    actor = actor_snapshot.get("actors", {}).get(employee_id)
+                    if (
+                        isinstance(ground_xy, (list, tuple))
+                        and len(ground_xy) == 2
+                        and isinstance(actor, dict)
+                    ):
                         if self.actor_draws_over_reception(
-                            actor_snapshot["actors"][employee_id]["assignment"]["floor_id"],
+                            actor["assignment"]["floor_id"],
                             ground_xy,
                         ):
                             key = ("reception_depth_crossed", employee_id)
                             if key not in bridge_keys:
-                                bridge_commands.append({
+                                bridge.append({
                                     "type": "reception_depth_crossed",
                                     "employee_id": employee_id,
                                     "draws_over_reception": True,
@@ -1331,60 +1357,201 @@ class CentralGameCore:
                                 })
                                 bridge_keys.add(key)
                             crossed.add(employee_id)
-            speech_result = self.speech_scheduler.advance_snapshot(
-                speech_snapshot,
-                elapsed_ms,
-                actor_snapshot=actor_result['snapshot'],
-                conversation_snapshot=runtime_snapshot['conversation_snapshot'],
-                commands=bridge_commands,
-                dialogue_locale=dialogue_locale,
-                dialogue_seed=dialogue_seed,
-            )
-            # Speech chooses the shared standing-pair outcome; the actor
-            # reducer applies the numeric stamina delta so the visual lane
-            # never owns gameplay state.  Apply each emitted outcome exactly
-            # once to the returned actor snapshot.
-            actor_events = list(actor_result.get('events', []))
-            for speech_event in speech_result.get('events', []):
-                if speech_event.get('type') != 'emotion_started':
+            return bridge
+
+        def _talk_commands_from_speech_events(
+            speech_events: list[dict[str, Any]],
+            speech_state: dict[str, Any],
+        ) -> list[dict[str, Any]]:
+            commands: list[dict[str, Any]] = []
+            for event in speech_events:
+                if event.get("type") != "speech_session_started":
                     continue
-                emotion = speech_event.get('emotion')
-                participants = speech_event.get('participants', [])
-                if not isinstance(emotion, str) or not isinstance(participants, list):
+                session_id = event.get("session_id")
+                if not isinstance(session_id, str) or session_id in started_session_ids:
                     continue
+                session = speech_state.get("active_sessions", {}).get(session_id)
+                if not isinstance(session, dict) or session.get("kind") not in {"pair", "solo"}:
+                    continue
+                participants = [
+                    str(value) for value in session.get("participants", [])
+                    if isinstance(value, str)
+                ]
+                if not participants:
+                    continue
+                plan = session.get("conversation_plan")
+                if plan is not None and not isinstance(plan, dict):
+                    continue
+                mode = str(session.get("mode") or ("self_talk" if len(participants) == 1 else "standing_pair"))
+                initiator_id = str(session.get("initiator_id") or participants[0])
+                partner_id = session.get("partner_id")
+                if partner_id is not None:
+                    partner_id = str(partner_id)
+                movement_started = int(session.get("movement_started_ms", session.get("start_ms", 0)))
+                movement_arrival = int(session.get("movement_arrival_ms", movement_started))
+                talk_end = int(session.get("fade_end_ms", movement_arrival))
+                emotion = session.get("emotion_outcome")
+                emotion_hold = int(session.get("emotion_hold_ms", 0) or 0)
+                return_start = talk_end + emotion_hold
+                route_map = plan.get("route_info", {}) if isinstance(plan, dict) else {}
+                endpoint_map = plan.get("endpoint_by_actor", {}) if isinstance(plan, dict) else {}
                 for employee_id in participants:
-                    if not isinstance(employee_id, str):
+                    route_info = route_map.get(employee_id) if isinstance(route_map, dict) else None
+                    endpoint = endpoint_map.get(employee_id) if isinstance(endpoint_map, dict) else None
+                    role = "initiator" if employee_id == initiator_id else "participant"
+                    if mode == "self_talk":
+                        role = "initiator"
+                    command: dict[str, Any] = {
+                        "type": "start_talk_session",
+                        "employee_id": employee_id,
+                        "session_id": session_id,
+                        "mode": mode,
+                        "role": role,
+                        "partner_id": partner_id,
+                        "recovery_owner": employee_id == initiator_id,
+                        "effective_at_ms": movement_started,
+                        "talk_start_at_ms": movement_arrival,
+                        "talk_end_at_ms": talk_end,
+                        "return_start_at_ms": return_start,
+                        "emotion": emotion if emotion in {"sad", "happy"} else None,
+                        "emotion_until_at_ms": return_start if emotion in {"sad", "happy"} else None,
+                        "endpoint_uv": endpoint,
+                    }
+                    if isinstance(route_info, dict):
+                        command["route_info"] = route_info
+                    commands.append(command)
+                started_session_ids.add(session_id)
+            return commands
+
+        try:
+            while first_slice or remaining > 0:
+                step_ms = min(self.actor_simulation.TICK_MS, remaining)
+                actor_result = self.actor_simulation.advance_snapshot(
+                    actor_snapshot,
+                    step_ms,
+                    commands=(pending_actor_commands if first_slice else None),
+                )
+                actor_snapshot = actor_result["snapshot"]
+                chunk_actor_events = list(actor_result.get("events", []))
+                bridge_commands = _bridge_from_actor_events(
+                    chunk_actor_events,
+                    pending_speech_commands if first_slice else [],
+                )
+                speech_result = self.speech_scheduler.advance_snapshot(
+                    speech_snapshot,
+                    step_ms,
+                    actor_snapshot=actor_snapshot,
+                    conversation_snapshot=conversation_snapshot,
+                    commands=bridge_commands,
+                    dialogue_locale=dialogue_locale,
+                    dialogue_seed=dialogue_seed,
+                )
+                speech_snapshot = speech_result["snapshot"]
+                chunk_speech_events = list(speech_result.get("events", []))
+
+                # Speech chooses the shared standing-pair outcome; the actor
+                # reducer remains the sole owner of numeric stamina mutation.
+                for speech_event in chunk_speech_events:
+                    if speech_event.get("type") != "emotion_started":
                         continue
-                    effect_result = self.actor_simulation.apply_emotion_effect(
-                        actor_result['snapshot'],
-                        employee_id,
-                        emotion,
-                        timestamp_ms=int(speech_event.get('timestamp_ms', 0)),
-                        source_session_id=(
-                            str(speech_event.get('session_id'))
-                            if speech_event.get('session_id') is not None else None
-                        ),
+                    emotion = speech_event.get("emotion")
+                    participants = speech_event.get("participants", [])
+                    if not isinstance(emotion, str) or not isinstance(participants, list):
+                        continue
+                    for employee_id in participants:
+                        if not isinstance(employee_id, str):
+                            continue
+                        effect_result = self.actor_simulation.apply_emotion_effect(
+                            actor_snapshot,
+                            employee_id,
+                            emotion,
+                            timestamp_ms=int(speech_event.get("timestamp_ms", 0)),
+                            source_session_id=(
+                                str(speech_event.get("session_id"))
+                                if speech_event.get("session_id") is not None else None
+                            ),
+                        )
+                        actor_snapshot = effect_result["snapshot"]
+                        chunk_actor_events.extend(effect_result.get("events", []))
+
+                # Commit every newly accepted pair/solo plan into actor state.
+                talk_commands = _talk_commands_from_speech_events(
+                    chunk_speech_events,
+                    speech_snapshot,
+                )
+                if talk_commands:
+                    accepted = self.actor_simulation.advance_snapshot(
+                        actor_snapshot,
+                        0,
+                        commands=talk_commands,
                     )
-                    actor_result['snapshot'] = effect_result['snapshot']
-                    actor_events.extend(effect_result.get('events', []))
-            actor_events.sort(key=lambda event: int(event.get('event_index', 0)))
+                    actor_snapshot = accepted["snapshot"]
+                    chunk_actor_events.extend(accepted.get("events", []))
+
+                # A talk return can finish in the same actor slice in which the
+                # speech lane was advanced.  Feed that completion back without
+                # advancing the speech clock, then commit any newly-started
+                # non-lifecycle plan on the next pass through the same helper.
+                return_commands = _bridge_from_actor_events(chunk_actor_events, [])
+                return_commands = [
+                    command for command in return_commands
+                    if command.get("type") == "returned_to_work"
+                ]
+                if return_commands:
+                    speech_return = self.speech_scheduler.advance_snapshot(
+                        speech_snapshot,
+                        0,
+                        actor_snapshot=actor_snapshot,
+                        conversation_snapshot=conversation_snapshot,
+                        commands=return_commands,
+                        dialogue_locale=dialogue_locale,
+                        dialogue_seed=dialogue_seed,
+                    )
+                    speech_snapshot = speech_return["snapshot"]
+                    return_events = list(speech_return.get("events", []))
+                    chunk_speech_events.extend(return_events)
+                    late_talk_commands = _talk_commands_from_speech_events(
+                        return_events,
+                        speech_snapshot,
+                    )
+                    if late_talk_commands:
+                        accepted = self.actor_simulation.advance_snapshot(
+                            actor_snapshot,
+                            0,
+                            commands=late_talk_commands,
+                        )
+                        actor_snapshot = accepted["snapshot"]
+                        chunk_actor_events.extend(accepted.get("events", []))
+
+                actor_events_all.extend(chunk_actor_events)
+                speech_events_all.extend(chunk_speech_events)
+                remaining -= step_ms
+                first_slice = False
+
+            actor_events_all.sort(key=lambda event: int(event.get("event_index", 0)))
+            speech_events_all.sort(key=lambda event: (int(event.get("timestamp_ms", 0)), int(event.get("event_index", 0))))
+            events = [
+                {'source': 'actor', **event} for event in actor_events_all
+            ] + [
+                {'source': 'speech', **event} for event in speech_events_all
+            ]
+            events.sort(key=lambda event: (
+                int(event.get('timestamp_ms', 0)),
+                event.get('source', ''),
+                int(event.get('event_index', 0)),
+            ))
         except (ActorSimulationError, SpeechSchedulerError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
-        events = [
-            {'source': 'actor', **event} for event in actor_events
-        ] + [
-            {'source': 'speech', **event} for event in speech_result.get('events', [])
-        ]
-        events.sort(key=lambda event: (int(event.get('timestamp_ms', 0)), event.get('source', ''), int(event.get('event_index', 0))))
+
         return {
             'schema': 'gds.runtime_snapshot.v1',
             'version': '1.0.0',
-            'actor_snapshot': actor_result['snapshot'],
-            'speech_snapshot': speech_result['snapshot'],
-            'conversation_snapshot': runtime_snapshot['conversation_snapshot'],
+            'actor_snapshot': actor_snapshot,
+            'speech_snapshot': speech_snapshot,
+            'conversation_snapshot': conversation_snapshot,
             'events': events,
-            'actor_events': actor_events,
-            'speech_events': speech_result.get('events', []),
+            'actor_events': actor_events_all,
+            'speech_events': speech_events_all,
         }
 
     def serialize_runtime_snapshot(self, snapshot: dict[str, Any]) -> str:
@@ -1765,15 +1932,35 @@ class CentralGameCore:
                     if not isinstance(track, dict):
                         continue
                     row = actors[employee_id]
-                    for key in (
-                        'phase', 'current_uv', 'ground_xy', 'path_cells_uv',
-                        'direction', 'raw_direction', 'render_owner', 'action',
-                        'subaction', 'frame_index', 'cumulative_distance_px',
+                    source_actor = actor_snapshot['actors'].get(employee_id, {})
+                    authoritative_talk = (
+                        isinstance(source_actor.get('behavior', {}).get('talk'), dict)
+                        if isinstance(source_actor, dict) else False
+                    )
+                    authoritative_route = (
+                        isinstance(source_actor.get('position', {}).get('route'), dict)
+                        if isinstance(source_actor, dict) else False
+                    )
+                    # Dialogue timing/layout still comes from the planner, but
+                    # a committed actor talk route is the sole source of
+                    # locomotion and pose.  Copying the old presentation track
+                    # here would snap a walking actor back to the workstation
+                    # on every render sample.
+                    presentation_keys = (
                         'dialogue_visible', 'dialogue_opacity', 'dialogue_phase',
                         'dialogue_id', 'dialogue_line_index', 'dialogue_text',
                         'dialogue_locale', 'dialogue_bubble_offset_px',
                         'speaker_id', 'listener_id', 'loop_index', 'turn_index',
-                    ):
+                    )
+                    pose_keys = (
+                        'phase', 'current_uv', 'ground_xy', 'path_cells_uv',
+                        'direction', 'raw_direction', 'render_owner', 'action',
+                        'subaction', 'frame_index', 'cumulative_distance_px',
+                    )
+                    keys = presentation_keys + (
+                        () if authoritative_talk and authoritative_route else pose_keys
+                    )
+                    for key in keys:
                         if key in track:
                             row[key] = copy.deepcopy(track[key])
                     if row.get('action') in {'move', 'idle'} and 'subaction' not in track:
@@ -1782,7 +1969,11 @@ class CentralGameCore:
                         row.get('render_owner') != 'none'
                         and float(row.get('visibility_alpha', 1.0)) > 0
                     )
-                    row['presentation_phase'] = track.get('phase')
+                    row['presentation_phase'] = (
+                        source_actor.get('conversation_phase')
+                        if authoritative_talk and authoritative_route
+                        else track.get('phase')
+                    )
                     row['speech_session_id'] = session.get('session_id')
                     row['speech_mode'] = session.get('mode')
                     row['speech_category'] = session.get('category')

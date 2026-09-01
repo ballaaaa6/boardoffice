@@ -102,16 +102,19 @@ def test_runtime_renderer_consumes_all_pair_modes_and_keeps_channels_separate(mo
     assert presentation["actors"][initiator]["dialogue_visible"] is True
     assert presentation["actors"][partner]["dialogue_visible"] is True
     if mode == "ceo_front":
-        assert presentation["actors"][initiator]["action"] == "idle"
+        assert presentation["actors"][initiator]["action"] == "move"
+        assert presentation["actors"][initiator]["ground_xy"] is not None
         assert presentation["actors"][partner]["action"] == "work"
         assert presentation["actors"][partner]["subaction"] == "normal_work"
     elif mode == "seated_host":
-        assert presentation["actors"][initiator]["action"] == "idle"
+        assert presentation["actors"][initiator]["action"] == "move"
+        assert presentation["actors"][initiator]["ground_xy"] is not None
         assert presentation["actors"][partner]["action"] == "work"
         assert presentation["actors"][partner]["subaction"].startswith("turn_side_")
     else:
         assert all(
-            presentation["actors"][employee_id]["action"] == "idle"
+            presentation["actors"][employee_id]["action"] == "move"
+            and presentation["actors"][employee_id]["ground_xy"] is not None
             for employee_id in (initiator, partner)
         )
     # Rendering must be a pure consumer of the composed state.

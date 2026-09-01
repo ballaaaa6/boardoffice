@@ -252,7 +252,14 @@ def test_due_behavior_event_emits_one_ordered_start(actor_core: ActorSimulationC
     assert len(starts) == 1
     assert starts[0]["timestamp_ms"] == 0
     assert actor["behavior"]["active_event"] == starts[0]["behavior"]
-    assert actor["behavior"]["activity_until_ms"] > 0
+    # Talk is now an actor-owned request that remains pending until Central
+    # commits a speech session; it must not fall back to the old generic
+    # 5–8-second recovery window.
+    if starts[0]["behavior"] == "talk":
+        assert actor["behavior"]["activity_until_ms"] is None
+        assert actor["conversation_phase"] == "talk_pending"
+    else:
+        assert actor["behavior"]["activity_until_ms"] > 0
     assert result["snapshot"]["determinism"]["root_event_counter"] == len(result["events"])
 
 
