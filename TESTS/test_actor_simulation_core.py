@@ -81,15 +81,108 @@ def test_large_work_window_emits_each_downward_threshold_once(actor_core: ActorS
         if event["employee_id"] == ACTOR_ID and event["type"] == "threshold_crossed"
     ]
     assert [event["threshold_band"] for event in threshold_events] == ["low", "critical"]
-    assert changed["stamina"]["threshold_band"] == "critical"
-    assert changed["last_event"] == "critical_threshold"
-    assert changed["behavior"]["next_event_due_ms"] is None
+    # Critical now queues a smooth home exit.  A large window may already
+    # contain the portal route/home recovery, but the threshold events remain
+    # exactly once and the actor never remains stuck in work.
+    assert changed["presence"] in {"leaving", "home"}
+    assert any(event["type"] == "home_requested" for event in result["events"])
 
     again = actor_core.advance_snapshot(result["snapshot"], 60)
     assert not any(
         event["employee_id"] == ACTOR_ID and event["type"] == "threshold_crossed"
         for event in again["events"]
     )
+
+
+def test_critical_actor_finishes_normal_work_loop_before_auto_home(actor_core: ActorSimulationCore):
+    snapshot = actor_core.initial_snapshot("floor01")
+    actor = snapshot["actors"][ACTOR_ID]
+    actor["stamina"].update({
+        "current_milli": 5000,
+        "threshold_band": "critical",
+        "drain_remainder": 0,
+    })
+    actor["behavior"].update({
+        "next_event_due_ms": 10**9,
+        "work_loop_elapsed_ms": 0,
+        "pending_home": False,
+        "pending_home_due_ms": None,
+    })
+
+    held = actor_core.advance_snapshot(snapshot, 300)
+    held_actor = held["snapshot"]["actors"][ACTOR_ID]
+    assert held_actor["activity"] == "working"
+    assert held_actor["presence"] == "present"
+    assert held_actor["behavior"]["pending_home"] is True
+    assert held_actor["behavior"]["pending_home_due_ms"] == 720
+    assert not any(event["type"] == "home_requested" for event in held["events"])
+
+    left = actor_core.advance_snapshot(held["snapshot"], 420)
+    left_actor = left["snapshot"]["actors"][ACTOR_ID]
+    assert left_actor["activity"] == "going_home"
+    assert left_actor["presence"] == "leaving"
+    home_event = next(event for event in left["events"] if event["type"] == "home_requested")
+    assert home_event["work_loop_completed"] is True
+    assert home_event["reason"] == "stamina_critical"
+
+
+def test_emotion_effects_are_numeric_clamped_and_persistent(actor_core: ActorSimulationCore):
+    snapshot = actor_core.initial_snapshot("floor01")
+    actor = snapshot["actors"][ACTOR_ID]
+    actor["stamina"].update({
+        "current_milli": 50000,
+        "threshold_band": "normal",
+        "drain_remainder": 0,
+    })
+    sad = actor_core.apply_emotion_effect(snapshot, ACTOR_ID, "sad", timestamp_ms=0)
+    sad_actor = sad["snapshot"]["actors"][ACTOR_ID]
+    assert sad_actor["stamina"]["current_milli"] == 49000
+    assert sad["events"][0]["type"] == "stamina_emotion_effect"
+    assert sad["events"][0]["effect_milli"] == -1000
+
+    happy = actor_core.apply_emotion_effect(
+        sad["snapshot"], ACTOR_ID, "happy", timestamp_ms=0
+    )
+    assert happy["snapshot"]["actors"][ACTOR_ID]["stamina"]["current_milli"] == 51000
+
+
+def test_central_facade_routes_emotion_effect_to_actor_snapshot(central_core: CentralGameCore):
+    snapshot = central_core.resolve_actor_snapshot("floor01")
+    actor = snapshot["actors"][ACTOR_ID]
+    actor["stamina"].update({
+        "current_milli": 50000,
+        "threshold_band": "normal",
+        "drain_remainder": 0,
+    })
+    result = central_core.apply_actor_emotion_effect(snapshot, ACTOR_ID, "happy")
+    assert result["snapshot"]["actors"][ACTOR_ID]["stamina"]["current_milli"] == 52000
+
+
+def test_runtime_snapshot_save_load_and_replay_are_deterministic(central_core: CentralGameCore):
+    runtime = central_core.resolve_runtime_snapshot("floor02")
+    steps = [
+        {"elapsed_ms": 60, "actor_commands": [], "speech_commands": []},
+        {"elapsed_ms": 360, "actor_commands": [], "speech_commands": []},
+    ]
+    encoded = central_core.serialize_runtime_snapshot(runtime)
+    restored = central_core.deserialize_runtime_snapshot(encoded)
+    assert restored == runtime
+    replay = central_core.replay_runtime_snapshot(runtime, steps)
+    sequential = runtime
+    for step in steps:
+        sequential = central_core.advance_runtime_snapshot(
+            sequential,
+            step["elapsed_ms"],
+            actor_commands=step["actor_commands"],
+            speech_commands=step["speech_commands"],
+        )
+    assert replay["snapshot"] == {
+        key: sequential[key]
+        for key in ("schema", "version", "actor_snapshot", "speech_snapshot", "conversation_snapshot")
+    }
+    package = central_core.serialize_runtime_replay(runtime, steps)
+    replay_from_package = central_core.replay_runtime_package(package)
+    assert replay_from_package["snapshot"] == replay["snapshot"]
 
 
 def test_recovery_event_is_deterministic_and_clamped(actor_core: ActorSimulationCore):

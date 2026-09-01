@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GDS Runtime Review — stamina loop</title>
+  <style>
+    :root { color-scheme: dark; --bg:#10141b; --panel:#18212c; --line:#304153; --muted:#9cafc2; --accent:#7dd3fc; --good:#86efac; --warn:#facc15; --bad:#fb7185; }
+    * { box-sizing:border-box; }
+    body { margin:0; font:14px/1.45 system-ui, sans-serif; background:linear-gradient(135deg,#0d1117,#172231); color:#e5edf5; }
+    main { max-width:1400px; margin:0 auto; padding:22px; }
+    h1 { margin:0 0 4px; font-size:24px; } h2 { margin:0 0 10px; font-size:16px; }
+    .subtitle { color:var(--muted); margin-bottom:16px; }
+    .grid { display:grid; grid-template-columns:minmax(480px, 2fr) minmax(330px, 1fr); gap:16px; align-items:start; }
+    .panel { background:rgba(24,33,44,.94); border:1px solid var(--line); border-radius:12px; padding:14px; box-shadow:0 10px 30px #0003; }
+    .stage { min-height:530px; display:flex; flex-direction:column; gap:10px; }
+    #scene { width:100%; image-rendering:auto; border-radius:8px; background:#0b0e13; border:1px solid #293849; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:7px; }
+    button, select { background:#243449; color:#e5edf5; border:1px solid #425a73; border-radius:7px; padding:8px 10px; cursor:pointer; }
+    button:hover { border-color:var(--accent); } button.primary { background:#075985; border-color:#38bdf8; }
+    button.danger { background:#4c1d2b; border-color:#fb7185; }
+    .meta { display:flex; flex-wrap:wrap; gap:10px; color:var(--muted); font-size:12px; }
+    .cards { display:flex; flex-direction:column; gap:7px; max-height:510px; overflow:auto; }
+    .card { border:1px solid #2c3c4f; border-radius:8px; padding:9px; background:#141c26; cursor:pointer; }
+    .card.selected { border-color:var(--accent); box-shadow:0 0 0 1px #38bdf855; }
+    .row { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+    .id { font-weight:650; } .small { color:var(--muted); font-size:12px; }
+    .bar { height:7px; margin-top:7px; background:#29313c; border-radius:5px; overflow:hidden; }
+    .fill { height:100%; background:var(--good); transition:width .18s linear; } .fill.low { background:var(--warn); } .fill.critical { background:var(--bad); }
+    .badge { border-radius:999px; padding:2px 7px; font-size:11px; background:#284057; color:#bfe5ff; }
+    .badge.critical { background:#572334; color:#fecdd3; } .badge.low { background:#574719; color:#fef08a; }
+    #log { height:200px; overflow:auto; white-space:pre-wrap; font:11px/1.4 ui-monospace,monospace; background:#0c1118; border:1px solid #293849; padding:8px; border-radius:7px; }
+    .hint { color:var(--muted); font-size:12px; }
+    @media(max-width:900px){ .grid{grid-template-columns:1fr;} .stage{min-height:0;} }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Runtime review — stamina → worknormal loop → home</h1>
+  <div class="subtitle">Phase 8E floor02 host seam. The critical demo sets one actor to 5 stamina, keeps <code>normal_work</code> for the remaining 720ms loop, then starts the authored portal route.</div>
+  <div class="grid">
+    <section class="panel stage">
+      <img id="scene" alt="Rendered floor02 runtime frame">
+      <div class="toolbar">
+        <button data-tick="60">Tick 60ms</button><button data-tick="360">Tick 360ms</button><button data-tick="720" class="primary">Tick 720ms</button><button data-tick="1440">Tick 1.44s</button>
+        <button id="reset">Reset</button><button id="critical" class="danger">Critical demo</button>
+      </div>
+      <div class="toolbar">
+        <button id="save">Save snapshot</button><button id="load">Load saved snapshot</button><button id="replay">Replay recorded steps</button>
+      </div>
+      <div class="meta"><span>Clock: <b id="clock">0</b>ms</span><span>Frames: <b id="frames">0</b></span><span id="note"></span></div>
+      <div class="hint">Click an actor card to target the critical demo. Save/load uses the new JSON snapshot seam; replay runs the recorded explicit steps from the initial snapshot.</div>
+    </section>
+    <aside class="panel">
+      <h2>Actors on floor02</h2>
+      <div id="actors" class="cards"></div>
+      <h2 style="margin-top:14px">Event log</h2>
+      <div id="log"></div>
+    </aside>
+  </div>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let state = null; let selected = null; let saved = null;
+  const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  async function api(path, body) { const r = await fetch(path, body ? {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)} : {}); const x = await r.json(); if(!r.ok) throw new Error(x.error || r.statusText); return x; }
+  function render(x) {
+    state = x; $('scene').src = x.image_data_url; $('clock').textContent = x.clock_ms; $('frames').textContent = x.frame_count; $('note').textContent = x.note || '';
+    const rows = x.actors || []; if(!selected || !rows.some(a => a.employee_id === selected)) selected = rows[0]?.employee_id;
+    $('actors').innerHTML = rows.map(a => { const pct = Math.max(0, Math.min(100, a.stamina)); const band = a.stamina_band; return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.action||'none')}/${esc(a.subaction||'')}</div><div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`; }).join('');
+    document.querySelectorAll('.card').forEach(el => el.onclick = () => { selected = el.dataset.id; render(state); });
+    const events = x.events || []; if(events.length) $('log').textContent = events.map(e => `${e.timestamp_ms}ms  ${e.source||'runtime'}  ${e.type}  ${e.employee_id||''}${e.reason?`  (${e.reason})`:''}`).join('\n') + '\n' + $('log').textContent;
+  }
+  async function refresh() { render(await api('/api/state')); }
+  document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick)})); } catch(e){ alert(e.message); } });
+  $('reset').onclick = async () => { try { $('log').textContent=''; render(await api('/api/reset',{})); } catch(e){ alert(e.message); } };
+  $('critical').onclick = async () => { try { if(!selected) throw new Error('Select an actor first'); render(await api('/api/demo-critical',{employee_id:selected})); } catch(e){ alert(e.message); } };
+  $('save').onclick = async () => { try { const x = await api('/api/save',{}); saved = x.runtime_snapshot; localStorage.setItem('gds-runtime-snapshot',x.snapshot_json); localStorage.setItem('gds-runtime-replay',x.replay_json); $('note').textContent='snapshot saved'; } catch(e){ alert(e.message); } };
+  $('load').onclick = async () => { try { const raw = localStorage.getItem('gds-runtime-snapshot'); if(!raw && !saved) throw new Error('No saved snapshot'); render(await api('/api/load',{runtime_snapshot:saved || JSON.parse(raw)})); } catch(e){ alert(e.message); } };
+  $('replay').onclick = async () => { try { const raw = localStorage.getItem('gds-runtime-replay'); if(!raw) throw new Error('Save a snapshot/replay first'); render(await api('/api/replay',JSON.parse(raw))); } catch(e){ alert(e.message); } };
+  refresh().catch(e => { $('log').textContent=e.message; });
+</script>
+</body>
+</html>

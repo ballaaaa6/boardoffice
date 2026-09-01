@@ -64,6 +64,20 @@
       120,
       300
     ],
+    "tuning_status": "initial_runtime_tuning_author_review_pending",
+    "normal_work_loop_ms": 720,
+    "critical_home_policy": "queue_at_critical_then_finish_current_normal_work_loop",
+    "emotion_effects": {
+      "sad": {
+        "display_delta": -1,
+        "milli_delta": -1000
+      },
+      "happy": {
+        "display_delta": 2,
+        "milli_delta": 2000
+      },
+      "owner": "CentralGameCore.actor_snapshot"
+    },
     "work_drain_unit": "milli_stamina_per_second",
     "per_employee_work_drain_range": [
       600,
@@ -85,7 +99,7 @@
           8
         ],
         "selection_weight": 45,
-        "runtime_status": "pending_conversation_system",
+        "runtime_status": "implemented_runtime_binding",
         "visual_channel": "idle_conversation"
       },
       "background_effect": {
@@ -102,7 +116,7 @@
           4
         ],
         "selection_weight": 20,
-        "runtime_status": "existing_effect_registry_pending_behavior_binding",
+        "runtime_status": "implemented_runtime_binding",
         "visual_channel": "effect_registry"
       },
       "popup": {
@@ -119,7 +133,7 @@
           4
         ],
         "selection_weight": 15,
-        "runtime_status": "existing_popup_assets_pending_behavior_binding",
+        "runtime_status": "implemented_runtime_binding",
         "visual_channel": "humanball_or_effect_registry"
       },
       "wander": {
@@ -136,7 +150,7 @@
           7
         ],
         "selection_weight": 20,
-        "runtime_status": "existing_movement_primitive_pending_stamina_binding",
+        "runtime_status": "implemented_runtime_binding",
         "visual_channel": "move"
       }
     },
@@ -149,7 +163,7 @@
       "restore_policy": "full_on_home",
       "retain_assignment": true,
       "return_target": "same_owned_workstation",
-      "runtime_status": "pending_home_return_system"
+      "runtime_status": "implemented_runtime_binding"
     },
     "visual_recovery_references": {
       "effect_ids": [

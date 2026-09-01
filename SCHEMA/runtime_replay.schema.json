@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.runtime_replay.v1",
+  "title": "GDS runtime snapshot replay package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "initial_runtime_snapshot", "steps"],
+  "properties": {
+    "schema": {"const": "gds.runtime_replay.v1"},
+    "version": {"const": "1.0.0"},
+    "initial_runtime_snapshot": {"type": "object"},
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["elapsed_ms", "actor_commands", "speech_commands", "dialogue_locale", "dialogue_seed"],
+        "properties": {
+          "elapsed_ms": {"type": "integer", "minimum": 0},
+          "actor_commands": {"type": "array", "items": {"type": "object"}},
+          "speech_commands": {"type": "array", "items": {"type": "object"}},
+          "dialogue_locale": {"type": "string", "minLength": 1},
+          "dialogue_seed": {"type": ["string", "integer"]}
+        }
+      }
+    }
+  }
+}

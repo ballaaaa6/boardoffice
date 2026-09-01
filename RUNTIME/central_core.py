@@ -40,6 +40,7 @@ from RUNTIME.crowd_movement_core import (
 from RUNTIME.conversation_spot_core import ConversationSpotCore, ConversationSpotError
 from RUNTIME.conversation_behavior_core import ConversationBehaviorCore, ConversationBehaviorError
 from RUNTIME.speech_scheduler_core import SpeechSchedulerCore, SpeechSchedulerError
+from RUNTIME.runtime_persistence import RuntimePersistence, RuntimePersistenceError
 
 
 class CentralGameCoreError(ValueError):
@@ -131,6 +132,7 @@ class CentralGameCore:
             employee_registry=self.employee_metadata,
             conversation=self.conversation,
         )
+        self.runtime_persistence = RuntimePersistence(self)
 
     def resolve_asset_path(self, domain: str, asset_id: str) -> Path:
         domain_key = domain.strip().casefold()
@@ -229,6 +231,27 @@ class CentralGameCore:
                 snapshot,
                 elapsed_ms,
                 commands=commands,
+            )
+        except ActorSimulationError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def apply_actor_emotion_effect(
+        self,
+        snapshot: dict[str, Any],
+        employee_id: str,
+        emotion: str,
+        *,
+        timestamp_ms: int | None = None,
+        source_session_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Apply a speech-owned sad/happy result through the actor reducer."""
+        try:
+            return self.actor_simulation.apply_emotion_effect(
+                snapshot,
+                employee_id,
+                emotion,
+                timestamp_ms=timestamp_ms,
+                source_session_id=source_session_id,
             )
         except ActorSimulationError as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -1317,10 +1340,38 @@ class CentralGameCore:
                 dialogue_locale=dialogue_locale,
                 dialogue_seed=dialogue_seed,
             )
+            # Speech chooses the shared standing-pair outcome; the actor
+            # reducer applies the numeric stamina delta so the visual lane
+            # never owns gameplay state.  Apply each emitted outcome exactly
+            # once to the returned actor snapshot.
+            actor_events = list(actor_result.get('events', []))
+            for speech_event in speech_result.get('events', []):
+                if speech_event.get('type') != 'emotion_started':
+                    continue
+                emotion = speech_event.get('emotion')
+                participants = speech_event.get('participants', [])
+                if not isinstance(emotion, str) or not isinstance(participants, list):
+                    continue
+                for employee_id in participants:
+                    if not isinstance(employee_id, str):
+                        continue
+                    effect_result = self.actor_simulation.apply_emotion_effect(
+                        actor_result['snapshot'],
+                        employee_id,
+                        emotion,
+                        timestamp_ms=int(speech_event.get('timestamp_ms', 0)),
+                        source_session_id=(
+                            str(speech_event.get('session_id'))
+                            if speech_event.get('session_id') is not None else None
+                        ),
+                    )
+                    actor_result['snapshot'] = effect_result['snapshot']
+                    actor_events.extend(effect_result.get('events', []))
+            actor_events.sort(key=lambda event: int(event.get('event_index', 0)))
         except (ActorSimulationError, SpeechSchedulerError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
         events = [
-            {'source': 'actor', **event} for event in actor_result.get('events', [])
+            {'source': 'actor', **event} for event in actor_events
         ] + [
             {'source': 'speech', **event} for event in speech_result.get('events', [])
         ]
@@ -1332,9 +1383,67 @@ class CentralGameCore:
             'speech_snapshot': speech_result['snapshot'],
             'conversation_snapshot': runtime_snapshot['conversation_snapshot'],
             'events': events,
-            'actor_events': actor_result.get('events', []),
+            'actor_events': actor_events,
             'speech_events': speech_result.get('events', []),
         }
+
+    def serialize_runtime_snapshot(self, snapshot: dict[str, Any]) -> str:
+        """Encode a validated runtime snapshot for caller-owned storage."""
+        try:
+            return self.runtime_persistence.snapshot_to_json(snapshot)
+        except RuntimePersistenceError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def deserialize_runtime_snapshot(
+        self,
+        payload: str | bytes | bytearray | dict[str, Any],
+    ) -> dict[str, Any]:
+        """Load/validate a snapshot saved by :meth:`serialize_runtime_snapshot`."""
+        try:
+            return self.runtime_persistence.snapshot_from_json(payload)
+        except RuntimePersistenceError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def build_runtime_replay(
+        self,
+        initial_snapshot: dict[str, Any],
+        steps: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Build a JSON-safe replay package from explicit host steps."""
+        try:
+            return self.runtime_persistence.build_replay(initial_snapshot, steps)
+        except RuntimePersistenceError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def serialize_runtime_replay(
+        self,
+        initial_snapshot: dict[str, Any],
+        steps: list[dict[str, Any]],
+    ) -> str:
+        try:
+            return self.runtime_persistence.replay_to_json(initial_snapshot, steps)
+        except RuntimePersistenceError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def replay_runtime_snapshot(
+        self,
+        initial_snapshot: dict[str, Any],
+        steps: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Replay explicit steps and return the final snapshot plus event trace."""
+        try:
+            return self.runtime_persistence.replay(initial_snapshot, steps)
+        except RuntimePersistenceError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def replay_runtime_package(
+        self,
+        payload: str | bytes | dict[str, Any],
+    ) -> dict[str, Any]:
+        try:
+            return self.runtime_persistence.replay_package(payload)
+        except RuntimePersistenceError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
 
     def _runtime_frame_count(
         self,
@@ -1392,7 +1501,13 @@ class CentralGameCore:
             ground_xy = None
             current_uv = None
             visibility_alpha = 1.0
-            frame_clock_ms = int(sample_ms)
+            # Work animation is anchored to the actor reducer's persisted
+            # normal-work loop phase.  This keeps a critical actor visibly in
+            # the same worknormal pose until its loop boundary, even when a
+            # host renders a saved snapshot at a different wall-clock sample.
+            frame_clock_ms = int(
+                actor.get('behavior', {}).get('work_loop_elapsed_ms', sample_ms)
+            )
         else:
             render_owner = 'none'
             action = None

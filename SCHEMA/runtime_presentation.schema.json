@@ -68,12 +68,18 @@
     },
     "emotion_policy": {
       "type": "object", "additionalProperties": false,
-      "required": ["standing_pair_only", "outcome", "hold_ms", "numeric_stamina_delta"],
+      "required": ["standing_pair_only", "outcome", "hold_ms", "numeric_stamina_delta", "numeric_stamina_delta_unit", "numeric_stamina_owner"],
       "properties": {
         "standing_pair_only": {"const": true},
         "outcome": {"const": "shared_d6_even_happy_odd_sad"},
         "hold_ms": {"const": 1200},
-        "numeric_stamina_delta": {"const": "external_hook_not_yet_tuned"}
+        "numeric_stamina_delta": {
+          "type": "object", "additionalProperties": false,
+          "required": ["sad", "happy"],
+          "properties": {"sad": {"const": -1}, "happy": {"const": 2}}
+        },
+        "numeric_stamina_delta_unit": {"const": "display_stamina"},
+        "numeric_stamina_owner": {"const": "CentralGameCore.actor_snapshot"}
       }
     }
   }

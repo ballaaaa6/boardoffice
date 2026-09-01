@@ -1,0 +1,30 @@
+{
+  "$schema": "gds.runtime_persistence.v1",
+  "schema": "gds.runtime_persistence.v1",
+  "contract_id": "contract.gds.runtime_persistence.v1",
+  "version": "1.0.0",
+  "scope": "caller_owned_runtime_snapshot_save_load_and_deterministic_replay",
+  "runtime": "RUNTIME/runtime_persistence.py",
+  "api": [
+    "CentralGameCore.serialize_runtime_snapshot",
+    "CentralGameCore.deserialize_runtime_snapshot",
+    "CentralGameCore.build_runtime_replay",
+    "CentralGameCore.serialize_runtime_replay",
+    "CentralGameCore.replay_runtime_snapshot",
+    "CentralGameCore.replay_runtime_package"
+  ],
+  "snapshot_schema": "gds.runtime_snapshot.v1",
+  "replay_schema": "gds.runtime_replay.v1",
+  "storage_policy": {
+    "owner": "dashboard_or_calling_application",
+    "database_or_network": false,
+    "canonical_encoding": "utf8_json_sorted_keys_no_nan",
+    "hidden_process_state": false
+  },
+  "step_policy": {
+    "required": ["elapsed_ms", "actor_commands", "speech_commands", "dialogue_locale", "dialogue_seed"],
+    "commands_are_explicit": true,
+    "order": "list_order",
+    "result": "final_snapshot_and_ordered_event_trace"
+  }
+}

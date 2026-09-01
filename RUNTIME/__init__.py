@@ -13,6 +13,7 @@ from .runtime_presentation_host import (
     RuntimePresentationHostAdapter,
     RuntimePresentationHostError,
 )
+from .runtime_persistence import RuntimePersistence, RuntimePersistenceError
 
 __all__ = [
     'CentralGameCore',
@@ -32,4 +33,6 @@ __all__ = [
     'RuntimePresentationLoop',
     'RuntimePresentationHostAdapter',
     'RuntimePresentationHostError',
+    'RuntimePersistence',
+    'RuntimePersistenceError',
 ]

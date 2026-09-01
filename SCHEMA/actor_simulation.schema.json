@@ -49,7 +49,9 @@
         "CentralGameCore.resolve_actor_snapshot",
         "CentralGameCore.validate_actor_snapshot",
         "CentralGameCore.advance_actor_snapshot",
-        "CentralGameCore.resolve_actor_behavior_event"
+        "CentralGameCore.resolve_actor_behavior_event",
+        "CentralGameCore.apply_actor_emotion_effect",
+        "ActorSimulationCore.apply_emotion_effect"
       ]
     },
     "source_registries": {
@@ -373,7 +375,12 @@
         "recovery_profile_source",
         "home_trigger",
         "home_restore",
-        "home_delay_source"
+        "home_delay_source",
+        "critical_home_policy",
+        "tuning_status",
+        "normal_work_loop_ms",
+        "emotion_effect_display_delta",
+        "emotion_effect_milli_delta"
       ],
       "properties": {
         "storage_unit": {
@@ -438,6 +445,25 @@
         },
         "home_delay_source": {
           "const": "employee_metadata.employees[].stamina_profile.home_delay_seconds_range"
+        },
+        "critical_home_policy": {
+          "const": "queue_at_critical_then_finish_current_normal_work_loop"
+        },
+        "tuning_status": {
+          "const": "initial_runtime_tuning_author_review_pending"
+        },
+        "normal_work_loop_ms": {
+          "const": 720
+        },
+        "emotion_effect_display_delta": {
+          "type": "object", "additionalProperties": false,
+          "required": ["sad", "happy"],
+          "properties": {"sad": {"const": -1}, "happy": {"const": 2}}
+        },
+        "emotion_effect_milli_delta": {
+          "type": "object", "additionalProperties": false,
+          "required": ["sad", "happy"],
+          "properties": {"sad": {"const": -1000}, "happy": {"const": 2000}}
         }
       }
     },
@@ -507,7 +533,7 @@
           "const": "emit_once_per_band_crossing"
         },
         "critical_event_policy": {
-          "const": "request_or_force_going_home_according_to_runtime_command"
+          "const": "auto_queue_home_at_critical_then_finish_current_normal_work_loop"
         }
       }
     },
@@ -519,6 +545,7 @@
         "route_phases",
         "portal_fade_steps",
         "home_recovery_policy",
+        "critical_route_policy",
         "assignment_return_policy"
       ],
       "properties": {
@@ -543,6 +570,9 @@
         },
         "home_recovery_policy": {
           "const": "restore_full_stamina_at_portal_exit_then_wait_for_explicit_return"
+        },
+        "critical_route_policy": {
+          "const": "home_requested_event_is_emitted_at_normal_work_loop_boundary"
         },
         "assignment_return_policy": {
           "const": "same_owned_workstation_and_transition_gate"
@@ -580,7 +610,8 @@
             "simulation_tick",
             "character_frame",
             "effect_frame",
-            "humanball_frame"
+            "humanball_frame",
+            "normal_work_loop"
           ],
           "properties": {
             "simulation_tick": {
@@ -594,6 +625,9 @@
             },
             "humanball_frame": {
               "const": 240
+            },
+            "normal_work_loop": {
+              "const": 720
             }
           }
         }

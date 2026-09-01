@@ -56,7 +56,9 @@
       "CentralGameCore.resolve_actor_snapshot",
       "CentralGameCore.validate_actor_snapshot",
       "CentralGameCore.advance_actor_snapshot",
-      "CentralGameCore.resolve_actor_behavior_event"
+      "CentralGameCore.resolve_actor_behavior_event",
+      "CentralGameCore.apply_actor_emotion_effect",
+      "ActorSimulationCore.apply_emotion_effect"
     ],
     "snapshot_policy": "persistent_json_safe_state_in_state_out",
     "clock": {
@@ -65,12 +67,13 @@
     },
     "assignment_policy": "behavior_never_mutates_owned_workstation",
     "storage_policy": "caller_owned_no_database_or_network",
-    "routing_policy": "request_home_to_portal_exit_home_recovery_then_explicit_request_return_to_same_gate_and_workseat",
+    "routing_policy": "critical_stamina_queues_home_at_normal_work_loop_boundary_then_portal_exit_home_recovery_then_explicit_request_return_to_same_gate_and_workseat",
     "route_sample_policy": "walking_depth_owner_on_shared_60ms_tick",
     "presentation_bridge": {
       "event_source": "behavior_started.presentation",
       "channels": ["conversation", "vfx", "humanball", "movement"],
-      "independent_from_stamina": true
+      "independent_from_stamina": true,
+      "emotion_numeric_bridge": {"owner": "CentralGameCore.actor_snapshot", "sad": -1, "happy": 2}
     }
   },
   "speech_scheduler": {
@@ -104,6 +107,14 @@
       "presentation_schema": "gds.runtime_presentation_snapshot.v1",
       "command_policy": "actor_commands_and_speech_commands_are_explicitly_separate"
   },
+  "runtime_persistence": {
+      "contract": "CONTRACTS/runtime_persistence.json",
+      "runtime": "RUNTIME/runtime_persistence.py",
+      "snapshot_api": ["CentralGameCore.serialize_runtime_snapshot", "CentralGameCore.deserialize_runtime_snapshot"],
+      "replay_api": ["CentralGameCore.build_runtime_replay", "CentralGameCore.serialize_runtime_replay", "CentralGameCore.replay_runtime_snapshot", "CentralGameCore.replay_runtime_package"],
+      "storage_owner": "dashboard_or_calling_application",
+      "database_or_network": false
+  },
   "runtime_presentation": {
     "contract": "CONTRACTS/runtime_presentation.json",
     "schema": "SCHEMA/runtime_presentation.schema.json",
@@ -117,7 +128,7 @@
       "RuntimePresentationLoop.tick",
       "RuntimePresentationLoop.render_current"
     ],
-    "policy": "read_only_overlay_of_actor_state_speech_lane_and_conversation_tracks"
+    "policy": "read_only_overlay_of_actor_state_speech_lane_and_conversation_tracks; emotion_deltas_apply_through_actor_snapshot"
   },
   "dialogue_presentation": {
     "content_csv": "CHARACTER/DIALOGUE/dialogue.csv",
@@ -181,7 +192,7 @@
     "unknown_policy": "explicit_null_no_guessing"
   },
   "work_seat": {
-    "active_phase_unchanged": "single_character_movement_foundation; WorkSeat visual/gameplay contract preserved and runtime takeover remains Phase 8D",
+    "active_phase_unchanged": "single_character_movement_foundation; WorkSeat visual/gameplay contract preserved and actor runtime takeover is bound in Phase 8E",
     "chair_family_registry": "WORLD/REGISTRY/chair_families.json",
     "chair_runtime": "WORLD/RUNTIME/chair_family_core.py",
     "gameplay_anchor_policy": "Phase 7F fields remain separate/unpopulated by visual offsets",
@@ -325,7 +336,7 @@
     "raw_navigation_direction_preserved": true,
     "portal_spawn_fade": "not_in_8b",
     "portal_exit_despawn": "not_in_8b",
-    "work_seat_takeover": "phase8d_single_actor_lifecycle",
+    "work_seat_takeover": "phase8e_actor_stamina_and_presentation_loop",
     "final_depth_occlusion": "not_in_8b",
     "multi_character_avoidance": "not_in_8b"
   }

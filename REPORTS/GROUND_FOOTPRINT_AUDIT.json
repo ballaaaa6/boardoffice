@@ -11,7 +11,7 @@
     "footprint.reception.f1": 1,
     "footprint.reception.f2_plus": 23,
     "visual_only.chair_sub": 25,
-    "visual_only.pc": 50
+    "visual_only.pc": 150
   },
   "variant_coverage_counts": {
     "footprint.chair.standard": 61,
@@ -19,7 +19,7 @@
     "footprint.reception.f1": 1,
     "footprint.reception.f2_plus": 23,
     "visual_only.chair_sub": 3,
-    "visual_only.pc": 73
+    "visual_only.pc": 173
   },
   "errors": []
 }

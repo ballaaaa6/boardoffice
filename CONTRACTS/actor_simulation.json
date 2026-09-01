@@ -9,7 +9,9 @@
     "CentralGameCore.resolve_actor_snapshot",
     "CentralGameCore.validate_actor_snapshot",
     "CentralGameCore.advance_actor_snapshot",
-    "CentralGameCore.resolve_actor_behavior_event"
+    "CentralGameCore.resolve_actor_behavior_event",
+    "CentralGameCore.apply_actor_emotion_effect",
+    "ActorSimulationCore.apply_emotion_effect"
   ],
   "source_registries": {
     "employee_metadata": "CHARACTER/EMPLOYEES/employee_metadata.json",
@@ -208,7 +210,12 @@
     "recovery_profile_source": "employee_metadata.stamina_policy.recovery_events",
     "home_trigger": "stamina_lte_critical_threshold",
     "home_restore": "full_on_home",
-    "home_delay_source": "employee_metadata.employees[].stamina_profile.home_delay_seconds_range"
+    "home_delay_source": "employee_metadata.employees[].stamina_profile.home_delay_seconds_range",
+    "critical_home_policy": "queue_at_critical_then_finish_current_normal_work_loop",
+    "tuning_status": "initial_runtime_tuning_author_review_pending",
+    "normal_work_loop_ms": 720,
+    "emotion_effect_display_delta": {"sad": -1, "happy": 2},
+    "emotion_effect_milli_delta": {"sad": -1000, "happy": 2000}
   },
   "behavior": {
     "weighted_recovery_events": [
@@ -229,7 +236,7 @@
     "event_counter_scope": "per_actor_and_root",
     "visual_side_effect_policy": "visual_registry_metadata_never_mutates_stamina",
     "threshold_event_policy": "emit_once_per_band_crossing",
-    "critical_event_policy": "request_or_force_going_home_according_to_runtime_command"
+    "critical_event_policy": "auto_queue_home_at_critical_then_finish_current_normal_work_loop"
   },
   "routing": {
     "commands": [
@@ -246,6 +253,7 @@
     ],
     "portal_fade_steps": 4,
     "home_recovery_policy": "restore_full_stamina_at_portal_exit_then_wait_for_explicit_return",
+    "critical_route_policy": "home_requested_event_is_emitted_at_normal_work_loop_boundary",
     "assignment_return_policy": "same_owned_workstation_and_transition_gate"
   },
   "presentation": {
@@ -261,7 +269,8 @@
       "simulation_tick": 60,
       "character_frame": 360,
       "effect_frame": 240,
-      "humanball_frame": 240
+      "humanball_frame": 240,
+      "normal_work_loop": 720
     }
   },
   "assignment": {

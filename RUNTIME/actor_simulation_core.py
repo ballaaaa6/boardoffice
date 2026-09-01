@@ -35,6 +35,15 @@ class ActorSimulationCore:
     MAX_STAMINA_MILLI = 100000
     LOW_THRESHOLD_MILLI = 30000
     CRITICAL_THRESHOLD_MILLI = 10000
+    # The canonical ``normal_work`` action is two character frames.  With the
+    # approved 360ms character cadence, one complete work pose loop is 720ms.
+    # Critical actors finish this visual loop before the home route starts.
+    WORK_CHARACTER_FRAME_MS = 360
+    WORK_NORMAL_FRAME_COUNT = 2
+    WORK_LOOP_MS = WORK_CHARACTER_FRAME_MS * WORK_NORMAL_FRAME_COUNT
+    # Emotion outcomes are gameplay bonuses/penalties in display stamina
+    # units.  Keep the storage math integer and clamp at [0, max].
+    EMOTION_STAMINA_EFFECT_MILLI = {"sad": -1000, "happy": 2000}
     PRESENCE_VALUES = ("home", "entering", "present", "leaving")
     ACTIVITY_VALUES = (
         "walking_to_work",
@@ -120,6 +129,24 @@ class ActorSimulationCore:
         self._work_cycle_range = self.employee_registry.stamina_policy().get(
             "target_work_cycle_seconds_range", [120, 300]
         )
+        policy = self.employee_registry.stamina_policy()
+        if policy.get("tuning_status") != "initial_runtime_tuning_author_review_pending":
+            raise ActorSimulationError(
+                "Employee stamina policy must remain initial tuning until author review"
+            )
+        if int(policy.get("normal_work_loop_ms", self.WORK_LOOP_MS)) != self.WORK_LOOP_MS:
+            raise ActorSimulationError("Employee stamina policy has unexpected normal-work loop")
+        emotion_policy = policy.get("emotion_effects", {})
+        for emotion, expected in (("sad", -1000), ("happy", 2000)):
+            actual = (
+                emotion_policy.get(emotion, {}).get("milli_delta")
+                if isinstance(emotion_policy.get(emotion), dict)
+                else None
+            )
+            if int(actual or 0) != expected:
+                raise ActorSimulationError(
+                    f"Employee stamina policy has unexpected {emotion} emotion delta"
+                )
         if not self._selection_weights or sum(self._selection_weights.values()) != 100:
             raise ActorSimulationError("Actor simulation selection weights must sum to 100")
         if (
@@ -161,6 +188,43 @@ class ActorSimulationCore:
     @staticmethod
     def _threshold_rank(band: str) -> int:
         return {"normal": 2, "low": 1, "critical": 0}[band]
+
+    @classmethod
+    def _work_loop_elapsed(cls, actor: dict[str, Any]) -> int:
+        """Return the current normal-work animation phase in milliseconds."""
+        behavior = actor.get("behavior", {})
+        value = behavior.get("work_loop_elapsed_ms", 0)
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ActorSimulationError("work_loop_elapsed_ms must be an integer")
+        if value < 0 or value >= cls.WORK_LOOP_MS:
+            raise ActorSimulationError(
+                f"work_loop_elapsed_ms must be in [0, {cls.WORK_LOOP_MS})"
+            )
+        return int(value)
+
+    @classmethod
+    def _advance_work_loop(cls, actor: dict[str, Any], elapsed_ms: int) -> int:
+        """Advance the work-pose phase and return how many loop boundaries crossed."""
+        if elapsed_ms <= 0:
+            return 0
+        before = cls._work_loop_elapsed(actor)
+        total = before + int(elapsed_ms)
+        actor["behavior"]["work_loop_elapsed_ms"] = total % cls.WORK_LOOP_MS
+        return total // cls.WORK_LOOP_MS
+
+    @classmethod
+    def _next_work_loop_boundary_ms(
+        cls,
+        *,
+        timestamp_ms: int,
+        loop_elapsed_ms: int,
+    ) -> int:
+        """Return the next 720ms boundary at or after ``timestamp_ms``."""
+        elapsed = int(loop_elapsed_ms)
+        if elapsed < 0 or elapsed >= cls.WORK_LOOP_MS:
+            raise ActorSimulationError("Invalid normal-work loop phase")
+        remaining = cls.WORK_LOOP_MS - elapsed
+        return int(timestamp_ms) + remaining
 
     @staticmethod
     def _assignment_fields() -> tuple[str, ...]:
@@ -348,6 +412,94 @@ class ActorSimulationCore:
             "raw_direction": direction,
             "visibility_alpha": round(max(0.0, min(1.0, float(visibility_alpha))), 4),
         }
+
+    def _queue_critical_home(
+        self,
+        actor: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        boundary_ms: int | None = None,
+    ) -> int:
+        """Mark a working actor for a smooth home exit at a work-loop boundary."""
+        behavior = actor["behavior"]
+        if bool(behavior.get("pending_home")):
+            due = behavior.get("pending_home_due_ms")
+            if due is None:
+                raise ActorSimulationError(
+                    f"{actor['employee_id']}: pending home lacks a boundary timestamp"
+                )
+            return int(due)
+        loop_elapsed = self._work_loop_elapsed(actor)
+        due = (
+            int(boundary_ms)
+            if boundary_ms is not None
+            else self._next_work_loop_boundary_ms(
+                timestamp_ms=int(timestamp_ms),
+                loop_elapsed_ms=loop_elapsed,
+            )
+        )
+        if due < int(timestamp_ms):
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: home boundary precedes current time"
+            )
+        behavior["pending_home"] = True
+        behavior["pending_home_due_ms"] = due
+        return due
+
+    def _begin_home_route(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        events: list[dict[str, Any]],
+        reason: str = "explicit",
+        work_loop_completed: bool = False,
+    ) -> None:
+        """Start the authored gate-to-portal route, preserving assignment ownership."""
+        if actor["presence"] != "present" or actor["activity"] == "talking":
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: actor cannot begin home route in current state"
+            )
+        assignment = actor["assignment"]
+        floor_id = assignment["floor_id"]
+        gate = self._workseat_gate(assignment)
+        inside, _outside = self._portal_pair(floor_id)
+        path = self._route_path(floor_id, gate, inside)
+        actor["presence"] = "leaving"
+        actor["activity"] = "going_home"
+        actor["conversation_phase"] = None
+        actor["behavior"]["next_event_due_ms"] = None
+        actor["behavior"]["active_event"] = None
+        actor["behavior"]["pending_home"] = False
+        actor["behavior"]["pending_home_due_ms"] = None
+        actor["behavior"]["work_loop_elapsed_ms"] = 0
+        actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
+        actor["behavior"]["activity_until_ms"] = None
+        actor["last_event"] = "critical_home_requested" if reason == "stamina_critical" else "home_requested"
+        self._start_route(
+            actor,
+            employee,
+            phase="to_portal",
+            start_uv=gate,
+            target_uv=inside,
+            path=path,
+        )
+        payload: dict[str, Any] = {"assignment_retained": True}
+        if reason != "explicit" or work_loop_completed:
+            payload.update({
+                "reason": reason,
+                "work_loop_completed": bool(work_loop_completed),
+            })
+        self._append_event(
+            snapshot,
+            events,
+            timestamp_ms=int(timestamp_ms),
+            employee_id=actor["employee_id"],
+            event_type="home_requested",
+            **payload,
+        )
 
     def _home_recovery_delay_ms(self, employee: dict[str, Any], actor: dict[str, Any]) -> int:
         profile = self._profile(employee)
@@ -588,6 +740,9 @@ class ActorSimulationCore:
                 "activity_until_ms": None,
                 "active_event": None,
                 "cooldowns": {},
+                "work_loop_elapsed_ms": 0,
+                "pending_home": False,
+                "pending_home_due_ms": None,
             },
             "conversation_phase": None,
             "last_event": "initial",
@@ -640,9 +795,16 @@ class ActorSimulationCore:
             for employee_id in sorted(result["actors"])
         }
         for actor in result["actors"].values():
-            actor["behavior"]["cooldowns"] = {
-                key: actor["behavior"]["cooldowns"][key]
-                for key in sorted(actor["behavior"]["cooldowns"])
+            behavior = actor["behavior"]
+            # Snapshots created before the smooth critical-home contract did
+            # not carry these presentation-boundary fields.  Normalize them
+            # at the validation boundary so saved v1 snapshots remain loadable.
+            behavior.setdefault("work_loop_elapsed_ms", 0)
+            behavior.setdefault("pending_home", False)
+            behavior.setdefault("pending_home_due_ms", None)
+            behavior["cooldowns"] = {
+                key: behavior["cooldowns"][key]
+                for key in sorted(behavior["cooldowns"])
             }
         return result
 
@@ -762,6 +924,40 @@ class ActorSimulationCore:
                 behavior["activity_started_ms"],
                 f"{employee_id}.activity_started_ms",
             )
+            work_loop_elapsed_ms = self._require_int(
+                behavior.get("work_loop_elapsed_ms", 0),
+                f"{employee_id}.work_loop_elapsed_ms",
+            )
+            if work_loop_elapsed_ms >= self.WORK_LOOP_MS:
+                raise ActorSimulationError(
+                    f"{employee_id}: work_loop_elapsed_ms exceeds normal-work loop"
+                )
+            pending_home = behavior.get("pending_home", False)
+            if not isinstance(pending_home, bool):
+                raise ActorSimulationError(f"{employee_id}: pending_home must be boolean")
+            pending_home_due_ms = behavior.get("pending_home_due_ms")
+            if pending_home_due_ms is not None:
+                self._require_int(
+                    pending_home_due_ms,
+                    f"{employee_id}.pending_home_due_ms",
+                )
+            if pending_home:
+                if activity != "working":
+                    raise ActorSimulationError(
+                        f"{employee_id}: pending home is only valid while working"
+                    )
+                if pending_home_due_ms is None:
+                    raise ActorSimulationError(
+                        f"{employee_id}: pending home lacks a boundary timestamp"
+                    )
+                if int(pending_home_due_ms) < simulation_time_ms:
+                    raise ActorSimulationError(
+                        f"{employee_id}: pending home boundary is stale"
+                    )
+            elif pending_home_due_ms is not None:
+                raise ActorSimulationError(
+                    f"{employee_id}: home boundary exists without pending home"
+                )
             if behavior["activity_until_ms"] is not None:
                 if behavior["activity_until_ms"] < behavior["activity_started_ms"]:
                     raise ActorSimulationError(f"{employee_id}: activity window is reversed")
@@ -829,23 +1025,19 @@ class ActorSimulationCore:
         stamina = actor["stamina"]
         before = int(stamina["current_milli"])
         remainder_before = int(stamina["drain_remainder"])
-        numerator = rate * int(elapsed_ms) + remainder_before
-        drain, remainder = divmod(numerator, 1000)
-        stamina["current_milli"] = max(0, before - drain)
-        stamina["drain_remainder"] = remainder
+        loop_before = self._work_loop_elapsed(actor)
         previous_band = stamina["threshold_band"]
-        current_band = self._threshold_band(stamina["current_milli"])
-        stamina["threshold_band"] = current_band
-        actor["last_event"] = "work_tick"
-        if self._threshold_rank(current_band) < self._threshold_rank(previous_band):
-            crossed_bands: list[str] = []
-            if self._threshold_rank(previous_band) > self._threshold_rank("low") >= self._threshold_rank(current_band):
+        full_numerator = rate * int(elapsed_ms) + remainder_before
+        full_drain, _full_remainder = divmod(full_numerator, 1000)
+        full_after = max(0, before - full_drain)
+        full_band = self._threshold_band(full_after)
+        critical_crossing_elapsed: int | None = None
+        crossed_bands: list[str] = []
+        if self._threshold_rank(full_band) < self._threshold_rank(previous_band):
+            if self._threshold_rank(previous_band) > self._threshold_rank("low") >= self._threshold_rank(full_band):
                 crossed_bands.append("low")
-            if self._threshold_rank(previous_band) > self._threshold_rank("critical") >= self._threshold_rank(current_band):
+            if self._threshold_rank(previous_band) > self._threshold_rank("critical") >= self._threshold_rank(full_band):
                 crossed_bands.append("critical")
-            actor["last_event"] = f"{crossed_bands[-1]}_threshold"
-            if current_band == "critical":
-                actor["behavior"]["next_event_due_ms"] = None
             # Keep threshold crossings observable even when one large reducer
             # window skips over more than one band.  The timestamp is the
             # first millisecond at which the exact integer drain reaches the
@@ -873,6 +1065,56 @@ class ActorSimulationCore:
                     threshold_band=band,
                     stamina_milli=threshold_milli,
                 )
+                if band == "critical":
+                    critical_crossing_elapsed = crossing_elapsed
+        # Once critical is reached, stop gameplay drain at that exact
+        # crossing.  The remainder of a large host window advances only the
+        # normal-work presentation phase until the queued loop boundary; it
+        # must not keep consuming stamina while the actor is waiting to leave.
+        effective_elapsed = (
+            min(int(elapsed_ms), int(critical_crossing_elapsed))
+            if critical_crossing_elapsed is not None
+            else int(elapsed_ms)
+        )
+        numerator = rate * effective_elapsed + remainder_before
+        drain, remainder = divmod(numerator, 1000)
+        stamina["current_milli"] = max(0, before - drain)
+        stamina["drain_remainder"] = remainder
+        self._advance_work_loop(actor, effective_elapsed)
+        current_band = self._threshold_band(stamina["current_milli"])
+        stamina["threshold_band"] = current_band
+        actor["last_event"] = "work_tick"
+        if crossed_bands:
+            actor["last_event"] = f"{crossed_bands[-1]}_threshold"
+            if current_band == "critical":
+                actor["behavior"]["next_event_due_ms"] = None
+        if current_band == "critical":
+            # Critical is a visual/state boundary, not an abrupt animation
+            # stop.  Queue the home route at the first normal-work boundary
+            # after the crossing (or after the current time if already
+            # critical), while the actor keeps rendering normal_work.
+            crossing = critical_crossing_elapsed if critical_crossing_elapsed is not None else 0
+            phase_at_crossing = (loop_before + crossing) % self.WORK_LOOP_MS
+            boundary_offset = self.WORK_LOOP_MS - phase_at_crossing
+            if boundary_offset == self.WORK_LOOP_MS:
+                boundary_offset = 0
+            boundary_ms = int(start_ms) + crossing + boundary_offset
+            due = self._queue_critical_home(
+                actor,
+                timestamp_ms=int(start_ms) + crossing,
+                boundary_ms=boundary_ms,
+            )
+            self._append_event(
+                snapshot,
+                events,
+                timestamp_ms=int(start_ms) + crossing,
+                employee_id=actor["employee_id"],
+                event_type="home_queued",
+                reason="stamina_critical",
+                stamina_milli=int(stamina["current_milli"]),
+                finish_work_loop_at_ms=due,
+                work_loop_ms=self.WORK_LOOP_MS,
+            )
 
     def _path_pose(
         self,
@@ -1084,6 +1326,9 @@ class ActorSimulationCore:
                 "active_event": None,
                 "activity_started_ms": int(timestamp_ms),
                 "activity_until_ms": int(timestamp_ms) + self._home_recovery_delay_ms(employee, actor),
+                "work_loop_elapsed_ms": 0,
+                "pending_home": False,
+                "pending_home_due_ms": None,
             })
             actor["last_event"] = "home_recovered"
             self._append_event(
@@ -1188,6 +1433,9 @@ class ActorSimulationCore:
                 "active_event": None,
                 "activity_started_ms": int(timestamp_ms),
                 "activity_until_ms": None,
+                "work_loop_elapsed_ms": 0,
+                "pending_home": False,
+                "pending_home_due_ms": None,
             })
             actor["last_event"] = "return_requested"
             self._append_event(
@@ -1365,6 +1613,7 @@ class ActorSimulationCore:
         actor["presence"] = "present"
         actor["conversation_phase"] = None
         actor["behavior"]["active_event"] = None
+        actor["behavior"]["work_loop_elapsed_ms"] = 0
         actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
         actor["behavior"]["activity_until_ms"] = None
         actor["behavior"]["next_event_due_ms"] = self._schedule_next_event(
@@ -1384,6 +1633,123 @@ class ActorSimulationCore:
             stamina_after_milli=stamina["current_milli"],
             presentation_ended=True,
         )
+
+    def apply_emotion_effect(
+        self,
+        snapshot: dict[str, Any],
+        employee_id: str,
+        emotion: str,
+        *,
+        timestamp_ms: int | None = None,
+        source_session_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Apply one standing-pair emotion bonus/penalty to actor stamina.
+
+        Speech owns the deterministic ``sad``/``happy`` outcome, while this
+        reducer remains the sole owner of numeric stamina mutation.  The
+        operation is pure with respect to the caller's snapshot and emits a
+        JSON-safe event suitable for persistence/replay.
+        """
+        current = self.validate_snapshot(snapshot)
+        if not isinstance(employee_id, str) or not employee_id:
+            raise ActorSimulationError("employee_id is required")
+        if emotion not in self.EMOTION_STAMINA_EFFECT_MILLI:
+            raise ActorSimulationError(f"Unknown emotion stamina effect: {emotion!r}")
+        actor = current["actors"].get(employee_id)
+        if actor is None:
+            raise ActorSimulationError(f"Unknown or inactive employee: {employee_id!r}")
+        if timestamp_ms is None:
+            timestamp_ms = int(current["clock"]["simulation_time_ms"])
+        timestamp_ms = self._require_int(timestamp_ms, "timestamp_ms")
+        events: list[dict[str, Any]] = []
+        self._apply_emotion_effect_in_place(
+            current,
+            actor,
+            emotion,
+            timestamp_ms=timestamp_ms,
+            source_session_id=source_session_id,
+            events=events,
+        )
+        current = self.validate_snapshot(current)
+        return {"snapshot": current, "events": events}
+
+    def _apply_emotion_effect_in_place(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        emotion: str,
+        *,
+        timestamp_ms: int,
+        source_session_id: str | None,
+        events: list[dict[str, Any]],
+    ) -> None:
+        delta = int(self.EMOTION_STAMINA_EFFECT_MILLI[emotion])
+        stamina = actor["stamina"]
+        before = int(stamina["current_milli"])
+        after = max(0, min(self.MAX_STAMINA_MILLI, before + delta))
+        stamina["current_milli"] = after
+        stamina["threshold_band"] = self._threshold_band(after)
+        actor["last_event"] = f"emotion_{emotion}_{'bonus' if delta > 0 else 'penalty'}"
+        payload: dict[str, Any] = {
+            "emotion": emotion,
+            "effect_milli": delta,
+            "effect_display": delta / self.MILLI_SCALE,
+            "stamina_before_milli": before,
+            "stamina_after_milli": after,
+            "source": "speech_scheduler",
+        }
+        if source_session_id is not None:
+            payload["session_id"] = str(source_session_id)
+        self._append_event(
+            snapshot,
+            events,
+            timestamp_ms=int(timestamp_ms),
+            employee_id=actor["employee_id"],
+            event_type="stamina_emotion_effect",
+            **payload,
+        )
+        previous_band = self._threshold_band(before)
+        current_band = self._threshold_band(after)
+        if self._threshold_rank(current_band) < self._threshold_rank(previous_band):
+            for band, threshold_milli in (
+                ("low", self.LOW_THRESHOLD_MILLI),
+                ("critical", self.CRITICAL_THRESHOLD_MILLI),
+            ):
+                if self._threshold_rank(previous_band) > self._threshold_rank(band) >= self._threshold_rank(current_band):
+                    self._append_event(
+                        snapshot,
+                        events,
+                        timestamp_ms=int(timestamp_ms),
+                        employee_id=actor["employee_id"],
+                        event_type="threshold_crossed",
+                        threshold_band=band,
+                        stamina_milli=threshold_milli,
+                        source="emotion_effect",
+                    )
+        if (
+            current_band == "critical"
+            and actor["activity"] == "working"
+            and not actor["behavior"].get("pending_home", False)
+        ):
+            # The speech event may have occurred inside a large host advance;
+            # the state we are mutating is already at that advance's end.  Do
+            # not create a stale boundary in the past.
+            queue_timestamp = max(
+                int(timestamp_ms),
+                int(snapshot["clock"]["simulation_time_ms"]),
+            )
+            due = self._queue_critical_home(actor, timestamp_ms=queue_timestamp)
+            self._append_event(
+                snapshot,
+                events,
+                timestamp_ms=queue_timestamp,
+                employee_id=actor["employee_id"],
+                event_type="home_queued",
+                reason="stamina_critical",
+                stamina_milli=after,
+                finish_work_loop_at_ms=due,
+                work_loop_ms=self.WORK_LOOP_MS,
+            )
 
     def _advance_actor(
         self,
@@ -1414,7 +1780,49 @@ class ActorSimulationCore:
                 now_ms = advanced_to
                 continue
             if activity == "working":
-                if actor["stamina"]["threshold_band"] == "critical":
+                behavior = actor["behavior"]
+                if actor["stamina"]["threshold_band"] == "critical" and not behavior.get(
+                    "pending_home", False
+                ):
+                    due = self._queue_critical_home(actor, timestamp_ms=now_ms)
+                    self._append_event(
+                        snapshot,
+                        events,
+                        timestamp_ms=now_ms,
+                        employee_id=actor["employee_id"],
+                        event_type="home_queued",
+                        reason="stamina_critical",
+                        stamina_milli=int(actor["stamina"]["current_milli"]),
+                        finish_work_loop_at_ms=due,
+                        work_loop_ms=self.WORK_LOOP_MS,
+                    )
+                if behavior.get("pending_home", False):
+                    due = int(behavior["pending_home_due_ms"])
+                    if due <= now_ms:
+                        self._begin_home_route(
+                            snapshot,
+                            actor,
+                            employee,
+                            timestamp_ms=now_ms,
+                            events=events,
+                            reason="stamina_critical",
+                            work_loop_completed=True,
+                        )
+                        continue
+                    step_target = min(target_ms, due)
+                    self._advance_work_loop(actor, step_target - now_ms)
+                    now_ms = step_target
+                    if now_ms >= due:
+                        self._begin_home_route(
+                            snapshot,
+                            actor,
+                            employee,
+                            timestamp_ms=now_ms,
+                            events=events,
+                            reason="stamina_critical",
+                            work_loop_completed=True,
+                        )
+                        continue
                     break
                 due = actor["behavior"].get("next_event_due_ms")
                 if due is None:
@@ -1430,7 +1838,37 @@ class ActorSimulationCore:
                     events=events,
                 )
                 now_ms = boundary
-                if now_ms >= target_ms or actor["stamina"]["threshold_band"] == "critical":
+                if actor["behavior"].get("pending_home", False):
+                    home_due = int(actor["behavior"]["pending_home_due_ms"])
+                    if home_due <= now_ms:
+                        self._begin_home_route(
+                            snapshot,
+                            actor,
+                            employee,
+                            timestamp_ms=home_due,
+                            events=events,
+                            reason="stamina_critical",
+                            work_loop_completed=True,
+                        )
+                        now_ms = home_due
+                        continue
+                    if home_due <= target_ms:
+                        now_ms = home_due
+                        self._begin_home_route(
+                            snapshot,
+                            actor,
+                            employee,
+                            timestamp_ms=home_due,
+                            events=events,
+                            reason="stamina_critical",
+                            work_loop_completed=True,
+                        )
+                        continue
+                    if now_ms < target_ms:
+                        self._advance_work_loop(actor, target_ms - now_ms)
+                        now_ms = target_ms
+                    break
+                if now_ms >= target_ms:
                     break
                 event = self.choose_behavior_event(
                     actor["employee_id"],
@@ -1491,36 +1929,15 @@ class ActorSimulationCore:
         if command_type == "request_home":
             if actor["presence"] != "present" or actor["activity"] == "talking":
                 raise ActorSimulationError(f"{employee_id}: actor cannot request home in current state")
-            assignment = actor["assignment"]
-            floor_id = assignment["floor_id"]
-            gate = self._workseat_gate(assignment)
-            inside, _outside = self._portal_pair(floor_id)
-            path = self._route_path(floor_id, gate, inside)
-            actor["presence"] = "leaving"
-            actor["activity"] = "going_home"
-            actor["conversation_phase"] = None
-            actor["behavior"]["next_event_due_ms"] = None
-            actor["behavior"]["active_event"] = None
-            actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
-            actor["behavior"]["activity_until_ms"] = None
-            actor["last_event"] = "home_requested"
-            self._start_route(
+            # Explicit host requests retain their historical immediate route
+            # semantics.  Stamina-triggered requests use the smooth
+            # work-loop boundary path in _advance_actor.
+            self._begin_home_route(
+                snapshot,
                 actor,
                 self.employee_registry.get(employee_id),
-                phase="to_portal",
-                start_uv=gate,
-                target_uv=inside,
-                path=path,
-            )
-            # Keep this first command event backward-compatible: callers use
-            # it as the authoritative ownership-retention acknowledgement.
-            self._append_event(
-                snapshot,
-                events,
                 timestamp_ms=timestamp_ms,
-                employee_id=employee_id,
-                event_type="home_requested",
-                assignment_retained=True,
+                events=events,
             )
             return
         if command_type == "request_return":

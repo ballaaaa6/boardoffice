@@ -1,10 +1,10 @@
-# GDS CENTRAL GAME CORE v1.8.5
+# GDS CENTRAL GAME CORE — Phase 8E worktree
 
-> The current worktree contains the closed Phase 8D WorkSeat single-actor lifecycle implementation, author-approved with capacity-based five-floor visual QA and verified in a clean v1.8.5 package. It preserves the author-approved Phase 8B/8C navigation and portal foundation.
+> The accepted release remains v1.8.5 (Phase 8D). The current worktree continues Phase 8E: a deterministic actor/stamina loop, speech/presentation bridge, automatic critical-home finish-loop, canonical snapshot save/load/replay and a local web review host. It preserves the author-approved Phase 8B/8C navigation and portal foundation.
 
 ## Current status
 
-**PHASE 8D WORKSEAT LIFECYCLE / CLOSED — AUTHOR-APPROVED — CLEAN PACKAGE VERIFIED — 2026-08-31**
+**PHASE 8E RUNTIME SLICE / IMPLEMENTED — AUTHOR VISUAL/BEHAVIOR ACCEPTANCE PENDING — 2026-09-01**
 
 ## Navigation formula
 
@@ -45,6 +45,14 @@ F0 and F1 remain unique. All 23 floors using `layout.floor02.large` now resolve 
 - deterministic crowd movement planning from synchronized head trajectories; trail overlap is allowed, alternate routes are tried, and no actor waits after spawn
 - deterministic WorkSeat actor cycle from reachable gate to workstation and back: `walking_to_seat → approach → seated_work → exit_seat → walking_from_seat`
 - explicit action semantics: directional `idle`/`move`/seated `work`, plus directionless `sad`/`happy` event emotions
+
+## Phase 8E runtime review
+
+- `RUNTIME/actor_simulation_core.py` owns persistent JSON-safe stamina and actor state. A critical/depleted actor remains in `work/normal_work` until the 720ms loop boundary, then emits automatic `home_requested` and follows the existing portal/home/return route.
+- Standing-pair emotions apply deterministic numeric bonuses: `sad -1` and `happy +2` display stamina (`-1000/+2000` milli), clamped by the actor reducer.
+- The drain/recovery ranges are explicitly marked `initial_runtime_tuning_author_review_pending`; gameplay observation must approve any final values.
+- `RUNTIME/runtime_persistence.py` and the `CentralGameCore.serialize/deserialize/replay_runtime_*` APIs provide caller-owned snapshot save/load and explicit-step deterministic replay.
+- Run `python TOOLS/runtime_review_server.py` and open `http://127.0.0.1:8765/` to inspect the worknormal → critical queue → loop boundary → home route, save/load and replay controls. This is a review host; it is not the production dashboard.
 
 ## F2/F2+ Reception lock
 
@@ -100,4 +108,4 @@ F2 is canonical for 23 F2+ floors, so the editor shows that family impact before
 
 ## Next milestone
 
-**Phase 8D — WorkSeat runtime lifecycle:** closed and author-approved with one actor per authored computer in the five-floor QA; v1.8.5 clean release is verified.
+**Phase 8E — external app embedding and author acceptance:** runtime implementation and local review host are ready; embed the host adapter in the real participant loop, perform visual/behavior acceptance, then package a fresh release.

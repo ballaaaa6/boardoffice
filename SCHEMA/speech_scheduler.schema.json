@@ -69,14 +69,25 @@
     },
     "emotion": {
       "type": "object", "additionalProperties": false,
-      "required": ["standing_pair_only", "roll_scope", "even_result", "odd_result", "hold_ms", "stamina_effect", "return_after_emotion"],
+      "required": ["standing_pair_only", "roll_scope", "even_result", "odd_result", "hold_ms", "stamina_effect", "stamina_effect_display_delta", "stamina_effect_milli_delta", "stamina_effect_owner", "return_after_emotion"],
       "properties": {
         "standing_pair_only": {"const": true},
         "roll_scope": {"const": "one_shared_roll_per_completed_standing_pair"},
         "even_result": {"const": "happy"},
         "odd_result": {"const": "sad"},
         "hold_ms": {"const": 1200},
-        "stamina_effect": {"const": "external_hook_no_numeric_delta_yet"},
+        "stamina_effect": {"const": "actor_snapshot_numeric_delta"},
+        "stamina_effect_display_delta": {
+          "type": "object", "additionalProperties": false,
+          "required": ["sad", "happy"],
+          "properties": {"sad": {"const": -1}, "happy": {"const": 2}}
+        },
+        "stamina_effect_milli_delta": {
+          "type": "object", "additionalProperties": false,
+          "required": ["sad", "happy"],
+          "properties": {"sad": {"const": -1000}, "happy": {"const": 2000}}
+        },
+        "stamina_effect_owner": {"const": "CentralGameCore.actor_snapshot"},
         "return_after_emotion": {"const": true}
       }
     },

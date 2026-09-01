@@ -45,6 +45,8 @@
     "standing_pair_only": true,
     "outcome": "shared_d6_even_happy_odd_sad",
     "hold_ms": 1200,
-    "numeric_stamina_delta": "external_hook_not_yet_tuned"
+    "numeric_stamina_delta": {"sad": -1, "happy": 2},
+    "numeric_stamina_delta_unit": "display_stamina",
+    "numeric_stamina_owner": "CentralGameCore.actor_snapshot"
   }
 }

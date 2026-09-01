@@ -799,7 +799,8 @@ class SpeechSchedulerCore:
             "conversation_plan": self._copy(plan) if plan is not None else None,
             "emotion_outcome": None,
             "emotion_hold_ms": 0,
-            "stamina_effect_hook": "external_hook_no_numeric_delta_yet",
+            "stamina_effect_hook": "actor_snapshot_numeric_delta",
+            "stamina_effect_milli_by_emotion": {"sad": -1000, "happy": 2000},
             "bubble_started": False,
             "bubble_start_event_emitted": False,
         }
@@ -992,7 +993,8 @@ class SpeechSchedulerCore:
                 session_id=session_id,
                 emotion=emotion,
                 participants=participants,
-                stamina_effect_hook="external_hook_no_numeric_delta_yet",
+                stamina_effect_hook="actor_snapshot_numeric_delta",
+                stamina_effect_milli_by_emotion={"sad": -1000, "happy": 2000},
                 pose_bindings=emotion_pose_bindings,
             )
         else:

@@ -150,6 +150,13 @@ def test_runtime_renderer_paints_shared_emotion_and_return_window():
     emotion = next(
         event for event in completed["speech_events"] if event["type"] == "emotion_started"
     )
+    numeric_effects = {
+        event["employee_id"]: event["effect_milli"]
+        for event in completed["actor_events"]
+        if event["type"] == "stamina_emotion_effect"
+    }
+    assert set(emotion["participants"]) <= set(numeric_effects)
+    assert set(numeric_effects.values()) == ({2000} if emotion["emotion"] == "happy" else {-1000})
     renderer = RuntimePresentationRenderer(core)
     image, presentation = renderer.render_runtime_snapshot(
         completed,
@@ -166,6 +173,36 @@ def test_runtime_renderer_paints_shared_emotion_and_return_window():
         event["type"] == "return_requested"
         for event in returned["speech_events"]
     )
+
+
+def test_runtime_loop_keeps_critical_actor_in_worknormal_until_loop_boundary():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    employee_id, _second_employee, _ceo = _ids(core)
+    actor = runtime["actor_snapshot"]["actors"][employee_id]
+    actor["stamina"].update({
+        "current_milli": 5000,
+        "threshold_band": "critical",
+        "drain_remainder": 0,
+    })
+    actor["behavior"].update({
+        "next_event_due_ms": 10**9,
+        "work_loop_elapsed_ms": 0,
+        "pending_home": False,
+        "pending_home_due_ms": None,
+    })
+    loop = RuntimePresentationLoop(core, runtime_snapshot=runtime, floor_id="floor02")
+    held = loop.tick(360)
+    row = held["presentation"]["actors"][employee_id]
+    assert row["action"] == "work"
+    assert row["subaction"] == "normal_work"
+    assert held["runtime_snapshot"]["actor_snapshot"]["actors"][employee_id]["behavior"]["pending_home"] is True
+
+    left = loop.tick(360)
+    left_row = left["presentation"]["actors"][employee_id]
+    assert left_row["action"] == "move"
+    assert left_row["render_owner"] == "walking_depth"
+    assert any(event["type"] == "home_requested" for event in left["actor_events"])
 
 
 def test_lifecycle_bubble_preserves_departure_route_instead_of_seating_actor():

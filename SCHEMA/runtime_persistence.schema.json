@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.runtime_persistence.v1",
+  "title": "GDS runtime persistence contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema", "contract_id", "version", "scope", "runtime", "api", "snapshot_schema", "replay_schema", "storage_policy", "step_policy"],
+  "properties": {
+    "$schema": {"const": "gds.runtime_persistence.v1"},
+    "schema": {"const": "gds.runtime_persistence.v1"},
+    "contract_id": {"const": "contract.gds.runtime_persistence.v1"},
+    "version": {"const": "1.0.0"},
+    "scope": {"const": "caller_owned_runtime_snapshot_save_load_and_deterministic_replay"},
+    "runtime": {"const": "RUNTIME/runtime_persistence.py"},
+    "api": {
+      "const": [
+        "CentralGameCore.serialize_runtime_snapshot",
+        "CentralGameCore.deserialize_runtime_snapshot",
+        "CentralGameCore.build_runtime_replay",
+        "CentralGameCore.serialize_runtime_replay",
+        "CentralGameCore.replay_runtime_snapshot",
+        "CentralGameCore.replay_runtime_package"
+      ]
+    },
+    "snapshot_schema": {"const": "gds.runtime_snapshot.v1"},
+    "replay_schema": {"const": "gds.runtime_replay.v1"},
+    "storage_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["owner", "database_or_network", "canonical_encoding", "hidden_process_state"],
+      "properties": {
+        "owner": {"const": "dashboard_or_calling_application"},
+        "database_or_network": {"const": false},
+        "canonical_encoding": {"const": "utf8_json_sorted_keys_no_nan"},
+        "hidden_process_state": {"const": false}
+      }
+    },
+    "step_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required", "commands_are_explicit", "order", "result"],
+      "properties": {
+        "required": {"const": ["elapsed_ms", "actor_commands", "speech_commands", "dialogue_locale", "dialogue_seed"]},
+        "commands_are_explicit": {"const": true},
+        "order": {"const": "list_order"},
+        "result": {"const": "final_snapshot_and_ordered_event_trace"}
+      }
+    }
+  }
+}

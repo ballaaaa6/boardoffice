@@ -203,4 +203,5 @@ def test_actor_simulation_contract_declares_route_and_presentation_bridges():
         "character_frame": 360,
         "effect_frame": 240,
         "humanball_frame": 240,
+        "normal_work_loop": 720,
     }

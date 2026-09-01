@@ -388,6 +388,21 @@
             "type": "integer",
             "minimum": 0
           }
+        },
+        "work_loop_elapsed_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 719
+        },
+        "pending_home": {
+          "type": "boolean"
+        },
+        "pending_home_due_ms": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
         }
       }
     },
@@ -481,7 +496,10 @@
             "home_requested",
             "home_recovered",
             "return_requested",
-            "conversation_cancelled"
+            "conversation_cancelled",
+            "critical_home_requested",
+            "emotion_happy_bonus",
+            "emotion_sad_penalty"
           ]
         }
       },

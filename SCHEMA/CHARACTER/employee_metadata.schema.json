@@ -256,6 +256,10 @@
         "stamina_max",
         "critical_threshold",
         "target_work_cycle_seconds_range",
+        "tuning_status",
+        "normal_work_loop_ms",
+        "critical_home_policy",
+        "emotion_effects",
         "work_drain_unit",
         "per_employee_work_drain_range",
         "recovery_operation",
@@ -278,6 +282,35 @@
         },
         "target_work_cycle_seconds_range": {
           "$ref": "#/$defs/positive_range"
+        },
+        "tuning_status": {
+          "const": "initial_runtime_tuning_author_review_pending"
+        },
+        "normal_work_loop_ms": {
+          "const": 720
+        },
+        "critical_home_policy": {
+          "const": "queue_at_critical_then_finish_current_normal_work_loop"
+        },
+        "emotion_effects": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sad", "happy", "owner"],
+          "properties": {
+            "sad": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["display_delta", "milli_delta"],
+              "properties": {"display_delta": {"const": -1}, "milli_delta": {"const": -1000}}
+            },
+            "happy": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["display_delta", "milli_delta"],
+              "properties": {"display_delta": {"const": 2}, "milli_delta": {"const": 2000}}
+            },
+            "owner": {"const": "CentralGameCore.actor_snapshot"}
+          }
         },
         "work_drain_unit": {
           "const": "milli_stamina_per_second"
@@ -350,7 +383,7 @@
               "const": "same_owned_workstation"
             },
             "runtime_status": {
-              "const": "pending_home_return_system"
+              "const": "implemented_runtime_binding"
             }
           }
         },

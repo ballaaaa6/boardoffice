@@ -64,7 +64,9 @@
       "even": "happy",
       "odd": "sad",
       "hold_ms": 1200,
-      "stamina_effect": "external_hook_no_numeric_delta_yet",
+      "stamina_effect": "actor_snapshot_numeric_delta",
+      "stamina_effect_display_delta": {"sad": -1, "happy": 2},
+      "stamina_effect_milli_delta": {"sad": -1000, "happy": 2000},
       "return_after": true
     }
   },
