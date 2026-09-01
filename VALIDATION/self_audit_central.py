@@ -32,6 +32,53 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
     refs = _load(root / 'VALIDATION' / 'reference_hashes.json')
     core = CentralGameCore(root)
 
+    pc_animation_registry = core.world.pc_animation
+    pc_animation_errors: list[dict[str, Any]] = []
+    pc_animation_family_count = len(pc_animation_registry.get('families', {}))
+    pc_animation_frame_count = 0
+    for family_id, family in pc_animation_registry.get('families', {}).items():
+        if family.get('family_id') != family_id:
+            pc_animation_errors.append({
+                'family_id': family_id,
+                'error': 'family_id_mismatch',
+            })
+        static_asset_id = family.get('static_asset_id')
+        animated_asset_ids = list(family.get('animated_asset_ids', []))
+        expected_assets = [
+            static_asset_id,
+            *animated_asset_ids,
+        ]
+        if len(animated_asset_ids) != 5:
+            pc_animation_errors.append({
+                'family_id': family_id,
+                'error': 'animated_frame_count',
+                'actual': len(animated_asset_ids),
+            })
+        pc_animation_frame_count += len(animated_asset_ids)
+        for asset_id in expected_assets:
+            if asset_id not in core.world.assets:
+                pc_animation_errors.append({
+                    'family_id': family_id,
+                    'asset_id': asset_id,
+                    'error': 'missing_asset',
+                })
+                continue
+            try:
+                image = core.world.load_asset(asset_id)
+                expected_hash = core.world.assets[asset_id]['rgba_sha256']
+                if rgba_sha256(image) != expected_hash:
+                    pc_animation_errors.append({
+                        'family_id': family_id,
+                        'asset_id': asset_id,
+                        'error': 'rgba_hash_mismatch',
+                    })
+            except Exception as exc:
+                pc_animation_errors.append({
+                    'family_id': family_id,
+                    'asset_id': asset_id,
+                    'error': repr(exc),
+                })
+
     # Room-navigation canonicalization evolves the coordinate-frame grid contract. All other
     # Phase 5 payload files remain byte-exact against the frozen references.
     evolved_payload_files = {
@@ -71,6 +118,12 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'SCHEMA/WORLD/character_direction_bridge.schema.json',
         'SCHEMA/work_pose_profiles.schema.json',
         'WORLD/REGISTRY/character_direction_bridge.json',
+        # PC work-frame animation adds recovered source-sheet cells and a
+        # direction-aware runtime mapping; authored floor placement geometry is
+        # unchanged.
+        'WORLD/REGISTRY/visual_variants.json',
+        'WORLD/REGISTRY/pc_animation.json',
+        'WORLD/RUNTIME/layout_core.py',
         # Phase 8E dialogue presentation adds public runtime exports while
         # leaving the frozen character/world payloads unchanged.
         'CHARACTER/RUNTIME/__init__.py',
@@ -104,6 +157,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         ('SCHEMA/IDENTITY/identity_alias_index.schema.json', 'CHARACTER/IDENTITY/CHARACTERS/identity_alias_index.json'),
         ('SCHEMA/WORLD/world_assets.schema.json', 'WORLD/REGISTRY/world_assets.json'),
         ('SCHEMA/WORLD/visual_variants.schema.json', 'WORLD/REGISTRY/visual_variants.json'),
+        ('SCHEMA/WORLD/pc_animation.schema.json', 'WORLD/REGISTRY/pc_animation.json'),
         ('SCHEMA/WORLD/coordinate_frames.schema.json', 'WORLD/REGISTRY/coordinate_frames.json'),
         ('SCHEMA/WORLD/layouts.schema.json', 'WORLD/REGISTRY/layouts.json'),
         ('SCHEMA/WORLD/floor_skins.schema.json', 'WORLD/REGISTRY/floor_skins.json'),
@@ -235,6 +289,9 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'employee_wave1': len(employee_wave1),
         'employee_wave2': len(employee_wave2),
         'employee_initial_roster': len(employee_initial_roster),
+        'pc_animation_families': pc_animation_family_count,
+        'pc_animation_frames': pc_animation_frame_count,
+        'pc_animation_errors': len(pc_animation_errors),
         'payload_hash_files': len(refs['payload_files']),
         'payload_hash_mismatches': len(payload_mismatches),
         'payload_missing': len(payload_missing),
@@ -260,6 +317,11 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         ),
         'employee_initial_roster_exact': len(employee_initial_roster) == 219,
         'integrated_smoke': all(row.get('ok') for row in integrated_smoke.values()),
+        'pc_animation_registry_exact': (
+            pc_animation_family_count == 25
+            and pc_animation_frame_count == 125
+            and not pc_animation_errors
+        ),
         'world_raw_omitted': not lean['world_raw_present'],
         'no_materialized_floor_cache': not lean['materialized_floor_cache_present'],
     }
@@ -277,6 +339,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'floor_errors': floor_errors[:20],
         'workstation_errors': workstation_errors[:20],
         'integrated_smoke': integrated_smoke,
+        'pc_animation_errors': pc_animation_errors[:20],
         'sources': refs['source_zip_sha256'],
     }
     if write_report:

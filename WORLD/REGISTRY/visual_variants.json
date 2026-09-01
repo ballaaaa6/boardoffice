@@ -2430,6 +2430,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_000.slot_01@normal"
     },
+    "pc_000.slot_02@normal": {
+      "asset_id": "pc_000.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_000.slot_02@normal"
+    },
+    "pc_000.slot_03@normal": {
+      "asset_id": "pc_000.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_000.slot_03@normal"
+    },
+    "pc_000.slot_04@normal": {
+      "asset_id": "pc_000.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_000.slot_04@normal"
+    },
+    "pc_000.slot_05@normal": {
+      "asset_id": "pc_000.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_000.slot_05@normal"
+    },
     "pc_001.slot_00@normal": {
       "asset_id": "pc_001.slot_00",
       "semantic_type": "pc",
@@ -2441,6 +2465,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_001.slot_01@normal"
+    },
+    "pc_001.slot_02@normal": {
+      "asset_id": "pc_001.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_001.slot_02@normal"
+    },
+    "pc_001.slot_03@normal": {
+      "asset_id": "pc_001.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_001.slot_03@normal"
+    },
+    "pc_001.slot_04@normal": {
+      "asset_id": "pc_001.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_001.slot_04@normal"
+    },
+    "pc_001.slot_05@normal": {
+      "asset_id": "pc_001.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_001.slot_05@normal"
     },
     "pc_002.slot_00@flip_x": {
       "asset_id": "pc_002.slot_00",
@@ -2460,6 +2508,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_002.slot_01@normal"
     },
+    "pc_002.slot_02@normal": {
+      "asset_id": "pc_002.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_002.slot_02@normal"
+    },
+    "pc_002.slot_03@normal": {
+      "asset_id": "pc_002.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_002.slot_03@normal"
+    },
+    "pc_002.slot_04@normal": {
+      "asset_id": "pc_002.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_002.slot_04@normal"
+    },
+    "pc_002.slot_05@normal": {
+      "asset_id": "pc_002.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_002.slot_05@normal"
+    },
     "pc_003.slot_00@flip_x": {
       "asset_id": "pc_003.slot_00",
       "semantic_type": "pc",
@@ -2477,6 +2549,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_003.slot_01@normal"
+    },
+    "pc_003.slot_02@normal": {
+      "asset_id": "pc_003.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_003.slot_02@normal"
+    },
+    "pc_003.slot_03@normal": {
+      "asset_id": "pc_003.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_003.slot_03@normal"
+    },
+    "pc_003.slot_04@normal": {
+      "asset_id": "pc_003.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_003.slot_04@normal"
+    },
+    "pc_003.slot_05@normal": {
+      "asset_id": "pc_003.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_003.slot_05@normal"
     },
     "pc_004.slot_00@flip_x": {
       "asset_id": "pc_004.slot_00",
@@ -2496,6 +2592,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_004.slot_01@normal"
     },
+    "pc_004.slot_02@normal": {
+      "asset_id": "pc_004.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_004.slot_02@normal"
+    },
+    "pc_004.slot_03@normal": {
+      "asset_id": "pc_004.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_004.slot_03@normal"
+    },
+    "pc_004.slot_04@normal": {
+      "asset_id": "pc_004.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_004.slot_04@normal"
+    },
+    "pc_004.slot_05@normal": {
+      "asset_id": "pc_004.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_004.slot_05@normal"
+    },
     "pc_005.slot_00@flip_x": {
       "asset_id": "pc_005.slot_00",
       "semantic_type": "pc",
@@ -2513,6 +2633,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_005.slot_01@normal"
+    },
+    "pc_005.slot_02@normal": {
+      "asset_id": "pc_005.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_005.slot_02@normal"
+    },
+    "pc_005.slot_03@normal": {
+      "asset_id": "pc_005.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_005.slot_03@normal"
+    },
+    "pc_005.slot_04@normal": {
+      "asset_id": "pc_005.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_005.slot_04@normal"
+    },
+    "pc_005.slot_05@normal": {
+      "asset_id": "pc_005.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_005.slot_05@normal"
     },
     "pc_006.slot_00@flip_x": {
       "asset_id": "pc_006.slot_00",
@@ -2532,6 +2676,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_006.slot_01@normal"
     },
+    "pc_006.slot_02@normal": {
+      "asset_id": "pc_006.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_006.slot_02@normal"
+    },
+    "pc_006.slot_03@normal": {
+      "asset_id": "pc_006.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_006.slot_03@normal"
+    },
+    "pc_006.slot_04@normal": {
+      "asset_id": "pc_006.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_006.slot_04@normal"
+    },
+    "pc_006.slot_05@normal": {
+      "asset_id": "pc_006.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_006.slot_05@normal"
+    },
     "pc_007.slot_00@flip_x": {
       "asset_id": "pc_007.slot_00",
       "semantic_type": "pc",
@@ -2549,6 +2717,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_007.slot_01@normal"
+    },
+    "pc_007.slot_02@normal": {
+      "asset_id": "pc_007.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_007.slot_02@normal"
+    },
+    "pc_007.slot_03@normal": {
+      "asset_id": "pc_007.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_007.slot_03@normal"
+    },
+    "pc_007.slot_04@normal": {
+      "asset_id": "pc_007.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_007.slot_04@normal"
+    },
+    "pc_007.slot_05@normal": {
+      "asset_id": "pc_007.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_007.slot_05@normal"
     },
     "pc_008.slot_00@flip_x": {
       "asset_id": "pc_008.slot_00",
@@ -2568,6 +2760,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_008.slot_01@normal"
     },
+    "pc_008.slot_02@normal": {
+      "asset_id": "pc_008.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_008.slot_02@normal"
+    },
+    "pc_008.slot_03@normal": {
+      "asset_id": "pc_008.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_008.slot_03@normal"
+    },
+    "pc_008.slot_04@normal": {
+      "asset_id": "pc_008.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_008.slot_04@normal"
+    },
+    "pc_008.slot_05@normal": {
+      "asset_id": "pc_008.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_008.slot_05@normal"
+    },
     "pc_009.slot_00@flip_x": {
       "asset_id": "pc_009.slot_00",
       "semantic_type": "pc",
@@ -2585,6 +2801,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_009.slot_01@normal"
+    },
+    "pc_009.slot_02@normal": {
+      "asset_id": "pc_009.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_009.slot_02@normal"
+    },
+    "pc_009.slot_03@normal": {
+      "asset_id": "pc_009.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_009.slot_03@normal"
+    },
+    "pc_009.slot_04@normal": {
+      "asset_id": "pc_009.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_009.slot_04@normal"
+    },
+    "pc_009.slot_05@normal": {
+      "asset_id": "pc_009.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_009.slot_05@normal"
     },
     "pc_011.slot_00@flip_x": {
       "asset_id": "pc_011.slot_00",
@@ -2604,6 +2844,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_011.slot_01@normal"
     },
+    "pc_011.slot_02@normal": {
+      "asset_id": "pc_011.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_011.slot_02@normal"
+    },
+    "pc_011.slot_03@normal": {
+      "asset_id": "pc_011.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_011.slot_03@normal"
+    },
+    "pc_011.slot_04@normal": {
+      "asset_id": "pc_011.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_011.slot_04@normal"
+    },
+    "pc_011.slot_05@normal": {
+      "asset_id": "pc_011.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_011.slot_05@normal"
+    },
     "pc_012.slot_00@flip_x": {
       "asset_id": "pc_012.slot_00",
       "semantic_type": "pc",
@@ -2621,6 +2885,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_012.slot_01@normal"
+    },
+    "pc_012.slot_02@normal": {
+      "asset_id": "pc_012.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_012.slot_02@normal"
+    },
+    "pc_012.slot_03@normal": {
+      "asset_id": "pc_012.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_012.slot_03@normal"
+    },
+    "pc_012.slot_04@normal": {
+      "asset_id": "pc_012.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_012.slot_04@normal"
+    },
+    "pc_012.slot_05@normal": {
+      "asset_id": "pc_012.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_012.slot_05@normal"
     },
     "pc_013.slot_00@flip_x": {
       "asset_id": "pc_013.slot_00",
@@ -2640,6 +2928,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_013.slot_01@normal"
     },
+    "pc_013.slot_02@normal": {
+      "asset_id": "pc_013.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_013.slot_02@normal"
+    },
+    "pc_013.slot_03@normal": {
+      "asset_id": "pc_013.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_013.slot_03@normal"
+    },
+    "pc_013.slot_04@normal": {
+      "asset_id": "pc_013.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_013.slot_04@normal"
+    },
+    "pc_013.slot_05@normal": {
+      "asset_id": "pc_013.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_013.slot_05@normal"
+    },
     "pc_014.slot_00@flip_x": {
       "asset_id": "pc_014.slot_00",
       "semantic_type": "pc",
@@ -2657,6 +2969,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_014.slot_01@normal"
+    },
+    "pc_014.slot_02@normal": {
+      "asset_id": "pc_014.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_014.slot_02@normal"
+    },
+    "pc_014.slot_03@normal": {
+      "asset_id": "pc_014.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_014.slot_03@normal"
+    },
+    "pc_014.slot_04@normal": {
+      "asset_id": "pc_014.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_014.slot_04@normal"
+    },
+    "pc_014.slot_05@normal": {
+      "asset_id": "pc_014.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_014.slot_05@normal"
     },
     "pc_015.slot_00@flip_x": {
       "asset_id": "pc_015.slot_00",
@@ -2676,6 +3012,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_015.slot_01@normal"
     },
+    "pc_015.slot_02@normal": {
+      "asset_id": "pc_015.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_015.slot_02@normal"
+    },
+    "pc_015.slot_03@normal": {
+      "asset_id": "pc_015.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_015.slot_03@normal"
+    },
+    "pc_015.slot_04@normal": {
+      "asset_id": "pc_015.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_015.slot_04@normal"
+    },
+    "pc_015.slot_05@normal": {
+      "asset_id": "pc_015.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_015.slot_05@normal"
+    },
     "pc_016.slot_00@flip_x": {
       "asset_id": "pc_016.slot_00",
       "semantic_type": "pc",
@@ -2693,6 +3053,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_016.slot_01@normal"
+    },
+    "pc_016.slot_02@normal": {
+      "asset_id": "pc_016.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_016.slot_02@normal"
+    },
+    "pc_016.slot_03@normal": {
+      "asset_id": "pc_016.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_016.slot_03@normal"
+    },
+    "pc_016.slot_04@normal": {
+      "asset_id": "pc_016.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_016.slot_04@normal"
+    },
+    "pc_016.slot_05@normal": {
+      "asset_id": "pc_016.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_016.slot_05@normal"
     },
     "pc_017.slot_00@flip_x": {
       "asset_id": "pc_017.slot_00",
@@ -2712,6 +3096,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_017.slot_01@normal"
     },
+    "pc_017.slot_02@normal": {
+      "asset_id": "pc_017.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_017.slot_02@normal"
+    },
+    "pc_017.slot_03@normal": {
+      "asset_id": "pc_017.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_017.slot_03@normal"
+    },
+    "pc_017.slot_04@normal": {
+      "asset_id": "pc_017.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_017.slot_04@normal"
+    },
+    "pc_017.slot_05@normal": {
+      "asset_id": "pc_017.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_017.slot_05@normal"
+    },
     "pc_018.slot_00@flip_x": {
       "asset_id": "pc_018.slot_00",
       "semantic_type": "pc",
@@ -2729,6 +3137,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_018.slot_01@normal"
+    },
+    "pc_018.slot_02@normal": {
+      "asset_id": "pc_018.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_018.slot_02@normal"
+    },
+    "pc_018.slot_03@normal": {
+      "asset_id": "pc_018.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_018.slot_03@normal"
+    },
+    "pc_018.slot_04@normal": {
+      "asset_id": "pc_018.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_018.slot_04@normal"
+    },
+    "pc_018.slot_05@normal": {
+      "asset_id": "pc_018.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_018.slot_05@normal"
     },
     "pc_019.slot_00@flip_x": {
       "asset_id": "pc_019.slot_00",
@@ -2748,6 +3180,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_019.slot_01@normal"
     },
+    "pc_019.slot_02@normal": {
+      "asset_id": "pc_019.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_019.slot_02@normal"
+    },
+    "pc_019.slot_03@normal": {
+      "asset_id": "pc_019.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_019.slot_03@normal"
+    },
+    "pc_019.slot_04@normal": {
+      "asset_id": "pc_019.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_019.slot_04@normal"
+    },
+    "pc_019.slot_05@normal": {
+      "asset_id": "pc_019.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_019.slot_05@normal"
+    },
     "pc_021.slot_00@flip_x": {
       "asset_id": "pc_021.slot_00",
       "semantic_type": "pc",
@@ -2765,6 +3221,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_021.slot_01@normal"
+    },
+    "pc_021.slot_02@normal": {
+      "asset_id": "pc_021.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_021.slot_02@normal"
+    },
+    "pc_021.slot_03@normal": {
+      "asset_id": "pc_021.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_021.slot_03@normal"
+    },
+    "pc_021.slot_04@normal": {
+      "asset_id": "pc_021.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_021.slot_04@normal"
+    },
+    "pc_021.slot_05@normal": {
+      "asset_id": "pc_021.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_021.slot_05@normal"
     },
     "pc_025.slot_00@flip_x": {
       "asset_id": "pc_025.slot_00",
@@ -2784,6 +3264,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_025.slot_01@normal"
     },
+    "pc_025.slot_02@normal": {
+      "asset_id": "pc_025.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_025.slot_02@normal"
+    },
+    "pc_025.slot_03@normal": {
+      "asset_id": "pc_025.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_025.slot_03@normal"
+    },
+    "pc_025.slot_04@normal": {
+      "asset_id": "pc_025.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_025.slot_04@normal"
+    },
+    "pc_025.slot_05@normal": {
+      "asset_id": "pc_025.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_025.slot_05@normal"
+    },
     "pc_031.slot_00@flip_x": {
       "asset_id": "pc_031.slot_00",
       "semantic_type": "pc",
@@ -2801,6 +3305,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_031.slot_01@normal"
+    },
+    "pc_031.slot_02@normal": {
+      "asset_id": "pc_031.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_031.slot_02@normal"
+    },
+    "pc_031.slot_03@normal": {
+      "asset_id": "pc_031.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_031.slot_03@normal"
+    },
+    "pc_031.slot_04@normal": {
+      "asset_id": "pc_031.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_031.slot_04@normal"
+    },
+    "pc_031.slot_05@normal": {
+      "asset_id": "pc_031.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_031.slot_05@normal"
     },
     "pc_033.slot_00@flip_x": {
       "asset_id": "pc_033.slot_00",
@@ -2820,6 +3348,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_033.slot_01@normal"
     },
+    "pc_033.slot_02@normal": {
+      "asset_id": "pc_033.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_033.slot_02@normal"
+    },
+    "pc_033.slot_03@normal": {
+      "asset_id": "pc_033.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_033.slot_03@normal"
+    },
+    "pc_033.slot_04@normal": {
+      "asset_id": "pc_033.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_033.slot_04@normal"
+    },
+    "pc_033.slot_05@normal": {
+      "asset_id": "pc_033.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_033.slot_05@normal"
+    },
     "pc_034.slot_00@flip_x": {
       "asset_id": "pc_034.slot_00",
       "semantic_type": "pc",
@@ -2838,6 +3390,30 @@
       "transform": "NORMAL",
       "variant_id": "pc_034.slot_01@normal"
     },
+    "pc_034.slot_02@normal": {
+      "asset_id": "pc_034.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_034.slot_02@normal"
+    },
+    "pc_034.slot_03@normal": {
+      "asset_id": "pc_034.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_034.slot_03@normal"
+    },
+    "pc_034.slot_04@normal": {
+      "asset_id": "pc_034.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_034.slot_04@normal"
+    },
+    "pc_034.slot_05@normal": {
+      "asset_id": "pc_034.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_034.slot_05@normal"
+    },
     "pc_035.slot_00@flip_x": {
       "asset_id": "pc_035.slot_00",
       "semantic_type": "pc",
@@ -2855,6 +3431,30 @@
       "semantic_type": "pc",
       "transform": "NORMAL",
       "variant_id": "pc_035.slot_01@normal"
+    },
+    "pc_035.slot_02@normal": {
+      "asset_id": "pc_035.slot_02",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_035.slot_02@normal"
+    },
+    "pc_035.slot_03@normal": {
+      "asset_id": "pc_035.slot_03",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_035.slot_03@normal"
+    },
+    "pc_035.slot_04@normal": {
+      "asset_id": "pc_035.slot_04",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_035.slot_04@normal"
+    },
+    "pc_035.slot_05@normal": {
+      "asset_id": "pc_035.slot_05",
+      "semantic_type": "pc",
+      "transform": "NORMAL",
+      "variant_id": "pc_035.slot_05@normal"
     },
     "reception_003@normal": {
       "asset_id": "reception_003",

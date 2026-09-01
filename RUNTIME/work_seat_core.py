@@ -50,6 +50,7 @@ class WorkPresentationResult:
 
 class WorkSeatCore:
     SUPPORTED_DIRECTIONS = frozenset({'SE', 'SW', 'NW', 'NE'})
+    PC_ANIMATED_DIRECTIONS = frozenset({'NW', 'NE'})
     TURN_SIDE_SUBACTIONS_BY_WORK_DIRECTION = {
         'SE': ('turn_side_sw', 'turn_side_ne'),
         'SW': ('turn_side_se', 'turn_side_nw'),
@@ -92,6 +93,72 @@ class WorkSeatCore:
         if key not in self.SUPPORTED_DIRECTIONS:
             raise WorkSeatError(f'Unsupported work seat direction: {direction}')
         return self.profiles[key]
+
+    def resolve_pc_frame_count(self, direction: str) -> int:
+        """Return the authored PC frame count for a work-facing direction.
+
+        The source PC sheets contain one static SE/SW cell and five NW cells.
+        NE is derived from NW at workstation composition time, so it uses the
+        same five source frames before the final mirror relation.
+        """
+        key = self._normalize_direction(direction, name='PC work direction')
+        if key in self.PC_ANIMATED_DIRECTIONS:
+            return 5
+        if key in {'SE', 'SW'}:
+            return 1
+        raise WorkSeatError(f'Unsupported PC work direction: {direction}')
+
+    def _pc_family_id(self, asset_id: str) -> str:
+        family_id = str(asset_id).split('.', 1)[0]
+        if not family_id.startswith('pc_'):
+            raise WorkSeatError(f'Expected a PC asset id, got {asset_id!r}')
+        return family_id
+
+    def resolve_pc_frame_asset(
+        self,
+        seat: dict[str, Any],
+        frame_index: int = 0,
+    ) -> tuple[str, str, int, int]:
+        """Resolve one PC asset/variant for a seated workstation.
+
+        ``frame_index`` is the independent PC animation channel.  Its zero
+        value is the authored active slot (cell1) for NW/NE and the static
+        cell0 for SE/SW.  The returned index is normalized to the direction's
+        frame count so callers can safely pass a monotonically increasing loop
+        counter.
+        """
+        if isinstance(frame_index, bool):
+            raise WorkSeatError('PC frame index must be an integer')
+        try:
+            requested = int(frame_index)
+        except (TypeError, ValueError) as exc:
+            raise WorkSeatError(f'PC frame index must be an integer: {frame_index!r}') from exc
+        if requested < 0:
+            raise WorkSeatError('PC frame index must be >= 0')
+        direction = self._normalize_direction(seat['direction'], name='PC work direction')
+        placement = seat.get('component_placements', {}).get('pc')
+        if not isinstance(placement, dict):
+            raise WorkSeatError(
+                f"{seat.get('floor_id', '<unknown>')}.{seat.get('workstation_id', '<unknown>')}: "
+                'missing PC component placement'
+            )
+        frame_count = self.resolve_pc_frame_count(direction)
+        normalized = requested % frame_count
+        if direction in self.PC_ANIMATED_DIRECTIONS:
+            family_id = self._pc_family_id(placement['asset_id'])
+            family = self.world.pc_animation_family(family_id)
+            frame_assets = list(family.get('animated_asset_ids', []))
+            if len(frame_assets) != frame_count:
+                raise WorkSeatError(
+                    f'{family_id}: expected {frame_count} animated PC assets, '
+                    f'got {len(frame_assets)}'
+                )
+            asset_id = str(frame_assets[normalized])
+            variant_id = self.world.resolve_variant(asset_id, 'NORMAL')
+        else:
+            asset_id = str(placement['asset_id'])
+            variant_id = str(placement['variant_id'])
+        return asset_id, variant_id, normalized, frame_count
 
     def _derived_source_direction(self, direction: str) -> str | None:
         profile = self.resolve_profile(direction)
@@ -318,6 +385,7 @@ class WorkSeatCore:
         character_frame_index: int | None = None,
         effect_frame_index: int | None = None,
         humanball_frame_index: int | None = None,
+        pc_frame_index: int | None = None,
     ) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
         if frame_index < 0:
             raise WorkSeatError('frame_index must be >= 0')
@@ -356,6 +424,29 @@ class WorkSeatCore:
                 'human_y_px': seat['chair_y_px'] + offset[1],
                 'human_offset_from_chair_px': offset,
             }
+            requested_pc_frame_index = assignment.get('pc_frame_index')
+            if requested_pc_frame_index is None:
+                if pc_frame_index is not None:
+                    requested_pc_frame_index = pc_frame_index
+                else:
+                    # ``frame_index`` is the caller's absolute work frame
+                    # counter when no independent PC channel is supplied.
+                    # Dividing by the action frame count advances the PC only
+                    # after a complete looping work action.
+                    requested_pc_frame_index = character_frame_index // len(action.frames)
+            (
+                pc_asset_id,
+                pc_variant_id,
+                resolved_pc_frame_index,
+                pc_frame_count,
+            ) = self.resolve_pc_frame_asset(seat, requested_pc_frame_index)
+            data.update({
+                'pc_frame_index': resolved_pc_frame_index,
+                'pc_frame_count': pc_frame_count,
+                'pc_asset_id': pc_asset_id,
+                'pc_variant_id': pc_variant_id,
+                'pc_frame_source': 'pc_animation_registry',
+            })
             effect_id = assignment.get('effect_id')
             if effect_id is not None:
                 if subaction != 'normal_work':
@@ -748,6 +839,26 @@ class WorkSeatCore:
             'visual_profile': profile,
         }
 
+    @staticmethod
+    def _effective_pc_placement(
+        placement: dict[str, Any],
+        data: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        """Return an authored PC placement with its resolved frame variant."""
+        if data is None:
+            return placement
+        pc_components = data.get('component_placements', {})
+        pc_placement = pc_components.get('pc') if isinstance(pc_components, dict) else None
+        if not isinstance(pc_placement, dict) or pc_placement.get('placement_id') != placement.get('placement_id'):
+            return placement
+        if data.get('pc_asset_id') is None or data.get('pc_variant_id') is None:
+            return placement
+        return {
+            **placement,
+            'asset_id': data['pc_asset_id'],
+            'variant_id': data['pc_variant_id'],
+        }
+
     def _derived_world_component_events(
         self,
         data: dict[str, Any],
@@ -778,7 +889,12 @@ class WorkSeatCore:
             placement = components.get(role)
             if placement is None:
                 continue
-            sprite = self.world.load_variant(placement['variant_id']).convert('RGBA')
+            variant_id = (
+                data.get('pc_variant_id')
+                if role == 'pc' and data.get('pc_variant_id') is not None
+                else placement['variant_id']
+            )
+            sprite = self.world.load_variant(variant_id).convert('RGBA')
             mirrored = sprite.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
             source_x = int(placement['x_px'])
             mirrored_x = anchor_x + chair_width - (source_x - anchor_x) - mirrored.width
@@ -808,6 +924,7 @@ class WorkSeatCore:
         character_frame_index: int | None = None,
         effect_frame_index: int | None = None,
         humanball_frame_index: int | None = None,
+        pc_frame_index: int | None = None,
     ) -> Image.Image:
         by_workstation, rendered = self._resolve_floor_assignment_data(
             floor_id,
@@ -816,6 +933,7 @@ class WorkSeatCore:
             character_frame_index=character_frame_index,
             effect_frame_index=effect_frame_index,
             humanball_frame_index=humanball_frame_index,
+            pc_frame_index=pc_frame_index,
         )
 
         skin = self.world.floor_skin(floor_id)
@@ -828,11 +946,18 @@ class WorkSeatCore:
             for data in derived_data
             for placement_id in data.get('world_component_placement_ids', [])
         }
+        pc_data_by_placement = {
+            data['component_placements']['pc']['placement_id']: data
+            for data in by_workstation.values()
+            if isinstance(data.get('component_placements', {}).get('pc'), dict)
+        }
         for placement in placements:
             if placement['placement_id'] in suppressed_placement_ids:
                 continue
-            events.append((int(placement['layer']), 0, placement['placement_id'], 'static', placement))
             data = rendered.get(placement['placement_id'])
+            pc_data = pc_data_by_placement.get(placement['placement_id'])
+            static_payload = self._effective_pc_placement(placement, pc_data)
+            events.append((int(static_payload['layer']), 0, placement['placement_id'], 'static', static_payload))
             if data is not None:
                 events.append((int(placement['layer']), 1, data['workstation_id'], 'human', data))
 
@@ -882,6 +1007,7 @@ class WorkSeatCore:
         character_frame_index: int | None = None,
         effect_frame_index: int | None = None,
         humanball_frame_index: int | None = None,
+        pc_frame_index: int | None = None,
     ) -> Image.Image:
         by_workstation, rendered = self._resolve_floor_assignment_data(
             floor_id,
@@ -890,6 +1016,7 @@ class WorkSeatCore:
             character_frame_index=character_frame_index,
             effect_frame_index=effect_frame_index,
             humanball_frame_index=humanball_frame_index,
+            pc_frame_index=pc_frame_index,
         )
 
         skin = self.world.floor_skin(floor_id)
@@ -902,13 +1029,20 @@ class WorkSeatCore:
             for data in derived_data
             for placement_id in data.get('world_component_placement_ids', [])
         }
+        pc_data_by_placement = {
+            data['component_placements']['pc']['placement_id']: data
+            for data in by_workstation.values()
+            if isinstance(data.get('component_placements', {}).get('pc'), dict)
+        }
         for placement in placements:
             if placement['placement_id'] in suppressed_placement_ids:
                 continue
             data = rendered.get(placement['placement_id'])
+            pc_data = pc_data_by_placement.get(placement['placement_id'])
             if data is not None and data.get('effect') is not None:
                 events.append((int(placement['layer']), -1, data['workstation_id'], 'effect', data))
-            events.append((int(placement['layer']), 0, placement['placement_id'], 'static', placement))
+            static_payload = self._effective_pc_placement(placement, pc_data)
+            events.append((int(static_payload['layer']), 0, placement['placement_id'], 'static', static_payload))
             if data is not None:
                 events.append((int(placement['layer']), 1, data['workstation_id'], 'human', data))
 

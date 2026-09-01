@@ -99,6 +99,9 @@
     "character_frame_index_source": "elapsed_seated_ms_div_work_character_frame_ms",
     "effect_frame_index_source": "elapsed_seated_ms_div_work_effect_frame_ms",
     "humanball_frame_index_source": "elapsed_seated_ms_div_work_humanball_frame_ms",
+    "pc_frame_index_source": "elapsed_seated_ms_div_work_action_loop_ms_mod_pc_frame_count",
+    "pc_frame_count_source": "pc_animation_registry_by_work_direction",
+    "pc_frame_direction_policy": "NW_NE_animated_slot_01_to_slot_05_SE_SW_static_slot_00",
     "foreground_policy": "existing_authored_nw_foreground_order"
   },
   "error_policy": {

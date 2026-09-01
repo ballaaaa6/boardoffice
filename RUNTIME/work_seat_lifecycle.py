@@ -450,7 +450,9 @@ class WorkSeatLifecycle:
         character_frame_count: int,
         effect_frame_count: int | None,
         humanball_frame_count: int | None,
+        pc_frame_count: int,
     ) -> dict[str, Any]:
+        pc_loop_ms = self.character_frame_ms * character_frame_count
         payload = {
             "render_owner": self.SEATED_OWNER,
             "character_id": character_id,
@@ -472,6 +474,9 @@ class WorkSeatLifecycle:
                 if humanball_id is not None and humanball_frame_count
                 else None
             ),
+            "pc_frame_index": (elapsed_ms // pc_loop_ms) % pc_frame_count,
+            "pc_frame_count": int(pc_frame_count),
+            "pc_frame_loop_ms": int(pc_loop_ms),
             "character_frame_ms": self.character_frame_ms,
             "effect_frame_ms": self.effect_frame_ms if effect_id is not None else None,
             "humanball_frame_ms": self.humanball_frame_ms if humanball_id is not None else None,
@@ -571,6 +576,7 @@ class WorkSeatLifecycle:
             raise WorkSeatLifecycleError(str(exc)) from exc
         effect_count = len(effect_result.frames) if effect_result is not None else None
         humanball_count = len(humanball_result.frames) if humanball_result is not None else None
+        pc_frame_count = self.work_seats.resolve_pc_frame_count(slot["facing"])
 
         actor_identity = employee_id if employee_id is not None else character_id
         actor_id = f"{floor_id}:{workstation_id}:{actor_identity}"
@@ -660,6 +666,7 @@ class WorkSeatLifecycle:
                 character_frame_count=len(work_action.frames),
                 effect_frame_count=effect_count,
                 humanball_frame_count=humanball_count,
+                pc_frame_count=pc_frame_count,
             )
             states.append(
                 self._state(
@@ -793,6 +800,8 @@ class WorkSeatLifecycle:
                 "work_character_frame_ms": self.character_frame_ms,
                 "work_effect_frame_ms": self.effect_frame_ms,
                 "work_humanball_frame_ms": self.humanball_frame_ms,
+                "work_pc_frame_loop_ms": self.character_frame_ms * len(work_action.frames),
+                "work_pc_frame_count": pc_frame_count,
             },
             "inbound_path_cells_uv": [list(cell) for cell in inbound],
             "outbound_path_cells_uv": [list(cell) for cell in outbound],
@@ -827,6 +836,7 @@ class WorkSeatLifecycle:
         character_frame_index: int = 0,
         effect_frame_index: int | None = None,
         humanball_frame_index: int | None = None,
+        pc_frame_index: int | None = None,
     ):
         """Render one seated state while keeping channel indices independent."""
         character_id = self._character_id(character_query)
@@ -840,6 +850,8 @@ class WorkSeatLifecycle:
             "character_id": character_id,
             "subaction": self._resolve_subaction(subaction),
         }
+        if pc_frame_index is not None:
+            assignment["pc_frame_index"] = pc_frame_index
         if effect_id is not None:
             assignment["effect_id"] = effect_id
         if humanball_id is not None:
@@ -850,6 +862,7 @@ class WorkSeatLifecycle:
                 [assignment],
                 frame_index=int(character_frame_index),
                 character_frame_index=int(character_frame_index),
+                pc_frame_index=pc_frame_index,
             )
         return self.work_seats.render_floor_with_work_effects(
             floor_id,
@@ -858,4 +871,5 @@ class WorkSeatLifecycle:
             character_frame_index=int(character_frame_index),
             effect_frame_index=int(effect_frame_index),
             humanball_frame_index=int(humanball_frame_index),
+            pc_frame_index=pc_frame_index,
         )

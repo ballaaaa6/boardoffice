@@ -1,0 +1,712 @@
+{
+  "$schema": "gds.pc_animation.v1",
+  "cell_size_px": [
+    50,
+    32
+  ],
+  "contract_id": "registry.gds.pc_animation.v1",
+  "families": {
+    "pc_000": {
+      "animated_asset_ids": [
+        "pc_000.slot_01",
+        "pc_000.slot_02",
+        "pc_000.slot_03",
+        "pc_000.slot_04",
+        "pc_000.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_000",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_000.png",
+      "source_sheet_sha256": "e6522c3024cfcc29e6bb9322213d1e07ba48ff53f7644b5e1dd32c17563f7d8a",
+      "static_asset_id": "pc_000.slot_00"
+    },
+    "pc_001": {
+      "animated_asset_ids": [
+        "pc_001.slot_01",
+        "pc_001.slot_02",
+        "pc_001.slot_03",
+        "pc_001.slot_04",
+        "pc_001.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_001",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_001.png",
+      "source_sheet_sha256": "dab392dfc721d27ef4d5750fc02c03af747e8a7beca42f2d86357b330ed7de35",
+      "static_asset_id": "pc_001.slot_00"
+    },
+    "pc_002": {
+      "animated_asset_ids": [
+        "pc_002.slot_01",
+        "pc_002.slot_02",
+        "pc_002.slot_03",
+        "pc_002.slot_04",
+        "pc_002.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_002",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_002.png",
+      "source_sheet_sha256": "cd93c0d503f72f198f5be6bac5c0ab024ae1efcbbf3b988b4d41e014bf130727",
+      "static_asset_id": "pc_002.slot_00"
+    },
+    "pc_003": {
+      "animated_asset_ids": [
+        "pc_003.slot_01",
+        "pc_003.slot_02",
+        "pc_003.slot_03",
+        "pc_003.slot_04",
+        "pc_003.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_003",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_003.png",
+      "source_sheet_sha256": "1c725607a9b38da5d4eeeee3646feb176c7a14c99c494fee3fa5d1844b47546c",
+      "static_asset_id": "pc_003.slot_00"
+    },
+    "pc_004": {
+      "animated_asset_ids": [
+        "pc_004.slot_01",
+        "pc_004.slot_02",
+        "pc_004.slot_03",
+        "pc_004.slot_04",
+        "pc_004.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_004",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_004.png",
+      "source_sheet_sha256": "da445117f63dd1f6ab0c6be9189b991fa384645da7cfe7649560cb1c6881527c",
+      "static_asset_id": "pc_004.slot_00"
+    },
+    "pc_005": {
+      "animated_asset_ids": [
+        "pc_005.slot_01",
+        "pc_005.slot_02",
+        "pc_005.slot_03",
+        "pc_005.slot_04",
+        "pc_005.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_005",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_005.png",
+      "source_sheet_sha256": "18cbf7b8333dae95c147a6b0aa7918d146cb997732fa41ce42b382ba80ea5370",
+      "static_asset_id": "pc_005.slot_00"
+    },
+    "pc_006": {
+      "animated_asset_ids": [
+        "pc_006.slot_01",
+        "pc_006.slot_02",
+        "pc_006.slot_03",
+        "pc_006.slot_04",
+        "pc_006.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_006",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_006.png",
+      "source_sheet_sha256": "6d55dd0f1c107f37fd83cebf38f3e5ace5caf1f05345b007dcf8234f34fb8860",
+      "static_asset_id": "pc_006.slot_00"
+    },
+    "pc_007": {
+      "animated_asset_ids": [
+        "pc_007.slot_01",
+        "pc_007.slot_02",
+        "pc_007.slot_03",
+        "pc_007.slot_04",
+        "pc_007.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_007",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_007.png",
+      "source_sheet_sha256": "c04c20a738d5129e213bad591517202a91406c5305f969d6b738f171580e0af0",
+      "static_asset_id": "pc_007.slot_00"
+    },
+    "pc_008": {
+      "animated_asset_ids": [
+        "pc_008.slot_01",
+        "pc_008.slot_02",
+        "pc_008.slot_03",
+        "pc_008.slot_04",
+        "pc_008.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_008",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_008.png",
+      "source_sheet_sha256": "419d310bd4cbdbdbbc5a8ca20a8e212ebe336c1cda625de073cb1cf180fdaa7d",
+      "static_asset_id": "pc_008.slot_00"
+    },
+    "pc_009": {
+      "animated_asset_ids": [
+        "pc_009.slot_01",
+        "pc_009.slot_02",
+        "pc_009.slot_03",
+        "pc_009.slot_04",
+        "pc_009.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_009",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_009.png",
+      "source_sheet_sha256": "3f16793207e05ca8061aac87f8747b6d7774b68c9f471bd7cc837dcafb68bea3",
+      "static_asset_id": "pc_009.slot_00"
+    },
+    "pc_011": {
+      "animated_asset_ids": [
+        "pc_011.slot_01",
+        "pc_011.slot_02",
+        "pc_011.slot_03",
+        "pc_011.slot_04",
+        "pc_011.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_011",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_011.png",
+      "source_sheet_sha256": "84408244af35cc388b109e0916726a003bd9d0952a45c035f5da81acef8246dc",
+      "static_asset_id": "pc_011.slot_00"
+    },
+    "pc_012": {
+      "animated_asset_ids": [
+        "pc_012.slot_01",
+        "pc_012.slot_02",
+        "pc_012.slot_03",
+        "pc_012.slot_04",
+        "pc_012.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_012",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_012.png",
+      "source_sheet_sha256": "cd52d51bb861d343a77fc3351dbef7667986e9da0a749d612ad6222b4c309184",
+      "static_asset_id": "pc_012.slot_00"
+    },
+    "pc_013": {
+      "animated_asset_ids": [
+        "pc_013.slot_01",
+        "pc_013.slot_02",
+        "pc_013.slot_03",
+        "pc_013.slot_04",
+        "pc_013.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_013",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_013.png",
+      "source_sheet_sha256": "a9319883fe133ec2240f2ede4385fd07093b6c7db6b0eb728371e1073df6fb3a",
+      "static_asset_id": "pc_013.slot_00"
+    },
+    "pc_014": {
+      "animated_asset_ids": [
+        "pc_014.slot_01",
+        "pc_014.slot_02",
+        "pc_014.slot_03",
+        "pc_014.slot_04",
+        "pc_014.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_014",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_014.png",
+      "source_sheet_sha256": "5203a919093fbfdad6c0258ce18f080fe9a717eca2c3e536a7dcf78b89fdce96",
+      "static_asset_id": "pc_014.slot_00"
+    },
+    "pc_015": {
+      "animated_asset_ids": [
+        "pc_015.slot_01",
+        "pc_015.slot_02",
+        "pc_015.slot_03",
+        "pc_015.slot_04",
+        "pc_015.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_015",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_015.png",
+      "source_sheet_sha256": "0d4fe2efa842aaa6e01f3bd0ff559a1be264906bed44ac9069f362692400d9f8",
+      "static_asset_id": "pc_015.slot_00"
+    },
+    "pc_016": {
+      "animated_asset_ids": [
+        "pc_016.slot_01",
+        "pc_016.slot_02",
+        "pc_016.slot_03",
+        "pc_016.slot_04",
+        "pc_016.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_016",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_016.png",
+      "source_sheet_sha256": "9f53d2921854050494aebb673fddbbdf5cd01ffb6740126e5fcbf1c0440695f9",
+      "static_asset_id": "pc_016.slot_00"
+    },
+    "pc_017": {
+      "animated_asset_ids": [
+        "pc_017.slot_01",
+        "pc_017.slot_02",
+        "pc_017.slot_03",
+        "pc_017.slot_04",
+        "pc_017.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_017",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_017.png",
+      "source_sheet_sha256": "566cb5994e285d528088fb5f7a75a838d3792ae9fe011ce7759b357cd846bdc3",
+      "static_asset_id": "pc_017.slot_00"
+    },
+    "pc_018": {
+      "animated_asset_ids": [
+        "pc_018.slot_01",
+        "pc_018.slot_02",
+        "pc_018.slot_03",
+        "pc_018.slot_04",
+        "pc_018.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_018",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_018.png",
+      "source_sheet_sha256": "93c0993548faa1145e4476f09dbcb00466486f28ba16bdf2146bc001572ed9bd",
+      "static_asset_id": "pc_018.slot_00"
+    },
+    "pc_019": {
+      "animated_asset_ids": [
+        "pc_019.slot_01",
+        "pc_019.slot_02",
+        "pc_019.slot_03",
+        "pc_019.slot_04",
+        "pc_019.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_019",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_019.png",
+      "source_sheet_sha256": "f10dc0a6d1c30b70602a17d4322c5f448d5bf34b86544cc51eeb538edc5bd1e2",
+      "static_asset_id": "pc_019.slot_00"
+    },
+    "pc_021": {
+      "animated_asset_ids": [
+        "pc_021.slot_01",
+        "pc_021.slot_02",
+        "pc_021.slot_03",
+        "pc_021.slot_04",
+        "pc_021.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_021",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_021.png",
+      "source_sheet_sha256": "43bf7cb47f0bea69743098875a91dcb48a130559e7cc3c053c5710bcbd295131",
+      "static_asset_id": "pc_021.slot_00"
+    },
+    "pc_025": {
+      "animated_asset_ids": [
+        "pc_025.slot_01",
+        "pc_025.slot_02",
+        "pc_025.slot_03",
+        "pc_025.slot_04",
+        "pc_025.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_025",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_025.png",
+      "source_sheet_sha256": "ebc99aea9a15b4dae567a392f6590d420c8bc657784ca4cd74c090f2d9333436",
+      "static_asset_id": "pc_025.slot_00"
+    },
+    "pc_031": {
+      "animated_asset_ids": [
+        "pc_031.slot_01",
+        "pc_031.slot_02",
+        "pc_031.slot_03",
+        "pc_031.slot_04",
+        "pc_031.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_031",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_031.png",
+      "source_sheet_sha256": "b2b2416147b71c43fd030059633e7ced2bafaf51092f81612bdbc3ef956d1e22",
+      "static_asset_id": "pc_031.slot_00"
+    },
+    "pc_033": {
+      "animated_asset_ids": [
+        "pc_033.slot_01",
+        "pc_033.slot_02",
+        "pc_033.slot_03",
+        "pc_033.slot_04",
+        "pc_033.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_033",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_033.png",
+      "source_sheet_sha256": "4241dc5a800d6c8b4ad584b20ce29278b350f60b16af1619031c9d8b3f10aa3d",
+      "static_asset_id": "pc_033.slot_00"
+    },
+    "pc_034": {
+      "animated_asset_ids": [
+        "pc_034.slot_01",
+        "pc_034.slot_02",
+        "pc_034.slot_03",
+        "pc_034.slot_04",
+        "pc_034.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_034",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_034.png",
+      "source_sheet_sha256": "d92756787b71b9de04abb5840964d8ed72513f82ba062d5831dc0c9c9cf2241e",
+      "static_asset_id": "pc_034.slot_00"
+    },
+    "pc_035": {
+      "animated_asset_ids": [
+        "pc_035.slot_01",
+        "pc_035.slot_02",
+        "pc_035.slot_03",
+        "pc_035.slot_04",
+        "pc_035.slot_05"
+      ],
+      "cell_layout": {
+        "cell0": "SE/SW static",
+        "cell1": "NW/NE frame 0",
+        "cell2": "NW/NE frame 1",
+        "cell3": "NW/NE frame 2",
+        "cell4": "NW/NE frame 3",
+        "cell5": "NW/NE frame 4"
+      },
+      "direction_policy": {
+        "NE": "animated_asset_ids_mirrored_at_workseat_composition",
+        "NW": "animated_asset_ids",
+        "SE": "static_asset_id",
+        "SW": "static_asset_id"
+      },
+      "family_id": "pc_035",
+      "source_sheet": "01_KAIRO_SPRITE_PACKS/office/pc_035.png",
+      "source_sheet_sha256": "b32160d2d48062d239ca1e77f5939748630e80fb8babdb3c0e6f122d531c11d5",
+      "static_asset_id": "pc_035.slot_00"
+    }
+  },
+  "frame_policy": {
+    "active_frame_count": 5,
+    "advance_boundary": "one_frame_after_each_complete_work_action_loop",
+    "animated_directions": [
+      "NW",
+      "NE"
+    ],
+    "sequence": [
+      "slot_01",
+      "slot_02",
+      "slot_03",
+      "slot_04",
+      "slot_05"
+    ],
+    "static_directions": [
+      "SE",
+      "SW"
+    ],
+    "wrap": true
+  },
+  "schema": "gds.pc_animation.v1",
+  "sheet_size_px": [
+    100,
+    96
+  ],
+  "source_package": "Game_Dev_Story_v2.6.9_EXTRACTED_ASSETS",
+  "version": "1.0.0"
+}

@@ -149,6 +149,19 @@
       "meaning": "Each turn_side_<direction> subaction names the target idle direction; its axis/sign and UV delta identify the partner-relative side"
     }
   },
+  "pc_animation": {
+    "registry": "WORLD/REGISTRY/pc_animation.json",
+    "schema": "SCHEMA/WORLD/pc_animation.schema.json",
+    "runtime": "RUNTIME/work_seat_core.py",
+    "central_frame_api": "CentralGameCore.resolve_workstation_pc_frame",
+    "animated_directions": ["NW", "NE"],
+    "static_directions": ["SE", "SW"],
+    "sequence": ["cell1", "cell2", "cell3", "cell4", "cell5"],
+    "advance_rule": "one_cell_after_each_complete_work_action_loop",
+    "loop_duration_source": "work_character_frame_ms multiplied by resolved_work_action_frame_count",
+    "frame_channel": "independent_from_character_effect_and_humanball_indices",
+    "source_assets": "WORLD/REGISTRY/world_assets.json slot_02 through slot_05 recovered from authored PC sheets"
+  },
   "world_to_character_direction": {
     "registry": "WORLD/REGISTRY/character_direction_bridge.json",
     "unsupported_policy": "error_no_fallback",

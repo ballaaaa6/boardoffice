@@ -12,6 +12,7 @@ class LayoutCore:
         self.root = Path(root).resolve()
         self.assets = self._read("world_assets.json")["assets"]
         self.variants = self._read("visual_variants.json")["variants"]
+        self.pc_animation = self._read("pc_animation.json")
         self.coordinate_frames = self._read("coordinate_frames.json")["coordinate_frames"]
         self.layouts = self._read("layouts.json")["layouts"]
         self.skins = self._read("floor_skins.json")["skins"]
@@ -41,6 +42,14 @@ class LayoutCore:
             return self._variant_by_asset_transform[(asset_id, transform)]
         except KeyError as exc:
             raise KeyError(f"No visual variant for asset={asset_id!r}, transform={transform!r}") from exc
+
+    def pc_animation_family(self, family_id: str) -> dict[str, Any]:
+        """Return the authored PC animation mapping for one PC family."""
+        try:
+            family = self.pc_animation["families"][family_id]
+        except (KeyError, TypeError) as exc:
+            raise KeyError(f"No PC animation family registered for {family_id!r}") from exc
+        return dict(family)
 
     def load_variant(self, variant_id: str) -> Image.Image:
         entry = self.variants[variant_id]

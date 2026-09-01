@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gds.pc_animation.v1",
+  "title": "GDS PC animation registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema",
+    "contract_id",
+    "version",
+    "source_package",
+    "cell_size_px",
+    "sheet_size_px",
+    "frame_policy",
+    "families"
+  ],
+  "properties": {
+    "$schema": {"const": "gds.pc_animation.v1"},
+    "schema": {"const": "gds.pc_animation.v1"},
+    "contract_id": {"const": "registry.gds.pc_animation.v1"},
+    "version": {"const": "1.0.0"},
+    "source_package": {"type": "string", "minLength": 1},
+    "cell_size_px": {
+      "type": "array",
+      "prefixItems": [{"const": 50}, {"const": 32}],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "sheet_size_px": {
+      "type": "array",
+      "prefixItems": [{"const": 100}, {"const": 96}],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "frame_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "active_frame_count",
+        "advance_boundary",
+        "sequence",
+        "wrap",
+        "static_directions",
+        "animated_directions"
+      ],
+      "properties": {
+        "active_frame_count": {"const": 5},
+        "advance_boundary": {"const": "one_frame_after_each_complete_work_action_loop"},
+        "sequence": {
+          "const": ["slot_01", "slot_02", "slot_03", "slot_04", "slot_05"]
+        },
+        "wrap": {"const": true},
+        "static_directions": {"const": ["SE", "SW"]},
+        "animated_directions": {"const": ["NW", "NE"]}
+      }
+    },
+    "families": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "family_id",
+          "source_sheet",
+          "source_sheet_sha256",
+          "static_asset_id",
+          "animated_asset_ids",
+          "direction_policy",
+          "cell_layout"
+        ],
+        "properties": {
+          "family_id": {"type": "string", "pattern": "^pc_[0-9]{3}$"},
+          "source_sheet": {"type": "string", "minLength": 1},
+          "source_sheet_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "static_asset_id": {"type": "string", "pattern": "^pc_[0-9]{3}\\.slot_00$"},
+          "animated_asset_ids": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^pc_[0-9]{3}\\.slot_0[1-5]$"}
+          },
+          "direction_policy": {"type": "object", "minProperties": 4},
+          "cell_layout": {"type": "object", "minProperties": 6}
+        }
+      }
+    }
+  }
+}

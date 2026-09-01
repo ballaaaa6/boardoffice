@@ -513,6 +513,35 @@ class CentralGameCore:
         except (WorkSeatError, KeyError, ValueError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
+    def resolve_workstation_pc_frame(
+        self,
+        floor_id: str,
+        workstation_id: str,
+        frame_index: int = 0,
+    ) -> dict[str, Any]:
+        """Resolve the independent PC frame channel for one workstation."""
+        try:
+            seat = self.work_seats.resolve_workstation_seat(floor_id, workstation_id)
+            asset_id, variant_id, normalized, frame_count = self.work_seats.resolve_pc_frame_asset(
+                seat, frame_index
+            )
+        except (WorkSeatError, KeyError, ValueError) as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+        return {
+            'floor_id': floor_id,
+            'workstation_id': workstation_id,
+            'direction': seat['direction'],
+            'frame_index': normalized,
+            'frame_count': frame_count,
+            'asset_id': asset_id,
+            'variant_id': variant_id,
+            'sequence': (
+                'cell0'
+                if frame_count == 1
+                else f'cell{normalized + 1}'
+            ),
+        }
+
     def resolve_work_turn_mapping(self, direction: str) -> dict[str, Any]:
         """Expose direction-named seated turn bindings for a work direction."""
         try:
@@ -618,6 +647,7 @@ class CentralGameCore:
         character_frame_index: int = 0,
         effect_frame_index: int | None = None,
         humanball_frame_index: int | None = None,
+        pc_frame_index: int | None = None,
     ):
         try:
             return self.work_seat_lifecycle.render_seated_state(
@@ -630,6 +660,7 @@ class CentralGameCore:
                 character_frame_index=character_frame_index,
                 effect_frame_index=effect_frame_index,
                 humanball_frame_index=humanball_frame_index,
+                pc_frame_index=pc_frame_index,
             )
         except WorkSeatLifecycleError as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -683,6 +714,7 @@ class CentralGameCore:
         character_frame_index: int | None = None,
         effect_frame_index: int | None = None,
         humanball_frame_index: int | None = None,
+        pc_frame_index: int | None = None,
     ):
         normalized: list[dict[str, Any]] = []
         for assignment in assignments:
@@ -706,6 +738,7 @@ class CentralGameCore:
                 character_frame_index=character_frame_index,
                 effect_frame_index=effect_frame_index,
                 humanball_frame_index=humanball_frame_index,
+                pc_frame_index=pc_frame_index,
             )
         except (WorkSeatError, KeyError, ValueError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -999,6 +1032,7 @@ class CentralGameCore:
         character_frame_index: int | None = None,
         effect_frame_index: int | None = None,
         humanball_frame_index: int | None = None,
+        pc_frame_index: int | None = None,
     ):
         normalized: list[dict[str, Any]] = []
         for assignment in assignments:
@@ -1022,6 +1056,7 @@ class CentralGameCore:
                 character_frame_index=character_frame_index,
                 effect_frame_index=effect_frame_index,
                 humanball_frame_index=humanball_frame_index,
+                pc_frame_index=pc_frame_index,
             )
         except (WorkSeatError, KeyError, ValueError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
