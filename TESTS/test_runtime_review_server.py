@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 
 from TOOLS.runtime_review_server import ReviewState
 
@@ -78,3 +79,85 @@ def test_review_effects_demo_exposes_humanball_and_vfx_then_completes():
             break
     assert payload["demo_complete"] is True
     assert payload["demo_kind"] == "effects"
+
+
+def test_review_host_exposes_all_floors_channels_and_runtime_metrics():
+    state = ReviewState()
+
+    floors = state.floors()
+    capabilities = state.capabilities()
+    assert len(floors) == 25
+    assert {row["floor_id"] for row in floors} == set(capabilities["floors"])
+    assert {"actor", "movement", "workseat", "pc", "speech", "bubble", "vfx", "humanball", "stamina", "portal", "persistence", "replay"} <= set(capabilities["channels"])
+
+    payload = state.live_start(floor_id="floor00", include_runtime=False)
+    assert payload["floor_id"] == "floor00"
+    assert len(payload["actors"]) == 5
+    assert payload["metrics"]["render_ms"] is not None
+    assert payload["metrics"]["encode_ms"] is not None
+
+
+def test_review_talk_demo_can_force_self_talk_mode():
+    state = ReviewState()
+    payload = state.demo_talk(
+        floor_id="floor00",
+        mode="self_talk",
+        dialogue_locale="th",
+        include_runtime=False,
+    )
+
+    speech = next(event for event in payload["events"] if event["type"] == "speech_session_started")
+    assert speech["mode"] == "self_talk"
+    assert len(speech["participants"]) == 1
+    assert speech["dialogue_lines"]
+    actor = next(row for row in payload["actors"] if row["employee_id"] == payload["demo_employee_id"])
+    assert actor["speech_mode"] == "self_talk"
+    assert actor["route_phase"] is None
+
+
+def test_review_wander_demo_exposes_moving_frames_and_completes():
+    state = ReviewState()
+    payload = state.demo_wander(floor_id="floor02", include_runtime=False)
+    actor_id = payload["demo_employee_id"]
+    actor = next(row for row in payload["actors"] if row["employee_id"] == actor_id)
+    assert actor["route_phase"] == "wander_out"
+    assert actor["character_frame_count"] == 2
+
+    saw_nonzero_frame = False
+    for _ in range(30):
+        payload = state.tick(60, include_runtime=False)
+        actor = next(row for row in payload["actors"] if row["employee_id"] == actor_id)
+        saw_nonzero_frame |= actor["character_frame_index"] > 0
+        if payload["demo_complete"]:
+            break
+    assert saw_nonzero_frame
+    assert payload["demo_complete"] is True
+
+
+def test_review_live_ticks_remain_bounded_after_talk_plan_is_accepted():
+    state = ReviewState()
+    start = time.perf_counter()
+    state.demo_talk(include_runtime=False)
+    first_ms = (time.perf_counter() - start) * 1000
+    durations = []
+    for _ in range(24):
+        tick_start = time.perf_counter()
+        state.tick(60, include_runtime=False)
+        durations.append((time.perf_counter() - tick_start) * 1000)
+
+    # The first deterministic plan may pay the one-time catalog/geometry cost;
+    # the repeating host slice must not reintroduce the old 0.5–1.1s stalls.
+    assert first_ms < 1000
+    assert max(durations) < 250
+
+
+def test_persistence_replay_and_load_restore_their_snapshot_floor():
+    state = ReviewState()
+    state.live_start(floor_id="floor00", include_runtime=False)
+    saved = state.save()
+    state.live_start(floor_id="floor02", include_runtime=False)
+
+    loaded = state.load(saved["runtime_snapshot"])
+    assert loaded["floor_id"] == "floor00"
+    replayed = state.replay(json.loads(saved["replay_json"]))
+    assert replayed["floor_id"] == "floor00"

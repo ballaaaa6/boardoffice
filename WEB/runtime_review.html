@@ -42,9 +42,20 @@
     .settings label { display:inline-flex; align-items:center; gap:5px; }
     .settings select, .settings input { padding:6px 8px; }
     .settings input[type=text] { width:92px; }
+    .settings select { min-width:112px; }
+    .settings select#floorSelect { min-width:148px; }
+    .settings select#partnerSelect { min-width:148px; }
     .card .detail { color:#c7d8e8; font-size:12px; margin-top:3px; }
     .card .talk { color:#f9d58a; }
     .card .route { color:#9bd7ff; }
+    .card .frame { color:#b7f7d0; }
+    .card .channel { color:#d9c2ff; }
+    .review-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:8px; }
+    .review-stat { border:1px solid #2c3c4f; border-radius:8px; padding:8px; background:#141c26; }
+    .review-stat .label { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+    .review-stat .value { margin-top:2px; font-weight:650; overflow-wrap:anywhere; }
+    .capability-list { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+    .capability-list span { border:1px solid #38516a; border-radius:999px; padding:2px 7px; color:#c7d8e8; font-size:11px; }
     #log { height:240px; overflow:auto; white-space:pre-wrap; font:11px/1.4 ui-monospace,monospace; background:#0c1118; border:1px solid #293849; padding:8px; border-radius:7px; }
     .hint { color:var(--muted); font-size:12px; }
     @media(max-width:900px){ .grid{grid-template-columns:1fr;} .stage{min-height:0;} }
@@ -53,33 +64,46 @@
 <body>
 <main>
   <h1>Runtime review — spawn → work → talk → home</h1>
-  <div class="subtitle">Live floor02 host. Actors spawn outside the portal, enter one-by-one and walk to their assigned WorkSeat. Use <b>Talk demo</b> for the real outbound route, shared bubbles and return-to-seat loop, or <b>Effects demo</b> for HumanBall + VFX.</div>
+  <div id="subtitle" class="subtitle">Loading the selected floor host…</div>
   <div class="grid">
     <section class="panel stage">
-      <div class="scene-frame"><img id="scene" class="visible" alt="Rendered floor02 runtime frame"><img id="sceneAlt" alt="Rendered floor02 runtime frame"></div>
+      <div class="scene-frame"><img id="scene" class="visible" alt="Rendered runtime frame"><img id="sceneAlt" alt="Rendered runtime frame"></div>
       <div class="toolbar">
         <button id="liveToggle" class="primary">Pause live</button><span id="liveStatus" class="live-status">● LIVE</span>
         <button data-speed="1" class="active">1×</button><button data-speed="2">2×</button><button data-speed="4">4×</button><button data-speed="8">8×</button>
       </div>
       <div class="toolbar">
         <button data-tick="60">Manual +60ms</button><button data-tick="360">Manual +360ms</button><button data-tick="720">Manual +720ms</button><button data-tick="1440">Manual +1.44s</button>
-        <button id="reset">Restart live</button><button id="talkDemo" class="primary">Talk demo</button><button id="effectsDemo">Effects demo</button><button id="critical" class="danger">Critical demo (manual)</button>
+        <button id="reset">Restart live</button><button id="talkDemo" class="primary">Talk demo</button><button id="effectsDemo">Effects demo</button><button id="wanderDemo">Wander demo</button><button id="critical" class="danger">Critical demo (manual)</button>
       </div>
       <div class="toolbar">
         <button id="save">Save snapshot</button><button id="load">Load saved snapshot</button><button id="replay">Replay recorded steps</button>
       </div>
       <div class="settings">
+        <label>Floor <select id="floorSelect"><option value="floor02">floor02</option></select></label>
+        <label>Actor <select id="actorSelect"><option value="">auto</option></select></label>
+        <label>Talk mode <select id="talkMode"><option value="">seeded auto</option><option value="self_talk">self-talk</option><option value="ceo_front">CEO front</option><option value="seated_host">seated host</option><option value="standing_pair">standing pair</option></select></label>
+        <label>Partner <select id="partnerSelect"><option value="">auto</option></select></label>
         <label>Dialogue <select id="locale"><option value="en">English</option><option value="th">ไทย</option></select></label>
         <label>Seed <input id="seed" type="text" value="0" spellcheck="false"></label>
         <label><input id="showRoutes" type="checkbox" checked> show route samples</label>
         <label><input id="autoPauseDemo" type="checkbox"> pause when demo ends</label>
       </div>
-      <div class="meta"><span>Mode: <b id="mode">LIVE</b></span><span>Clock: <b id="clock">0</b>ms</span><span>Frames: <b id="frames">0</b></span><span>Events: <b id="eventCount">0</b></span><span id="note"></span></div>
-      <div class="hint">The preview advances on deterministic 60ms simulation slices and swaps only after the next image is decoded. Live reconnects after transient request errors; enable “pause when demo ends” when you want a demo to stop at its authored boundary.</div>
+      <div class="meta"><span>API: <b id="apiVersion">—</b></span><span>Floor: <b id="selectedFloor">floor02</b></span><span>Mode: <b id="mode">LIVE</b></span><span>Clock: <b id="clock">0</b>ms</span><span>Frames: <b id="frames">0</b></span><span>Events: <b id="eventCount">0</b></span><span id="note"></span></div>
+      <div class="review-grid" style="margin-top:8px">
+        <div class="review-stat"><div class="label">last tick</div><div id="tickMetric" class="value">—</div></div>
+        <div class="review-stat"><div class="label">render / encode</div><div id="renderMetric" class="value">—</div></div>
+        <div class="review-stat"><div class="label">frame sequence</div><div id="sequenceMetric" class="value">—</div></div>
+        <div class="review-stat"><div class="label">selected actor</div><div id="actorMetric" class="value">—</div></div>
+      </div>
+      <div id="capabilities" class="capability-list" aria-label="runtime channels"></div>
+      <div class="hint">The preview advances on deterministic 60ms simulation slices and swaps only after the next image is decoded. Live reconnects after transient request errors; enable “pause when demo ends” when you want a demo to stop at its authored boundary. All floors, actor routes, WorkSeat/PC frames, speech/bubbles, VFX/HumanBall, stamina, portal and persistence channels are exposed by the same host API.</div>
     </section>
     <aside class="panel">
-      <h2>Actors on floor02</h2>
+      <h2 id="actorsTitle">Actors on floor02</h2>
       <div id="actors" class="cards"></div>
+      <h2 style="margin-top:14px">Selected actor telemetry</h2>
+      <div id="selectedTelemetry" class="small">Select an actor card to inspect its resolved action, frame, route, speech and stamina.</div>
       <h2 style="margin-top:14px">Event log <span class="small">(compact live stream)</span></h2>
       <div id="log"></div>
     </aside>
@@ -87,7 +111,7 @@
 </main>
 <script>
   const $ = (id) => document.getElementById(id);
-  let state = null; let selected = null; let saved = null;
+  let state = null; let selected = null; let saved = null; let floors = []; let capabilities = null;
   let live = true; let autoSpeed = 1; let busy = false; let rafId = null; let nextLiveAt = 0; let liveGeneration = 0;
   let retryAttempt = 0; let demoCompletionShown = false;
   let visibleScene = 'scene'; let sceneToken = 0;
@@ -106,7 +130,53 @@
       throw e;
     } finally { clearTimeout(timeout); }
   }
-  function settings() { return {dialogue_locale:$('locale').value, dialogue_seed:$('seed').value.trim() || '0'}; }
+  function selectedFloor() { return $('floorSelect').value || 'floor02'; }
+  function settings() { return {floor_id:selectedFloor(), dialogue_locale:$('locale').value, dialogue_seed:$('seed').value.trim() || '0'}; }
+  function setNote(text) { $('note').textContent = text || ''; }
+  function populateFloors(payload) {
+    floors = Array.isArray(payload?.floors) ? payload.floors : [];
+    const current = payload?.selected_floor_id || selectedFloor();
+    $('floorSelect').innerHTML = floors.map(f => `<option value="${esc(f.floor_id)}">${esc(f.floor_id)} · ${esc(f.layout_id || '')} · ${esc(f.actor_count ?? 0)} actors</option>`).join('');
+    if(floors.some(f => f.floor_id === current)) $('floorSelect').value = current;
+  }
+  function renderCapabilities(payload) {
+    capabilities = payload || null;
+    $('apiVersion').textContent = payload?.api || '—';
+    $('capabilities').innerHTML = (payload?.channels || []).map(value => `<span>${esc(value)}</span>`).join('');
+  }
+  function populateActorSelectors(rows) {
+    const list = Array.isArray(rows) ? rows : [];
+    const ids = list.map(a => a.employee_id).filter(Boolean);
+    if(!selected || !ids.includes(selected)) selected = ids[0] || null;
+    const actorValue = $('actorSelect').value;
+    $('actorSelect').innerHTML = ids.map(id => `<option value="${esc(id)}">${esc(id)}</option>`).join('');
+    $('actorSelect').value = selected || actorValue || '';
+    if($('actorSelect').value) selected = $('actorSelect').value;
+    const mode = $('talkMode').value;
+    const partnerIds = list.map(a => a.employee_id).filter(id => id && id !== selected);
+    const oldPartner = $('partnerSelect').value;
+    $('partnerSelect').innerHTML = `<option value="">auto</option>${partnerIds.map(id => `<option value="${esc(id)}">${esc(id)}</option>`).join('')}`;
+    if(partnerIds.includes(oldPartner)) $('partnerSelect').value = oldPartner;
+    $('partnerSelect').disabled = mode === 'self_talk';
+    $('actorsTitle').textContent = `Actors on ${state?.floor_id || selectedFloor()}`;
+  }
+  function selectedRow() {
+    return (state?.actors || []).find(a => a.employee_id === selected) || null;
+  }
+  function renderSelectedTelemetry(row) {
+    if(!row) { $('selectedTelemetry').textContent = 'Select an actor card to inspect its resolved action, frame, route, speech and stamina.'; $('actorMetric').textContent = '—'; return; }
+    const channelNames = Object.keys(row.channels || {});
+    const speech = row.speech_mode ? `${row.speech_mode}${row.talk_partner_id ? ` ↔ ${row.talk_partner_id}` : ''}` : 'idle';
+    $('actorMetric').textContent = `${row.employee_id} · ${row.activity || '—'} · stamina ${row.stamina ?? '—'}`;
+    $('selectedTelemetry').innerHTML = [
+      `<b>${esc(row.employee_id)}</b> · ${esc(row.activity || '—')} / ${esc(row.presence || '—')}`,
+      `action <b>${esc(row.resolved_action || row.action || '—')}/${esc(row.resolved_subaction || row.subaction || '—')}</b> · direction ${esc(row.resolved_direction || row.direction || '—')}`,
+      `frame ${esc(row.character_frame_index ?? row.frame_index ?? 0)}/${esc(row.character_frame_count ?? 1)} · cumulative ${Number(row.cumulative_distance_px || 0).toFixed(1)}px`,
+      `route ${esc(row.route_phase || 'none')} ${row.route_elapsed_ms != null ? `${row.route_elapsed_ms}/${row.route_duration_ms}ms` : ''}`,
+      `speech ${esc(speech)} · bubble ${row.dialogue_visible ? esc(row.dialogue_text || 'visible') : 'hidden'}`,
+      `channels ${esc(channelNames.join(', ') || 'none')} · home ${row.pending_home ? `queued @${row.pending_home_due_ms}ms` : 'not queued'}`,
+    ].join('<br>');
+  }
   function commitScene(target, previous, token, requestedSrc) {
     if(token !== sceneToken || target.src !== requestedSrc || !target.naturalWidth) return;
     requestAnimationFrame(() => {
@@ -158,25 +228,38 @@
     $('log').textContent = [...fresh.reverse(), ...old].slice(0, 260).join('\n');
   }
   function render(x) {
-    state = x; setScene(x.image_data_url); $('clock').textContent = x.clock_ms; $('frames').textContent = x.frame_count; $('eventCount').textContent = seenEvents.size; if(x.note) $('note').textContent = x.note;
-    const rows = x.actors || []; if(!selected || !rows.some(a => a.employee_id === selected)) selected = rows[0]?.employee_id;
+    state = x; setScene(x.image_data_url); $('clock').textContent = x.clock_ms ?? 0; $('frames').textContent = x.frame_count ?? 0; $('selectedFloor').textContent = x.floor_id || selectedFloor(); $('actorsTitle').textContent = `Actors on ${x.floor_id || selectedFloor()}`;
+    const floorMeta = floors.find(item => item.floor_id === (x.floor_id || selectedFloor()));
+    $('subtitle').textContent = `${x.floor_id || selectedFloor()} · ${floorMeta?.layout_id || 'runtime floor'} · ${floorMeta?.actor_count ?? (x.actors || []).length} assigned actors. Spawn starts at the portal, then each actor walks to its owned WorkSeat; use Talk, Effects, Wander or Critical to inspect the live channels.`;
+    if(x.note) setNote(x.note);
+    const metrics = x.metrics || {};
+    $('tickMetric').textContent = metrics.tick_compute_ms == null ? '—' : `${metrics.tick_compute_ms}ms`;
+    $('renderMetric').textContent = `${metrics.render_ms == null ? '—' : `${metrics.render_ms}ms`} / ${metrics.encode_ms == null ? '—' : `${metrics.encode_ms}ms`}`;
+    $('sequenceMetric').textContent = `${x.frame_sequence ?? x.frame_count ?? 0}`;
+    const rows = x.actors || []; populateActorSelectors(rows);
     $('actors').innerHTML = rows.map(a => {
       const pct = Math.max(0, Math.min(100, a.stamina)); const band = a.stamina_band;
       const overlay = a.overlay ? ` · ${esc(a.overlay)}` : '';
       const bubble = a.dialogue_visible ? ` · bubble: ${esc(a.dialogue_text||'')}` : '';
-      const route = a.route_phase ? `<div class="detail route">route: ${esc(a.route_phase)}${a.ground_xy ? ` · @${a.ground_xy.map(v => Number(v).toFixed(1)).join(',')}` : ''}</div>` : '';
+      const route = a.route_phase ? `<div class="detail route">route: ${esc(a.route_phase)}${a.route_elapsed_ms != null ? ` · ${esc(a.route_elapsed_ms)}/${esc(a.route_duration_ms)}ms` : ''}${a.ground_xy ? ` · @${a.ground_xy.map(v => Number(v).toFixed(1)).join(',')}` : ''}</div>` : '';
       const talk = a.speech_mode ? `<div class="detail talk">talk: ${esc(a.speech_mode)}${a.talk_partner_id ? ` ↔ ${esc(a.talk_partner_id)}` : ''}${a.speech_category ? ` · ${esc(a.speech_category)}` : ''}</div>` : '';
       const pc = a.pc_frame_count > 1 ? ` · PC cell ${Number(a.pc_frame_index) + 1}/${a.pc_frame_count}` : '';
-      return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.action||'none')}/${esc(a.subaction||'')}${pc}${overlay}${bubble}</div>${route}${talk}<div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`;
+      const frame = `<div class="detail frame">frame ${Number(a.character_frame_index ?? a.frame_index ?? 0) + 1}/${esc(a.character_frame_count ?? 1)} · ${esc(a.resolved_direction || a.direction || '—')}${pc}</div>`;
+      const channels = Object.keys(a.channels || {}).filter(key => key !== 'conversation');
+      const channelDetail = channels.length ? `<div class="detail channel">channels: ${esc(channels.join(', '))}</div>` : '';
+      return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.resolved_action || a.action || 'none')}/${esc(a.resolved_subaction || a.subaction || '')}${overlay}${bubble}</div>${frame}${route}${talk}${channelDetail}<div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`;
     }).join('');
     document.querySelectorAll('.card').forEach(el => el.onclick = () => { selected = el.dataset.id; render(state); });
+    renderSelectedTelemetry(selectedRow());
     appendEvents(x.events); $('eventCount').textContent = seenEvents.size;
     if(!x.demo_complete) demoCompletionShown = false;
     if(x.demo_complete && live && !demoCompletionShown) {
       demoCompletionShown = true;
       const completeNote = x.demo_kind === 'effects'
         ? 'effects demo complete — channels finished and actors are seated'
-        : 'talk demo complete — returned to the owned WorkSeat';
+        : x.demo_kind === 'wander'
+          ? 'wander demo complete — returned to the owned WorkSeat'
+          : 'talk demo complete — returned to the owned WorkSeat';
       if($('autoPauseDemo').checked) {
         setLive(false);
         $('note').textContent = completeNote;
@@ -222,20 +305,34 @@
     }
     if(live && generation === liveGeneration) rafId = requestAnimationFrame(next => pumpLive(next, generation));
   }
-  document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { autoSpeed = Number(b.dataset.speed); document.querySelectorAll('[data-speed]').forEach(x => x.classList.toggle('active', x===b)); $('note').textContent = `live speed ${autoSpeed}×`; });
+  document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { autoSpeed = Number(b.dataset.speed); document.querySelectorAll('[data-speed]').forEach(x => x.classList.toggle('active', x===b)); setNote(`live speed ${autoSpeed}×`); });
   $('liveToggle').onclick = () => setLive(!live);
   document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { setLive(false); try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick),...settings()})); } catch(e){ alert(e.message); } });
-  $('reset').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); demoCompletionShown=false; render(await api('/api/live-start',{compact:true,...settings()})); setLive(true); } catch(e){ $('note').textContent=`restart failed: ${e.message}`; } };
-  $('talkDemo').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); demoCompletionShown=false; render(await api('/api/demo-talk',{employee_id:selected,...settings(),compact:true})); setLive(true); } catch(e){ $('note').textContent=`talk demo failed: ${e.message}`; } };
-  $('effectsDemo').onclick = async () => { setLive(false); try { $('log').textContent=''; seenEvents.clear(); demoCompletionShown=false; render(await api('/api/demo-effects',{...settings(),compact:true})); setLive(true); } catch(e){ $('note').textContent=`effects demo failed: ${e.message}`; } };
-  $('critical').onclick = async () => { setLive(false); try { if(!selected) throw new Error('Select an actor first'); render(await api('/api/demo-critical',{employee_id:selected})); } catch(e){ alert(e.message); } };
+  async function begin(path, extra = {}, {resume = true} = {}) {
+    setLive(false); $('log').textContent=''; seenEvents.clear(); demoCompletionShown=false;
+    try { const result = await api(path,{...settings(),...extra,compact:true}); render(result); if(resume) setLive(true); return result; }
+    catch(e) { setNote(`${path.replace('/api/','')} failed: ${e.message}`); return null; }
+  }
+  $('reset').onclick = () => begin('/api/live-start');
+  $('talkDemo').onclick = () => begin('/api/demo-talk',{employee_id:selected,mode:$('talkMode').value || undefined,partner_id:$('partnerSelect').value || undefined});
+  $('effectsDemo').onclick = () => begin('/api/demo-effects');
+  $('wanderDemo').onclick = () => begin('/api/demo-wander',{employee_id:selected});
+  $('critical').onclick = async () => { if(!selected) { setNote('Select an actor first'); return; } await begin('/api/demo-critical',{employee_id:selected},{resume:false}); };
   $('save').onclick = async () => { setLive(false); try { const x = await api('/api/save',{}); saved = x.runtime_snapshot; localStorage.setItem('gds-runtime-snapshot',x.snapshot_json); localStorage.setItem('gds-runtime-replay',x.replay_json); $('note').textContent='snapshot saved (live paused)'; } catch(e){ alert(e.message); } };
   $('load').onclick = async () => { setLive(false); try { const raw = localStorage.getItem('gds-runtime-snapshot'); if(!raw && !saved) throw new Error('No saved snapshot'); render(await api('/api/load',{runtime_snapshot:saved || JSON.parse(raw)})); } catch(e){ alert(e.message); } };
   $('replay').onclick = async () => { setLive(false); try { const raw = localStorage.getItem('gds-runtime-replay'); if(!raw) throw new Error('Save a snapshot/replay first'); render(await api('/api/replay',JSON.parse(raw))); } catch(e){ alert(e.message); } };
-  $('locale').onchange = () => { $('note').textContent = `dialogue locale: ${$('locale').value} (applies to new speech)`; };
+  $('locale').onchange = () => { setNote(`dialogue locale: ${$('locale').value} (applies to new speech)`); };
+  $('floorSelect').onchange = async () => { selected = null; await begin('/api/live-start'); };
+  $('actorSelect').onchange = () => { selected = $('actorSelect').value || null; if(state) render(state); };
+  $('partnerSelect').onchange = () => { if(state) render(state); };
+  $('talkMode').onchange = () => { $('partnerSelect').disabled = $('talkMode').value === 'self_talk'; setNote(`talk mode: ${$('talkMode').value || 'seeded auto'}`); };
   $('showRoutes').onchange = () => { if(state) { $('log').textContent=''; seenEvents.clear(); render(state); } };
   (async function boot() {
-    try { $('log').textContent=''; seenEvents.clear(); await api('/api/health'); render(await api('/api/live-start',{compact:true,...settings()})); $('note').textContent = location.protocol === 'file:' ? 'connected to localhost host' : ''; setLive(true); }
+    try {
+      $('log').textContent=''; seenEvents.clear();
+      const health = await api('/api/health'); renderCapabilities(await api('/api/capabilities')); populateFloors(await api('/api/floors'));
+      render(await api('/api/live-start',{compact:true,...settings()})); setNote(location.protocol === 'file:' ? `connected to localhost host (${health.api || 'api'})` : ''); setLive(true);
+    }
     catch(e) { setLive(false); $('note').textContent = 'เปิดผ่าน http://127.0.0.1:8765/ และตรวจว่า runtime_review_server.py ทำงานอยู่'; $('log').textContent=`${e.message}\n\nStart: python TOOLS/runtime_review_server.py`; }
   })();
 </script>

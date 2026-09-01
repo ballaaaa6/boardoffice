@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import math
 from pathlib import Path
 from typing import Any
 
@@ -133,6 +134,10 @@ class CentralGameCore:
             conversation=self.conversation,
         )
         self.runtime_persistence = RuntimePersistence(self)
+        # Presentation frame counts are immutable for a character/action
+        # request.  Cache this small lookup so a live frame does not render the
+        # same sprite sheet once for the baseline and again for every overlay.
+        self._runtime_frame_count_cache: dict[tuple[Any, ...], int] = {}
 
     def resolve_asset_path(self, domain: str, asset_id: str) -> Path:
         domain_key = domain.strip().casefold()
@@ -1622,19 +1627,124 @@ class CentralGameCore:
         except RuntimePersistenceError as exc:
             raise CentralGameCoreError(str(exc)) from exc
 
+    @staticmethod
+    def _normalize_runtime_render_request(
+        *,
+        action: str | None,
+        direction: str | None,
+        subaction: str | None,
+    ) -> tuple[str | None, str | None, str | None]:
+        """Map runtime labels to the canonical character render contract.
+
+        Actor routes deliberately keep ``subaction="idle"`` as a useful
+        state/debug label.  The character registry does not expose that label
+        for the ``move``/``idle`` actions, however, and emotion actions are
+        directionless.  Keeping this normalization at the Central boundary
+        makes frame-count lookup and every downstream renderer agree without
+        mutating the actor snapshot.
+        """
+        if action is None:
+            return None, None, None
+        normalized_action = str(action)
+        normalized_direction = (
+            None if direction is None else str(direction).upper()
+        )
+        if normalized_action in {"happy", "sad"}:
+            return normalized_action, None, None
+        if normalized_action in {"move", "idle"}:
+            return normalized_action, normalized_direction, None
+        normalized_subaction = (
+            None if subaction is None else str(subaction)
+        )
+        return normalized_action, normalized_direction, normalized_subaction
+
+    def _runtime_route_distance_px(
+        self,
+        actor: dict[str, Any],
+        route: dict[str, Any] | None,
+    ) -> float:
+        """Resolve distance travelled on a live route for walk-cycle timing.
+
+        The actor reducer owns the route clock and ground pose.  This read-only
+        calculation mirrors its existing ``_path_pose`` distance formula so
+        the presentation frame follows movement distance rather than merely
+        changing once per wall-clock block.  No distance is persisted in the
+        actor contract; it is derived for presentation only.
+        """
+        if not isinstance(route, dict):
+            return 0.0
+        phase = str(route.get("phase") or "")
+        elapsed_ms = max(0, int(route.get("elapsed_ms", 0)))
+        if phase == "talk_hold":
+            return 0.0
+        if phase in {"portal_entry", "portal_exit"}:
+            try:
+                start = route.get("start_uv")
+                target = route.get("target_uv")
+                duration = max(self.actor_simulation.TICK_MS, int(route.get("duration_ms", 0)))
+                if not isinstance(start, (list, tuple)) or not isinstance(target, (list, tuple)):
+                    return 0.0
+                sx, sy = self.character_movement.uv_cell_center_to_pixel(int(start[0]), int(start[1]))
+                tx, ty = self.character_movement.uv_cell_center_to_pixel(int(target[0]), int(target[1]))
+                progress = min(1.0, max(0.0, elapsed_ms / duration))
+                return round(math.dist((sx, sy), (tx, ty)) * progress, 4)
+            except (TypeError, ValueError, IndexError, KeyError):
+                return 0.0
+        if phase not in {
+            "to_portal", "to_workseat", "wander_out", "wander_back",
+            "talk_outbound", "talk_return",
+        }:
+            return 0.0
+        path = route.get("path_cells_uv")
+        if not isinstance(path, list) or len(path) < 2:
+            return 0.0
+        try:
+            profile = self.character_movement.resolve_employee_movement_profile(
+                actor["employee_id"]
+            )
+            cells_per_second = (
+                self.character_movement.base_move_speed_cells_per_second()
+                * float(profile["speed_multiplier"])
+            )
+            distance_cells = min(
+                float(len(path) - 1), elapsed_ms / 1000.0 * cells_per_second
+            )
+            return round(
+                distance_cells * float(self.character_movement.fine_step_distance_px()),
+                4,
+            )
+        except (CharacterSystemError, CharacterMovementError, KeyError, TypeError, ValueError):
+            return 0.0
+
     def _runtime_frame_count(
         self,
         actor: dict[str, Any],
         *,
         action: str,
-        direction: str,
+        direction: str | None,
         subaction: str | None,
     ) -> int:
         """Resolve a frame count without making presentation state authoritative."""
+        render_action, render_direction, render_subaction = self._normalize_runtime_render_request(
+            action=action,
+            direction=direction,
+            subaction=subaction,
+        )
+        cache_key = (
+            str(actor.get('character_id')),
+            render_action,
+            render_direction,
+            render_subaction,
+        )
+        cached = self._runtime_frame_count_cache.get(cache_key)
+        if cached is not None:
+            return cached
         try:
-            return max(1, len(self.characters.render(
-                actor['character_id'], action, direction, subaction
+            frame_count = max(1, len(self.characters.render(
+                actor['character_id'], render_action, render_direction, render_subaction
             ).frames))
+            self._runtime_frame_count_cache[cache_key] = frame_count
+            return frame_count
         except (CharacterSystemError, KeyError, TypeError, ValueError):
             # A render-state read should not make a valid simulation snapshot
             # unusable.  The canonical action resolver remains the owner of
@@ -1659,6 +1769,8 @@ class CentralGameCore:
         route = position.get('route')
         presence = str(actor.get('presence'))
         visible = presence != 'home'
+        route_phase: str | None = None
+        cumulative_distance_px = 0.0
         if isinstance(route, dict):
             render_owner = str(route.get('render_owner') or 'walking_depth')
             action = str(route.get('action') or 'move')
@@ -1670,6 +1782,8 @@ class CentralGameCore:
             current_uv = copy.deepcopy(position.get('uv'))
             visibility_alpha = float(route.get('visibility_alpha', 1.0))
             frame_clock_ms = int(route.get('elapsed_ms', 0))
+            route_phase = str(route.get('phase') or '')
+            cumulative_distance_px = self._runtime_route_distance_px(actor, route)
         elif visible:
             render_owner = 'work_seat'
             action = 'work'
@@ -1700,6 +1814,30 @@ class CentralGameCore:
             direction=direction,
             subaction=subaction,
         ) if action is not None else 1
+        frame_index = 0
+        if action is not None:
+            if action == 'move' and route_phase in {
+                'to_portal', 'to_workseat', 'wander_out', 'wander_back',
+                'talk_outbound', 'talk_return',
+            }:
+                try:
+                    profile = self.character_movement.resolve_employee_movement_profile(
+                        actor['employee_id']
+                    )
+                    frame_index = self.character_movement.walk_cycle_frame_index(
+                        cumulative_distance_px,
+                        frame_count,
+                        frame_distance_cells=float(profile['walk_frame_distance_cells']),
+                    )
+                except (CharacterMovementError, KeyError, TypeError, ValueError):
+                    frame_index = (frame_clock_ms // 360) % frame_count
+            else:
+                frame_index = (frame_clock_ms // 360) % frame_count
+        render_action, render_direction, render_subaction = self._normalize_runtime_render_request(
+            action=action,
+            direction=direction,
+            subaction=subaction,
+        )
         row: dict[str, Any] = {
             'employee_id': actor['employee_id'],
             'character_id': actor['character_id'],
@@ -1717,10 +1855,21 @@ class CentralGameCore:
             'action': action,
             'direction': direction,
             'subaction': subaction,
+            'resolved_action': render_action,
+            'resolved_direction': render_direction,
+            'resolved_subaction': render_subaction,
             'current_uv': current_uv,
             'ground_xy': ground_xy,
-            'frame_index': (frame_clock_ms // 360) % frame_count if action is not None else 0,
-            'character_frame_index': (frame_clock_ms // 360) % frame_count if action is not None else 0,
+            'route_phase': route_phase,
+            'route_elapsed_ms': frame_clock_ms if route_phase is not None else None,
+            'route_duration_ms': (
+                int(route.get('duration_ms', 0))
+                if isinstance(route, dict) else None
+            ),
+            'cumulative_distance_px': cumulative_distance_px,
+            'frame_index': frame_index,
+            'character_frame_index': frame_index,
+            'character_frame_count': frame_count,
             'character_frame_ms': 360,
             # ``frame_clock_ms`` is the bounded 720ms character phase.  The
             # PC channel advances once per completed work loop, so use the
@@ -1985,6 +2134,9 @@ class CentralGameCore:
                         if key in track:
                             row[key] = copy.deepcopy(track[key])
                     if row.get('action') in {'move', 'idle'} and 'subaction' not in track:
+                        # Keep the runtime/debug vocabulary explicit on the
+                        # presentation row.  The canonical resolver fields
+                        # are normalized in the final pass below.
                         row['subaction'] = 'idle'
                     row['visible'] = bool(
                         row.get('render_owner') != 'none'
@@ -2037,6 +2189,69 @@ class CentralGameCore:
                 'emotion': emotion,
                 'speech_session_id': speech_actor.get('last_session_id'),
             })
+
+            # Emotion actions are directionless and have their own three-frame
+            # registry entry.  Recompute the frame metadata instead of
+            # retaining the previous walking/idle count from the baseline row.
+            emotion_until = speech_actor.get('emotion_until_ms')
+            if emotion_until is not None:
+                emotion_start = max(
+                    0,
+                    int(emotion_until) - int(self.speech_scheduler.EMOTION_HOLD_MS),
+                )
+                emotion_elapsed = max(0, speech_sample_ms - emotion_start)
+            else:
+                emotion_elapsed = 0
+            source_actor = actor_snapshot['actors'].get(employee_id, {})
+            emotion_count = self._runtime_frame_count(
+                source_actor,
+                action=emotion,
+                direction=None,
+                subaction=None,
+            )
+            actors[employee_id]['frame_index'] = (
+                emotion_elapsed // 360
+            ) % emotion_count
+            actors[employee_id]['character_frame_index'] = (
+                emotion_elapsed // 360
+            ) % emotion_count
+            actors[employee_id]['character_frame_count'] = emotion_count
+
+        # Tracks and speech overlays can replace the action/direction fields
+        # after the baseline was built.  Re-derive the canonical resolver
+        # fields and frame count once at the boundary, preserving any
+        # distance-based frame index supplied by the authoritative movement
+        # track.
+        for employee_id, row in actors.items():
+            action = row.get('action')
+            if not isinstance(action, str):
+                row['resolved_action'] = None
+                row['resolved_direction'] = None
+                row['resolved_subaction'] = None
+                row['character_frame_count'] = 1
+                row['frame_index'] = 0
+                row['character_frame_index'] = 0
+                continue
+            source_actor = actor_snapshot['actors'].get(employee_id, {})
+            normalized_action, normalized_direction, normalized_subaction = (
+                self._normalize_runtime_render_request(
+                    action=action,
+                    direction=row.get('direction'),
+                    subaction=row.get('subaction'),
+                )
+            )
+            count = self._runtime_frame_count(
+                source_actor,
+                action=action,
+                direction=row.get('direction'),
+                subaction=row.get('subaction'),
+            )
+            row['resolved_action'] = normalized_action
+            row['resolved_direction'] = normalized_direction
+            row['resolved_subaction'] = normalized_subaction
+            row['character_frame_count'] = count
+            row['frame_index'] = int(row.get('frame_index', 0)) % count
+            row['character_frame_index'] = row['frame_index']
 
         character_order = sorted(
             actors,

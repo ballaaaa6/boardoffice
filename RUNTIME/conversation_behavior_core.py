@@ -13,10 +13,12 @@ then visitors return to their seats.
 import copy
 import hashlib
 import json
+from bisect import bisect_right
 from pathlib import Path
 from typing import Any, Iterable
 
 from RUNTIME.character_movement_core import CharacterMovementCore, CharacterMovementError
+from CHARACTER.RUNTIME.character_system import CharacterSystemError
 from RUNTIME.conversation_spot_core import ConversationSpotCore, ConversationSpotError
 from RUNTIME.crowd_movement_core import CrowdMovementReservationError, DynamicActorReservationCore
 from RUNTIME.employee_registry import EmployeeMetadataError, EmployeeMetadataRegistry
@@ -103,6 +105,11 @@ class ConversationBehaviorCore:
             or self.default_bubble_fade_ms < 0
         ):
             raise ConversationBehaviorError("conversation timing contract defaults are out of range")
+        # Character frame counts are immutable for a canonical action request.
+        # Conversation planning asks for the same work/move counts repeatedly;
+        # keeping this cache local to the planner avoids re-reading sprite
+        # sheets while retaining deterministic, in-process behaviour.
+        self._frame_count_cache: dict[tuple[Any, ...], int] = {}
 
     @staticmethod
     def _uv(value: Iterable[int]) -> tuple[int, int]:
@@ -120,6 +127,45 @@ class ConversationBehaviorCore:
         if isinstance(value, dict):
             return {str(key): ConversationBehaviorCore._json(item) for key, item in value.items()}
         return value
+
+    def _frame_count(
+        self,
+        character_id: str,
+        action: str,
+        direction: str | None,
+        subaction: str | None = None,
+    ) -> int:
+        """Return a cached canonical frame count for planner tracks."""
+        normalized_action = str(action)
+        normalized_direction = None if direction is None else str(direction).upper()
+        if normalized_action in {"happy", "sad"}:
+            normalized_direction = None
+            normalized_subaction = None
+        elif normalized_action in {"move", "idle"}:
+            normalized_subaction = None
+        else:
+            normalized_subaction = None if subaction is None else str(subaction)
+        key = (
+            str(character_id),
+            normalized_action,
+            normalized_direction,
+            normalized_subaction,
+        )
+        cached = self._frame_count_cache.get(key)
+        if cached is not None:
+            return cached
+        try:
+            count = len(self.movement.characters.render(
+                str(character_id),
+                normalized_action,
+                normalized_direction,
+                normalized_subaction,
+            ).frames)
+        except (CharacterSystemError, CharacterMovementError, KeyError, TypeError, ValueError):
+            count = 1
+        count = max(1, int(count))
+        self._frame_count_cache[key] = count
+        return count
 
     @staticmethod
     def _assignment(row: dict[str, Any]) -> dict[str, Any]:
@@ -968,7 +1014,7 @@ class ConversationBehaviorCore:
         states: list[dict[str, Any]] = []
         for sample in samples:
             direction = str(sample.get("visual_direction") or sample["direction"]).upper()
-            frame_count = len(self.movement.characters.render(actor["character_id"], "move", direction).frames)
+            frame_count = self._frame_count(actor["character_id"], "move", direction)
             frame = self.movement.walk_cycle_frame_index(
                 float(sample["cumulative_distance_px"]),
                 max(1, frame_count),
@@ -1394,14 +1440,29 @@ class ConversationBehaviorCore:
                 for row in states
                 if 0 <= int(row.get("timestamp_ms", 0)) <= int(end_ms)
             )
+        # Index each track once.  The previous implementation scanned every
+        # state row for every timestamp, which made a 4–7 second talk plan
+        # quadratic in the number of authored samples and blocked the live
+        # HTTP tick.  ``bisect_right`` preserves the same "latest state at or
+        # before timestamp" semantics in logarithmic time.
+        indexed_tracks: dict[str, tuple[list[dict[str, Any]], list[int]]] = {}
+        for employee_id, states in tracks.items():
+            ordered = [
+                (index, state) for index, state in enumerate(states)
+                if isinstance(state, dict)
+            ]
+            ordered.sort(key=lambda item: (int(item[1].get("timestamp_ms", 0)), item[0]))
+            rows = [state for _index, state in ordered]
+            timestamps = [int(state.get("timestamp_ms", 0)) for state in rows]
+            if rows:
+                indexed_tracks[employee_id] = (rows, timestamps)
+
         timeline = []
         for timestamp in sorted(times):
             actors: dict[str, dict[str, Any]] = {}
-            for employee_id, states in tracks.items():
-                prior = [row for row in states if int(row["timestamp_ms"]) <= timestamp]
-                if not prior:
-                    prior = [states[0]]
-                state = copy.deepcopy(prior[-1])
+            for employee_id, (states, timestamps) in indexed_tracks.items():
+                state_index = bisect_right(timestamps, timestamp) - 1
+                state = copy.deepcopy(states[max(0, state_index)])
                 # A seated host remains in the normal Work action while the
                 # speech lane owns its bubble.  Keep that action animated on
                 # the authored 360 ms character clock instead of leaving the
@@ -1409,15 +1470,12 @@ class ConversationBehaviorCore:
                 # and explicit one-shot states already carry their own frame
                 # index, so only the continuous work pose is derived here.
                 if state.get("action") == "work":
-                    try:
-                        frame_count = len(self.movement.characters.render(
-                            state["character_id"],
-                            "work",
-                            state.get("direction") or "SE",
-                            state.get("subaction") or "normal_work",
-                        ).frames)
-                    except (CharacterMovementError, KeyError, TypeError, ValueError):
-                        frame_count = 1
+                    frame_count = self._frame_count(
+                        state["character_id"],
+                        "work",
+                        state.get("direction") or "SE",
+                        state.get("subaction") or "normal_work",
+                    )
                     state["frame_index"] = (int(timestamp) // 360) % max(1, frame_count)
                     state["character_frame_ms"] = 360
                 actors[employee_id] = state

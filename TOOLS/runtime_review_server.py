@@ -14,6 +14,7 @@ import copy
 import json
 import sys
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from io import BytesIO
 from pathlib import Path
@@ -32,10 +33,11 @@ from RUNTIME.runtime_presentation_renderer import RuntimePresentationLoop
 DEFAULT_PORT = 8765
 FLOOR_ID = "floor02"
 HTML_PATH = PROJECT_ROOT / "WEB" / "runtime_review.html"
+API_VERSION = "v2"
 
 
-def _quiet_runtime(core: CentralGameCore) -> dict[str, Any]:
-    runtime = core.resolve_runtime_snapshot(FLOOR_ID)
+def _quiet_runtime(core: CentralGameCore, floor_id: str = FLOOR_ID) -> dict[str, Any]:
+    runtime = core.resolve_runtime_snapshot(floor_id)
     for actor in runtime["speech_snapshot"]["actors"].values():
         actor.update({
             "greeting_due_ms": None,
@@ -51,11 +53,14 @@ def _quiet_runtime(core: CentralGameCore) -> dict[str, Any]:
 
 
 class ReviewState:
-    def __init__(self) -> None:
+    def __init__(self, floor_id: str = FLOOR_ID) -> None:
         self.lock = threading.RLock()
         self.core = CentralGameCore(PROJECT_ROOT)
-        self.floor_id = FLOOR_ID
-        self.base_runtime = _quiet_runtime(self.core)
+        self.available_floors = tuple(sorted(str(value) for value in self.core.world.floors))
+        if floor_id not in self.available_floors:
+            raise ValueError(f"Unknown floor: {floor_id}")
+        self.floor_id = str(floor_id)
+        self.base_runtime = _quiet_runtime(self.core, self.floor_id)
         self.initial_runtime = copy.deepcopy(self.base_runtime)
         self.replay_steps: list[dict[str, Any]] = []
         self._live_spawn_due_ms: dict[str, int] = {}
@@ -64,11 +69,90 @@ class ReviewState:
         self._talk_demo_session_id: str | None = None
         self._talk_demo_initiator_id: str | None = None
         self._effects_demo_ids: set[str] = set()
+        self._wander_demo_actor_id: str | None = None
         self._demo_kind: str | None = None
         self._demo_complete = False
         self.dialogue_locale = "en"
         self.dialogue_seed: str | int = "0"
+        self._last_tick_metrics: dict[str, Any] = {
+            "tick_compute_ms": 0.0,
+            "render_ms": 0.0,
+            "encode_ms": 0.0,
+            "frame_sequence": 0,
+        }
         self._reset_loop()
+
+    def _validate_floor_id(self, floor_id: str) -> str:
+        value = str(floor_id).strip()
+        if value not in self.available_floors:
+            raise ValueError(f"Unknown floor: {floor_id}")
+        return value
+
+    def _select_floor(self, floor_id: str | None) -> None:
+        """Switch the review host to one authoritative floor runtime."""
+        if floor_id is None:
+            return
+        selected = self._validate_floor_id(floor_id)
+        if selected == self.floor_id:
+            return
+        self.floor_id = selected
+        self.base_runtime = _quiet_runtime(self.core, self.floor_id)
+        self.initial_runtime = copy.deepcopy(self.base_runtime)
+        self.replay_steps = []
+        self._live_spawn_due_ms = {}
+        self._live_behavior_armed = set()
+        self._behavior_arming_enabled = True
+        self._talk_demo_session_id = None
+        self._talk_demo_initiator_id = None
+        self._effects_demo_ids = set()
+        self._wander_demo_actor_id = None
+        self._demo_kind = None
+        self._demo_complete = False
+        self._reset_loop()
+
+    def floors(self) -> list[dict[str, Any]]:
+        rows: list[dict[str, Any]] = []
+        for floor_id in self.available_floors:
+            record = self.core.world.floor_record(floor_id)
+            layout = self.core.world.floor_layout(floor_id)
+            roster = self.core.employee_metadata.initial_roster(floor_id)
+            rows.append({
+                "floor_id": floor_id,
+                "layout_id": record.get("layout_id"),
+                "skin_id": record.get("skin_id"),
+                "layout_family": record.get("layout_id"),
+                "actor_count": len(roster),
+                "workstation_count": len(layout.get("workstation_groups", {})),
+                "has_ceo": any(
+                    item.get("workstation_id") == "ceo" for item in roster
+                ),
+            })
+        return rows
+
+    def capabilities(self) -> dict[str, Any]:
+        return {
+            "api": API_VERSION,
+            "floor_count": len(self.available_floors),
+            "floors": list(self.available_floors),
+            "scenarios": ["live", "talk", "effects", "critical", "wander"],
+            "channels": [
+                "actor", "movement", "workseat", "pc", "speech", "bubble",
+                "vfx", "humanball", "stamina", "portal", "persistence", "replay",
+            ],
+            "locales": ["en", "th"],
+            "timing_ms": {
+                "simulation_tick": self.core.actor_simulation.TICK_MS,
+                "character_frame": 360,
+                "effect_frame": 240,
+                "humanball_frame": 240,
+                "normal_work_loop": self.core.actor_simulation.WORK_LOOP_MS,
+            },
+            "roster_policy": {
+                "assigned_wave1_active": True,
+                "unassigned_inactive": True,
+                "multi_floor_mode": "one_selected_floor_per_review_host",
+            },
+        }
 
     def _reset_loop(self, runtime: dict[str, Any] | None = None) -> None:
         source = copy.deepcopy(runtime if runtime is not None else self.initial_runtime)
@@ -153,6 +237,7 @@ class ReviewState:
     def live_start(
         self,
         *,
+        floor_id: str | None = None,
         include_runtime: bool = True,
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
@@ -168,6 +253,7 @@ class ReviewState:
         emerge without manual clicks.
         """
         with self.lock:
+            self._select_floor(floor_id)
             if dialogue_locale is not None:
                 locale = str(dialogue_locale).strip().lower()
                 if locale not in {"en", "th"}:
@@ -178,7 +264,7 @@ class ReviewState:
             runtime = copy.deepcopy(self.base_runtime)
             actor_ids = sorted(runtime["actor_snapshot"]["actors"])
             if not actor_ids:
-                raise CentralGameCoreError("floor02 has no actors for live review")
+                raise CentralGameCoreError(f"{self.floor_id} has no actors for live review")
             critical_id = actor_ids[0]
             critical = runtime["actor_snapshot"]["actors"][critical_id]
             # Every actor starts off-map at the portal, ready to enter.  The
@@ -193,6 +279,7 @@ class ReviewState:
             self._talk_demo_session_id = None
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
+            self._wander_demo_actor_id = None
             self._demo_kind = None
             self._demo_complete = False
             for actor in runtime["actor_snapshot"]["actors"].values():
@@ -265,6 +352,9 @@ class ReviewState:
         self,
         employee_id: str | None = None,
         *,
+        floor_id: str | None = None,
+        mode: str | None = None,
+        partner_id: str | None = None,
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
         include_runtime: bool = True,
@@ -278,6 +368,7 @@ class ReviewState:
         seated/quiet and then lets the regular actor-owned route advance.
         """
         with self.lock:
+            self._select_floor(floor_id)
             if dialogue_locale is not None:
                 self.dialogue_locale = str(dialogue_locale).strip().lower() or "en"
                 if self.dialogue_locale not in {"en", "th"}:
@@ -295,7 +386,7 @@ class ReviewState:
                 != "ceo"
             ]
             if not candidates:
-                raise CentralGameCoreError("floor02 has no employee actor for talk demo")
+                raise CentralGameCoreError(f"{self.floor_id} has no employee actor for talk demo")
             initiator_id = str(employee_id) if employee_id in candidates else candidates[0]
             now_ms = int(runtime["actor_snapshot"]["clock"]["simulation_time_ms"])
             for actor_key, actor in runtime["actor_snapshot"]["actors"].items():
@@ -341,10 +432,50 @@ class ReviewState:
             self._talk_demo_session_id = None
             self._talk_demo_initiator_id = initiator_id
             self._effects_demo_ids = set()
+            self._wander_demo_actor_id = None
             self._demo_kind = "talk"
             self._demo_complete = False
             self._reset_loop(runtime)
             chooser = self.core.actor_simulation.choose_behavior_event
+            original_mode_request = self.core.speech_scheduler._mode_request
+
+            requested_mode = (
+                str(mode).strip().casefold() if mode is not None else None
+            )
+            if requested_mode is not None and requested_mode not in {
+                "self_talk", "ceo_front", "seated_host", "standing_pair",
+            }:
+                raise ValueError(
+                    "mode must be self_talk, ceo_front, seated_host or standing_pair"
+                )
+
+            def forced_mode_request(snapshot, employee_key, *, counter):
+                if str(employee_key) != initiator_id or requested_mode is None:
+                    return original_mode_request(snapshot, employee_key, counter=counter)
+                if requested_mode == "self_talk":
+                    return {
+                        "kind": "solo",
+                        "initiator_id": initiator_id,
+                        "participants": [initiator_id],
+                        "mode": "self_talk",
+                        # ``None`` selects the authored general self-talk pool.
+                        # ``solo`` is a scheduler priority label, not a
+                        # dialogue-catalog category, and would yield no plan.
+                        "category": None,
+                        "dialogue_categories": [],
+                        "available_modes": ["self_talk"],
+                    }
+                candidates_for_mode = self.core.speech_scheduler._mode_requests(
+                    snapshot,
+                    employee_key,
+                    counter=counter,
+                )
+                for candidate in candidates_for_mode:
+                    if candidate.get("mode") != requested_mode:
+                        continue
+                    if partner_id is None or candidate.get("partner_id") == partner_id:
+                        return candidate
+                return None
 
             def forced_talk(employee_key, *args, **kwargs):
                 simulation_time = kwargs.get("simulation_time_ms")
@@ -359,6 +490,7 @@ class ReviewState:
                 return chooser(employee_key, *args, **kwargs)
 
             self.core.actor_simulation.choose_behavior_event = forced_talk
+            self.core.speech_scheduler._mode_request = forced_mode_request
             try:
                 result = self.tick(
                     60,
@@ -380,16 +512,19 @@ class ReviewState:
                 return result
             finally:
                 self.core.actor_simulation.choose_behavior_event = chooser
+                self.core.speech_scheduler._mode_request = original_mode_request
 
     def demo_effects(
         self,
         *,
+        floor_id: str | None = None,
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
         include_runtime: bool = True,
     ) -> dict[str, Any]:
         """Start a deterministic HumanBall + VFX review side by side."""
         with self.lock:
+            self._select_floor(floor_id)
             if dialogue_locale is not None:
                 self.dialogue_locale = str(dialogue_locale).strip().lower() or "en"
                 if self.dialogue_locale not in {"en", "th"}:
@@ -407,7 +542,7 @@ class ReviewState:
                 != "ceo"
             ]
             if len(candidates) < 2:
-                raise CentralGameCoreError("floor02 needs two employee actors for effects demo")
+                raise CentralGameCoreError(f"{self.floor_id} needs two employee actors for effects demo")
             forced = {
                 candidates[0]: "popup",
                 candidates[1]: "background_effect",
@@ -453,6 +588,7 @@ class ReviewState:
             self._talk_demo_session_id = None
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set(forced)
+            self._wander_demo_actor_id = None
             self._demo_kind = "effects"
             self._demo_complete = False
             self._reset_loop(runtime)
@@ -479,6 +615,98 @@ class ReviewState:
                     include_runtime=include_runtime,
                 )
                 result["demo_complete"] = False
+                return result
+            finally:
+                self.core.actor_simulation.choose_behavior_event = chooser
+
+    def demo_wander(
+        self,
+        employee_id: str | None = None,
+        *,
+        floor_id: str | None = None,
+        include_runtime: bool = True,
+    ) -> dict[str, Any]:
+        """Start one deterministic outbound/return wander route for review."""
+        with self.lock:
+            self._select_floor(floor_id)
+            runtime = copy.deepcopy(self.base_runtime)
+            actor_ids = sorted(runtime["actor_snapshot"]["actors"])
+            candidates = [
+                actor_key for actor_key in actor_ids
+                if runtime["actor_snapshot"]["actors"][actor_key]
+                .get("assignment", {}).get("workstation_id") != "ceo"
+            ]
+            if not candidates:
+                raise CentralGameCoreError(f"{self.floor_id} has no employee actor for wander demo")
+            target_id = str(employee_id) if employee_id in candidates else candidates[0]
+            now_ms = int(runtime["actor_snapshot"]["clock"]["simulation_time_ms"])
+            for actor_key, actor in runtime["actor_snapshot"]["actors"].items():
+                actor["presence"] = "present"
+                actor["activity"] = "working"
+                actor["conversation_phase"] = None
+                actor["position"].update({
+                    "floor_id": self.floor_id,
+                    "uv": None,
+                    "ground_xy": None,
+                    "route": None,
+                })
+                actor["behavior"].update({
+                    "next_event_due_ms": now_ms if actor_key == target_id else 10**9,
+                    "active_event": None,
+                    "activity_started_ms": now_ms,
+                    "activity_until_ms": None,
+                    "work_loop_elapsed_ms": 0,
+                    "work_loop_count": 0,
+                    "pending_home": False,
+                    "pending_home_due_ms": None,
+                })
+            for actor in runtime["speech_snapshot"]["actors"].values():
+                actor.update({
+                    "last_activity": "working",
+                    "speech_phase": "idle",
+                    "greeting_due_ms": None,
+                    "greeting_emitted": True,
+                    "work_start_due_ms": None,
+                    "work_start_emitted": True,
+                    "solo_next_due_ms": None,
+                    "pair_next_due_ms": None,
+                })
+            runtime = self.core.validate_runtime_snapshot(runtime)
+            self.initial_runtime = copy.deepcopy(runtime)
+            self.replay_steps = []
+            self._live_spawn_due_ms = {}
+            self._live_behavior_armed = set(runtime["actor_snapshot"]["actors"])
+            self._behavior_arming_enabled = False
+            self._talk_demo_session_id = None
+            self._talk_demo_initiator_id = None
+            self._effects_demo_ids = set()
+            self._wander_demo_actor_id = target_id
+            self._demo_kind = "wander"
+            self._demo_complete = False
+            self._reset_loop(runtime)
+            chooser = self.core.actor_simulation.choose_behavior_event
+
+            def forced_wander(employee_key, *args, **kwargs):
+                simulation_time = kwargs.get("simulation_time_ms")
+                if simulation_time is None and args:
+                    simulation_time = args[0]
+                if (
+                    str(employee_key) == target_id
+                    and simulation_time is not None
+                    and int(simulation_time) == now_ms
+                ):
+                    return "wander"
+                return chooser(employee_key, *args, **kwargs)
+
+            self.core.actor_simulation.choose_behavior_event = forced_wander
+            try:
+                result = self.tick(
+                    60,
+                    autopilot=False,
+                    note=f"wander demo: {target_id} (live advances outbound and return route)",
+                    include_runtime=include_runtime,
+                )
+                result["demo_employee_id"] = target_id
                 return result
             finally:
                 self.core.actor_simulation.choose_behavior_event = chooser
@@ -666,6 +894,19 @@ class ReviewState:
                     else channel_name
                 )
                 break
+            channel_rows = {
+                channel_name: {
+                    key: channel[key]
+                    for key in (
+                        "asset_id", "effect_id", "humanball_id", "effect_frame_index",
+                        "humanball_frame_index", "effect_frame_count", "humanball_frame_count",
+                        "effect_frame_ms", "humanball_frame_ms",
+                    )
+                    if key in channel
+                }
+                for channel_name, channel in channels.items()
+                if isinstance(channel, dict)
+            }
             rows.append({
                 "employee_id": employee_id,
                 "character_id": row.get("character_id"),
@@ -674,18 +915,34 @@ class ReviewState:
                 "action": row.get("action"),
                 "subaction": row.get("subaction"),
                 "direction": row.get("direction"),
+                "resolved_action": row.get("resolved_action"),
+                "resolved_direction": row.get("resolved_direction"),
+                "resolved_subaction": row.get("resolved_subaction"),
                 "workstation_id": row.get("workstation_id"),
                 "render_owner": row.get("render_owner"),
                 "visible": row.get("visible"),
                 "pc_frame_index": row.get("pc_frame_index"),
                 "pc_frame_count": row.get("pc_frame_count"),
+                "pc_frame_ms": row.get("pc_frame_ms"),
                 "presentation_phase": row.get("presentation_phase"),
-                "route_phase": route.get("phase"),
+                "route_phase": row.get("route_phase") or route.get("phase"),
+                "route_elapsed_ms": row.get("route_elapsed_ms", route.get("elapsed_ms")),
+                "route_duration_ms": row.get("route_duration_ms", route.get("duration_ms")),
                 "ground_xy": row.get("ground_xy"),
                 "current_uv": row.get("current_uv"),
+                "cumulative_distance_px": row.get("cumulative_distance_px", 0),
+                "frame_index": row.get("frame_index"),
+                "character_frame_index": row.get("character_frame_index"),
+                "character_frame_count": row.get("character_frame_count"),
+                "character_frame_ms": row.get("character_frame_ms"),
                 "overlay": overlay,
+                "channels": channel_rows,
                 "dialogue_visible": bool(row.get("dialogue_visible")),
                 "dialogue_text": row.get("dialogue_text"),
+                "dialogue_id": row.get("dialogue_id"),
+                "dialogue_line_index": row.get("dialogue_line_index"),
+                "dialogue_locale": row.get("dialogue_locale"),
+                "dialogue_opacity": row.get("dialogue_opacity"),
                 "dialogue_phase": row.get("dialogue_phase"),
                 "speech_mode": row.get("speech_mode"),
                 "speech_category": row.get("speech_category"),
@@ -693,6 +950,7 @@ class ReviewState:
                 "talk_role": talk.get("role"),
                 "talk_partner_id": talk.get("partner_id"),
                 "stamina": round(int(stamina.get("current_milli", 0)) / 1000, 3),
+                "stamina_milli": int(stamina.get("current_milli", 0)),
                 "stamina_band": stamina.get("threshold_band"),
                 "pending_home": bool(
                     frame["runtime_snapshot"]["actor_snapshot"]["actors"]
@@ -715,11 +973,18 @@ class ReviewState:
         runtime = frame["runtime_snapshot"]
         actor_clock = runtime["actor_snapshot"]["clock"]["simulation_time_ms"]
         compact_events = not include_runtime
+        encode_started = time.perf_counter()
+        image_data_url = self._image_data_url(frame["image"], compact=not include_runtime)
+        encode_ms = round((time.perf_counter() - encode_started) * 1000.0, 3)
+        metrics = copy.deepcopy(self._last_tick_metrics)
+        metrics["encode_ms"] = encode_ms
         payload = {
             "floor_id": self.floor_id,
             "frame_count": self.adapter.frame_count,
             "clock_ms": actor_clock,
-            "image_data_url": self._image_data_url(frame["image"], compact=not include_runtime),
+            "frame_sequence": int(self.adapter.frame_count),
+            "metrics": metrics,
+            "image_data_url": image_data_url,
             "actors": self._actor_rows(frame),
             "events": (
                 self._compact_events(frame.get("events"))
@@ -777,6 +1042,7 @@ class ReviewState:
         dialogue_seed: str | int | None = None,
     ) -> dict[str, Any]:
         with self.lock:
+            tick_started = time.perf_counter()
             if dialogue_locale is not None:
                 locale = str(dialogue_locale).strip().lower()
                 if locale not in {"en", "th"}:
@@ -800,11 +1066,13 @@ class ReviewState:
                     for command in self._ready_return_commands(runtime)
                     if command["employee_id"] not in existing_ids
                 )
+            render_started = time.perf_counter()
             frame = self.adapter.tick(
                 elapsed_ms,
                 actor_commands=commands,
                 speech_commands=speech_commands or [],
             )
+            render_ms = (time.perf_counter() - render_started) * 1000.0
             self._suppress_demo_routine_speech(frame)
             if self._talk_demo_session_id is not None and self._talk_demo_initiator_id is not None and any(
                 event.get("type") == "talk_returned"
@@ -823,6 +1091,19 @@ class ReviewState:
                 self._effects_demo_ids.difference_update(finished)
                 if not self._effects_demo_ids:
                     self._demo_complete = True
+            if self._wander_demo_actor_id is not None and any(
+                event.get("type") == "wander_returned"
+                and str(event.get("employee_id")) == self._wander_demo_actor_id
+                for event in frame.get("events", [])
+            ):
+                self._demo_complete = True
+            tick_compute_ms = (time.perf_counter() - tick_started) * 1000.0
+            self._last_tick_metrics = {
+                "tick_compute_ms": round(tick_compute_ms, 3),
+                "render_ms": round(render_ms, 3),
+                "encode_ms": None,
+                "frame_sequence": int(self.adapter.frame_count),
+            }
             self.replay_steps.append({
                 "elapsed_ms": int(elapsed_ms),
                 "actor_commands": copy.deepcopy(commands),
@@ -830,33 +1111,54 @@ class ReviewState:
                 "dialogue_locale": self.dialogue_locale,
                 "dialogue_seed": self.dialogue_seed,
             })
-            return self.frame_payload(frame, note=note, include_runtime=include_runtime)
+            payload_started = time.perf_counter()
+            payload = self.frame_payload(frame, note=note, include_runtime=include_runtime)
+            payload["metrics"]["payload_build_ms"] = round(
+                (time.perf_counter() - payload_started) * 1000.0,
+                3,
+            )
+            return payload
 
-    def reset(self) -> dict[str, Any]:
+    def reset(
+        self,
+        *,
+        floor_id: str | None = None,
+        include_runtime: bool = True,
+    ) -> dict[str, Any]:
         with self.lock:
+            self._select_floor(floor_id)
             self._behavior_arming_enabled = True
             self._talk_demo_session_id = None
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
+            self._wander_demo_actor_id = None
             self._demo_kind = None
             self._demo_complete = False
             self.initial_runtime = copy.deepcopy(self.base_runtime)
             self.replay_steps = []
             self._reset_loop()
-            return self.current(note="reset")
+            return self.current(note="reset", include_runtime=include_runtime)
 
-    def demo_critical(self, employee_id: str) -> dict[str, Any]:
+    def demo_critical(
+        self,
+        employee_id: str,
+        *,
+        floor_id: str | None = None,
+        include_runtime: bool = True,
+    ) -> dict[str, Any]:
         with self.lock:
+            self._select_floor(floor_id)
             self._behavior_arming_enabled = True
             self._talk_demo_session_id = None
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
+            self._wander_demo_actor_id = None
             self._demo_kind = None
             self._demo_complete = False
             runtime = self.adapter.loop.runtime_snapshot
             actor = runtime["actor_snapshot"]["actors"].get(employee_id)
             if actor is None:
-                raise CentralGameCoreError(f"Unknown floor02 employee: {employee_id}")
+                raise CentralGameCoreError(f"Unknown {self.floor_id} employee: {employee_id}")
             actor["stamina"].update({
                 "current_milli": 5000,
                 "threshold_band": "critical",
@@ -881,7 +1183,7 @@ class ReviewState:
             self._reset_loop(runtime)
             # One small tick makes the auto-queue observable while leaving a
             # full 720ms worknormal loop for the author to watch.
-            return self.tick(60)
+            return self.tick(60, include_runtime=include_runtime)
 
     def save(self) -> dict[str, Any]:
         with self.lock:
@@ -897,10 +1199,18 @@ class ReviewState:
     def load(self, runtime: dict[str, Any]) -> dict[str, Any]:
         with self.lock:
             validated = self.core.deserialize_runtime_snapshot(runtime)
+            assignment_floors = {
+                str(actor.get("assignment", {}).get("floor_id"))
+                for actor in validated.get("actor_snapshot", {}).get("actors", {}).values()
+                if isinstance(actor, dict) and actor.get("assignment", {}).get("floor_id")
+            }
+            if len(assignment_floors) == 1:
+                self._select_floor(next(iter(assignment_floors)))
             self._behavior_arming_enabled = True
             self._talk_demo_session_id = None
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
+            self._wander_demo_actor_id = None
             self._demo_kind = None
             self._demo_complete = False
             self.initial_runtime = copy.deepcopy(validated)
@@ -910,11 +1220,20 @@ class ReviewState:
 
     def replay(self, package: dict[str, Any]) -> dict[str, Any]:
         with self.lock:
+            initial = package.get("initial_runtime_snapshot") if isinstance(package, dict) else None
+            assignment_floors = {
+                str(actor.get("assignment", {}).get("floor_id"))
+                for actor in (initial or {}).get("actor_snapshot", {}).get("actors", {}).values()
+                if isinstance(actor, dict) and actor.get("assignment", {}).get("floor_id")
+            }
+            if len(assignment_floors) == 1:
+                self._select_floor(next(iter(assignment_floors)))
             result = self.core.replay_runtime_package(package)
             self._behavior_arming_enabled = True
             self._talk_demo_session_id = None
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
+            self._wander_demo_actor_id = None
             self._demo_kind = None
             self._demo_complete = False
             self.replay_steps = copy.deepcopy(package.get("steps", []))
@@ -973,20 +1292,31 @@ class ReviewHandler(BaseHTTPRequestHandler):
                 self._send(200, HTML_PATH.read_text(encoding="utf-8"), content_type="text/html")
                 return
             if self.path == "/api/state":
-                self._send(200, STATE.current())
+                self._send(200, STATE.current(include_runtime=False))
+                return
+            if self.path == "/api/floors":
+                self._send(200, {
+                    "api": API_VERSION,
+                    "selected_floor_id": STATE.floor_id,
+                    "floors": STATE.floors(),
+                })
+                return
+            if self.path in {"/api/capabilities", "/api/manifest"}:
+                self._send(200, STATE.capabilities())
                 return
             if self.path == "/api/health":
                 self._send(200, {
                     "ok": True,
                     "server": "gds-runtime-review",
-                    "floor_id": FLOOR_ID,
-                    "api": "v1",
+                    "floor_id": STATE.floor_id,
+                    "api": API_VERSION,
+                    "floor_count": len(STATE.available_floors),
                 })
                 return
             if self.path == "/api/policy":
                 policy = STATE.core.employee_metadata.stamina_policy()
                 self._send(200, {
-                    "floor_id": FLOOR_ID,
+                    "floor_id": STATE.floor_id,
                     "normal_work_loop_ms": STATE.core.actor_simulation.WORK_LOOP_MS,
                     "critical_threshold": STATE.core.actor_simulation.CRITICAL_THRESHOLD_MILLI / 1000,
                     "emotion_effects": policy.get("emotion_effects", {}),
@@ -1010,9 +1340,13 @@ class ReviewHandler(BaseHTTPRequestHandler):
         try:
             body = self._read_json()
             if self.path == "/api/reset":
-                self._send(200, STATE.reset())
+                self._send(200, STATE.reset(
+                    floor_id=body.get("floor_id"),
+                    include_runtime=not bool(body.get("compact", False)),
+                ))
             elif self.path == "/api/live-start":
                 self._send(200, STATE.live_start(
+                    floor_id=body.get("floor_id"),
                     include_runtime=not bool(body.get("compact", False)),
                     dialogue_locale=body.get("dialogue_locale"),
                     dialogue_seed=body.get("dialogue_seed"),
@@ -1023,14 +1357,27 @@ class ReviewHandler(BaseHTTPRequestHandler):
                     raise ValueError("employee_id must be text when supplied")
                 self._send(200, STATE.demo_talk(
                     employee_id,
+                    floor_id=body.get("floor_id"),
+                    mode=body.get("mode"),
+                    partner_id=body.get("partner_id"),
                     dialogue_locale=body.get("dialogue_locale"),
                     dialogue_seed=body.get("dialogue_seed"),
                     include_runtime=not bool(body.get("compact", False)),
                 ))
             elif self.path == "/api/demo-effects":
                 self._send(200, STATE.demo_effects(
+                    floor_id=body.get("floor_id"),
                     dialogue_locale=body.get("dialogue_locale"),
                     dialogue_seed=body.get("dialogue_seed"),
+                    include_runtime=not bool(body.get("compact", False)),
+                ))
+            elif self.path == "/api/demo-wander":
+                employee_id = body.get("employee_id")
+                if employee_id is not None and not isinstance(employee_id, str):
+                    raise ValueError("employee_id must be text when supplied")
+                self._send(200, STATE.demo_wander(
+                    employee_id,
+                    floor_id=body.get("floor_id"),
                     include_runtime=not bool(body.get("compact", False)),
                 ))
             elif self.path == "/api/tick":
@@ -1050,7 +1397,11 @@ class ReviewHandler(BaseHTTPRequestHandler):
                 employee_id = body.get("employee_id")
                 if not isinstance(employee_id, str) or not employee_id:
                     raise ValueError("employee_id is required")
-                self._send(200, STATE.demo_critical(employee_id))
+                self._send(200, STATE.demo_critical(
+                    employee_id,
+                    floor_id=body.get("floor_id"),
+                    include_runtime=not bool(body.get("compact", False)),
+                ))
             elif self.path == "/api/save":
                 self._send(200, STATE.save())
             elif self.path == "/api/load":

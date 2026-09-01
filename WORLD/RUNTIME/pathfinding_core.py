@@ -36,6 +36,13 @@ class PathfindingCore:
     def __init__(self, world_root: str | Path, *, occupancy: NavigationOccupancyCore | None = None):
         self.root = Path(world_root).resolve()
         self.occupancy = occupancy or NavigationOccupancyCore(self.root)
+        # Compiled navigation is static for the lifetime of a runtime host.
+        # ``NavigationOccupancyCore.resolve_floor`` intentionally returns a
+        # defensive deep copy, which is correct for public callers but made
+        # every conversation route pay that cost again.  Pathfinding only
+        # reads the compiled record, so retain one private read-only copy per
+        # floor and continue copying the derived walkable set per query.
+        self._compiled_cache: dict[str, dict] = {}
 
     @staticmethod
     def _normalize_uv(uv: tuple[int, int] | list[int]) -> tuple[int, int]:
@@ -44,10 +51,16 @@ class PathfindingCore:
         return int(uv[0]), int(uv[1])
 
     def _compiled(self, floor_id: str) -> dict:
+        floor_id = str(floor_id)
+        cached = self._compiled_cache.get(floor_id)
+        if cached is not None:
+            return cached
         try:
-            return self.occupancy.resolve_floor(floor_id)
+            compiled = self.occupancy.resolve_floor(floor_id)
         except KeyError as exc:
             raise UnknownFloor(f'Unknown floor: {floor_id}') from exc
+        self._compiled_cache[floor_id] = compiled
+        return compiled
 
     @staticmethod
     def _walkable_set(compiled: dict) -> set[tuple[int, int]]:

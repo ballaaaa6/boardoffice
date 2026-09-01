@@ -121,6 +121,72 @@ def test_runtime_renderer_consumes_all_pair_modes_and_keeps_channels_separate(mo
     assert advanced == before_render
 
 
+def test_central_normalizes_runtime_action_labels_for_every_direction_and_emotion():
+    core = CentralGameCore(ROOT)
+    actor = next(iter(core.resolve_actor_snapshot("floor02")["actors"].values()))
+
+    for direction in ("NE", "SE", "SW", "NW"):
+        assert core._runtime_frame_count(
+            actor,
+            action="move",
+            direction=direction,
+            subaction="idle",
+        ) == 2
+        assert core._runtime_frame_count(
+            actor,
+            action="idle",
+            direction=direction,
+            subaction="idle",
+        ) == 2
+        assert core._normalize_runtime_render_request(
+            action="move",
+            direction=direction,
+            subaction="idle",
+        ) == ("move", direction, None)
+
+    for emotion in ("happy", "sad"):
+        assert core._runtime_frame_count(
+            actor,
+            action=emotion,
+            direction="SE",
+            subaction=emotion,
+        ) == 3
+        assert core._normalize_runtime_render_request(
+            action=emotion,
+            direction="SE",
+            subaction=emotion,
+        ) == (emotion, None, None)
+
+
+def test_live_route_uses_distance_based_character_frames_instead_of_pinning_frame_zero():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    employee_id, _second_employee, _ceo = _ids(core)
+    requested = core.advance_runtime_snapshot(
+        runtime,
+        0,
+        actor_commands=[{"type": "request_home", "employee_id": employee_id}],
+    )
+    samples = []
+    current = requested
+    for _ in range(120):
+        row = core.resolve_runtime_presentation(
+            current,
+            floor_id="floor02",
+            validate=False,
+        )["actors"][employee_id]
+        if row.get("visible") and row.get("action") == "move":
+            samples.append(row)
+        if current["actor_snapshot"]["actors"][employee_id]["presence"] == "home":
+            break
+        current = core.advance_runtime_snapshot(current, 60)
+
+    assert samples
+    assert {row["character_frame_count"] for row in samples} == {2}
+    assert len({row["character_frame_index"] for row in samples}) == 2
+    assert any(float(row["cumulative_distance_px"]) > 0 for row in samples)
+
+
 def test_runtime_renderer_reuses_seated_base_composition_without_aliasing_overlays():
     core = CentralGameCore(ROOT)
     runtime = _quiet_runtime(core)
