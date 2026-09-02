@@ -1,6 +1,6 @@
-# GDS CENTRAL GAME CORE — Phase 8E worktree
+# GDS CENTRAL GAME CORE — Phase 8E เสร็จสมบูรณ์
 
-> รุ่นที่รับรองแล้วคือ v1.8.5 (Phase 8D) ส่วน worktree ปัจจุบันอยู่ Phase 8E: actor/stamina loop, speech/presentation bridge, critical-home finish-loop, snapshot save/load/replay และเว็บรีวิวภายในทำเสร็จแล้ว เหลือการตรวจรับด้วยสายตา/พฤติกรรมและฝังเข้ากับแอปจริง
+> รุ่นที่รับรองแล้วคือ v1.8.5 (Phase 8D) และ Phase 8E เสร็จสมบูรณ์แล้ว: actor/stamina loop, speech/presentation bridge, critical-home finish-loop, snapshot save/load/replay และเว็บรีวิวภายในผ่านการตรวจรับด้วยสายตา/พฤติกรรมและการปรับจูนรอบสุดท้ายแล้ว กิ่งทดลอง realtime ที่ไม่ผ่านถูกลบออกและไม่อยู่ใน source ที่ใช้งานอยู่
 
 > v1.8.5 คือรุ่น **Phase 8D WorkSeat Lifecycle** ที่ต่อยอดจาก Phase 8C Portal Actor Lifecycle โดยคง navigation foundation ที่อนุมัติแล้วของ Phase 8B และเพิ่มวงจรคนเดินเข้าโต๊ะ/นั่งทำงาน/เดินออกแบบ deterministic
 
@@ -28,9 +28,9 @@
 
 - `RUNTIME/actor_simulation_core.py` เก็บ stamina แบบ JSON-safe; เมื่อ critical/หมดจะค้างท่า `work/normal_work` ให้จบ loop 720ms แล้วส่ง `home_requested` อัตโนมัติก่อนเดินกลับบ้าน
 - standing pair ใช้โบนัสตัวเลข deterministic: `sad -1` และ `happy +2` stamina (ภายใน `-1000/+2000` milli) และ clamp ตามขอบเขต
-- ค่า drain/recovery ตอนนี้ติดสถานะ `initial_runtime_tuning_author_review_pending` ยังต้องดู gameplay และให้ผู้เขียนอนุมัติค่าจริงก่อนเรียก final
+- ค่า drain/recovery ผ่านการดู gameplay และผู้เขียนอนุมัติเป็นค่ารอบสุดท้ายของ Phase 8E แล้ว
 - `RUNTIME/runtime_persistence.py` และ Central facade มี save/load snapshot กับ deterministic replay จาก step/command ที่ระบุชัดเจน โดยให้แอปภายนอกเป็นเจ้าของ storage
-- เปิดเว็บรีวิวด้วย `python TOOLS/runtime_review_server.py` แล้วเข้า `http://127.0.0.1:8765/` เว็บจะเดิน simulation เองตั้งแต่เปิด: worknormal → critical queue → จบ loop → กลับบ้าน/กลับเข้าที่เดิม พร้อม recovery/talk/wander แบบ staggered ปุ่ม pause/manual และ save/load/replay มีไว้ตรวจจังหวะละเอียด
+- เปิดเว็บรีวิวด้วย `python TOOLS/runtime_review_server.py` แล้วเข้า `http://127.0.0.1:8765/` เว็บจะเดิน simulation เองตั้งแต่เปิด: worknormal → critical queue → จบ loop → กลับบ้าน/กลับเข้าที่เดิม พร้อม recovery/talk แบบ staggered ปุ่ม pause/manual และ save/load/replay มีไว้ตรวจจังหวะละเอียด
 - Floor00 ผ่าน proof 3 แบบ: near target / distant target / workstation approach และ smoke test ผ่านบน F0/F1/F2/F36
 - reception F1 = 16×20 / 320 cells และ F2/F2+ = 34×22 / 748 cells โดยใช้ world ground anchor คงที่ `[259,376]`; depth ของ F1/F2+ ใช้ front edge แยกจากพื้นที่จอง navigation ส่วน F0 ไม่ผูก profile เพราะฝังอยู่ในภาพ
 - `TOOLS/grid_floor_editor/index.html` — local editor สำหรับคลิก/คลุมแล้วเปิดหรือปิด Room Grid และ Portal Inside/Outside พร้อม validation และ export patch JSON
@@ -43,4 +43,4 @@
 - งานภาพ review ใช้ asset จริง + deterministic compositor เท่านั้น ห้ามใช้โมเดลสร้างภาพ
 - WorkSeat runtime takeover แบบ single-actor ลงใน Phase 8D แล้ว; QA ใช้คนเท่าจำนวนคอมของแต่ละ floor แบบหนึ่งคนต่อหนึ่ง workstation จึงไม่มีการแย่ง slot กัน
 
-อ่าน `HANDOFF.md` และ `ROADMAP.md` สำหรับสถานะล่าสุด; การ embed เข้าแอปจริงและ author acceptance ยังเป็น gate ถัดไป
+อ่าน `HANDOFF.md` และ `ROADMAP.md` สำหรับสถานะล่าสุด; Phase 8E ปิดงานแล้วและไม่มี implementation gate ค้างอยู่

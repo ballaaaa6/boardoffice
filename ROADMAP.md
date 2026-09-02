@@ -4,9 +4,9 @@
 **Source of truth:** unpacked project root
 **Updated:** 2026-09-02 (Asia/Bangkok)
 
-## Current milestone — Phase 8E runtime review
+## Completed milestone — Phase 8E runtime review
 
-The implementation slice is complete. Static floor geometry, workstation ownership, character artwork and reference assets remain unchanged. The only open gate is author visual/gameplay acceptance followed by final stamina/Thai-content tuning and a clean release rebuild.
+The implementation slice, required verification, browser review and author acceptance are complete. Static floor geometry, workstation ownership, character artwork and reference assets remain unchanged. Phase 8E is closed; no implementation gate remains. The rejected host-first realtime experiment was deleted and is not part of this milestone.
 
 ### Engineering scope complete
 
@@ -29,10 +29,10 @@ The implementation slice is complete. Static floor geometry, workstation ownersh
 - Dialogue reload → **2,009 rows / 1,873 enabled rows**; all enabled office rows render; BB1/2/3/4/6 all observed.
 - Browser host → `http://127.0.0.1:8765/`, API v2, normal Full system demo plus Talk/Effects/Critical controls, no console warning/error in smoke.
 
-### Open acceptance gate
+### Closeout
 
-1. Author checks the live browser sequence: spawn → walk to WorkSeat → normal work/PC/VFX → Talk and return → Critical/Home and seat re-entry.
-2. Author approves or requests targeted visual smoothness, Thai wording and drain/recovery tuning changes.
-3. Only after approval, rebuild/fresh-extract the release archive, require `release_clean=true`, and then close Phase 8E.
+1. Author visual/gameplay acceptance: **APPROVED — 2026-09-02**.
+2. Final stamina/Thai-content tuning: **APPROVED — 2026-09-02**.
+3. Phase 8E implementation and verification gate: **CLOSED**.
 
-No release promotion, commit or push is part of this milestone until the author explicitly approves the browser/gameplay gate.
+No implementation task or blocker remains for Phase 8E. The host-first realtime design documents remain non-active reference material after the experimental branch was deleted.

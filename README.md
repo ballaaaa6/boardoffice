@@ -1,10 +1,10 @@
-# GDS CENTRAL GAME CORE — Phase 8E worktree
+# GDS CENTRAL GAME CORE — Phase 8E complete
 
-> The accepted release remains v1.8.5 (Phase 8D). The current worktree continues Phase 8E: a deterministic actor/stamina loop, speech/presentation bridge, automatic critical-home finish-loop, canonical snapshot save/load/replay and a local web review host. It preserves the author-approved Phase 8B/8C navigation and portal foundation.
+> The accepted release remains v1.8.5 (Phase 8D). Phase 8E is now complete and author-approved: the deterministic actor/stamina loop, speech/presentation bridge, critical-home finish-loop, canonical snapshot save/load/replay and local web review host preserve the author-approved Phase 8B/8C navigation and portal foundation. The rejected realtime experiment was removed from its separate branch and is not part of the active source.
 
 ## Current status
 
-**PHASE 8E RUNTIME SLICE / IMPLEMENTED — AUTHOR VISUAL/BEHAVIOR ACCEPTANCE PENDING — 2026-09-01**
+**PHASE 8E COMPLETE — AUTHOR VISUAL/BEHAVIOR ACCEPTED — 2026-09-02**
 
 ## Navigation formula
 
@@ -50,9 +50,9 @@ F0 and F1 remain unique. All 23 floors using `layout.floor02.large` now resolve 
 
 - `RUNTIME/actor_simulation_core.py` owns persistent JSON-safe stamina and actor state. A critical/depleted actor remains in `work/normal_work` until the 720ms loop boundary, then emits automatic `home_requested` and follows the existing portal/home/return route.
 - Standing-pair emotions apply deterministic numeric bonuses: `sad -1` and `happy +2` display stamina (`-1000/+2000` milli), clamped by the actor reducer.
-- The drain/recovery ranges are explicitly marked `initial_runtime_tuning_author_review_pending`; gameplay observation must approve any final values.
+- The drain/recovery ranges were reviewed and accepted as the final Phase 8E tuning.
 - `RUNTIME/runtime_persistence.py` and the `CentralGameCore.serialize/deserialize/replay_runtime_*` APIs provide caller-owned snapshot save/load and explicit-step deterministic replay.
-- Run `python TOOLS/runtime_review_server.py` and open `http://127.0.0.1:8765/` to watch a self-running deterministic floor: worknormal → critical queue → loop boundary → home/return, plus staggered recovery/talk/wander activity. Pause/manual ticks and save/load/replay remain available for close inspection. This is a review host; it is not the production dashboard.
+- Run `python TOOLS/runtime_review_server.py` and open `http://127.0.0.1:8765/` to watch the self-running deterministic floor: worknormal → critical queue → loop boundary → home/return, plus staggered recovery/talk activity. Pause/manual ticks and save/load/replay remain available for close inspection. This is a review host; it is not the production dashboard.
 
 ## F2/F2+ Reception lock
 
@@ -106,6 +106,6 @@ room mask, supports click/rectangle selection, opens or closes Room/Portal Insid
 Outside cells, validates portal pairing/connectivity, and exports a reviewable patch JSON.
 F2 is canonical for 23 F2+ floors, so the editor shows that family impact before export.
 
-## Next milestone
+## Closeout status
 
-**Phase 8E — external app embedding and author acceptance:** runtime implementation and local review host are ready; embed the host adapter in the real participant loop, perform visual/behavior acceptance, then package a fresh release.
+**Phase 8E — complete:** runtime implementation, regression/audit coverage, local review and author visual/behavior acceptance are finished. No implementation task remains in the active roadmap.
