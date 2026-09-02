@@ -208,12 +208,12 @@ Run server unit tests and a direct handler/API smoke with `renderer=canvas`. Com
 
 ### Task 3 — Build the deterministic floor02 manifest
 
-- [ ] Implement the builder using existing `LayoutCore`/world registries and the current walking-depth metadata. Reuse authored slot/layer/transform data and reject duplicate IDs or unresolved asset/frame references.
-- [ ] Compose the static PNG at build time from the base floor variant and all non-PC static placements. Keep PC, character, effects, HumanBall and dialogue out of this image.
-- [ ] Generate cleaned occluder masks with the same alpha/shadow policy used by the existing walking-depth renderer and record dimensions/checksums.
-- [ ] Emit character body/face source sheets plus frame crop rules, action sequences, PC/effect/HumanBall frame URLs and workstation metadata. URLs must be relative to `WEB/` and every generated file must exist.
-- [ ] Make the manifest revision depend on canonical source bytes and builder schema, with sorted keys and stable serialization.
-- [ ] Add tests for determinism, 600x600 floor canvas, all referenced files, no duplicate IDs, and no changes to canonical source hashes.
+- [x] Implement the builder using existing `LayoutCore`/world registries and the current walking-depth metadata. Reuse authored slot/layer/transform data and reject duplicate IDs or unresolved asset/frame references.
+- [x] Compose the static PNG at build time from the base floor variant and all non-PC static placements. Keep PC, character, effects, HumanBall and dialogue out of this image.
+- [x] Generate cleaned occluder masks with the same alpha/shadow policy used by the existing walking-depth renderer and record dimensions/checksums.
+- [x] Emit character body/face source sheets plus frame crop rules, action sequences, PC/effect/HumanBall frame URLs and workstation metadata. URLs must be relative to `WEB/` and every generated file must exist.
+- [x] Make the manifest revision depend on canonical source bytes and builder schema, with sorted keys and stable serialization.
+- [x] Add tests for determinism, 600x600 floor canvas, all referenced files, no duplicate IDs, and no changes to canonical source hashes.
 
 Run `python TOOLS/build_runtime_render_manifest.py --floor-id floor02`, the manifest tests and the existing raster QA. Commit generated manifest/assets with `feat: build floor02 component render manifest`.
 
