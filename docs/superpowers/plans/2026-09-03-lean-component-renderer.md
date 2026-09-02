@@ -167,11 +167,11 @@ It keeps a cached static canvas, disables smoothing, draws dynamic components on
 
 ### Task 1 — Add metadata-only runtime state and headless loop
 
-- [ ] Add `RUNTIME/runtime_render_state.py` with `RuntimeRenderStateProjector.project()` and helpers that copy only the approved actor fields, channels, dialogue, paint order, event summaries and server metadata.
-- [ ] Include `occluder_placement_ids` by calling existing `WalkingDepthCore.occluders_in_front()` with the resolved walking actor ground point. Do not load visual images in this calculation.
-- [ ] Change `CentralGameCore._runtime_frame_count()` to call `self.characters.resolve_frame_ids(...)` and count IDs. The method must not call `self.characters.render(...)`.
-- [ ] Add `render_mode` to `RuntimePresentationLoop`; keep the constructor default as `"raster"`, preserve transactional failure behavior, and return `image is None` in headless mode.
-- [ ] Export the projector from `RUNTIME/__init__.py` if the package currently exports runtime presentation symbols.
+- [x] Add `RUNTIME/runtime_render_state.py` with `RuntimeRenderStateProjector.project()` and helpers that copy only the approved actor fields, channels, dialogue, paint order, event summaries and server metadata.
+- [x] Include `occluder_placement_ids` by calling existing `WalkingDepthCore.occluders_in_front()` with the resolved walking actor ground point. Do not load visual images in this calculation.
+- [x] Change `CentralGameCore._runtime_frame_count()` to call `self.characters.resolve_frame_ids(...)` and count IDs. The method must not call `self.characters.render(...)`.
+- [x] Add `render_mode` to `RuntimePresentationLoop`; keep the constructor default as `"raster"`, preserve transactional failure behavior, and return `image is None` in headless mode.
+- [x] Export the projector from `RUNTIME/__init__.py` if the package currently exports runtime presentation symbols.
 
 Write tests before implementation. The focused tests must include:
 

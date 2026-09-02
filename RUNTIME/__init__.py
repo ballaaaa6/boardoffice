@@ -13,6 +13,7 @@ from .runtime_presentation_host import (
     RuntimePresentationHostAdapter,
     RuntimePresentationHostError,
 )
+from .runtime_render_state import RuntimeRenderStateError, RuntimeRenderStateProjector
 from .runtime_persistence import RuntimePersistence, RuntimePersistenceError
 
 __all__ = [
@@ -33,6 +34,8 @@ __all__ = [
     'RuntimePresentationLoop',
     'RuntimePresentationHostAdapter',
     'RuntimePresentationHostError',
+    'RuntimeRenderStateError',
+    'RuntimeRenderStateProjector',
     'RuntimePersistence',
     'RuntimePersistenceError',
 ]

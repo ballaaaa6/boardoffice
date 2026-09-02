@@ -1777,9 +1777,9 @@ class CentralGameCore:
         if cached is not None:
             return cached
         try:
-            frame_count = max(1, len(self.characters.render(
+            frame_count = max(1, len(self.characters.resolve_frame_ids(
                 actor['character_id'], render_action, render_direction, render_subaction
-            ).frames))
+            )))
             self._runtime_frame_count_cache[cache_key] = frame_count
             return frame_count
         except (CharacterSystemError, KeyError, TypeError, ValueError):

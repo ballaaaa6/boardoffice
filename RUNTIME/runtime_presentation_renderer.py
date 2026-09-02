@@ -19,9 +19,11 @@ No simulation snapshot is mutated by this renderer.
 
 import copy
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import Any, Literal, TYPE_CHECKING
 
 from PIL import Image
+
+from RUNTIME.runtime_render_state import RuntimeRenderStateProjector
 
 if TYPE_CHECKING:
     from RUNTIME.central_core import CentralGameCore
@@ -415,9 +417,18 @@ class RuntimePresentationLoop:
         dialogue_seed: str | int = "0",
         validate_runtime_each_frame: bool = True,
         copy_runtime_snapshot_each_frame: bool = True,
+        render_mode: Literal["raster", "headless"] = "raster",
     ) -> None:
         self.core = core
-        self.renderer = RuntimePresentationRenderer(core)
+        if render_mode not in {"raster", "headless"}:
+            raise RuntimePresentationRenderError(
+                "render_mode must be raster or headless"
+            )
+        self.render_mode = render_mode
+        self.renderer = RuntimePresentationRenderer(core) if render_mode == "raster" else None
+        self.render_state_projector = (
+            RuntimeRenderStateProjector(core) if render_mode == "headless" else None
+        )
         if runtime_snapshot is None:
             runtime_snapshot = core.resolve_runtime_snapshot(
                 floor_id,
@@ -463,13 +474,31 @@ class RuntimePresentationLoop:
         at_ms: int | None = None,
     ) -> dict[str, Any]:
         source = self._runtime_snapshot if runtime_snapshot is None else runtime_snapshot
-        image, presentation = self.renderer.render_runtime_snapshot(
-            source,
-            at_ms=at_ms,
-            floor_id=self.floor_id,
-            validate=self.validate_runtime_each_frame,
-        )
-        return {
+        if self.render_mode == "headless":
+            presentation = self.core.resolve_runtime_presentation(
+                source,
+                at_ms=at_ms,
+                floor_id=self.floor_id,
+                validate=self.validate_runtime_each_frame,
+            )
+            render_state = self.render_state_projector.project(
+                source,
+                floor_id=self.floor_id,
+                sequence=0,
+                at_ms=at_ms,
+                events=events or [],
+                presentation=presentation,
+            )
+            image = None
+        else:
+            image, presentation = self.renderer.render_runtime_snapshot(
+                source,
+                at_ms=at_ms,
+                floor_id=self.floor_id,
+                validate=self.validate_runtime_each_frame,
+            )
+            render_state = None
+        frame = {
             "image": image,
             "presentation": presentation,
             "runtime_snapshot": (
@@ -489,6 +518,9 @@ class RuntimePresentationLoop:
                 if self.copy_runtime_snapshot_each_frame else (speech_events or [])
             ),
         }
+        if render_state is not None:
+            frame["render_state"] = render_state
+        return frame
 
     def render_current(self, *, at_ms: int | None = None) -> dict[str, Any]:
         """Render the current host snapshot without advancing simulation time."""
