@@ -1,8 +1,8 @@
 # GDS Central Game Core — Handoff
 
-**Updated:** 2026-09-02 (Asia/Bangkok)
+**Updated:** 2026-09-03 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** The live multi-actor conversation-runtime follow-up is implemented and engineering-verified. Visual/gameplay acceptance remains **acceptance-pending** for the author.
+**Status:** The live multi-actor conversation-runtime follow-up is implemented and engineering-verified. The lean component-renderer design is committed in the isolated prototype branch; runtime implementation has not started. Visual/gameplay acceptance remains **acceptance-pending** for the author.
 
 ## Current state
 
@@ -20,6 +20,15 @@
 - Live behavior-timer arming skips actors whose stationary SpeechScheduler overlay is active, preventing a new weighted event from competing with the overlay.
 - The review panel now exposes speech queue position/category/request id/due time, so a waiting BB can be distinguished from a frozen actor.
 
+## Lean component-renderer branch prototype — 2026-09-03
+
+- Isolated worktree: `D:\antigravity\board office\.worktrees\lean-component-renderer`.
+- Branch: `codex/lean-component-renderer`.
+- Design spec committed as `15be4fa docs: define lean component renderer` at `docs/superpowers/specs/2026-09-03-lean-component-renderer-design.md`.
+- New runtime source code, canonical world/character assets and reference hashes are unchanged.
+- Baseline in the new worktree: `python -m pytest -q` → **348 passed in 241.17s**.
+- An initial baseline checkout exposed the repository's mixed working-tree line endings; the exact tracked registry bytes were restored in the new worktree and the determinism test then passed. No semantic source change was made.
+
 ## Verification
 
 - `python -m pytest -q` → **348 passed in 250.10s**.
@@ -34,3 +43,5 @@
 Engineering verification is complete. The author should refresh/open the live review page and check the full system run, greeting/start-work bubbles, multi-actor queue telemetry, stationary work animation, standing-pair facing/offsets/d6 outcome, and return-to-work behavior. Do not close the visual/gameplay gate until that review is explicitly accepted.
 
 **Active handoff:** this file only. `ROADMAP.md` is the single active milestone plan.
+
+**Next concrete task:** author review of the committed lean component-renderer design. After approval, write the implementation plan, add focused protocol/projector tests first, then begin the `floor02` headless JSON + Canvas prototype while retaining raster fallback.
