@@ -79,3 +79,21 @@ deployment work begins.
 - [x] Engineering verification: **364 tests passed**, parity/no-Pillow guards passed, required navigation/world/WorkSeat/Phase 6/Central/F2/gameplay audits passed, and raster presentation QA passed.
 - [ ] Author visual acceptance of the Canvas output and smoothness on the reference machine.
 - [ ] Cloudflare slice: move the same metadata contract behind Worker/Durable Object and publish static component assets after author acceptance.
+
+## Browser-owned simulation exploration — 2026-09-03
+
+This branch explores the next optimization: after one bootstrap load, a
+single-user browser advances the runtime locally and uses the existing Canvas
+component renderer. The Python runtime remains the canonical oracle and local
+fallback. This is a design/planning gate; no browser simulation code is marked
+complete yet.
+
+- [x] Create isolated branch `codex/browser-simulation` from the verified lean renderer branch.
+- [x] Write `docs/superpowers/specs/2026-09-03-browser-owned-simulation-design.md` with the browser authority boundary, alternatives, parity contract, persistence, timing and 24-hour gates.
+- [x] Write `docs/superpowers/plans/2026-09-03-browser-owned-simulation.md` with bundle export, deterministic JS runtime, behavior-port, persistence, no-request UI, parity and endurance tasks.
+- [ ] Author review and approval of the browser-owned simulation design/plan.
+- [ ] Export and validate the deterministic `floor02` browser bootstrap bundle and Python parity traces.
+- [ ] Port navigation, actor, WorkSeat, speech, dialogue, effects, stamina, save/load and replay behavior with exact trace parity.
+- [ ] Integrate Browser source mode with zero periodic `/api/tick` calls while preserving Python Canvas/Raster fallback.
+- [ ] Pass simulated 24-hour, real browser soak, author visual/gameplay and release-clean gates.
+- [ ] Decide the separate Cloudflare static deployment/persistence or shared Durable Object/WebSocket slice.

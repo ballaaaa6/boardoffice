@@ -2,8 +2,8 @@
 
 **Updated:** 2026-09-03 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Branch:** `codex/lean-component-renderer`
-**Status:** The lean component-renderer prototype is engineering-verified in the isolated worktree. Author visual/gameplay acceptance is **acceptance-pending**; no Cloudflare deployment has started.
+**Branch:** `codex/browser-simulation`
+**Status:** The browser-owned simulation exploration branch is isolated and has a reviewed design plus implementation plan. No browser simulation source has been implemented yet; the parent lean renderer remains the engineering-verified baseline, and author/design acceptance is **acceptance-pending**.
 
 ## Current state
 
@@ -30,6 +30,15 @@
 - The deterministic floor02 bundle contains a 600×600 static scene plus 181 derived component files for workstation layers, character crops, effects, HumanBall and occluder masks.
 - The review page has a visible Canvas/Raster toggle; Canvas uses 100ms polling plus RAF composition/interpolation, while Raster retains the decoded double-buffered image path.
 
+## Browser-owned simulation exploration branch — 2026-09-03
+
+- Isolated worktree: `D:\antigravity\board office\.worktrees\browser-simulation` on `codex/browser-simulation`, branched from the verified lean renderer commit `abc0d86`.
+- Design spec: `docs/superpowers/specs/2026-09-03-browser-owned-simulation-design.md`.
+- Implementation plan: `docs/superpowers/plans/2026-09-03-browser-owned-simulation.md`.
+- The proposed target is single-user browser-owned simulation: one generated Python bootstrap bundle, deterministic JavaScript fixed-step runtime, existing Canvas component renderer, and zero `/api/tick` calls after bootstrap.
+- Python `CentralGameCore` remains the source/oracle for generated data, parity traces, local fallback and raster comparison. No Pyodide, Pillow-in-browser, WebGL or shared Durable Object authority is part of this branch.
+- No canonical world/character asset, starting-point file or reference hash has been changed. No Cloudflare deployment has started.
+
 ## Verification
 
 - Full suite: `python -m pytest -p no:cacheprovider -q` → **364 passed** in 251.85s.
@@ -43,8 +52,8 @@
 
 ## Acceptance gate
 
-Engineering verification is complete. The author must review the Canvas page on the reference machine for visual parity, pixel-art sharpness, dialogue bubble appearance, walking depth and perceived smoothness, then explicitly accept or request adjustments. The Canvas bubble is intentionally drawn as a lightweight browser overlay, so exact raster visual parity remains an author decision.
+Engineering verification for the parent lean renderer is complete. For this branch, the browser-owned simulation design and plan still need author review before implementation begins. After implementation, the author must review the browser-owned page for visual parity, pixel-art sharpness, dialogue bubble appearance, walking depth, save/load/replay behavior and perceived smoothness. The Canvas bubble is intentionally drawn as a lightweight browser overlay, so exact raster visual parity remains an author decision.
 
 **Active handoff:** this file only. `ROADMAP.md` is the single active milestone plan.
 
-**Next concrete task:** after author acceptance, publish the immutable component bundle and move the same metadata contract behind a Cloudflare Worker/Durable Object while retaining the raster fallback for local review.
+**Next concrete task:** review the committed browser-owned simulation spec and plan; after approval, execute Task 1 to export the deterministic `floor02` bootstrap bundle and Python parity traces before porting any runtime behavior.
