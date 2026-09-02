@@ -47,6 +47,7 @@
     .settings select#partnerSelect { min-width:148px; }
     .card .detail { color:#c7d8e8; font-size:12px; margin-top:3px; }
     .card .talk { color:#f9d58a; }
+    .card .queue { color:#facc15; }
     .card .route { color:#9bd7ff; }
     .card .frame { color:#b7f7d0; }
     .card .channel { color:#d9c2ff; }
@@ -191,6 +192,7 @@
       `frame ${esc(row.character_frame_index ?? row.frame_index ?? 0)}/${esc(row.character_frame_count ?? 1)} · cumulative ${Number(row.cumulative_distance_px || 0).toFixed(1)}px`,
       `route ${esc(row.route_phase || 'none')} ${row.route_elapsed_ms != null ? `${row.route_elapsed_ms}/${row.route_duration_ms}ms` : ''} · seat boundary ${esc(boundary)}`,
       `speech ${esc(speech)} · bubble ${row.dialogue_visible ? esc(row.dialogue_text || 'visible') : 'hidden'}`,
+      `speech queue ${row.speech_queue_category ? `<b>#${esc(row.speech_queue_position)} ${esc(row.speech_queue_category)}</b> · due ${esc(row.speech_queue_due_ms)}ms` : 'empty'}`,
       `channels ${esc(channelNames.join(', ') || 'none')} · home ${row.pending_home ? `queued @${row.pending_home_due_ms}ms` : 'not queued'}`,
     ].join('<br>');
   }
@@ -225,12 +227,14 @@
     }
     if(e.type === 'speech_session_started') {
       const lines = (e.dialogue_lines || []).map(line => `${line.employee_id}: ${line.text}`).join(' | ');
-      return `${time}  speech  ${e.mode || 'talk'}  ${who}${lines ? `  “${lines}”` : ''}`;
+      const roll = e.emotion_roll == null ? '' : ` d6=${e.emotion_roll}`;
+      return `${time}  speech  ${e.mode || 'talk'}  ${who}${roll}${lines ? `  “${lines}”` : ''}`;
     }
     const partner = e.partner_id ? ` ↔ ${e.partner_id}` : '';
     const mode = e.mode ? ` [${e.mode}]` : '';
     const reason = e.reason ? ` (${e.reason})` : '';
-    return `${time}  ${e.source || 'runtime'}  ${e.type || 'event'}  ${who}${partner}${mode}${reason}`;
+    const roll = e.emotion_roll == null ? '' : ` d6=${e.emotion_roll}`;
+    return `${time}  ${e.source || 'runtime'}  ${e.type || 'event'}  ${who}${partner}${mode}${roll}${reason}`;
   }
   function appendEvents(events) {
     const fresh = [];
@@ -262,11 +266,12 @@
       const route = a.route_phase ? `<div class="detail route">route: ${esc(a.route_phase)}${a.route_elapsed_ms != null ? ` · ${esc(a.route_elapsed_ms)}/${esc(a.route_duration_ms)}ms` : ''}${a.ground_xy ? ` · @${a.ground_xy.map(v => Number(v).toFixed(1)).join(',')}` : ''}</div>` : '';
       const boundary = a.presentation_transition ? `<div class="detail route">seat: ${esc(a.presentation_transition.phase)} · ${esc(a.presentation_transition.elapsed_ms)}/${esc(a.presentation_transition.duration_ms)}ms</div>` : '';
       const talk = a.speech_mode ? `<div class="detail talk">talk: ${esc(a.speech_mode)}${a.talk_partner_id ? ` ↔ ${esc(a.talk_partner_id)}` : ''}${a.speech_category ? ` · ${esc(a.speech_category)}` : ''}</div>` : '';
+      const queue = a.speech_queue_category ? `<div class="detail queue">speech queue #${esc(a.speech_queue_position)}: ${esc(a.speech_queue_category)}${a.speech_queue_external ? ' · actor request' : ''}${a.speech_queue_due_ms != null ? ` · due ${esc(a.speech_queue_due_ms)}ms` : ''}</div>` : '';
       const pc = a.pc_frame_count > 1 ? ` · PC cell ${Number(a.pc_frame_index) + 1}/${a.pc_frame_count}` : '';
       const frame = `<div class="detail frame">frame ${Number(a.character_frame_index ?? a.frame_index ?? 0) + 1}/${esc(a.character_frame_count ?? 1)} · ${esc(a.resolved_direction || a.direction || '—')}${pc}</div>`;
       const channels = Object.keys(a.channels || {}).filter(key => key !== 'conversation');
       const channelDetail = channels.length ? `<div class="detail channel">channels: ${esc(channels.join(', '))}</div>` : '';
-      return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.resolved_action || a.action || 'none')}/${esc(a.resolved_subaction || a.subaction || '')}${overlay}${bubble}</div>${frame}${route}${boundary}${talk}${channelDetail}<div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`;
+      return `<div class="card ${a.employee_id===selected?'selected':''}" data-id="${esc(a.employee_id)}"><div class="row"><span class="id">${esc(a.employee_id)}</span><span class="badge ${band==='critical'?'critical':band==='low'?'low':''}">${esc(band)}</span></div><div class="small">${esc(a.activity)} · ${esc(a.presence)} · ${esc(a.resolved_action || a.action || 'none')}/${esc(a.resolved_subaction || a.subaction || '')}${overlay}${bubble}</div>${frame}${route}${boundary}${talk}${queue}${channelDetail}<div class="bar"><div class="fill ${band}" style="width:${pct}%"></div></div><div class="small">stamina ${esc(a.stamina)} · ${a.pending_home ? `home queued @ ${esc(a.pending_home_due_ms)}ms` : 'home not queued'}</div></div>`;
     }).join('');
     document.querySelectorAll('.card').forEach(el => el.onclick = () => { selected = el.dataset.id; render(state); });
     renderSelectedTelemetry(selectedRow());
@@ -326,7 +331,7 @@
   }
   document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => { autoSpeed = Number(b.dataset.speed); document.querySelectorAll('[data-speed]').forEach(x => x.classList.toggle('active', x===b)); setNote(`live speed ${autoSpeed}×`); });
   $('liveToggle').onclick = () => setLive(!live);
-  document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { setLive(false); try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick),...settings()})); } catch(e){ alert(e.message); } });
+  document.querySelectorAll('[data-tick]').forEach(b => b.onclick = async () => { setLive(false); try { render(await api('/api/tick',{elapsed_ms:Number(b.dataset.tick),compact:true,...settings()})); } catch(e){ alert(e.message); } });
   async function begin(path, extra = {}, {resume = true} = {}) {
     setLive(false); $('log').textContent=''; seenEvents.clear(); demoCompletionShown=false;
     try { const result = await api(path,{...settings(),...extra,compact:true}); render(result); if(resume) setLive(true); return result; }

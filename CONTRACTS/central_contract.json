@@ -74,7 +74,14 @@
       "commit_bridge": "speech_session_plan_to_actor_start_talk_session",
       "route_phases": ["talk_outbound", "talk_hold", "talk_return"],
       "completion_bridge": "talk_returned_to_returned_to_work",
+      "lifecycle_speech_bridge": {
+        "portal_entered": "spawned_then_delayed_greeting",
+        "workseat_reentered": "workseat_entered_then_work_start",
+        "talk_returned": "returned_to_work_then_entry_lines",
+        "effective_timestamp": "actor_event.timestamp_ms"
+      },
       "queue_timeout_ms": 30000,
+      "endpoint_facing_policy": "conversation_plan.facing_by_actor_to_start_talk_session.endpoint_facing_to_actor.behavior.talk_hold.direction",
       "unavailable_partner_fallback": "seated_self_talk",
       "ceo_request_fallback": "seated_self_talk_no_outbound_route"
     },
@@ -104,7 +111,7 @@
     },
     "timing_policy": "solo_30_60s_pair_45_75s_greeting_2_3s_bubble_4000ms_fade_300ms",
     "lane_policy": "one_speech_lane_per_floor_until_fade_end",
-    "pose_policy": "speech_selects_timing_and_actor_commits_pose_route",
+      "pose_policy": "speech_selects_timing_and_plan; CentralGameCore_commits_actor_route_or_working_overlay",
     "leaving_trigger_source": "CentralGameCore.actor_draws_over_reception",
     "assignment_mutation": false
   },
@@ -117,7 +124,7 @@
       "presentation_api": "CentralGameCore.resolve_runtime_presentation",
       "presentation_schema": "gds.runtime_presentation_snapshot.v1",
       "command_policy": "actor_commands_and_speech_commands_are_explicitly_separate",
-      "talk_policy": "speech_plan_is_committed_to_actor_before_render_overlay"
+      "talk_policy": "speech_plan_is_committed_to_actor_before_render_overlay; stationary_talk_keeps_working_clock_running"
   },
   "runtime_persistence": {
       "contract": "CONTRACTS/runtime_persistence.json",
@@ -140,7 +147,7 @@
       "RuntimePresentationLoop.tick",
       "RuntimePresentationLoop.render_current"
     ],
-    "policy": "read_only_overlay_of_actor_state_speech_lane_and_conversation_tracks; emotion_deltas_apply_through_actor_snapshot"
+    "policy": "read_only_overlay_of_actor_state_speech_lane_and_conversation_tracks; stationary_work_frames_use_actor_clock; emotion_deltas_apply_through_actor_snapshot"
   },
   "dialogue_presentation": {
     "content_csv": "CHARACTER/DIALOGUE/dialogue.csv",
@@ -177,7 +184,7 @@
     "timing_api": "CentralGameCore.resolve_conversation_timing",
     "dialogue_selection_api": "CentralGameCore.resolve_conversation_dialogue",
     "automatic_selection_api": "CentralGameCore.resolve_automatic_conversation_plan",
-    "standing_pair_emotion": "one_shared_d6_after_fade_even_happy_odd_sad_then_return",
+    "standing_pair_emotion": "one_shared_persisted_d6_after_fade_even_happy_odd_sad_then_return",
     "assignment_mutation": false
   },
   "phase_boundaries": {

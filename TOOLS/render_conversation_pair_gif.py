@@ -139,6 +139,7 @@ class ConversationPairGifRenderer:
             str(actor_state.get("dialogue_text") or self.PREVIEW_TEXT),
             actor_top_left=actor_top_left,
             locale=str(actor_state.get("dialogue_locale") or "en"),
+            bubble_offset_px=actor_state.get("dialogue_bubble_offset_px", (0, 0)),
         )
         opacity = max(0.0, min(1.0, float(actor_state.get("dialogue_opacity", 1.0))))
         return {

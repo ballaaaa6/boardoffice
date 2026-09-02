@@ -90,10 +90,11 @@
     },
     "emotion": {
       "type": "object", "additionalProperties": false,
-      "required": ["standing_pair_only", "roll_scope", "even_result", "odd_result", "hold_ms", "stamina_effect", "stamina_effect_display_delta", "stamina_effect_milli_delta", "stamina_effect_owner", "return_after_emotion"],
+      "required": ["standing_pair_only", "roll_scope", "roll_source", "even_result", "odd_result", "hold_ms", "stamina_effect", "stamina_effect_display_delta", "stamina_effect_milli_delta", "stamina_effect_owner", "return_after_emotion"],
       "properties": {
         "standing_pair_only": {"const": true},
         "roll_scope": {"const": "one_shared_roll_per_completed_standing_pair"},
+        "roll_source": {"const": "persisted_scheduler_prng_state"},
         "even_result": {"const": "happy"},
         "odd_result": {"const": "sad"},
         "hold_ms": {"const": 1200},
@@ -119,7 +120,12 @@
         "scope": {"const": "floor"},
         "lock_window": {"const": "first_bubble_until_fade_end"},
         "queue_policy": {"const": "priority_then_due_time_then_employee_id"},
-        "priority_order": {"const": ["leaving", "fatigue", "pair", "greeting", "work_start", "solo"]}
+       "priority_order": {"const": ["leaving", "fatigue", "greeting", "work_start", "conversation_open", "pair", "solo"]},
+       "queue_metadata": {
+         "type": "array",
+         "items": {"type": "string", "minLength": 1},
+         "minItems": 1
+       }
       }
     },
     "actor_bridge": {
@@ -130,6 +136,7 @@
         "talk_commit",
         "reception_crossing",
         "workseat_reentry",
+        "lifecycle_boundaries",
         "effective_timestamp_field"
       ],
       "properties": {
@@ -143,7 +150,18 @@
           "const": "actor_route_sample_draws_over_reception"
         },
         "workseat_reentry": {
-          "const": "workseat_reentered_to_returned_to_work"
+          "const": "workseat_reentered_to_workseat_entered"
+        },
+        "lifecycle_boundaries": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["portal_entered", "workseat_reentered", "talk_returned", "effective_timestamp"],
+          "properties": {
+            "portal_entered": {"const": "spawned_then_delayed_greeting"},
+            "workseat_reentered": {"const": "workseat_entered_then_work_start"},
+            "talk_returned": {"const": "returned_to_work_then_entry_lines"},
+            "effective_timestamp": {"const": "actor_event.timestamp_ms"}
+          }
         },
         "effective_timestamp_field": {
           "const": "effective_at_ms"
@@ -157,7 +175,7 @@
       }
     },
     "assignment_policy": {"const": "scheduler_never_mutates_workstation_ownership"},
-    "render_policy": {"const": "speech_selects_timing_and_actor_commits_pose_route"},
+    "render_policy": {"const": "speech_selects_timing_and_plan; CentralGameCore_commits_actor_route_or_working_overlay"},
     "leaving_trigger_source": {"const": "CentralGameCore.actor_draws_over_reception"}
   },
   "$defs": {

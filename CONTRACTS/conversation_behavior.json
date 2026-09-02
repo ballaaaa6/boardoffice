@@ -58,9 +58,11 @@
     "conversation_timing": "one_loop_first_bubble_4000ms_then_fade",
     "dialogue_selection": "pair_open_then_reply_self_general_deterministic",
     "dialogue_layout": "direct_head_anchor_overlay_paint_order",
+    "stationary_overlay": "runtime_keeps_working_and_uses_actor_work_clock_for_stationary_bubble_pose",
     "standing_pair_emotion": {
       "trigger": "after_bubble_fade",
       "roll": "one_shared_d6",
+      "roll_source": "persisted_scheduler_prng_state",
       "even": "happy",
       "odd": "sad",
       "hold_ms": 1200,
@@ -79,13 +81,15 @@
       "V-": {"axis": "V", "sign": "-", "uv_delta": [0, -1], "direction": "NE"}
     },
     "standing_pair": {
-      "preferred_axis": "V",
-      "fallback_axis": "U",
+      "preferred_axis": "U",
+      "fallback_axis": "V",
       "talk_gap_cells": 4,
       "minimum_gap_cells": 3,
       "open_ring_radius_cells": 2,
       "portal_margin_cells": 3,
-      "endpoint_facing": "exact_inverse_from_signed_endpoint_delta",
+      "endpoint_order": "ascending_u",
+      "endpoint_facing_order": ["SW", "NE"],
+      "opener_bubble_extra_offset_px": [0, -20],
       "between_desks": "reject"
     },
     "seated_host": {

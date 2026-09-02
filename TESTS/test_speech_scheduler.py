@@ -43,6 +43,10 @@ def test_speech_contract_and_snapshot_schema_validate():
     assert list(Draft202012Validator(snapshot_schema).iter_errors(snapshot)) == []
     assert json.loads(json.dumps(snapshot, sort_keys=True)) == snapshot
     assert contract["actor_bridge"]["effective_timestamp_field"] == "effective_at_ms"
+    assert contract["lane"]["priority_order"] == [
+        "leaving", "fatigue", "greeting", "work_start",
+        "conversation_open", "pair", "solo",
+    ]
     assert contract["conversation_modes"]["unavailable_partner_fallback"] == "seated_self_talk"
     assert contract["conversation_modes"]["ceo_request_fallback"] == (
         "seated_self_talk_no_outbound_route"
@@ -87,6 +91,187 @@ def test_lane_blocks_new_session_until_fade_and_keeps_pose_binding_independent()
     assert any(event["type"] == "speech_session_started" for event in finished["events"])
 
 
+def test_lane_queue_exposes_the_pending_speech_category():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    actor_ids = sorted(snapshot["actors"])
+    blocker, pair_actor, greeting_actor = actor_ids[:3]
+    for actor in snapshot["actors"].values():
+        actor.update({
+            "pair_next_due_ms": None,
+            "solo_next_due_ms": None,
+        })
+    snapshot["actors"][blocker].update({
+        "greeting_due_ms": 0,
+        "greeting_emitted": False,
+    })
+    first = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    snapshot = first["snapshot"]
+    snapshot["actors"][pair_actor].update({
+        "pair_pending": True,
+    })
+    snapshot["actors"][greeting_actor].update({
+        "greeting_due_ms": 60,
+        "greeting_emitted": False,
+    })
+
+    queued = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    requests = queued["snapshot"]["lanes"]["floor02"]["queued_requests"]
+    request = next(item for item in requests if item["initiator_id"] == greeting_actor)
+    assert requests[0]["initiator_id"] == greeting_actor
+    assert request["category"] == "greeting"
+    assert request["kind"] == "lifecycle"
+    assert request["request_id"]
+
+
+def test_lane_queue_is_cleared_when_no_request_remains_eligible():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    actor_ids = sorted(snapshot["actors"])
+    blocker, queued_actor = actor_ids[:2]
+    for actor in snapshot["actors"].values():
+        actor.update({
+            "pair_next_due_ms": None,
+            "solo_next_due_ms": None,
+        })
+    snapshot["actors"][blocker].update({
+        "greeting_due_ms": 0,
+        "greeting_emitted": False,
+    })
+    first = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    current = first["snapshot"]
+    current["actors"][queued_actor].update({
+        "greeting_due_ms": 60,
+        "greeting_emitted": False,
+    })
+    queued = speech.advance_snapshot(current, 60, actor_snapshot=actor_snapshot)
+    assert queued["snapshot"]["lanes"]["floor02"]["queued_requests"]
+
+    queued["snapshot"]["actors"][queued_actor]["speech_phase"] = "active"
+    cleared = speech.advance_snapshot(
+        queued["snapshot"],
+        60,
+        actor_snapshot=actor_snapshot,
+    )
+
+    lane = cleared["snapshot"]["lanes"]["floor02"]
+    assert lane["queued_requests"] == []
+    assert lane["queued_session_ids"] == []
+
+
+def test_entry_lifecycle_speech_precedes_pair_when_both_are_due():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    employees = [
+        employee_id
+        for employee_id, actor in sorted(snapshot["actors"].items())
+        if actor["role"] != "ceo"
+    ]
+    greeting_actor, pair_actor = employees[:2]
+    for actor in snapshot["actors"].values():
+        actor.update({
+            "greeting_due_ms": None,
+            "greeting_emitted": True,
+            "work_start_due_ms": None,
+            "work_start_emitted": True,
+            "solo_next_due_ms": None,
+            "pair_next_due_ms": None,
+            "pair_pending": False,
+        })
+    snapshot["actors"][greeting_actor].update({
+        "greeting_due_ms": 0,
+        "greeting_emitted": False,
+    })
+    snapshot["actors"][pair_actor]["pair_pending"] = True
+
+    result = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    started = next(
+        event for event in result["events"]
+        if event["type"] == "speech_session_started"
+    )
+    assert started["category"] == "greeting"
+    assert started["employee_id"] == greeting_actor
+
+
+def test_recovery_return_does_not_rearm_work_start_without_a_workseat_boundary():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    employee_id = sorted(snapshot["actors"])[0]
+    speech_actor = snapshot["actors"][employee_id]
+    speech_actor["last_activity"] = "popup_event"
+    speech_actor["work_start_due_ms"] = None
+    speech_actor["work_start_emitted"] = True
+
+    result = speech.advance_snapshot(
+        snapshot,
+        60,
+        actor_snapshot=actor_snapshot,
+    )
+
+    assert result["snapshot"]["actors"][employee_id]["work_start_due_ms"] is None
+    assert result["snapshot"]["actors"][employee_id]["work_start_emitted"] is True
+    assert not any(
+        event["type"] == "speech_session_started"
+        and event.get("category") == "work_start"
+        for event in result["events"]
+    )
+
+
+def test_lifecycle_completion_does_not_drop_external_talk_waiting_for_the_lane():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    employee_id = sorted(snapshot["actors"])[0]
+    for actor in snapshot["actors"].values():
+        actor["pair_next_due_ms"] = None
+        actor["solo_next_due_ms"] = None
+    snapshot["actors"][employee_id].update({
+        "greeting_due_ms": 0,
+        "greeting_emitted": False,
+    })
+
+    lifecycle = speech.advance_snapshot(
+        snapshot,
+        60,
+        actor_snapshot=actor_snapshot,
+    )
+    assert any(
+        event["type"] == "speech_session_started"
+        and event["category"] == "greeting"
+        for event in lifecycle["events"]
+    )
+
+    queued = speech.advance_snapshot(
+        lifecycle["snapshot"],
+        60,
+        actor_snapshot=actor_snapshot,
+        commands=[{
+            "type": "behavior_started",
+            "employee_id": employee_id,
+            "behavior": "talk",
+            "effective_at_ms": 60,
+        }],
+    )
+    assert queued["snapshot"]["actors"][employee_id]["external_talk_pending"] is True
+
+    finished = speech.advance_snapshot(
+        queued["snapshot"],
+        5000,
+        actor_snapshot=actor_snapshot,
+    )
+    assert any(
+        event["type"] == "speech_session_started"
+        and event["category"] == "conversation_open"
+        and event["employee_id"] == employee_id
+        for event in finished["events"]
+    )
+    assert finished["snapshot"]["actors"][employee_id]["external_talk_pending"] is False
+
+
 def test_reception_leaving_is_explicit_draw_over_trigger_and_has_priority():
     actor_snapshot = _actor_snapshot()
     speech = SpeechSchedulerCore(ROOT)
@@ -129,7 +314,12 @@ def test_reception_depth_helper_matches_authored_front_edge_not_raw_uv_threshold
 
 def test_standing_pair_has_one_shared_die_outcome_then_return_hook():
     actor_snapshot = _actor_snapshot()
-    speech = SpeechSchedulerCore(ROOT)
+    core = CentralGameCore(ROOT)
+    speech = SpeechSchedulerCore(
+        ROOT,
+        employee_registry=core.employee_metadata,
+        conversation=core.conversation,
+    )
     snapshot = _quiet_scheduler(speech, actor_snapshot)
     # Remove the floor CEO from the candidate set so the first valid mode is
     # standing_pair; this changes only scheduler state, not employee metadata.
@@ -156,23 +346,74 @@ def test_standing_pair_has_one_shared_die_outcome_then_return_hook():
             "dialogue_categories": ["conversation_open", "conversation_reply"],
         }
     speech._mode_request = force_standing
-    result = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    result = speech.advance_snapshot(
+        snapshot,
+        60,
+        actor_snapshot=actor_snapshot,
+        conversation_snapshot=core.resolve_conversation_snapshot("floor02"),
+    )
     start = next(event for event in result["events"] if event["type"] == "speech_session_started")
     assert start["mode"] == "standing_pair"
     session = result["snapshot"]["active_sessions"][start["session_id"]]
+    assert 1 <= session["emotion_roll"] <= 6
     assert session["emotion_outcome"] in {"sad", "happy"}
-    completed = speech.advance_snapshot(result["snapshot"], 4240, actor_snapshot=actor_snapshot)
+    assert session["emotion_outcome"] == (
+        "happy" if session["emotion_roll"] % 2 == 0 else "sad"
+    )
+    assert session["conversation_plan"]["emotion"]["roll"] == session["emotion_roll"]
+    assert session["conversation_plan"]["emotion"]["outcome"] == session["emotion_outcome"]
+    completed = speech.advance_snapshot(
+        result["snapshot"],
+        session["fade_end_ms"] - result["snapshot"]["clock"]["simulation_time_ms"],
+        actor_snapshot=actor_snapshot,
+        conversation_snapshot=core.resolve_conversation_snapshot("floor02"),
+    )
     emotion = next(event for event in completed["events"] if event["type"] == "emotion_started")
     assert emotion["emotion"] == session["emotion_outcome"]
+    assert emotion["emotion_roll"] == session["emotion_roll"]
     assert all(
         binding["action"] == session["emotion_outcome"]
         for binding in emotion["pose_bindings"].values()
     )
     finished = next(event for event in completed["events"] if event["type"] == "speech_session_completed")
     assert finished["return_requested"] is False
-    returned = speech.advance_snapshot(completed["snapshot"], 1200, actor_snapshot=actor_snapshot)
+    returned = speech.advance_snapshot(
+        completed["snapshot"],
+        session["emotion_hold_ms"],
+        actor_snapshot=actor_snapshot,
+        conversation_snapshot=core.resolve_conversation_snapshot("floor02"),
+    )
     assert any(event["type"] == "return_requested" for event in returned["events"])
     assert all(actor["speech_phase"] == "idle" for actor in returned["snapshot"]["actors"].values() if actor["employee_id"] in session["participants"])
+
+
+def test_emotion_d6_advances_persisted_state_and_replays():
+    core = CentralGameCore(ROOT)
+    speech = core.speech_scheduler
+    snapshot = speech.initial_snapshot(core.resolve_actor_snapshot("floor02"))
+
+    rolls = [speech._next_emotion_d6(snapshot) for _ in range(12)]
+    assert all(1 <= roll <= 6 for roll in rolls)
+    assert len(set(rolls)) > 1
+    assert len({roll % 2 for roll in rolls}) == 2
+
+    replay = speech.initial_snapshot(core.resolve_actor_snapshot("floor02"))
+    for _ in range(12):
+        speech._next_emotion_d6(replay)
+    assert replay["determinism"]["emotion_rng_state"] == snapshot["determinism"]["emotion_rng_state"]
+
+
+def test_legacy_speech_snapshot_migrates_emotion_rng_state_for_replay():
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = speech.initial_snapshot(_actor_snapshot())
+    legacy = copy.deepcopy(snapshot)
+    legacy["determinism"].pop("emotion_rng_state")
+
+    migrated = speech.validate_snapshot(legacy)
+    assert migrated["determinism"]["emotion_rng_state"] == snapshot["determinism"]["emotion_rng_state"]
+    replay = copy.deepcopy(migrated)
+    assert speech._next_emotion_d6(migrated) == speech._next_emotion_d6(replay)
+    assert migrated["determinism"]["emotion_rng_state"] == replay["determinism"]["emotion_rng_state"]
 
 
 def test_pair_bubble_start_is_emitted_at_arrival_not_route_start():

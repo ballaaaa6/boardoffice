@@ -173,7 +173,7 @@
           "const": "render_action_and_render_owner_are_derived_presentation_outputs"
         },
         "conversation_policy": {
-          "const": "actor_talk_session_is_authoritative_and_speech_lane_is_a_commit_gate"
+          "const": "actor_route_is_authoritative; stationary_talk_is_a_working_overlay; speech_lane_owns_timing"
         },
         "unassigned_actor_policy": {
           "const": "not_eligible_for_runtime_behavior_or_workseat_render"
@@ -246,7 +246,7 @@
               "const": "actor.conversation_phase"
             },
             "allowed_when_activity": {
-              "const": "talking"
+              "const": "talking_only_while_route_committed"
             },
             "null_when_activity_is_not_talking": {
               "const": true
@@ -377,7 +377,7 @@
           "const": "NW_NE_advance_one_cell_after_each_completed_normal_work_loop; SE_SW_static_cell0"
         },
         "reset_policy": {
-          "const": "reset_both_fields_when_working_restarts_after_route_or_mobile_event; preserve_desk_overlay_phase"
+          "const": "reset_both_fields_when_non_talk_working_restarts_after_route_or_mobile_event; preserve_desk_and_talk_overlay_phase"
         }
       }
     },
@@ -583,13 +583,15 @@
             "route_phases",
             "completion_policy",
             "stationary_participant_policy",
+            "stationary_overlay_policy",
+            "endpoint_facing_policy",
             "failure_command",
             "speech_scheduler_role",
             "unavailable_partner_policy",
             "ceo_request_policy"
           ],
           "properties": {
-            "request_phase": {"const": "talk_pending_without_activity_window"},
+            "request_phase": {"const": "talk_pending_with_continuous_work_clock"},
             "queue_timeout_ms": {"const": 30000},
             "acceptance_command": {"const": "start_talk_session"},
             "route_ownership": {"const": "actor_reducer"},
@@ -597,10 +599,16 @@
               "const": ["talk_outbound", "talk_hold", "talk_return"]
             },
             "completion_policy": {
-              "const": "return_to_owned_workseat_then_complete_recovery_owner_event"
+              "const": "return_to_owned_workseat_then_complete_recovery_owner_event_without_resetting_work_loop"
             },
             "stationary_participant_policy": {
-              "const": "remain_talking_at_workseat_until_shared_return_boundary"
+              "const": "remain_working_at_workseat_and_advance_work_clock_until_shared_return_boundary"
+            },
+            "stationary_overlay_policy": {
+              "const": "no_route_keeps_working_activity; speech_timing_is_overlay; clear_at_shared_return_boundary"
+            },
+            "endpoint_facing_policy": {
+              "const": "start_talk_session.endpoint_facing_overrides_talk_hold_direction_then_return_uses_route_direction"
             },
             "failure_command": {"const": "cancel_talk"},
             "speech_scheduler_role": {"const": "queue_plan_and_timing_only"},
@@ -684,7 +692,7 @@
           ]
         },
         "pose_policy": {
-          "const": "presentation_reads_actor_talk_route_without_owning_gameplay_state"
+          "const": "actor_route_owns_motion; stationary_talk_uses_work_clock_with_plan_direction_and_subaction"
         },
         "seat_transition": {
           "type": "object",

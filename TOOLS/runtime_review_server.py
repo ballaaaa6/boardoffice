@@ -223,7 +223,11 @@ class ReviewState:
             ):
                 continue
             behavior = actor["behavior"]
-            if behavior.get("active_event") is not None:
+            # A seated host/participant can own a presentation-only talk
+            # overlay without owning an actor recovery window.  Do not arm a
+            # new weighted event over that speech clock: the next event due
+            # field is intentionally null until the overlay completes.
+            if behavior.get("active_event") is not None or behavior.get("talk") is not None:
                 continue
             due = behavior.get("next_event_due_ms")
             if employee_id not in self._live_behavior_armed:
@@ -340,9 +344,9 @@ class ReviewState:
             speech_actors = runtime["speech_snapshot"]["actors"]
             for actor in speech_actors.values():
                 actor["greeting_due_ms"] = None
-                actor["greeting_emitted"] = True
+                actor["greeting_emitted"] = False
                 actor["work_start_due_ms"] = None
-                actor["work_start_emitted"] = True
+                actor["work_start_emitted"] = False
                 actor["solo_next_due_ms"] = None
                 actor["pair_next_due_ms"] = None
             runtime = self.core.validate_runtime_snapshot(runtime)
@@ -774,7 +778,7 @@ class ReviewState:
             "source", "event_index", "timestamp_ms", "employee_id", "type",
             "session_id", "behavior", "activity", "phase", "mode", "role",
             "partner_id", "category", "kind", "reason", "participants",
-            "emotion", "effect_milli", "stamina_milli", "route_committed",
+            "emotion", "emotion_roll", "effect_milli", "stamina_milli", "route_committed",
             "talk_start_at_ms", "talk_end_at_ms", "return_start_at_ms",
             "assignment_retained", "work_loop_completed",
         )
@@ -881,6 +885,23 @@ class ReviewState:
                 if isinstance(sessions, dict):
                     for session_id in routine_ids:
                         sessions.pop(session_id, None)
+            lanes = speech_snapshot.get("lanes")
+            if isinstance(lanes, dict):
+                for lane in lanes.values():
+                    if not isinstance(lane, dict):
+                        continue
+                    if str(lane.get("active_session_id")) in routine_ids:
+                        lane["active_session_id"] = None
+                        lane["active_until_ms"] = None
+                    if str(lane.get("last_completed_session_id")) in routine_ids:
+                        lane["last_completed_session_id"] = None
+                    queued = lane.get("queued_session_ids")
+                    if isinstance(queued, list):
+                        lane["queued_session_ids"] = [
+                            session_id
+                            for session_id in queued
+                            if str(session_id) not in routine_ids
+                        ]
             speech_actors = speech_snapshot.get("actors", {})
             actor_rows = actor_snapshot.get("actors", {}) if isinstance(actor_snapshot, dict) else {}
             if isinstance(speech_actors, dict):
@@ -915,10 +936,74 @@ class ReviewState:
         frame["presentation"] = redraw["presentation"]
         frame["runtime_snapshot"] = redraw["runtime_snapshot"]
 
+    def _talk_demo_has_reached_workseat(self, frame: dict[str, Any]) -> bool:
+        """Return true only after every talk participant owns a normal-work pose.
+
+        ``talk_returned`` is emitted when an actor reaches the WorkSeat
+        transition gate, before the 240ms visual ``seat_entry`` bridge has
+        completed.  The review host must not pause its demo at that seam or it
+        presents a seated-looking actor without the canonical
+        ``work/normal_work`` pose.
+        """
+        if self._talk_demo_session_id is None or self._talk_demo_initiator_id is None:
+            return False
+        runtime = frame.get("runtime_snapshot")
+        if not isinstance(runtime, dict):
+            return False
+        speech = runtime.get("speech_snapshot")
+        actor_snapshot = runtime.get("actor_snapshot")
+        if not isinstance(speech, dict) or not isinstance(actor_snapshot, dict):
+            return False
+        completed_sessions = speech.get("completed_sessions")
+        session = (
+            completed_sessions.get(self._talk_demo_session_id)
+            if isinstance(completed_sessions, dict)
+            else None
+        )
+        participants = session.get("participants") if isinstance(session, dict) else None
+        if not isinstance(participants, list) or not participants:
+            participants = [self._talk_demo_initiator_id]
+        actors = actor_snapshot.get("actors")
+        presentation_actors = frame.get("presentation", {}).get("actors")
+        if not isinstance(actors, dict) or not isinstance(presentation_actors, dict):
+            return False
+        for employee_id in participants:
+            actor = actors.get(employee_id)
+            row = presentation_actors.get(employee_id)
+            if not isinstance(actor, dict) or not isinstance(row, dict):
+                return False
+            position = actor.get("position") or {}
+            if (
+                actor.get("activity") != "working"
+                or position.get("route") is not None
+                or position.get("seat_transition") is not None
+                or row.get("render_owner") != "work_seat"
+                or row.get("action") != "work"
+                or row.get("subaction") != "normal_work"
+                or row.get("presentation_transition") is not None
+            ):
+                return False
+        return True
+
     @staticmethod
     def _actor_rows(frame: dict[str, Any]) -> list[dict[str, Any]]:
         rows = []
-        runtime_actors = frame["runtime_snapshot"]["actor_snapshot"]["actors"]
+        runtime = frame["runtime_snapshot"]
+        runtime_actors = runtime["actor_snapshot"]["actors"]
+        speech_snapshot = runtime.get("speech_snapshot") or {}
+        queued_by_actor: dict[str, dict[str, Any]] = {}
+        for lane in (speech_snapshot.get("lanes") or {}).values():
+            if not isinstance(lane, dict):
+                continue
+            for position, request in enumerate(lane.get("queued_requests") or [], start=1):
+                if not isinstance(request, dict):
+                    continue
+                employee_id = request.get("initiator_id")
+                if isinstance(employee_id, str):
+                    queued_by_actor[employee_id] = {
+                        "position": position,
+                        "request": request,
+                    }
         for employee_id, row in frame["presentation"].get("actors", {}).items():
             stamina = row.get("stamina") or {}
             channels = row.get("channels") or {}
@@ -927,6 +1012,8 @@ class ReviewState:
             talk = behavior.get("talk") or {}
             position = runtime_actor.get("position") or {}
             route = position.get("route") or {}
+            queued = queued_by_actor.get(employee_id) or {}
+            queued_request = queued.get("request") or {}
             overlay = None
             for channel_name in ("vfx", "humanball", "conversation"):
                 channel = channels.get(channel_name)
@@ -994,6 +1081,15 @@ class ReviewState:
                 "speech_mode": row.get("speech_mode"),
                 "speech_category": row.get("speech_category"),
                 "speech_session_id": row.get("speech_session_id"),
+                "speech_queue_position": queued.get("position"),
+                "speech_queue_request_id": queued_request.get("request_id"),
+                "speech_queue_kind": queued_request.get("kind"),
+                "speech_queue_category": queued_request.get("category"),
+                "speech_queue_due_ms": queued_request.get("due_ms"),
+                "speech_queue_external": (
+                    bool(queued_request.get("external", False))
+                    if queued_request else False
+                ),
                 "talk_role": talk.get("role"),
                 "talk_partner_id": talk.get("partner_id"),
                 "stamina": round(int(stamina.get("current_milli", 0)) / 1000, 3),
@@ -1161,12 +1257,7 @@ class ReviewState:
             )
             render_ms = (time.perf_counter() - render_started) * 1000.0
             self._suppress_demo_routine_speech(frame)
-            if self._talk_demo_session_id is not None and self._talk_demo_initiator_id is not None and any(
-                event.get("type") == "talk_returned"
-                and str(event.get("employee_id")) == self._talk_demo_initiator_id
-                and str(event.get("session_id")) == self._talk_demo_session_id
-                for event in frame.get("events", [])
-            ):
+            if self._talk_demo_has_reached_workseat(frame):
                 self._demo_complete = True
             if self._effects_demo_ids:
                 finished = {

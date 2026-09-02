@@ -72,6 +72,11 @@ class ConversationSpotCore:
         contract_path = self.root / "CONTRACTS" / "conversation_behavior.json"
         self.contract = json.loads(contract_path.read_text(encoding="utf-8"))
         standing = self.contract["coordinate_contract"]["standing_pair"]
+        self.standing_pair_preferred_axis = str(standing["preferred_axis"]).upper()
+        self.standing_pair_endpoint_order = str(standing["endpoint_order"])
+        self.standing_pair_endpoint_facing_order = tuple(
+            str(value).upper() for value in standing["endpoint_facing_order"]
+        )
         self.default_gap_cells = int(standing["talk_gap_cells"])
         self.minimum_gap_cells = int(standing["minimum_gap_cells"])
         self.open_ring_radius_cells = int(standing["open_ring_radius_cells"])
@@ -302,7 +307,7 @@ class ConversationSpotCore:
         self,
         floor_id: str,
         *,
-        preferred_axis: str = "V",
+        preferred_axis: str = "U",
         gap_cells: int | None = None,
         blocked_cells: Iterable[Iterable[int]] | None = None,
         reserved_cells: Iterable[Iterable[int]] | None = None,
@@ -347,8 +352,11 @@ class ConversationSpotCore:
                 if self._between_furniture(floor_id, segment, axis, context):
                     continue
                 pair = (first, second)
-                first_facing = self._facing_for_delta((du, dv))
-                second_facing = self.OPPOSITE[first_facing]
+                if axis == self.standing_pair_preferred_axis:
+                    first_facing, second_facing = self.standing_pair_endpoint_facing_order
+                else:
+                    first_facing = self._facing_for_delta((du, dv))
+                    second_facing = self.OPPOSITE[first_facing]
                 row = {
                     "ready": True,
                     "mode": "standing_pair",

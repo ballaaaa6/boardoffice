@@ -31,6 +31,10 @@ class SpeechSchedulerCore:
     BUBBLE_FADE_MS = 300
     SESSION_HOLD_MS = 4300
     EMOTION_HOLD_MS = 1200
+    EMOTION_RNG_MASK = (1 << 64) - 1
+    EMOTION_RNG_INCREMENT = 0x9E3779B97F4A7C15
+    EMOTION_RNG_MIX_1 = 0xBF58476D1CE4E5B9
+    EMOTION_RNG_MIX_2 = 0x94D049BB133111EB
     SOLO_CATEGORIES = (
         "encouragement",
         "uncertainty",
@@ -57,17 +61,17 @@ class SpeechSchedulerCore:
     )
     PAIR_CATEGORIES = ("conversation_open", "conversation_reply")
     MODES = ("ceo_front", "seated_host", "standing_pair")
-    # Safety lifecycle speech still wins, but a real actor talk request must
-    # be serviced before routine greeting/work-start/solo chatter.  Pair
-    # requests are represented by the conversation_open category, so keep
-    # that key explicit instead of falling through to the solo default.
+    # Safety and entry lifecycle speech must not starve behind routine pair or
+    # solo requests.  Pair requests are represented by the conversation_open
+    # category, so keep that key explicit instead of falling through to the
+    # solo default.
     PRIORITY = {
         "leaving": 0,
         "fatigue": 1,
-        "conversation_open": 2,
-        "pair": 2,
-        "greeting": 3,
-        "work_start": 4,
+        "greeting": 2,
+        "work_start": 3,
+        "conversation_open": 4,
+        "pair": 4,
         "solo": 5,
     }
 
@@ -114,6 +118,58 @@ class SpeechSchedulerCore:
     def _stable_int(*parts: Any) -> int:
         material = "\x1f".join(str(part) for part in parts).encode("utf-8")
         return int.from_bytes(hashlib.sha256(material).digest()[:8], "big")
+
+    @classmethod
+    def _initial_emotion_rng_state(
+        cls,
+        simulation_seed: str,
+        root_event_counter: int = 0,
+    ) -> int:
+        """Derive the persisted starting state for the standing-pair d6."""
+        return cls._stable_int(
+            simulation_seed,
+            "standing-pair-emotion-d6",
+            int(root_event_counter),
+        ) & cls.EMOTION_RNG_MASK
+
+    @classmethod
+    def _splitmix64_step(cls, state: int) -> tuple[int, int]:
+        """Advance one 64-bit state and return ``(next_state, value)``."""
+        next_state = (int(state) + cls.EMOTION_RNG_INCREMENT) & cls.EMOTION_RNG_MASK
+        value = next_state
+        value = ((value ^ (value >> 30)) * cls.EMOTION_RNG_MIX_1) & cls.EMOTION_RNG_MASK
+        value = ((value ^ (value >> 27)) * cls.EMOTION_RNG_MIX_2) & cls.EMOTION_RNG_MASK
+        value = (value ^ (value >> 31)) & cls.EMOTION_RNG_MASK
+        return next_state, value
+
+    def _peek_emotion_d6(self, snapshot: dict[str, Any]) -> tuple[int, int]:
+        """Return the next standing-pair d6 and state without consuming it."""
+        determinism = snapshot.get("determinism")
+        if not isinstance(determinism, dict):
+            raise SpeechSchedulerError("speech snapshot determinism must be an object")
+        raw_state = determinism.get("emotion_rng_state")
+        if raw_state is None:
+            raw_state = self._initial_emotion_rng_state(
+                str(determinism.get("simulation_seed", "")),
+                int(determinism.get("root_event_counter", 0)),
+            )
+        state = self._require_int(raw_state, "determinism.emotion_rng_state")
+        if state > self.EMOTION_RNG_MASK:
+            raise SpeechSchedulerError(
+                f"determinism.emotion_rng_state must be <= {self.EMOTION_RNG_MASK}"
+            )
+        value_space = self.EMOTION_RNG_MASK + 1
+        rejection_limit = value_space - (value_space % 6)
+        while True:
+            state, value = self._splitmix64_step(state)
+            if value < rejection_limit:
+                return (value % 6) + 1, state
+
+    def _next_emotion_d6(self, snapshot: dict[str, Any]) -> int:
+        """Consume one persisted, replayable standing-pair d6 roll."""
+        roll, next_state = self._peek_emotion_d6(snapshot)
+        snapshot["determinism"]["emotion_rng_state"] = next_state
+        return roll
 
     @staticmethod
     def _require_int(value: Any, name: str, *, minimum: int = 0) -> int:
@@ -320,6 +376,7 @@ class SpeechSchedulerCore:
             "determinism": {
                 "simulation_seed": simulation_seed,
                 "root_event_counter": 0,
+                "emotion_rng_state": self._initial_emotion_rng_state(simulation_seed),
             },
             "actors": {},
             "lanes": {},
@@ -339,6 +396,7 @@ class SpeechSchedulerCore:
                 "active_session_id": None,
                 "active_until_ms": None,
                 "queued_session_ids": [],
+                "queued_requests": [],
                 "last_completed_session_id": None,
             }
             for floor in sorted({row["floor_id"] for row in snapshot["actors"].values()})
@@ -357,6 +415,25 @@ class SpeechSchedulerCore:
             first = errors[0]
             raise SpeechSchedulerError(f"{first.json_path or '$'}: {first.message}")
         current = self._canonical(snapshot)
+        determinism = current["determinism"]
+        for lane in current["lanes"].values():
+            lane.setdefault("queued_requests", [])
+        if "emotion_rng_state" not in determinism:
+            # Old snapshots did not persist a d6 state.  Seed the migrated
+            # state from their deterministic identity so replay remains
+            # stable after the first save.
+            determinism["emotion_rng_state"] = self._initial_emotion_rng_state(
+                str(determinism["simulation_seed"]),
+                int(determinism["root_event_counter"]),
+            )
+        emotion_rng_state = self._require_int(
+            determinism["emotion_rng_state"],
+            "determinism.emotion_rng_state",
+        )
+        if emotion_rng_state > self.EMOTION_RNG_MASK:
+            raise SpeechSchedulerError(
+                f"determinism.emotion_rng_state must be <= {self.EMOTION_RNG_MASK}"
+            )
         actor_ids = set(current["actors"])
         for employee_id, actor in current["actors"].items():
             if actor.get("employee_id") != employee_id:
@@ -459,8 +536,11 @@ class SpeechSchedulerCore:
             previous = speech_actor.get("last_activity")
             if activity != previous:
                 if activity == "working":
-                    speech_actor["work_start_due_ms"] = now_ms
-                    speech_actor["work_start_emitted"] = False
+                    # Work-start is a lifecycle boundary, not a generic
+                    # activity-transition side effect.  Central arms it from
+                    # an effective ``workseat_entered``/``returned_to_work``
+                    # command so a scheduler tick cannot observe the actor
+                    # one slice before its seat transition has completed.
                     speech_actor["solo_next_due_ms"] = now_ms + self._delay_ms(
                         snapshot, employee_id, "solo", int(speech_actor.get("speech_event_counter", 0)) + 1
                     )
@@ -504,6 +584,12 @@ class SpeechSchedulerCore:
         if not isinstance(employee_id, str) or employee_id not in snapshot["actors"]:
             raise SpeechSchedulerError("speech command.employee_id must name an active actor")
         actor = snapshot["actors"][employee_id]
+        effective_at = timestamp_ms
+        if command_type in {"spawned", "workseat_entered", "returned_to_work"}:
+            effective_at = self._require_int(
+                command.get("effective_at_ms", timestamp_ms),
+                f"{command_type}.effective_at_ms",
+            )
         if command_type == "behavior_started":
             if command.get("behavior") != "talk":
                 raise SpeechSchedulerError(
@@ -528,13 +614,13 @@ class SpeechSchedulerCore:
             return
         if command_type == "spawned":
             actor.update({
-                "spawned_at_ms": timestamp_ms,
-                "greeting_due_ms": timestamp_ms + self._delay_ms(snapshot, employee_id, "greeting", int(actor["departure_token"]) + 1),
+                "spawned_at_ms": effective_at,
+                "greeting_due_ms": effective_at + self._delay_ms(snapshot, employee_id, "greeting", int(actor["departure_token"]) + 1),
                 "greeting_emitted": False,
             })
             return
         if command_type == "workseat_entered":
-            actor.update({"work_start_due_ms": timestamp_ms, "work_start_emitted": False})
+            actor.update({"work_start_due_ms": effective_at, "work_start_emitted": False})
             return
         if command_type == "going_home":
             actor.update({
@@ -553,15 +639,15 @@ class SpeechSchedulerCore:
                 # Returning actors get the authored entry line again before
                 # their next work-start line.  This is the presentation
                 # boundary that was previously missing from the live host.
-                "greeting_due_ms": timestamp_ms + self._delay_ms(
+                "greeting_due_ms": effective_at + self._delay_ms(
                     snapshot, employee_id, "greeting", int(actor["departure_token"]) + 1
                 ),
                 "greeting_emitted": False,
-                "work_start_due_ms": timestamp_ms,
+                "work_start_due_ms": effective_at,
                 "work_start_emitted": False,
-                "solo_next_due_ms": timestamp_ms + self._delay_ms(snapshot, employee_id, "solo", int(actor["departure_token"]) + 1),
+                "solo_next_due_ms": effective_at + self._delay_ms(snapshot, employee_id, "solo", int(actor["departure_token"]) + 1),
                 "pair_next_due_ms": (
-                    timestamp_ms + self._delay_ms(
+                    effective_at + self._delay_ms(
                         snapshot, employee_id, "pair", int(actor["departure_token"]) + 1
                     )
                     if actor.get("role") != "ceo" else None
@@ -922,6 +1008,10 @@ class SpeechSchedulerCore:
                 locale=dialogue_locale,
                 seed=f"{dialogue_seed}|{snapshot['determinism']['root_event_counter']}|{candidate.get('initiator_id')}",
             )
+            emotion_roll = None
+            next_emotion_rng_state = None
+            if candidate.get("kind") == "pair" and candidate.get("mode") == "standing_pair":
+                emotion_roll, next_emotion_rng_state = self._peek_emotion_d6(snapshot)
             try:
                 if candidate["kind"] == "pair":
                     plan = self.conversation.plan_conversation(
@@ -932,6 +1022,7 @@ class SpeechSchedulerCore:
                         dialogue_locale=dialogue_locale,
                         dialogue_seed=dialogue_seed,
                         dialogue_line_overrides=overrides,
+                        emotion_roll=emotion_roll,
                     )
                 else:
                     plan = self.conversation.plan_self_talk(
@@ -949,6 +1040,8 @@ class SpeechSchedulerCore:
                 # plan.  The next seeded candidate may still be usable.
                 continue
             if plan.get("ready"):
+                if next_emotion_rng_state is not None:
+                    snapshot["determinism"]["emotion_rng_state"] = next_emotion_rng_state
                 snapshot["dialogue_bags"] = bag_state
                 plan["dialogue_selection"] = {
                     "policy": bag_policy,
@@ -1060,6 +1153,7 @@ class SpeechSchedulerCore:
             "bubble_schedule": [],
             "pose_bindings": pose_bindings,
             "conversation_plan": self._copy(plan) if plan is not None else None,
+            "emotion_roll": None,
             "emotion_outcome": None,
             "emotion_hold_ms": 0,
             # Lifecycle and seated work speech are presentation-only.  Only
@@ -1104,11 +1198,37 @@ class SpeechSchedulerCore:
                 },
             ]
             if mode == "standing_pair":
-                roll = self._stable_int(
-                    snapshot["determinism"]["simulation_seed"], session_id, "emotion"
-                )
-                session["emotion_outcome"] = "happy" if roll % 2 == 0 else "sad"
-                session["emotion_hold_ms"] = self.EMOTION_HOLD_MS
+                if plan is None:
+                    # Keep the scheduler usable as a standalone timing
+                    # reducer.  The Central path supplies the same roll to
+                    # the conversation plan before reaching this branch.
+                    emotion_roll = self._next_emotion_d6(snapshot)
+                    emotion_outcome = "happy" if emotion_roll % 2 == 0 else "sad"
+                    emotion_hold_ms = self.EMOTION_HOLD_MS
+                else:
+                    emotion = plan.get("emotion", {}) if isinstance(plan, dict) else {}
+                    emotion_roll = emotion.get("roll") if isinstance(emotion, dict) else None
+                    emotion_outcome = emotion.get("outcome") if isinstance(emotion, dict) else None
+                    if (
+                        isinstance(emotion_roll, bool)
+                        or not isinstance(emotion_roll, int)
+                        or not 1 <= emotion_roll <= 6
+                    ):
+                        raise SpeechSchedulerError(
+                            "standing_pair session needs one conversation-plan emotion d6 roll"
+                        )
+                    if emotion_outcome != ("happy" if emotion_roll % 2 == 0 else "sad"):
+                        raise SpeechSchedulerError(
+                            "standing_pair emotion outcome does not match the conversation-plan d6 roll"
+                        )
+                    emotion_hold_ms = emotion.get("hold_ms", 0) if isinstance(emotion, dict) else 0
+                    emotion_hold_ms = self._require_int(
+                        emotion_hold_ms,
+                        "conversation_plan.emotion.hold_ms",
+                    )
+                session["emotion_roll"] = emotion_roll
+                session["emotion_outcome"] = emotion_outcome
+                session["emotion_hold_ms"] = emotion_hold_ms
         else:
             preferred_bubble = self._bubble_id_for_dialogue(dialogue_by_actor.get(participants[0]))
             session["bubble_schedule"] = [{
@@ -1129,8 +1249,9 @@ class SpeechSchedulerCore:
             actor = snapshot["actors"][employee_id]
             actor["speech_event_counter"] = int(actor.get("speech_event_counter", 0)) + 1
             actor["speech_phase"] = "active"
-            actor["external_talk_pending"] = False
-            actor["external_talk_due_ms"] = None
+            if request.get("external"):
+                actor["external_talk_pending"] = False
+                actor["external_talk_due_ms"] = None
             actor["last_session_id"] = session_id
             actor["last_partner_id"] = request.get("partner_id")
             if kind == "solo":
@@ -1173,6 +1294,8 @@ class SpeechSchedulerCore:
             pose_bindings=session["pose_bindings"],
             bubble_schedule=session["bubble_schedule"],
             conversation_plan=session["conversation_plan"],
+            emotion_roll=session["emotion_roll"],
+            emotion_outcome=session["emotion_outcome"],
             available_modes=session["available_modes"],
             selection_policy=session["selection_policy"],
             numeric_effect_policy=session["numeric_effect_policy"],
@@ -1282,6 +1405,7 @@ class SpeechSchedulerCore:
                 employee_id=participants[0],
                 session_id=session_id,
                 emotion=emotion,
+                emotion_roll=session.get("emotion_roll"),
                 participants=participants,
                 stamina_effect_hook="actor_snapshot_numeric_delta",
                 stamina_effect_milli_by_emotion={"sad": -1000, "happy": 2000},
@@ -1307,8 +1431,6 @@ class SpeechSchedulerCore:
         for employee_id in participants:
             actor = snapshot["actors"][employee_id]
             actor["speech_phase"] = "idle"
-            actor["external_talk_pending"] = False
-            actor["external_talk_due_ms"] = None
             actor["emotion"] = None
             actor["emotion_until_ms"] = None
             counter = int(actor.get("speech_event_counter", 0))
@@ -1399,9 +1521,36 @@ class SpeechSchedulerCore:
                 "kind": "lifecycle", "category": "fatigue", "mode": "self_talk",
                 "participants": [employee_id], "initiator_id": employee_id,
             }
+        lifecycle_available = (
+            self._actor_present(actor)
+            and not actor.get("locked")
+            and actor.get("stamina_band") != "critical"
+            and (
+                self._actor_activity(actor) == "working"
+                or bool(actor.get("external_talk_pending"))
+            )
+        )
+        if lifecycle_available and (
+            not actor.get("greeting_emitted")
+            and actor.get("greeting_due_ms") is not None
+            and int(actor["greeting_due_ms"]) <= now_ms
+        ):
+            return {
+                "kind": "lifecycle", "category": "greeting", "mode": "self_talk",
+                "participants": [employee_id], "initiator_id": employee_id,
+            }
+        if lifecycle_available and (
+            not actor.get("work_start_emitted")
+            and actor.get("work_start_due_ms") is not None
+            and int(actor["work_start_due_ms"]) <= now_ms
+        ):
+            return {
+                "kind": "lifecycle", "category": "work_start", "mode": "self_talk",
+                "participants": [employee_id], "initiator_id": employee_id,
+            }
         # A bridge-requested talk is an actor lifecycle request, not a
-        # presentation-only hint.  Service it before routine lifecycle lines
-        # so the actor can leave the workstation promptly.
+        # presentation-only hint.  Keep it pending if an entry lifecycle line
+        # is due so greeting/work-start cannot be starved by pair traffic.
         if (
             actor.get("external_talk_pending")
             and (
@@ -1442,26 +1591,6 @@ class SpeechSchedulerCore:
             }
         if not self._actor_available(actor):
             return None
-        if (
-            self._actor_present(actor)
-            and not actor.get("greeting_emitted")
-            and actor.get("greeting_due_ms") is not None
-            and int(actor["greeting_due_ms"]) <= now_ms
-        ):
-            return {
-                "kind": "lifecycle", "category": "greeting", "mode": "self_talk",
-                "participants": [employee_id], "initiator_id": employee_id,
-            }
-        if (
-            self._actor_present(actor)
-            and not actor.get("work_start_emitted")
-            and actor.get("work_start_due_ms") is not None
-            and int(actor["work_start_due_ms"]) <= now_ms
-        ):
-            return {
-                "kind": "lifecycle", "category": "work_start", "mode": "self_talk",
-                "participants": [employee_id], "initiator_id": employee_id,
-            }
         # Entry lifecycle speech owns the first visible moment at a desk.
         # A pair that became due while the actor was away must wait until the
         # greeting/work-start boundary has been emitted, otherwise a return
@@ -1494,6 +1623,44 @@ class SpeechSchedulerCore:
                 "participants": [employee_id], "initiator_id": employee_id,
             }
         return None
+
+    def _queued_request_metadata(
+        self,
+        snapshot: dict[str, Any],
+        request: dict[str, Any],
+        *,
+        now_ms: int,
+    ) -> dict[str, Any]:
+        employee_id = str(request["initiator_id"])
+        actor = snapshot["actors"][employee_id]
+        category = str(request.get("category") or request.get("kind") or "solo")
+        due_key = {
+            "greeting": "greeting_due_ms",
+            "work_start": "work_start_due_ms",
+            "pair": "pair_next_due_ms",
+            "conversation_open": "pair_next_due_ms",
+            "solo": "solo_next_due_ms",
+            "leaving": "leaving_due_ms",
+            "fatigue": "external_talk_due_ms",
+        }.get(category)
+        due_value = actor.get(due_key) if due_key else None
+        due_ms = int(due_value) if due_value is not None else int(now_ms)
+        token = ":".join((
+            str(actor.get("departure_token", 0)),
+            str(actor.get("speech_event_counter", 0)),
+            category,
+            str(request.get("partner_id") or ""),
+        ))
+        return {
+            "request_id": f"speech-request:{employee_id}:{token}",
+            "initiator_id": employee_id,
+            "kind": str(request.get("kind") or "solo"),
+            "category": category,
+            "mode": str(request.get("mode") or "self_talk"),
+            "participants": [str(value) for value in request.get("participants", [employee_id])],
+            "due_ms": due_ms,
+            "external": bool(request.get("external", False)),
+        }
 
     def _retry_request(self, snapshot: dict[str, Any], request: dict[str, Any], *, now_ms: int) -> None:
         employee_id = request["initiator_id"]
@@ -1573,6 +1740,13 @@ class SpeechSchedulerCore:
             self._sync_actor_state(current, actor_snapshot, now_ms=now_ms)
             started_any = False
             by_floor: dict[str, list[dict[str, Any]]] = {}
+            # Queue metadata is a live projection, not a durable request
+            # store.  Clear it before rebuilding eligibility so an actor that
+            # became locked/talking/away cannot leave a ghost request visible
+            # after its lane has stopped reporting it.
+            for lane in current["lanes"].values():
+                lane["queued_session_ids"] = []
+                lane["queued_requests"] = []
             for employee_id in sorted(current["actors"]):
                 request = self._request_for_actor(current, employee_id, now_ms=now_ms)
                 if request is not None:
@@ -1580,21 +1754,35 @@ class SpeechSchedulerCore:
                     by_floor.setdefault(floor, []).append(request)
             for floor_id in sorted(by_floor):
                 lane = current["lanes"][floor_id]
+                request_records = [
+                    (
+                        request,
+                        self._queued_request_metadata(
+                            current,
+                            request,
+                            now_ms=now_ms,
+                        ),
+                    )
+                    for request in by_floor[floor_id]
+                ]
+                request_records.sort(
+                    key=lambda record: (
+                        self.PRIORITY.get(
+                            record[1]["category"],
+                            self.PRIORITY["solo"],
+                        ),
+                        int(record[1]["due_ms"]),
+                        record[1]["initiator_id"],
+                    )
+                )
+                queued_metadata = [metadata for _request, metadata in request_records]
                 if lane.get("active_session_id") is not None:
-                    lane["queued_session_ids"] = [
-                        request["initiator_id"] for request in by_floor[floor_id]
-                    ]
+                    lane["queued_session_ids"] = [item["initiator_id"] for item in queued_metadata]
+                    lane["queued_requests"] = queued_metadata
                     continue
                 lane["queued_session_ids"] = []
-                requests = sorted(
-                    by_floor[floor_id],
-                    key=lambda request: (
-                        self.PRIORITY.get(request.get("category"), self.PRIORITY["solo"]),
-                        int(current["actors"][request["initiator_id"]].get("greeting_due_ms") or now_ms),
-                        request["initiator_id"],
-                    ),
-                )
-                for request in requests:
+                lane["queued_requests"] = []
+                for request, _metadata in request_records:
                     plan = None
                     planned = self._maybe_plan_session(
                         current,

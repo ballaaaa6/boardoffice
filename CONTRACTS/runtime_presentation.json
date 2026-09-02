@@ -23,7 +23,7 @@
   "ownership": {
     "actor_activity_stamina_assignment": "actor_snapshot",
     "speech_timing_bubble_lane": "speech_snapshot",
-    "movement_pose_and_dialogue_track": "conversation_plan",
+    "movement_pose_and_dialogue_track": "actor_snapshot_route_or_seat_transition_or_work_clock; conversation_plan_direction_subaction_and_dialogue_overlay",
     "mutation": false
   },
   "timing_ms": {
@@ -40,6 +40,7 @@
     "seat_boundary": "presentation_only_workseat_visual_anchor_to_transition_gate_bridge",
     "seat_boundary_duration_ms": 240,
     "seat_boundary_tick_policy": "fixed_60ms_steps",
+    "seat_transition_pose_owner": "actor_snapshot",
     "bubble_anchor": "direct_head_anchor",
     "bubble_paint_order": "turn_index_then_employee_id",
     "assignment_mutation": false
@@ -47,6 +48,7 @@
   "emotion_policy": {
     "standing_pair_only": true,
     "outcome": "shared_d6_even_happy_odd_sad",
+    "roll_source": "persisted_scheduler_prng_state",
     "hold_ms": 1200,
     "numeric_stamina_delta": {"sad": -1, "happy": 2},
     "numeric_stamina_delta_unit": "display_stamina",

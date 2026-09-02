@@ -305,6 +305,7 @@ class RuntimePresentationRenderer:
                     str(row.get("dialogue_bubble_id"))
                     if row.get("dialogue_bubble_id") else None
                 ),
+                bubble_offset_px=row.get("dialogue_bubble_offset_px", (0, 0)),
             )
         except Exception as exc:
             raise RuntimePresentationRenderError(

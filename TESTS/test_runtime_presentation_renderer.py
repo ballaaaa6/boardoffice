@@ -121,6 +121,53 @@ def test_runtime_renderer_consumes_all_pair_modes_and_keeps_channels_separate(mo
     assert advanced == before_render
 
 
+def test_stationary_seated_host_uses_actor_work_clock_for_turn_side_frames():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    first_employee, second_employee, _ceo = _ids(core)
+
+    def force_seated_host(_snapshot, initiator_id, *, counter):
+        if initiator_id != first_employee:
+            return None
+        return {
+            "kind": "pair",
+            "initiator_id": first_employee,
+            "partner_id": second_employee,
+            "participants": [first_employee, second_employee],
+            "mode": "seated_host",
+            "category": "conversation_open",
+            "dialogue_categories": ["conversation_open", "conversation_reply"],
+        }
+
+    core.speech_scheduler._mode_request = force_seated_host
+    core.actor_simulation.choose_behavior_event = lambda *args, **kwargs: "talk"
+    runtime["actor_snapshot"]["actors"][first_employee]["behavior"]["next_event_due_ms"] = 0
+    current = core.advance_runtime_snapshot(runtime, 60)
+    current = core.advance_runtime_snapshot(current, 1740)
+
+    samples = []
+    for _ in range(12):
+        host_actor = current["actor_snapshot"]["actors"][second_employee]
+        host_row = core.resolve_runtime_presentation(
+            current,
+            floor_id="floor02",
+            validate=False,
+        )["actors"][second_employee]
+        assert host_actor["activity"] == "working"
+        assert host_actor["position"]["route"] is None
+        assert host_row["render_owner"] == "work_seat"
+        assert host_row["action"] == "work"
+        assert host_row["subaction"].startswith("turn_side_")
+        expected_frame = (
+            int(host_actor["behavior"]["work_loop_elapsed_ms"]) // 360
+        ) % int(host_row["character_frame_count"])
+        assert host_row["character_frame_index"] == expected_frame
+        samples.append(host_row["character_frame_index"])
+        current = core.advance_runtime_snapshot(current, 60)
+
+    assert len(set(samples)) >= 2
+
+
 def test_central_normalizes_runtime_action_labels_for_every_direction_and_emotion():
     core = CentralGameCore(ROOT)
     actor = next(iter(core.resolve_actor_snapshot("floor02")["actors"].values()))
@@ -312,6 +359,68 @@ def test_runtime_renderer_paints_shared_emotion_and_return_window():
         event["type"] == "return_requested"
         for event in returned["speech_events"]
     )
+
+
+def test_talk_return_seat_entry_transition_owns_pose_until_normal_work():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    first_employee, second_employee, _ceo = _ids(core)
+
+    def force_standing(_snapshot, initiator_id, *, counter):
+        if initiator_id != first_employee:
+            return None
+        return {
+            "kind": "pair",
+            "initiator_id": first_employee,
+            "partner_id": second_employee,
+            "participants": [first_employee, second_employee],
+            "mode": "standing_pair",
+            "category": "conversation_open",
+            "dialogue_categories": ["conversation_open", "conversation_reply"],
+        }
+
+    core.speech_scheduler._mode_request = force_standing
+    core.actor_simulation.choose_behavior_event = lambda *args, **kwargs: "talk"
+    runtime["actor_snapshot"]["actors"][first_employee]["behavior"]["next_event_due_ms"] = 0
+    current = core.advance_runtime_snapshot(runtime, 60)
+
+    transition_sample = None
+    for _ in range(200):
+        for employee_id in (first_employee, second_employee):
+            transition = current["actor_snapshot"]["actors"][employee_id]["position"].get(
+                "seat_transition"
+            )
+            if (
+                isinstance(transition, dict)
+                and transition.get("phase") == "seat_entry"
+                and transition.get("completion") == "talk_return"
+            ):
+                transition_sample = (current, employee_id)
+                break
+        if transition_sample is not None:
+            break
+        current = core.advance_runtime_snapshot(current, 60)
+
+    assert transition_sample is not None
+    current, employee_id = transition_sample
+    transition = current["actor_snapshot"]["actors"][employee_id]["position"]["seat_transition"]
+    row = core.resolve_runtime_presentation(current, floor_id="floor02", validate=False)["actors"][employee_id]
+    assert row["presentation_transition"]["phase"] == "seat_entry"
+    assert row["render_owner"] == "walking_depth"
+    assert row["action"] == "move"
+    assert row["ground_xy"] != row["presentation_transition"]["to_ground_xy"]
+
+    remaining_ms = int(transition["duration_ms"]) - int(transition["elapsed_ms"])
+    finished = core.advance_runtime_snapshot(current, remaining_ms)
+    finished_row = core.resolve_runtime_presentation(
+        finished,
+        floor_id="floor02",
+        validate=False,
+    )["actors"][employee_id]
+    assert finished["actor_snapshot"]["actors"][employee_id]["position"].get("seat_transition") is None
+    assert finished_row["render_owner"] == "work_seat"
+    assert finished_row["action"] == "work"
+    assert finished_row["subaction"] == "normal_work"
 
 
 def test_runtime_loop_keeps_critical_actor_in_worknormal_until_loop_boundary():

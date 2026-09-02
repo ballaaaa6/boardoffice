@@ -65,6 +65,7 @@ class ActorSimulationCore:
         "returning_to_work",
     )
     THRESHOLD_BANDS = ("normal", "low", "critical")
+    VISUAL_DIRECTIONS = ("NW", "SE", "SW", "NE")
     WEIGHTED_EVENTS = ("talk", "background_effect", "popup", "wander")
     EVENT_ACTIVITY = {
         "talk": "talking",
@@ -1157,6 +1158,24 @@ class ActorSimulationCore:
             behavior.setdefault("pending_home", False)
             behavior.setdefault("pending_home_due_ms", None)
             behavior.setdefault("talk", None)
+            talk = behavior.get("talk")
+            if isinstance(talk, dict):
+                # ``route_committed`` was added after the first talk-session
+                # snapshots shipped.  Infer it from the persisted outbound
+                # path and migrate the old stationary presentation state to
+                # the real WorkSeat activity so a stale save cannot re-enter
+                # the frame-freezing talking branch.
+                route_committed = bool(
+                    talk.get("route_committed", bool(talk.get("outbound_path_cells_uv")))
+                )
+                talk["route_committed"] = route_committed
+                if not route_committed and actor.get("activity") == "talking":
+                    position = actor.get("position")
+                    if isinstance(position, dict) and position.get("route") is None:
+                        actor["activity"] = "working"
+                        actor["conversation_phase"] = None
+                        behavior["next_event_due_ms"] = None
+                        behavior["activity_until_ms"] = None
             behavior["cooldowns"] = {
                 key: behavior["cooldowns"][key]
                 for key in sorted(behavior["cooldowns"])
@@ -1448,9 +1467,20 @@ class ActorSimulationCore:
                 if behavior["activity_until_ms"] < simulation_time_ms and activity != "home_recovery":
                     raise ActorSimulationError(f"{employee_id}: activity window is stale")
             talk = behavior.get("talk")
+            stationary_talk = False
             if talk is not None:
                 if not isinstance(talk, dict):
                     raise ActorSimulationError(f"{employee_id}: talk metadata must be an object or null")
+                route_committed = bool(
+                    talk.get("route_committed", bool(talk.get("outbound_path_cells_uv")))
+                )
+                has_outbound_path = bool(talk.get("outbound_path_cells_uv"))
+                has_inbound_path = bool(talk.get("inbound_path_cells_uv"))
+                if route_committed != has_outbound_path or route_committed != has_inbound_path:
+                    raise ActorSimulationError(
+                        f"{employee_id}: talk route_committed does not match persisted paths"
+                    )
+                stationary_talk = not route_committed
                 talk_start = self._require_int(talk.get("talk_start_at_ms"), f"{employee_id}.talk.talk_start_at_ms")
                 talk_end = self._require_int(talk.get("talk_end_at_ms"), f"{employee_id}.talk.talk_end_at_ms")
                 return_start = self._require_int(talk.get("return_start_at_ms"), f"{employee_id}.talk.return_start_at_ms")
@@ -1467,7 +1497,7 @@ class ActorSimulationCore:
                 for path_name in ("outbound_path_cells_uv", "inbound_path_cells_uv"):
                     if not isinstance(talk.get(path_name), list):
                         raise ActorSimulationError(f"{employee_id}.talk.{path_name} must be a list")
-                if talk.get("outbound_path_cells_uv"):
+                if route_committed:
                     endpoint = self._normalize_uv(talk.get("endpoint_uv"), name=f"{employee_id}.talk.endpoint_uv")
                     gate = self._normalize_uv(talk.get("gate_uv"), name=f"{employee_id}.talk.gate_uv")
                     outbound = self._talk_path(talk.get("outbound_path_cells_uv"), name=f"{employee_id}.talk.outbound_path_cells_uv")
@@ -1488,8 +1518,29 @@ class ActorSimulationCore:
                     raise ActorSimulationError(f"{employee_id}: talking actor has a non-talk active event")
                 if not pending and not participant and behavior["active_event"] != "talk":
                     raise ActorSimulationError(f"{employee_id}: talk session has no recovery owner or participant")
-            elif talk is not None:
+            elif talk is not None and not stationary_talk:
                 raise ActorSimulationError(f"{employee_id}: non-talking actor retains talk metadata")
+            elif stationary_talk:
+                if activity != "working":
+                    raise ActorSimulationError(
+                        f"{employee_id}: stationary talk overlay needs a working actor"
+                    )
+                if position.get("route") is not None or seat_transition is not None:
+                    raise ActorSimulationError(
+                        f"{employee_id}: stationary talk overlay cannot own locomotion"
+                    )
+                if behavior["active_event"] not in {None, "talk"}:
+                    raise ActorSimulationError(
+                        f"{employee_id}: stationary talk overlay has a non-talk active event"
+                    )
+                if behavior["next_event_due_ms"] is not None:
+                    raise ActorSimulationError(
+                        f"{employee_id}: stationary talk overlay must pause event scheduling"
+                    )
+                if behavior["activity_until_ms"] is not None:
+                    raise ActorSimulationError(
+                        f"{employee_id}: stationary talk overlay cannot own an activity window"
+                    )
             if activity in self.EVENT_ACTIVITY.values() and activity != "talking":
                 if behavior["active_event"] is None or behavior["activity_until_ms"] is None:
                     raise ActorSimulationError(f"{employee_id}: active recovery event lacks a window")
@@ -1498,7 +1549,11 @@ class ActorSimulationCore:
                     raise ActorSimulationError(f"{employee_id}: administrative activity has an active recovery event")
                 if behavior["activity_until_ms"] is None:
                     raise ActorSimulationError(f"{employee_id}: administrative activity lacks a window")
-            elif activity != "talking" and (behavior["active_event"] is not None or behavior["activity_until_ms"] is not None):
+            elif (
+                not stationary_talk
+                and activity != "talking"
+                and (behavior["active_event"] is not None or behavior["activity_until_ms"] is not None)
+            ):
                 raise ActorSimulationError(f"{employee_id}: inactive actor has an active recovery window")
             if activity == "talking" and actor["conversation_phase"] is None:
                 raise ActorSimulationError(f"{employee_id}: talking actor needs a conversation phase")
@@ -1545,7 +1600,13 @@ class ActorSimulationCore:
         elapsed_ms: int,
         events: list[dict[str, Any]],
     ) -> None:
-        if elapsed_ms <= 0 or actor["activity"] != "working":
+        pending_talk = (
+            actor["activity"] == "talking"
+            and actor.get("conversation_phase") == "talk_pending"
+            and actor["behavior"].get("active_event") == "talk"
+            and actor["behavior"].get("talk") is None
+        )
+        if elapsed_ms <= 0 or (actor["activity"] != "working" and not pending_talk):
             return
         profile = self._profile(employee)
         rate = int(profile["work_drain_milli_per_second"])
@@ -1928,6 +1989,7 @@ class ActorSimulationCore:
             partner_id=talk.get("partner_id"),
             gate_uv=list(gate) if gate is not None else None,
             assignment_retained=True,
+            route_committed=bool(talk.get("route_committed", bool(talk.get("outbound_path_cells_uv")))),
         )
         recovery_owner = bool(talk.get("recovery_owner", False))
         actor["behavior"]["talk"] = None
@@ -1944,8 +2006,6 @@ class ActorSimulationCore:
         actor["behavior"]["active_event"] = None
         actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
         actor["behavior"]["activity_until_ms"] = None
-        actor["behavior"]["work_loop_elapsed_ms"] = 0
-        actor["behavior"]["work_loop_count"] = 0
         actor["behavior"]["next_event_due_ms"] = self._schedule_next_event(
             actor,
             employee,
@@ -2010,6 +2070,11 @@ class ActorSimulationCore:
         emotion = command.get("emotion")
         if emotion not in {None, "sad", "happy"}:
             raise ActorSimulationError("start_talk_session.emotion is invalid")
+        endpoint_facing = command.get("endpoint_facing")
+        if endpoint_facing is not None:
+            if not isinstance(endpoint_facing, str) or endpoint_facing.upper() not in self.VISUAL_DIRECTIONS:
+                raise ActorSimulationError("start_talk_session.endpoint_facing is invalid")
+            endpoint_facing = endpoint_facing.upper()
         emotion_until = command.get("emotion_until_at_ms")
         if emotion_until is not None:
             emotion_until = self._require_int(
@@ -2050,6 +2115,17 @@ class ActorSimulationCore:
                 return_duration = self._route_duration_ms(inbound, employee)
             if talk_start < effective_at + outbound_duration:
                 raise ActorSimulationError(f"{actor['employee_id']}: talk starts before route arrival")
+        route_committed = outbound is not None
+        requested_route_committed = command.get("route_committed")
+        if requested_route_committed is not None:
+            if not isinstance(requested_route_committed, bool):
+                raise ActorSimulationError(
+                    "start_talk_session.route_committed must be boolean when supplied"
+                )
+            if requested_route_committed != route_committed:
+                raise ActorSimulationError(
+                    f"{actor['employee_id']}: talk route marker does not match route_info"
+                )
         is_initiator = bool(command.get("recovery_owner", role == "initiator"))
         if actor["activity"] == "working" and is_initiator:
             actor["behavior"]["event_counter"] = int(actor["behavior"].get("event_counter", 0)) + 1
@@ -2071,6 +2147,7 @@ class ActorSimulationCore:
             "role": role,
             "partner_id": partner_id,
             "recovery_owner": is_initiator,
+            "route_committed": route_committed,
             "effective_at_ms": int(effective_at),
             "talk_start_at_ms": int(talk_start),
             "talk_end_at_ms": int(talk_end),
@@ -2078,21 +2155,22 @@ class ActorSimulationCore:
             "emotion": emotion,
             "emotion_until_at_ms": emotion_until,
             "endpoint_uv": list(endpoint) if endpoint is not None else None,
+            "endpoint_facing": endpoint_facing,
             "gate_uv": list(gate) if gate is not None else None,
             "outbound_path_cells_uv": [list(cell) for cell in outbound] if outbound is not None else [],
             "inbound_path_cells_uv": [list(cell) for cell in inbound] if inbound is not None else [],
             "outbound_duration_ms": int(outbound_duration),
             "return_duration_ms": int(return_duration),
         }
-        if outbound is None:
-            actor["conversation_phase"] = (
-                "self_talk"
-                if mode == "self_talk"
-                else ("talking" if int(timestamp_ms) >= int(talk_start) else "talk_arrival")
-            )
+        if not route_committed:
+            # A seated host or self-talk participant owns the same WorkSeat
+            # coordinates and continues its normal work reducer while the
+            # speech bubble is painted.  The talk metadata is an overlay
+            # clock, not a replacement activity window.
+            actor["activity"] = "working"
+            actor["conversation_phase"] = None
+            actor["behavior"]["activity_until_ms"] = None
             actor["position"]["route"] = None
-            actor["position"]["uv"] = None
-            actor["position"]["ground_xy"] = None
         else:
             actor["conversation_phase"] = "walking_to_talk"
             self._start_route(
@@ -2178,9 +2256,13 @@ class ActorSimulationCore:
     ) -> None:
         if actor["activity"] != "talking" or actor["conversation_phase"] != "talk_pending":
             raise ActorSimulationError(f"{actor['employee_id']}: only pending talk can be cancelled")
+        # A pending talk request is created by a seated actor while the
+        # speech lane is busy.  Cancelling that request must release only the
+        # conversation state; the actor still owns the WorkSeat and its
+        # current presentation anchor.  Routed talk sessions are accepted
+        # before they can leave the seat, so a pending request has no route to
+        # tear down here.
         actor["position"]["route"] = None
-        actor["position"]["uv"] = None
-        actor["position"]["ground_xy"] = None
         actor["activity"] = "working"
         actor["conversation_phase"] = None
         actor["behavior"]["active_event"] = None
@@ -2237,7 +2319,12 @@ class ActorSimulationCore:
                 ),
                 action="idle",
                 subaction="idle",
-                direction=str(route.get("direction") or actor["assignment"].get("facing") or "SE"),
+                direction=str(
+                    talk.get("endpoint_facing")
+                    or route.get("direction")
+                    or actor["assignment"].get("facing")
+                    or "SE"
+                ),
             )
             actor["conversation_phase"] = "talk_arrival"
             actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
@@ -2649,7 +2736,7 @@ class ActorSimulationCore:
         actor["conversation_phase"] = None
         actor["behavior"]["active_event"] = None
         preserve_desk_loop = (
-            event in {"popup", "background_effect"}
+            event in {"talk", "popup", "background_effect"}
             and actor["position"].get("route") is None
         )
         if not preserve_desk_loop:
@@ -2853,8 +2940,27 @@ class ActorSimulationCore:
                 talk = actor["behavior"].get("talk")
                 if actor["conversation_phase"] == "talk_pending" and talk is None:
                     queue_deadline = int(actor["behavior"].get("activity_started_ms", now_ms)) + self.TALK_QUEUE_TIMEOUT_MS
-                    if queue_deadline <= target_ms:
-                        now_ms = queue_deadline
+                    step_target = min(target_ms, queue_deadline)
+                    self._drain_work(
+                        snapshot,
+                        actor,
+                        employee,
+                        start_ms=now_ms,
+                        elapsed_ms=step_target - now_ms,
+                        events=events,
+                    )
+                    now_ms = step_target
+                    if actor["stamina"]["threshold_band"] == "critical":
+                        self._cancel_talk(
+                            snapshot,
+                            actor,
+                            employee,
+                            timestamp_ms=now_ms,
+                            events=events,
+                            reason="stamina_critical",
+                        )
+                        continue
+                    if now_ms >= queue_deadline:
                         self._cancel_talk(
                             snapshot,
                             actor,
@@ -2907,6 +3013,44 @@ class ActorSimulationCore:
                 )
             if activity == "working":
                 behavior = actor["behavior"]
+                talk = behavior.get("talk")
+                stationary_talk = (
+                    isinstance(talk, dict)
+                    and not bool(
+                        talk.get(
+                            "route_committed",
+                            bool(talk.get("outbound_path_cells_uv")),
+                        )
+                    )
+                )
+                if stationary_talk:
+                    # Speech bubbles are a presentation overlay.  Keep the
+                    # actor in the ordinary working reducer so its stamina
+                    # and normal-work frame clock continue while the overlay
+                    # is visible.  Finish the overlay at its shared return
+                    # boundary, then let the normal event scheduler resume.
+                    overlay_end = int(talk["return_start_at_ms"])
+                    if overlay_end > now_ms:
+                        step_target = min(target_ms, overlay_end)
+                        self._drain_work(
+                            snapshot,
+                            actor,
+                            employee,
+                            start_ms=now_ms,
+                            elapsed_ms=step_target - now_ms,
+                            events=events,
+                        )
+                        now_ms = step_target
+                        if now_ms < overlay_end:
+                            break
+                    self._finish_talk_actor(
+                        snapshot,
+                        actor,
+                        employee,
+                        timestamp_ms=now_ms,
+                        events=events,
+                    )
+                    continue
                 if actor["stamina"]["threshold_band"] == "critical" and not behavior.get(
                     "pending_home", False
                 ):

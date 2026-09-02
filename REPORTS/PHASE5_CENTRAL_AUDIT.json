@@ -40,7 +40,7 @@
     "pc_animation_frames": 125,
     "resolved_placements": 766,
     "schema_validation_errors": 0,
-    "schemas_validated": 29,
+    "schemas_validated": 33,
     "technical_characters": 302,
     "workstation_errors": 0,
     "workstations_resolved": 219
@@ -65,7 +65,7 @@
   },
   "lean": {
     "materialized_floor_cache_present": false,
-    "python_cache_path_count": 210,
+    "python_cache_path_count": 287,
     "world_raw_present": false
   },
   "pass": true,

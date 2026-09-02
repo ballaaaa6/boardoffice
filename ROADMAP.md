@@ -6,7 +6,7 @@
 
 ## Completed milestone — Phase 8E runtime review
 
-The implementation slice, required verification, browser review and author acceptance are complete. Static floor geometry, workstation ownership, character artwork and reference assets remain unchanged. Phase 8E is closed; no implementation gate remains. The rejected host-first realtime experiment was deleted and is not part of this milestone.
+The implementation slice, required verification and original browser review were completed, and the baseline author acceptance remains recorded. Static floor geometry, workstation ownership, character artwork and reference assets remain unchanged. Phase 8E baseline is closed; a later live multi-actor follow-up blocker is recorded below. The rejected host-first realtime experiment was deleted and is not part of this milestone.
 
 ### Engineering scope complete
 
@@ -35,4 +35,30 @@ The implementation slice, required verification, browser review and author accep
 2. Final stamina/Thai-content tuning: **APPROVED — 2026-09-02**.
 3. Phase 8E implementation and verification gate: **CLOSED**.
 
-No implementation task or blocker remains for Phase 8E. The host-first realtime design documents remain non-active reference material after the experimental branch was deleted.
+The original Phase 8E gate is closed. The host-first realtime design documents remain non-active reference material after the experimental branch was deleted.
+
+## Post-close conversation-runtime correction — 2026-09-02
+
+The previously approved correction is implemented and verified; visual/gameplay acceptance is **acceptance-pending** until the author reviews the live page.
+
+- [x] Carry planned standing-pair endpoint facings through Central into the actor `talk_hold` pose: lower `u` → `SW`, higher `u` → `NE`.
+- [x] Keep the opener bubble at the explicit extra `[0, -20]` offset and the reply at `[0, 0]`.
+- [x] Use one persisted replayable d6 per standing pair with even → `happy` and odd → `sad`.
+- [x] Make the review demo completion gate wait for every participant to finish `seat_entry` and expose `work_seat/work/normal_work`.
+- [x] Fix the newly diagnosed seated in-work BB frame stall: keep the normal-work clock advancing while the bubble is an overlay, preserve routed talk behavior, and add active/post-return frame regression coverage. Engineering verification completed with the actor-clock, stationary-host and routed-return regressions.
+- [x] Verify with `337 passed`, the required navigation/WorkSeat/Phase 6/Central/F2/conversation audits, runtime-presentation QA, and a fresh browser run on port `8765`.
+- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/`.
+
+The engineering gate for the non-blocking speech overlay is closed. The page was rechecked on 2026-09-02: active BB frames continue to change while stamina/work time advances, routed talks retain their movement/facing contract, and both participants return to `work/normal_work`. Author acceptance remains a separate pending gate.
+
+## Live multi-actor follow-up correction — 2026-09-02
+
+The long-running full live trace exposed a pending-talk/lifecycle ownership seam. The correction is now implemented, regression-covered and stress-verified. Engineering follow-up is closed; visual/gameplay acceptance remains a separate author gate.
+
+- [x] Prevent actor-side `talk_pending` from freezing the normal-work frame/stamina when the floor speech lane is occupied; define explicit accept, cancel and timeout ownership.
+- [x] Keep the queued speech request's category and identity, and prevent an unrelated lifecycle session completion from clearing a still-valid actor talk request.
+- [x] Arm greeting and start-work timers at the intended spawn/work-session boundaries instead of initializing the review runtime with both already emitted and relying only on later return events.
+- [x] Prevent `_arm_live_behavior_timers()` from scheduling a new weighted event while a stationary talk overlay owns the actor.
+- [x] Add multi-actor long-run and noncompact runtime regressions, queue telemetry, and a fresh API/browser stress run; rerun `python -m pytest -q` plus the required navigation/WorkSeat/Phase 6/Central/F2/conversation audits.
+
+Engineering verification result: **348 tests passed**, all required audits and runtime presentation QA passed, and the fresh `floor02` API run reached `137400ms` with 9 work-start bubbles and 0 lifecycle-boundary violations. Author visual/gameplay acceptance at `http://127.0.0.1:8765/` is still pending.

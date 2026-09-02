@@ -5,6 +5,7 @@ import json
 from dataclasses import dataclass
 from math import ceil
 from pathlib import Path
+from typing import Iterable
 
 from PIL import Image, ImageDraw
 
@@ -283,6 +284,21 @@ class DialogueBubbleRenderer:
             raise DialogueBubbleError('Dialogue text must be one line; wrapping is disabled')
         return text
 
+    @staticmethod
+    def _validate_offset_px(value: Iterable[int] | None) -> tuple[int, int]:
+        if value is None:
+            return 0, 0
+        try:
+            values = list(value)
+        except TypeError as exc:
+            raise DialogueBubbleError('Bubble offset must contain two integers') from exc
+        if len(values) != 2 or any(
+            isinstance(item, bool) or not isinstance(item, int)
+            for item in values
+        ):
+            raise DialogueBubbleError('Bubble offset must contain two integers')
+        return int(values[0]), int(values[1])
+
     def measure_text(
         self,
         text: str,
@@ -468,6 +484,7 @@ class DialogueBubbleRenderer:
         locale: str = 'en',
         font_size_px: int | None = None,
         preferred_bubble_id: str | None = None,
+        bubble_offset_px: Iterable[int] | None = (0, 0),
     ) -> DialogueBubbleRenderResult:
         selection = self.select_bubble(
             text,
@@ -485,10 +502,11 @@ class DialogueBubbleRenderer:
             raise DialogueBubbleError(str(exc)) from exc
         output = self._draw_selection(selection, runs)
         anchor_x, anchor_y = (int(head_anchor[0]), int(head_anchor[1]))
+        offset_x, offset_y = self._validate_offset_px(bubble_offset_px)
         tail = selection.preset.tail_tip_local_px
         tail_x, tail_y = tail if tail is not None else (selection.preset.width // 2, selection.preset.height - 1)
         vertical_offset = int(self.text_layout_config['vertical_offset_from_actor_frame_top_px'])
-        bubble_top_left = (anchor_x - tail_x, anchor_y + vertical_offset)
+        bubble_top_left = (anchor_x - tail_x + offset_x, anchor_y + vertical_offset + offset_y)
         bubble_tail_global = (bubble_top_left[0] + tail_x, bubble_top_left[1] + tail_y)
         return DialogueBubbleRenderResult(
             bubble_id=selection.bubble_id,
@@ -561,6 +579,7 @@ class DialogueBubbleRenderer:
         locale: str = 'en',
         font_size_px: int | None = None,
         preferred_bubble_id: str | None = None,
+        bubble_offset_px: Iterable[int] | None = (0, 0),
     ) -> DialogueBubbleRenderResult:
         actor_x, actor_y = (int(actor_top_left[0]), int(actor_top_left[1]))
         anchor_x = actor_x + self._frame_head_anchor_x(character_id, frame_id)
@@ -574,4 +593,5 @@ class DialogueBubbleRenderer:
             locale=locale,
             font_size_px=font_size_px,
             preferred_bubble_id=preferred_bubble_id,
+            bubble_offset_px=bubble_offset_px,
         )

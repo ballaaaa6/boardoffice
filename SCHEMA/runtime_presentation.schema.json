@@ -39,7 +39,7 @@
       "properties": {
         "actor_activity_stamina_assignment": {"const": "actor_snapshot"},
         "speech_timing_bubble_lane": {"const": "speech_snapshot"},
-        "movement_pose_and_dialogue_track": {"const": "conversation_plan"},
+        "movement_pose_and_dialogue_track": {"const": "actor_snapshot_route_or_seat_transition_or_work_clock; conversation_plan_direction_subaction_and_dialogue_overlay"},
         "mutation": {"const": false}
       }
     },
@@ -57,13 +57,14 @@
     },
     "render_policy": {
       "type": "object", "additionalProperties": false,
-      "required": ["speech_and_pose_are_independent", "workseat_and_walking_are_mutually_exclusive", "seat_boundary", "seat_boundary_duration_ms", "seat_boundary_tick_policy", "bubble_anchor", "bubble_paint_order", "assignment_mutation"],
+      "required": ["speech_and_pose_are_independent", "workseat_and_walking_are_mutually_exclusive", "seat_boundary", "seat_boundary_duration_ms", "seat_boundary_tick_policy", "seat_transition_pose_owner", "bubble_anchor", "bubble_paint_order", "assignment_mutation"],
       "properties": {
         "speech_and_pose_are_independent": {"const": true},
         "workseat_and_walking_are_mutually_exclusive": {"const": true},
         "seat_boundary": {"const": "presentation_only_workseat_visual_anchor_to_transition_gate_bridge"},
         "seat_boundary_duration_ms": {"const": 240},
         "seat_boundary_tick_policy": {"const": "fixed_60ms_steps"},
+        "seat_transition_pose_owner": {"const": "actor_snapshot"},
         "bubble_anchor": {"const": "direct_head_anchor"},
         "bubble_paint_order": {"const": "turn_index_then_employee_id"},
         "assignment_mutation": {"const": false}
@@ -71,10 +72,11 @@
     },
     "emotion_policy": {
       "type": "object", "additionalProperties": false,
-      "required": ["standing_pair_only", "outcome", "hold_ms", "numeric_stamina_delta", "numeric_stamina_delta_unit", "numeric_stamina_owner"],
+      "required": ["standing_pair_only", "outcome", "roll_source", "hold_ms", "numeric_stamina_delta", "numeric_stamina_delta_unit", "numeric_stamina_owner"],
       "properties": {
         "standing_pair_only": {"const": true},
         "outcome": {"const": "shared_d6_even_happy_odd_sad"},
+        "roll_source": {"const": "persisted_scheduler_prng_state"},
         "hold_ms": {"const": 1200},
         "numeric_stamina_delta": {
           "type": "object", "additionalProperties": false,

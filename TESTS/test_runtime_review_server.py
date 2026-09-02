@@ -46,6 +46,66 @@ def test_review_talk_demo_starts_real_route_and_compact_event_stream():
         for event in all_events
     )
     assert not any(actor["dialogue_visible"] for actor in payload["actors"])
+    participant_ids = {
+        str(event["employee_id"])
+        for event in all_events
+        if event.get("type") == "talk_session_accepted"
+        and event.get("session_id") == payload["demo_session_id"]
+    }
+    assert participant_ids
+    for participant_id in participant_ids:
+        actor = next(row for row in payload["actors"] if row["employee_id"] == participant_id)
+        assert actor["activity"] == "working"
+        assert actor["action"] == "work"
+        assert actor["subaction"] == "normal_work"
+        assert actor["render_owner"] == "work_seat"
+        assert actor["route_phase"] is None
+        assert actor["presentation_transition"] is None
+
+
+def test_review_talk_demo_noncompact_ticks_keep_speech_lane_references_valid():
+    state = ReviewState()
+    payload = state.demo_talk(include_runtime=True)
+
+    for _ in range(60):
+        payload = state.tick(360, include_runtime=True)
+        if payload["demo_complete"]:
+            break
+
+    assert payload["demo_complete"] is True
+    assert payload["runtime_snapshot"]["speech_snapshot"]["lanes"]
+
+
+def test_review_standing_pair_demo_waits_for_both_normal_work_poses():
+    state = ReviewState()
+    payload = state.demo_talk(
+        floor_id="floor02",
+        mode="standing_pair",
+        include_runtime=False,
+    )
+    session_id = payload["demo_session_id"]
+    participant_ids = {
+        str(event["employee_id"])
+        for event in payload["events"]
+        if event.get("type") == "talk_session_accepted"
+        and event.get("session_id") == session_id
+    }
+    assert len(participant_ids) == 2
+
+    for _ in range(120):
+        payload = state.tick(360, include_runtime=False)
+        if payload["demo_complete"]:
+            break
+
+    assert payload["demo_complete"] is True
+    for participant_id in participant_ids:
+        actor = next(row for row in payload["actors"] if row["employee_id"] == participant_id)
+        assert actor["activity"] == "working"
+        assert actor["action"] == "work"
+        assert actor["subaction"] == "normal_work"
+        assert actor["render_owner"] == "work_seat"
+        assert actor["route_phase"] is None
+        assert actor["presentation_transition"] is None
 
 
 def test_compact_event_stream_keeps_latest_route_sample_per_actor():
@@ -61,6 +121,22 @@ def test_compact_event_stream_keeps_latest_route_sample_per_actor():
     assert {event["type"] for event in compact} == {"actor_route_sample", "talk_returned"}
     route = next(event for event in compact if event["type"] == "actor_route_sample")
     assert route["progress_t"] == 0.2
+
+
+def test_compact_event_stream_preserves_standing_pair_emotion_roll():
+    events = [{
+        "source": "speech",
+        "event_index": 1,
+        "timestamp_ms": 4300,
+        "employee_id": "EMP_W1_0010",
+        "type": "emotion_started",
+        "emotion": "happy",
+        "emotion_roll": 6,
+    }]
+
+    compact = ReviewState._compact_events(events)
+
+    assert compact[0]["emotion_roll"] == 6
 
 
 def test_review_effects_demo_exposes_humanball_and_vfx_then_completes():
@@ -173,6 +249,162 @@ def test_review_full_demo_starts_all_systems_with_normal_stamina():
     assert payload["actors"]
     assert {actor["stamina_band"] for actor in payload["actors"]} == {"normal"}
     assert any(actor["route_phase"] in {"portal_entry", "to_workseat"} for actor in payload["actors"])
+
+
+def test_review_actor_rows_expose_the_speech_queue_reason():
+    state = ReviewState()
+    state.full_demo(floor_id="floor02", include_runtime=True)
+    runtime = state.adapter.loop._runtime_snapshot
+    actor_id = sorted(runtime["actor_snapshot"]["actors"])[0]
+    runtime["speech_snapshot"]["lanes"]["floor02"].update({
+        "queued_session_ids": [actor_id],
+        "queued_requests": [{
+            "request_id": f"speech-request:{actor_id}:greeting",
+            "initiator_id": actor_id,
+            "kind": "lifecycle",
+            "category": "greeting",
+            "mode": "self_talk",
+            "participants": [actor_id],
+            "due_ms": 2400,
+            "external": False,
+        }],
+    })
+
+    payload = state.current(include_runtime=True)
+    row = next(item for item in payload["actors"] if item["employee_id"] == actor_id)
+
+    assert row["speech_queue_position"] == 1
+    assert row["speech_queue_category"] == "greeting"
+    assert row["speech_queue_request_id"].startswith("speech-request:")
+
+
+def test_review_behavior_arming_skips_a_stationary_speech_participant():
+    state = ReviewState()
+    state.demo_talk(
+        floor_id="floor02",
+        mode="seated_host",
+        include_runtime=True,
+        dialogue_seed="stationary-arming",
+    )
+    runtime = state.adapter.loop._runtime_snapshot
+    host_id = next(
+        employee_id
+        for employee_id, actor in runtime["actor_snapshot"]["actors"].items()
+        if (actor["behavior"].get("talk") or {}).get("route_committed") is False
+        and (actor["behavior"].get("talk") or {}).get("role") == "participant"
+    )
+    host = runtime["actor_snapshot"]["actors"][host_id]
+    state._behavior_arming_enabled = True
+    state._live_behavior_armed = set()
+
+    state._arm_live_behavior_timers()
+
+    assert host["behavior"]["next_event_due_ms"] is None
+
+
+def test_full_live_lifecycle_bubbles_follow_their_actor_boundaries():
+    state = ReviewState()
+    payload = state.full_demo(
+        floor_id="floor02",
+        include_runtime=False,
+        dialogue_seed="lifecycle-boundaries",
+    )
+    events = list(payload["events"])
+    # A floor has one speech lane by contract.  Use a larger host slice here
+    # to let the deterministic queue drain without rendering 1,700 separate
+    # browser frames; the actor-level 60 ms tests cover per-frame progress.
+    for _ in range(300):
+        payload = state.tick(
+            360,
+            autopilot=True,
+            include_runtime=False,
+            dialogue_seed="lifecycle-boundaries",
+        )
+        events.extend(payload["events"])
+
+    actor_entries = {
+        event["employee_id"]: int(event["timestamp_ms"])
+        for event in events
+        if event.get("source") == "actor"
+        and event.get("type") == "workseat_reentered"
+    }
+    portal_entries = {
+        event["employee_id"]: int(event["timestamp_ms"])
+        for event in events
+        if event.get("source") == "actor"
+        and event.get("type") == "portal_entered"
+    }
+    work_start_bubbles = {}
+    greeting_bubble_times = {}
+    for event in events:
+        if event.get("source") != "speech" or event.get("type") != "speech_bubble_started":
+            continue
+        employee_id = event.get("employee_id")
+        if not isinstance(employee_id, str):
+            continue
+        timestamp_ms = int(event["timestamp_ms"])
+        if event.get("category") == "work_start":
+            work_start_bubbles[employee_id] = min(
+                timestamp_ms,
+                int(work_start_bubbles.get(employee_id, timestamp_ms)),
+            )
+        elif event.get("category") == "greeting":
+            greeting_bubble_times[employee_id] = min(
+                timestamp_ms,
+                int(greeting_bubble_times.get(employee_id, timestamp_ms)),
+            )
+    greeting_bubbles = {
+        employee_id for employee_id in greeting_bubble_times
+    }
+
+    assert actor_entries
+    assert set(portal_entries) <= set(greeting_bubbles)
+    assert all(
+        greeting_bubble_times[employee_id] >= portal_entries[employee_id]
+        for employee_id in portal_entries
+    )
+    assert set(actor_entries) <= set(work_start_bubbles)
+    assert all(
+        work_start_bubbles[employee_id] >= entry_ms
+        for employee_id, entry_ms in actor_entries.items()
+    )
+    assert set(actor_entries) <= greeting_bubbles
+
+
+def test_noncompact_full_live_ticks_do_not_schedule_over_stationary_talk_overlay():
+    state = ReviewState()
+    state.full_demo(
+        floor_id="floor02",
+        include_runtime=True,
+        dialogue_seed="stationary-overlay-timers",
+    )
+    pending_samples = {}
+
+    for _ in range(420):
+        payload = state.tick(
+            60,
+            autopilot=True,
+            include_runtime=True,
+            dialogue_seed="stationary-overlay-timers",
+        )
+        for actor in payload["runtime_snapshot"]["actor_snapshot"]["actors"].values():
+            if (
+                actor["activity"] == "talking"
+                and actor["conversation_phase"] == "talk_pending"
+                and actor["behavior"].get("talk") is None
+            ):
+                samples = pending_samples.setdefault(actor["employee_id"], [])
+                samples.append((
+                    int(actor["behavior"]["work_loop_elapsed_ms"]),
+                    int(actor["stamina"]["current_milli"]),
+                ))
+
+    assert len(pending_samples) >= 3
+    assert sum(
+        len({loop_ms for loop_ms, _stamina in samples}) > 1
+        for samples in pending_samples.values()
+    ) >= 3
+    assert all(samples[-1][1] < samples[0][1] for samples in pending_samples.values())
 
 
 def test_review_live_ticks_remain_bounded_after_talk_plan_is_accepted():

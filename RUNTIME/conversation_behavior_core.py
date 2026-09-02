@@ -86,6 +86,17 @@ class ConversationBehaviorCore:
         self.contract = json.loads(
             (self.root / "CONTRACTS" / "conversation_behavior.json").read_text(encoding="utf-8")
         )
+        standing_contract = self.contract.get("coordinate_contract", {}).get("standing_pair", {})
+        try:
+            opener_offset = list(standing_contract.get("opener_bubble_extra_offset_px", [0, 0]))
+        except TypeError as exc:
+            raise ConversationBehaviorError("standing pair opener bubble offset must be a pair") from exc
+        if len(opener_offset) != 2 or any(
+            isinstance(value, bool) or not isinstance(value, int)
+            for value in opener_offset
+        ):
+            raise ConversationBehaviorError("standing pair opener bubble offset must contain two integers")
+        self.standing_pair_opener_bubble_offset_px = list(opener_offset)
         timing_contract = self.contract.get("timing", {})
         try:
             self.default_bubble_visible_ms = int(
@@ -1696,6 +1707,7 @@ class ConversationBehaviorCore:
         dialogue_category: str | None = None,
         dialogue_seed: str | int = "0",
         dialogue_line_overrides: dict[str, Any] | None = None,
+        emotion_roll: int | None = None,
         gap_cells: int | None = None,
         blocked_cells: Iterable[Iterable[int]] | None = None,
         reserved_cells: Iterable[Iterable[int]] | None = None,
@@ -1827,7 +1839,6 @@ class ConversationBehaviorCore:
         talk_duration_ms = int(timing_plan["talk_duration_ms"])
         talk_segments = list(timing_plan["segments"])
         emotion_outcome: str | None = None
-        emotion_roll: int | None = None
         emotion_hold_ms = 0
         if mode == "standing_pair":
             try:
@@ -1836,11 +1847,15 @@ class ConversationBehaviorCore:
                 raise ConversationBehaviorError("timing.emotion_hold_ms must be an integer") from exc
             if supplied_emotion_hold < 0:
                 raise ConversationBehaviorError("timing.emotion_hold_ms must be >= 0")
-            emotion_hold_ms = supplied_emotion_hold
-            emotion_roll = self._stable_dialogue_index(
-                f"emotion|{conversation_id}|{dialogue_seed}", 6
-            ) + 1
-            emotion_outcome = "happy" if emotion_roll % 2 == 0 else "sad"
+            if emotion_roll is not None:
+                if (
+                    isinstance(emotion_roll, bool)
+                    or not isinstance(emotion_roll, int)
+                    or not 1 <= emotion_roll <= 6
+                ):
+                    raise ConversationBehaviorError("emotion_roll must be an integer from 1 through 6")
+                emotion_hold_ms = supplied_emotion_hold
+                emotion_outcome = "happy" if emotion_roll % 2 == 0 else "sad"
 
         endpoint_by_actor: dict[str, tuple[int, int]] = {}
         facing_by_actor: dict[str, str] = {}
@@ -1862,13 +1877,17 @@ class ConversationBehaviorCore:
 
         # The pair's world positions remain on the chosen UV line.  Bubble
         # placement is deliberately not derived from this geometry: the
-        # dialogue renderer already owns the exact head anchor.  Keep an
-        # explicit zero-valued field for JSON/backward compatibility, so no
-        # caller can accidentally fan a bubble away from its actor.
+        # dialogue renderer already owns the exact head anchor.  The opener's
+        # extra vertical lift is an explicit contract value; the reply stays
+        # at the base anchor so the two bubbles do not stack on one another.
         bubble_offset_by_actor: dict[str, list[int]] = {}
         if mode == "standing_pair" and len(endpoint_by_actor) == 2:
+            opening_speaker_id = str(timing_plan["speaker_sequence"][0])
             bubble_offset_by_actor = {
-                employee_id: [0, 0]
+                employee_id: (
+                    list(self.standing_pair_opener_bubble_offset_px)
+                    if employee_id == opening_speaker_id else [0, 0]
+                )
                 for employee_id in endpoint_by_actor
             }
 

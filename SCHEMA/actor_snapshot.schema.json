@@ -537,6 +537,7 @@
                   "pattern": "^EMP_W[12]_[0-9]{4}$"
                 },
                 "recovery_owner": {"type": "boolean"},
+                "route_committed": {"type": "boolean"},
                 "effective_at_ms": {"type": "integer", "minimum": 0},
                 "talk_start_at_ms": {"type": "integer", "minimum": 0},
                 "talk_end_at_ms": {"type": "integer", "minimum": 0},
@@ -545,6 +546,10 @@
                 "emotion_until_at_ms": {
                   "type": ["integer", "null"],
                   "minimum": 0
+                },
+                "endpoint_facing": {
+                  "type": ["string", "null"],
+                  "enum": [null, "NW", "SE", "SW", "NE"]
                 },
                 "endpoint_uv": {
                   "anyOf": [

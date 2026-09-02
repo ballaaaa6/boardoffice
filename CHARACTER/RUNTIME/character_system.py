@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Iterable
 
 from .action_core import ActionCore, ActionResolutionError
 from .action_renderer import ActionRenderError
@@ -247,6 +248,7 @@ class CharacterSystem:
         locale: str = 'en',
         font_size_px: int | None = None,
         preferred_bubble_id: str | None = None,
+        bubble_offset_px: Iterable[int] | None = (0, 0),
     ) -> DialogueBubbleRenderResult:
         return self.dialogue_bubbles.render_for_character(
             character_id,
@@ -256,6 +258,7 @@ class CharacterSystem:
             locale=locale,
             font_size_px=font_size_px,
             preferred_bubble_id=preferred_bubble_id,
+            bubble_offset_px=bubble_offset_px,
         )
 
     def render_dialogue_line_for_frame(

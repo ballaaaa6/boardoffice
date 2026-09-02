@@ -24,6 +24,9 @@ def test_actor_simulation_contract_matches_schema():
     assert list(Draft202012Validator(schema).iter_errors(contract)) == []
     assert contract["schema"] == "gds.actor_simulation.v1"
     assert contract["version"] == "1.0.0"
+    assert contract["behavior"]["talk_session_policy"]["request_phase"] == (
+        "talk_pending_with_continuous_work_clock"
+    )
 
 
 def _initial_actor_snapshot() -> dict:

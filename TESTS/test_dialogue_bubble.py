@@ -98,6 +98,25 @@ def test_bubble_is_anchored_to_visible_head_and_moves_with_actor():
     assert bobbed.bubble_tail_global == (86, 68)
 
 
+def test_bubble_offset_moves_box_and_tail_but_not_head_anchor():
+    system = CharacterSystem(CHARACTER_ROOT)
+
+    base = system.render_dialogue_bubble_for_frame(
+        'RND_F_004', 'M0', TEST_TEXT, actor_top_left=(74, 68)
+    )
+    raised = system.render_dialogue_bubble_for_frame(
+        'RND_F_004', 'M0', TEST_TEXT, actor_top_left=(74, 68),
+        bubble_offset_px=(0, -20),
+    )
+
+    assert raised.head_anchor == base.head_anchor
+    assert raised.actor_top_left == base.actor_top_left
+    assert raised.bubble_top_left == (base.bubble_top_left[0], base.bubble_top_left[1] - 20)
+    assert raised.bubble_tail_global == (
+        base.bubble_tail_global[0], base.bubble_tail_global[1] - 20
+    )
+
+
 def test_dialogue_id_can_drive_frame_presentation_without_manual_text_lookup():
     system = CharacterSystem(CHARACTER_ROOT)
 

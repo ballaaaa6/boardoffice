@@ -127,6 +127,7 @@
   "emotion": {
     "standing_pair_only": true,
     "roll_scope": "one_shared_roll_per_completed_standing_pair",
+    "roll_source": "persisted_scheduler_prng_state",
     "even_result": "happy",
     "odd_result": "sad",
     "hold_ms": 1200,
@@ -140,18 +141,25 @@
     "scope": "floor",
     "lock_window": "first_bubble_until_fade_end",
     "queue_policy": "priority_then_due_time_then_employee_id",
-    "priority_order": ["leaving", "fatigue", "pair", "greeting", "work_start", "solo"]
+      "priority_order": ["leaving", "fatigue", "greeting", "work_start", "conversation_open", "pair", "solo"],
+      "queue_metadata": ["request_id", "initiator_id", "kind", "category", "mode", "participants", "due_ms", "external"]
   },
   "actor_bridge": {
     "talk_behavior": "behavior_started.actor_request_to_speech_plan",
     "talk_commit": "speech_session_plan_to_actor_start_talk_session",
     "reception_crossing": "actor_route_sample_draws_over_reception",
-    "workseat_reentry": "workseat_reentered_to_returned_to_work",
+    "lifecycle_boundaries": {
+      "portal_entered": "spawned_then_delayed_greeting",
+      "workseat_reentered": "workseat_entered_then_work_start",
+      "talk_returned": "returned_to_work_then_entry_lines",
+      "effective_timestamp": "actor_event.timestamp_ms"
+    },
+    "workseat_reentry": "workseat_reentered_to_workseat_entered",
     "effective_timestamp_field": "effective_at_ms",
     "unavailable_partner_fallback": "seated_self_talk",
     "ceo_request_fallback": "seated_self_talk_no_outbound_route"
   },
   "assignment_policy": "scheduler_never_mutates_workstation_ownership",
-  "render_policy": "speech_selects_timing_and_actor_commits_pose_route",
+  "render_policy": "speech_selects_timing_and_plan; CentralGameCore_commits_actor_route_or_working_overlay",
   "leaving_trigger_source": "CentralGameCore.actor_draws_over_reception"
 }

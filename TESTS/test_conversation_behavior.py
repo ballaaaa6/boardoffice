@@ -37,8 +37,9 @@ def test_conversation_contract_validates_and_freezes_author_policy():
     )
     assert list(Draft202012Validator(schema).iter_errors(contract)) == []
     assert contract["policy"]["ceo_outbound_talk"] is False
-    assert contract["coordinate_contract"]["standing_pair"]["preferred_axis"] == "V"
+    assert contract["coordinate_contract"]["standing_pair"]["preferred_axis"] == "U"
     assert contract["coordinate_contract"]["standing_pair"]["talk_gap_cells"] == 4
+    assert contract["coordinate_contract"]["standing_pair"]["opener_bubble_extra_offset_px"] == [0, -20]
     assert contract["policy"]["dialogue_layout"] == "direct_head_anchor_overlay_paint_order"
 
 
@@ -69,9 +70,10 @@ def test_standing_pair_is_axis_aligned_inverse_facing_and_deterministic():
     assert first["ready"] is True
     spot = first["spot"]
     a, b = [tuple(cell) for cell in spot["endpoint_uv"]]
-    assert spot["axis"] == "V"
-    assert a[0] == b[0]
-    assert abs(a[1] - b[1]) == 4
+    assert spot["axis"] == "U"
+    assert a[1] == b[1]
+    assert b[0] - a[0] == 4
+    assert spot["endpoint_facings"] == ["SW", "NE"]
     assert spot["endpoint_inverse"] is True
     assert first["facing_by_actor"][employee_ids[0]] != first["facing_by_actor"][employee_ids[1]]
     assert first["locks"]["participant_lock"] == employee_ids[:2]
@@ -220,7 +222,9 @@ def test_default_pair_keeps_both_lines_until_shared_fade_then_returns_to_work():
     assert lines[0]["dialogue_id"] != lines[1]["dialogue_id"]
     offsets = plan["bubble_offset_by_actor"]
     assert len(offsets) == 2
-    assert {tuple(value) for value in offsets.values()} == {(0, 0)}
+    opener, reply = plan["timing"]["speaker_sequence"]
+    assert offsets[opener] == [0, -20]
+    assert offsets[reply] == [0, 0]
     assert plan["dialogue_layout_policy"] == "direct_head_anchor_overlay_paint_order"
 
     by_time = {row["timestamp_ms"]: row for row in plan["timeline"]}

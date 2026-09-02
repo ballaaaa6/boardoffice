@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import math
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from CHARACTER.RUNTIME.character_system import CharacterSystem, CharacterSystemError
 from CHARACTER.RUNTIME.dialogue_bubble import (
@@ -328,6 +328,7 @@ class CentralGameCore:
         locale: str = 'en',
         font_size_px: int | None = None,
         preferred_bubble_id: str | None = None,
+        bubble_offset_px: Iterable[int] | None = (0, 0),
     ) -> DialogueBubbleRenderResult:
         employee = self.resolve_employee(employee_id)
         try:
@@ -339,6 +340,7 @@ class CentralGameCore:
                 locale=locale,
                 font_size_px=font_size_px,
                 preferred_bubble_id=preferred_bubble_id,
+                bubble_offset_px=bubble_offset_px,
             )
         except (CharacterSystemError, DialogueBubbleError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -999,6 +1001,7 @@ class CentralGameCore:
         dialogue_locale: str = "en",
         dialogue_category: str | None = None,
         dialogue_seed: str | int = "0",
+        emotion_roll: int | None = None,
         gap_cells: int | None = None,
         blocked_cells=None,
         reserved_cells=None,
@@ -1017,6 +1020,7 @@ class CentralGameCore:
                 dialogue_locale=dialogue_locale,
                 dialogue_category=dialogue_category,
                 dialogue_seed=dialogue_seed,
+                emotion_roll=emotion_roll,
                 gap_cells=gap_cells,
                 blocked_cells=blocked_cells,
                 reserved_cells=reserved_cells,
@@ -1333,12 +1337,31 @@ class CentralGameCore:
                             "effective_at_ms": int(event.get("timestamp_ms", 0)),
                         })
                         bridge_keys.add(key)
-                elif event_type in {"workseat_reentered", "talk_returned"}:
+                elif event_type == "portal_entered":
+                    key = ("spawned", employee_id)
+                    if key not in bridge_keys:
+                        bridge.append({
+                            "type": "spawned",
+                            "employee_id": employee_id,
+                            "effective_at_ms": int(event.get("timestamp_ms", 0)),
+                        })
+                        bridge_keys.add(key)
+                elif event_type == "workseat_reentered":
+                    key = ("workseat_entered", employee_id)
+                    if key not in bridge_keys:
+                        bridge.append({
+                            "type": "workseat_entered",
+                            "employee_id": employee_id,
+                            "effective_at_ms": int(event.get("timestamp_ms", 0)),
+                        })
+                        bridge_keys.add(key)
+                elif event_type == "talk_returned":
                     key = ("returned_to_work", employee_id)
                     if key not in bridge_keys:
                         bridge.append({
                             "type": "returned_to_work",
                             "employee_id": employee_id,
+                            "effective_at_ms": int(event.get("timestamp_ms", 0)),
                         })
                         bridge_keys.add(key)
                 elif event_type == "talk_cancelled":
@@ -1411,9 +1434,15 @@ class CentralGameCore:
                 return_start = talk_end + emotion_hold
                 route_map = plan.get("route_info", {}) if isinstance(plan, dict) else {}
                 endpoint_map = plan.get("endpoint_by_actor", {}) if isinstance(plan, dict) else {}
+                facing_map = plan.get("facing_by_actor", {}) if isinstance(plan, dict) else {}
                 for employee_id in participants:
                     route_info = route_map.get(employee_id) if isinstance(route_map, dict) else None
                     endpoint = endpoint_map.get(employee_id) if isinstance(endpoint_map, dict) else None
+                    endpoint_facing = (
+                        facing_map.get(employee_id)
+                        if isinstance(facing_map, dict)
+                        else None
+                    )
                     role = "initiator" if employee_id == initiator_id else "participant"
                     if mode == "self_talk":
                         role = "initiator"
@@ -1432,6 +1461,8 @@ class CentralGameCore:
                         "emotion": emotion if emotion in {"sad", "happy"} else None,
                         "emotion_until_at_ms": return_start if emotion in {"sad", "happy"} else None,
                         "endpoint_uv": endpoint,
+                        "endpoint_facing": endpoint_facing,
+                        "route_committed": isinstance(route_info, dict),
                     }
                     if isinstance(route_info, dict):
                         command["route_info"] = route_info
@@ -2217,11 +2248,33 @@ class CentralGameCore:
                         isinstance(source_actor.get('position', {}).get('route'), dict)
                         if isinstance(source_actor, dict) else False
                     )
+                    authoritative_seat_transition = (
+                        isinstance(source_actor.get('position', {}).get('seat_transition'), dict)
+                        if isinstance(source_actor, dict) else False
+                    )
+                    authoritative_motion = authoritative_route or authoritative_seat_transition
+                    talk_metadata = (
+                        source_actor.get('behavior', {}).get('talk')
+                        if isinstance(source_actor, dict)
+                        else None
+                    )
+                    stationary_talk = (
+                        authoritative_talk
+                        and isinstance(talk_metadata, dict)
+                        and source_actor.get('activity') == 'working'
+                        and not authoritative_motion
+                        and not bool(
+                            talk_metadata.get(
+                                'route_committed',
+                                bool(talk_metadata.get('outbound_path_cells_uv')),
+                            )
+                        )
+                    )
                     # Dialogue timing/layout still comes from the planner, but
-                    # a committed actor talk route is the sole source of
-                    # locomotion and pose.  Copying the old presentation track
-                    # here would snap a walking actor back to the workstation
-                    # on every render sample.
+                    # a committed actor talk route or seat-entry transition is
+                    # the sole source of locomotion and pose.  Copying the old
+                    # presentation track here would snap a walking/returning
+                    # actor back to the workstation on every render sample.
                     presentation_keys = (
                         'dialogue_visible', 'dialogue_opacity', 'dialogue_phase',
                         'dialogue_id', 'dialogue_line_index', 'dialogue_text',
@@ -2233,12 +2286,36 @@ class CentralGameCore:
                         'direction', 'raw_direction', 'render_owner', 'action',
                         'subaction', 'frame_index', 'cumulative_distance_px',
                     )
-                    keys = presentation_keys + (
-                        () if authoritative_talk and authoritative_route else pose_keys
+                    stationary_pose_keys = (
+                        'direction', 'raw_direction', 'render_owner', 'action', 'subaction',
                     )
+                    if authoritative_talk and authoritative_motion:
+                        keys = presentation_keys
+                    elif stationary_talk:
+                        keys = presentation_keys + stationary_pose_keys
+                    else:
+                        keys = presentation_keys + pose_keys
                     for key in keys:
                         if key in track:
                             row[key] = copy.deepcopy(track[key])
+                    if stationary_talk:
+                        # Keep the authored seated turn-side direction and
+                        # subaction, but derive its character frame from the
+                        # actor reducer's live WorkSeat clock.  The speech
+                        # timeline must never be able to freeze or substitute
+                        # the gameplay work phase.
+                        stationary_frame_count = self._runtime_frame_count(
+                            source_actor,
+                            action=row.get('action'),
+                            direction=row.get('direction'),
+                            subaction=row.get('subaction'),
+                        )
+                        stationary_frame_index = (
+                            int(source_actor.get('behavior', {}).get('work_loop_elapsed_ms', 0))
+                            // 360
+                        ) % stationary_frame_count
+                        row['frame_index'] = stationary_frame_index
+                        row['character_frame_index'] = stationary_frame_index
                     scheduled_bubble = self._runtime_bubble_from_schedule(
                         session,
                         employee_id,
@@ -2257,7 +2334,7 @@ class CentralGameCore:
                     )
                     row['presentation_phase'] = (
                         source_actor.get('conversation_phase')
-                        if authoritative_talk and authoritative_route
+                        if authoritative_talk and authoritative_motion
                         else track.get('phase')
                     )
                     row['speech_session_id'] = session.get('session_id')
