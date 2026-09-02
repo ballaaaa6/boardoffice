@@ -377,7 +377,7 @@
           "const": "NW_NE_advance_one_cell_after_each_completed_normal_work_loop; SE_SW_static_cell0"
         },
         "reset_policy": {
-          "const": "reset_both_fields_when_working_restarts_after_event_or_route"
+          "const": "reset_both_fields_when_working_restarts_after_route_or_mobile_event; preserve_desk_overlay_phase"
         }
       }
     },
@@ -504,6 +504,8 @@
         "selection_weights",
         "selection_weights_sum",
         "weight_source",
+        "retired_automatic_events",
+        "seat_exit_policy",
         "cooldown_storage",
         "event_counter_scope",
         "visual_side_effect_policy",
@@ -530,16 +532,16 @@
           ],
           "properties": {
             "talk": {
-              "const": 45
+            "const": 56
             },
             "background_effect": {
-              "const": 20
+            "const": 25
             },
             "popup": {
-              "const": 15
+            "const": 19
             },
             "wander": {
-              "const": 20
+            "const": 0
             }
           }
         },
@@ -548,6 +550,12 @@
         },
         "weight_source": {
           "const": "employee_metadata.stamina_policy.recovery_events.*.selection_weight"
+        },
+        "retired_automatic_events": {
+          "const": ["wander"]
+        },
+        "seat_exit_policy": {
+          "const": "only_talk_or_home"
         },
         "cooldown_storage": {
           "const": "absolute_simulation_time_ms"
@@ -611,6 +619,7 @@
         "portal_fade_steps",
         "home_recovery_policy",
         "critical_route_policy",
+        "active_event_home_policy",
         "assignment_return_policy"
       ],
       "properties": {
@@ -644,6 +653,9 @@
         "critical_route_policy": {
           "const": "home_requested_event_is_emitted_at_normal_work_loop_boundary"
         },
+        "active_event_home_policy": {
+          "const": "reject_until_recovery_event_completion"
+        },
         "assignment_return_policy": {
           "const": "same_owned_workstation_and_transition_gate"
         }
@@ -656,6 +668,7 @@
         "event_binding",
         "channels",
         "pose_policy",
+        "seat_transition",
         "timing_ms"
       ],
       "properties": {
@@ -672,6 +685,34 @@
         },
         "pose_policy": {
           "const": "presentation_reads_actor_talk_route_without_owning_gameplay_state"
+        },
+        "seat_transition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "field",
+            "phases",
+            "anchor_source",
+            "navigation_independent",
+            "duration_ms",
+            "tick_policy",
+            "departure_policy",
+            "arrival_policy",
+            "completion_values"
+          ],
+          "properties": {
+            "field": {"const": "actor.position.seat_transition"},
+            "phases": {"const": ["seat_exit", "seat_entry"]},
+            "anchor_source": {"const": "WorkSeatCore"},
+            "navigation_independent": {"const": true},
+            "duration_ms": {"const": 240},
+            "tick_policy": {"const": "fixed_60ms_steps"},
+            "departure_policy": {"type": "string", "minLength": 1},
+            "arrival_policy": {"type": "string", "minLength": 1},
+            "completion_values": {
+              "const": ["to_workseat", "wander_back", "talk_return"]
+            }
+          }
         },
         "timing_ms": {
           "type": "object",

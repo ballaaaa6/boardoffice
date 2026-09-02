@@ -37,6 +37,9 @@
   "render_policy": {
     "speech_and_pose_are_independent": true,
     "workseat_and_walking_are_mutually_exclusive": true,
+    "seat_boundary": "presentation_only_workseat_visual_anchor_to_transition_gate_bridge",
+    "seat_boundary_duration_ms": 240,
+    "seat_boundary_tick_policy": "fixed_60ms_steps",
     "bubble_anchor": "direct_head_anchor",
     "bubble_paint_order": "turn_index_then_employee_id",
     "assignment_mutation": false

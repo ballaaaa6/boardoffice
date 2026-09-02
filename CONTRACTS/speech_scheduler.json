@@ -11,11 +11,30 @@
     "CentralGameCore.advance_speech_snapshot"
   ],
   "categories": {
-    "solo_recurring": [
-      "encouragement",
-      "uncertainty",
-      "surprise",
+    "in_work_rotation": [
+      "anticipation",
       "work_progress",
+      "work_complete",
+      "encouragement",
+      "praise",
+      "celebration",
+      "disappointment",
+      "fatigue",
+      "surprise",
+      "uncertainty",
+      "idle_flavor"
+    ],
+    "solo_recurring": [
+      "anticipation",
+      "work_progress",
+      "work_complete",
+      "encouragement",
+      "praise",
+      "celebration",
+      "disappointment",
+      "fatigue",
+      "surprise",
+      "uncertainty",
       "idle_flavor"
     ],
     "pair_exchange": [
@@ -32,15 +51,34 @@
         "trigger": "workseat_entered",
         "once_per_work_session": true
       },
-      "fatigue": {
-        "trigger": "going_home",
-        "once_per_departure": true
-      },
       "leaving": {
         "trigger": "rendered_actor_draws_over_reception",
         "once_per_departure": true
       }
+    },
+    "legacy_compatibility": {
+      "fatigue": "explicit_home_request_only"
     }
+  },
+  "work_dialogue_policy": {
+    "trigger": "actor_activity_working",
+    "categories": [
+      "anticipation",
+      "work_progress",
+      "work_complete",
+      "encouragement",
+      "praise",
+      "celebration",
+      "disappointment",
+      "fatigue",
+      "surprise",
+      "uncertainty",
+      "idle_flavor"
+    ],
+    "selection": "persistent_shuffle_bag_no_repeat_then_refill",
+    "bubble_selection": "smallest_allowed_fit",
+    "pose_policy": "remain_seated_at_owned_workseat",
+    "numeric_effect_policy": "none"
   },
   "timing": {
     "playback_tick_ms": 60,

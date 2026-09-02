@@ -307,6 +307,111 @@ def test_request_home_retains_owned_workstation_and_is_explicit(actor_core: Acto
     ]
 
 
+def test_departure_uses_a_visual_seat_exit_boundary_before_the_gate(actor_core: ActorSimulationCore):
+    snapshot = actor_core.initial_snapshot("floor01")
+    requested = actor_core.advance_snapshot(
+        snapshot,
+        0,
+        commands=[{"type": "request_home", "employee_id": ACTOR_ID}],
+    )
+    actor = requested["snapshot"]["actors"][ACTOR_ID]
+    transition = actor["position"].get("seat_transition")
+    assert transition is not None
+    assert transition["phase"] == "seat_exit"
+    assert transition["anchor_source"] == "WorkSeatCore"
+    assert transition["from_ground_xy"] != transition["to_ground_xy"]
+    assert actor["position"]["ground_xy"] == transition["from_ground_xy"]
+
+    first = actor_core.advance_snapshot(requested["snapshot"], 60)
+    first_actor = first["snapshot"]["actors"][ACTOR_ID]
+    assert first_actor["position"]["seat_transition"]["elapsed_ms"] == 60
+    assert first_actor["position"]["ground_xy"] != transition["from_ground_xy"]
+
+    exited = actor_core.advance_snapshot(first["snapshot"], 180)
+    exited_actor = exited["snapshot"]["actors"][ACTOR_ID]
+    assert exited_actor["position"].get("seat_transition") is None
+    assert exited_actor["position"]["route"]["phase"] == "to_portal"
+
+
+def test_wander_return_closes_event_at_the_visual_seat_entry_boundary(
+    actor_core: ActorSimulationCore,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    snapshot = actor_core.initial_snapshot("floor02")
+    monkeypatch.setattr(
+        actor_core,
+        "choose_behavior_event",
+        lambda *args, **kwargs: "wander",
+    )
+    employee_id = sorted(snapshot["actors"])[0]
+    snapshot["actors"][employee_id]["behavior"]["next_event_due_ms"] = 0
+
+    current = snapshot
+    returned = None
+    for _ in range(40):
+        result = actor_core.advance_snapshot(current, 60)
+        current = result["snapshot"]
+        actor = current["actors"][employee_id]
+        if any(
+            event["type"] == "wander_returned"
+            for event in result["events"]
+            if event.get("employee_id") == employee_id
+        ):
+            returned = actor
+            break
+
+    assert returned is not None
+    assert returned["activity"] == "working"
+    assert returned["presence"] == "present"
+    assert returned["position"]["route"] is None
+    assert returned["position"].get("seat_transition") is None
+    assert returned["behavior"]["active_event"] is None
+    assert returned["behavior"]["activity_until_ms"] is None
+
+
+def test_stationary_popup_keeps_character_work_loop_advancing(
+    actor_core: ActorSimulationCore,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    snapshot = actor_core.initial_snapshot("floor01")
+    monkeypatch.setattr(
+        actor_core,
+        "choose_behavior_event",
+        lambda *args, **kwargs: "popup",
+    )
+    snapshot["actors"][ACTOR_ID]["behavior"]["next_event_due_ms"] = 0
+
+    started = actor_core.advance_snapshot(snapshot, 60)
+    actor = started["snapshot"]["actors"][ACTOR_ID]
+    assert actor["activity"] == "popup_event"
+    phase_before = actor["behavior"]["work_loop_elapsed_ms"]
+    progressed = actor_core.advance_snapshot(started["snapshot"], 600)
+    progressed_actor = progressed["snapshot"]["actors"][ACTOR_ID]
+    progress = (
+        progressed_actor["behavior"]["work_loop_count"] * actor_core.WORK_LOOP_MS
+        + progressed_actor["behavior"]["work_loop_elapsed_ms"]
+    )
+    assert progress > phase_before
+
+
+def test_request_home_rejects_an_active_recovery_event(actor_core: ActorSimulationCore):
+    snapshot = actor_core.initial_snapshot("floor01")
+    actor = snapshot["actors"][ACTOR_ID]
+    actor["activity"] = "popup_event"
+    actor["behavior"].update({
+        "active_event": "popup",
+        "activity_started_ms": 0,
+        "activity_until_ms": 600,
+        "next_event_due_ms": None,
+    })
+    with pytest.raises(ActorSimulationError, match="active recovery event"):
+        actor_core.advance_snapshot(
+            snapshot,
+            0,
+            commands=[{"type": "request_home", "employee_id": ACTOR_ID}],
+        )
+
+
 def test_home_route_reaches_recovery_then_returns_to_the_same_workseat(
     central_core: CentralGameCore,
 ):

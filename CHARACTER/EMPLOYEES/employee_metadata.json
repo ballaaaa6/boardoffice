@@ -98,7 +98,7 @@
           5,
           8
         ],
-        "selection_weight": 45,
+        "selection_weight": 56,
         "runtime_status": "implemented_runtime_binding",
         "visual_channel": "idle_conversation"
       },
@@ -115,7 +115,7 @@
           2,
           4
         ],
-        "selection_weight": 20,
+        "selection_weight": 25,
         "runtime_status": "implemented_runtime_binding",
         "visual_channel": "effect_registry"
       },
@@ -132,7 +132,7 @@
           2,
           4
         ],
-        "selection_weight": 15,
+        "selection_weight": 19,
         "runtime_status": "implemented_runtime_binding",
         "visual_channel": "humanball_or_effect_registry"
       },
@@ -149,9 +149,9 @@
           4,
           7
         ],
-        "selection_weight": 20,
-        "runtime_status": "implemented_runtime_binding",
-        "visual_channel": "move"
+        "selection_weight": 0,
+        "runtime_status": "retired_from_automatic_selection_legacy_snapshot_only",
+        "visual_channel": "legacy_move_snapshot_only"
       }
     },
     "home_policy": {

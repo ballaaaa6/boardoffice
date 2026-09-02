@@ -228,11 +228,13 @@ class CharacterSystem:
         *,
         locale: str = 'en',
         font_size_px: int | None = None,
+        preferred_bubble_id: str | None = None,
     ) -> BubbleSelection:
         return self.dialogue_bubbles.select_bubble(
             text,
             locale=locale,
             font_size_px=font_size_px,
+            preferred_bubble_id=preferred_bubble_id,
         )
 
     def render_dialogue_bubble_for_frame(
@@ -244,6 +246,7 @@ class CharacterSystem:
         actor_top_left: tuple[int, int] = (0, 0),
         locale: str = 'en',
         font_size_px: int | None = None,
+        preferred_bubble_id: str | None = None,
     ) -> DialogueBubbleRenderResult:
         return self.dialogue_bubbles.render_for_character(
             character_id,
@@ -252,6 +255,7 @@ class CharacterSystem:
             actor_top_left=actor_top_left,
             locale=locale,
             font_size_px=font_size_px,
+            preferred_bubble_id=preferred_bubble_id,
         )
 
     def render_dialogue_line_for_frame(

@@ -91,7 +91,7 @@
     "timing": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["playback_tick_ms", "approach_ticks", "exit_ticks", "work_character_frame_ms", "work_effect_frame_ms", "work_humanball_frame_ms", "work_duration_policy", "transition_tween_policy"],
+      "required": ["playback_tick_ms", "approach_ticks", "exit_ticks", "work_character_frame_ms", "work_effect_frame_ms", "work_humanball_frame_ms", "work_duration_policy", "transition_tween_policy", "seat_transition_duration_ms", "seat_transition_tick_policy"],
       "properties": {
         "playback_tick_ms": {"const": 60},
         "approach_ticks": {"const": 1},
@@ -100,7 +100,9 @@
         "work_effect_frame_ms": {"const": 240},
         "work_humanball_frame_ms": {"const": 240},
         "work_duration_policy": {"type": "string", "minLength": 1},
-        "transition_tween_policy": {"const": "none"}
+        "transition_tween_policy": {"const": "deterministic_visual_boundary"},
+        "seat_transition_duration_ms": {"const": 240},
+        "seat_transition_tick_policy": {"const": "fixed_60ms_steps"}
       }
     },
     "render_contract": {"type": "object", "minProperties": 8},

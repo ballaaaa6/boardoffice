@@ -187,6 +187,55 @@ def test_live_route_uses_distance_based_character_frames_instead_of_pinning_fram
     assert any(float(row["cumulative_distance_px"]) > 0 for row in samples)
 
 
+def test_runtime_presentation_bridges_workseat_to_gate_without_a_first_frame_snap():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    employee_id, _second_employee, _ceo = _ids(core)
+    requested = core.advance_runtime_snapshot(
+        runtime,
+        0,
+        actor_commands=[{"type": "request_home", "employee_id": employee_id}],
+    )
+    first = core.resolve_runtime_presentation(
+        requested,
+        floor_id="floor02",
+        validate=False,
+    )["actors"][employee_id]
+    assert first["render_owner"] == "walking_depth"
+    assert first["presentation_transition"]["phase"] == "seat_exit"
+    assert first["ground_xy"] == first["presentation_transition"]["from_ground_xy"]
+
+    stepped = core.advance_runtime_snapshot(requested, 60)
+    second = core.resolve_runtime_presentation(
+        stepped,
+        floor_id="floor02",
+        validate=False,
+    )["actors"][employee_id]
+    assert second["presentation_transition"]["elapsed_ms"] == 60
+    assert second["ground_xy"] != first["ground_xy"]
+    assert second["ground_xy"] != second["presentation_transition"]["to_ground_xy"]
+
+
+def test_visible_runtime_rows_always_have_a_resolved_action_and_frame():
+    core = CentralGameCore(ROOT)
+    for floor_id in sorted(core.world.floors):
+        runtime = core.resolve_runtime_snapshot(floor_id)
+        presentation = core.resolve_runtime_presentation(
+            runtime,
+            floor_id=floor_id,
+        )
+        ceo_id = next(
+            employee_id
+            for employee_id, actor in runtime["actor_snapshot"]["actors"].items()
+            if actor["assignment"]["workstation_id"] == "ceo"
+        )
+        ceo = presentation["actors"][ceo_id]
+        assert ceo["visible"] is True
+        assert ceo["action"] == "work"
+        assert ceo["resolved_action"] == "work"
+        assert 0 <= ceo["character_frame_index"] < ceo["character_frame_count"]
+
+
 def test_runtime_renderer_reuses_seated_base_composition_without_aliasing_overlays():
     core = CentralGameCore(ROOT)
     runtime = _quiet_runtime(core)

@@ -88,7 +88,9 @@
     "work_effect_frame_ms": 240,
     "work_humanball_frame_ms": 240,
     "work_duration_policy": "positive_caller_supplied_work_ticks",
-    "transition_tween_policy": "none"
+    "transition_tween_policy": "deterministic_visual_boundary",
+    "seat_transition_duration_ms": 240,
+    "seat_transition_tick_policy": "fixed_60ms_steps"
   },
   "render_contract": {
     "walking_and_seated_visibility": "mutually_exclusive",
@@ -96,6 +98,9 @@
     "seated_owner": "work_seat",
     "seated_position_source": "WorkSeatCore",
     "seated_position_is_navigation_anchor": false,
+    "seat_boundary_policy": "presentation_only_workseat_visual_anchor_to_transition_gate_bridge",
+    "seat_boundary_duration_ms": 240,
+    "seat_boundary_tick_policy": "fixed_60ms_steps",
     "character_frame_index_source": "elapsed_seated_ms_div_work_character_frame_ms",
     "effect_frame_index_source": "elapsed_seated_ms_div_work_effect_frame_ms",
     "humanball_frame_index_source": "elapsed_seated_ms_div_work_humanball_frame_ms",

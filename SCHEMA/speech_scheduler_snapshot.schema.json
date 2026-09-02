@@ -37,6 +37,10 @@
     "active_sessions": {
       "type": "object",
       "additionalProperties": {"$ref": "#/$defs/session"}
+    },
+    "dialogue_bags": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/dialogueBag"}
     }
   },
   "$defs": {
@@ -78,7 +82,9 @@
         "last_partner_id": {"type": ["string", "null"]},
         "speech_phase": {"enum": ["idle", "active", "emotion"]},
         "emotion": {"enum": ["sad", "happy", null]},
-        "emotion_until_ms": {"$ref": "#/$defs/nullableMs"}
+        "emotion_until_ms": {"$ref": "#/$defs/nullableMs"},
+        "work_dialogue_cursor": {"type": "integer", "minimum": 0},
+        "work_dialogue_emitted": {"type": "integer", "minimum": 0}
       }
     },
     "lane": {
@@ -90,6 +96,19 @@
         "active_until_ms": {"$ref": "#/$defs/nullableMs"},
         "queued_session_ids": {"type": "array", "items": {"type": "string"}},
         "last_completed_session_id": {"type": ["string", "null"]}
+      }
+    },
+    "dialogueBag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locale", "category", "generation", "remaining", "recent_texts"],
+      "properties": {
+        "locale": {"type": "string", "minLength": 2},
+        "category": {"type": "string", "minLength": 1},
+        "generation": {"type": "integer", "minimum": 0},
+        "used_count": {"type": "integer", "minimum": 0},
+        "remaining": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "recent_texts": {"type": "array", "items": {"type": "string"}, "maxItems": 4}
       }
     },
     "session": {

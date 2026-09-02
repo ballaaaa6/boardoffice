@@ -192,7 +192,7 @@
     "completed_loop_field": "behavior.work_loop_count",
     "phase_policy": "bounded_720ms_normal_work_pose_phase",
     "pc_policy": "NW_NE_advance_one_cell_after_each_completed_normal_work_loop; SE_SW_static_cell0",
-    "reset_policy": "reset_both_fields_when_working_restarts_after_event_or_route"
+    "reset_policy": "reset_both_fields_when_working_restarts_after_route_or_mobile_event; preserve_desk_overlay_phase"
   },
   "stamina": {
     "storage_unit": "milli_stamina",
@@ -232,13 +232,15 @@
       "wander"
     ],
     "selection_weights": {
-      "talk": 45,
-      "background_effect": 20,
-      "popup": 15,
-      "wander": 20
+      "talk": 56,
+      "background_effect": 25,
+      "popup": 19,
+      "wander": 0
     },
     "selection_weights_sum": 100,
     "weight_source": "employee_metadata.stamina_policy.recovery_events.*.selection_weight",
+    "retired_automatic_events": ["wander"],
+    "seat_exit_policy": "only_talk_or_home",
     "cooldown_storage": "absolute_simulation_time_ms",
     "event_counter_scope": "per_actor_and_root",
     "visual_side_effect_policy": "visual_registry_metadata_never_mutates_stamina",
@@ -279,6 +281,7 @@
     "portal_fade_steps": 4,
     "home_recovery_policy": "restore_full_stamina_at_portal_exit_then_wait_for_explicit_return",
     "critical_route_policy": "home_requested_event_is_emitted_at_normal_work_loop_boundary",
+    "active_event_home_policy": "reject_until_recovery_event_completion",
     "assignment_return_policy": "same_owned_workstation_and_transition_gate"
   },
   "presentation": {
@@ -290,6 +293,17 @@
       "movement"
     ],
     "pose_policy": "presentation_reads_actor_talk_route_without_owning_gameplay_state",
+    "seat_transition": {
+      "field": "actor.position.seat_transition",
+      "phases": ["seat_exit", "seat_entry"],
+      "anchor_source": "WorkSeatCore",
+      "navigation_independent": true,
+      "duration_ms": 240,
+      "tick_policy": "fixed_60ms_steps",
+      "departure_policy": "render_from_seated_foot_anchor_to_existing_transition_gate_before_route_pose_is_visible",
+      "arrival_policy": "render_from_existing_transition_gate_to_seated_foot_anchor_before_workseat_owner_is_restored",
+      "completion_values": ["to_workseat", "wander_back", "talk_return"]
+    },
     "timing_ms": {
       "simulation_tick": 60,
       "character_frame": 360,

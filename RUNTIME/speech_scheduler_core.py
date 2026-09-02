@@ -38,6 +38,23 @@ class SpeechSchedulerCore:
         "work_progress",
         "idle_flavor",
     )
+    # The original five-item tuple is kept as a compatibility constant for
+    # older callers, but the live work lane now rotates through every authored
+    # office category.  These lines are all seated work chatter; none is
+    # inferred from a conversation outcome.
+    IN_WORK_CATEGORIES = (
+        "anticipation",
+        "work_progress",
+        "work_complete",
+        "encouragement",
+        "praise",
+        "celebration",
+        "disappointment",
+        "fatigue",
+        "surprise",
+        "uncertainty",
+        "idle_flavor",
+    )
     PAIR_CATEGORIES = ("conversation_open", "conversation_reply")
     MODES = ("ceo_front", "seated_host", "standing_pair")
     # Safety lifecycle speech still wins, but a real actor talk request must
@@ -172,8 +189,12 @@ class SpeechSchedulerCore:
             key: result["active_sessions"][key]
             for key in sorted(result.get("active_sessions", {}))
         }
+        if not isinstance(result.get("dialogue_bags"), dict):
+            result["dialogue_bags"] = {}
         for actor in result["actors"].values():
             actor.setdefault("stamina_band", "normal")
+            actor.setdefault("work_dialogue_cursor", 0)
+            actor.setdefault("work_dialogue_emitted", 0)
         return result
 
     def _delay_ms(
@@ -249,6 +270,8 @@ class SpeechSchedulerCore:
             "speech_phase": "idle",
             "emotion": None,
             "emotion_until_ms": None,
+            "work_dialogue_cursor": 0,
+            "work_dialogue_emitted": 0,
         }
 
     def initial_snapshot(
@@ -301,6 +324,7 @@ class SpeechSchedulerCore:
             "actors": {},
             "lanes": {},
             "active_sessions": {},
+            "dialogue_bags": {},
         }
         for employee_id in sorted(actors_source):
             actor = actors_source[employee_id]
@@ -341,6 +365,8 @@ class SpeechSchedulerCore:
                 raise SpeechSchedulerError(f"{employee_id}: unknown speech actor role")
             if actor.get("stamina_band") not in {"normal", "low", "critical"}:
                 raise SpeechSchedulerError(f"{employee_id}: unknown stamina band")
+            for key in ("work_dialogue_cursor", "work_dialogue_emitted"):
+                self._require_int(actor.get(key, 0), f"{employee_id}.{key}")
             if "external_talk_pending" in actor and not isinstance(
                 actor.get("external_talk_pending"), bool
             ):
@@ -451,8 +477,14 @@ class SpeechSchedulerCore:
                         speech_actor["pair_pending"] = True
                         speech_actor["pair_next_due_ms"] = None
                 if activity == "going_home" or str(source.get("presence")) == "leaving":
-                    speech_actor["fatigue_pending"] = True
-                    speech_actor["fatigue_emitted"] = False
+                    # ``fatigue`` is now an ordinary seated work-dialogue
+                    # category.  Keep the old lifecycle line only as an
+                    # explicit-home compatibility fallback; an automatic
+                    # critical-home route must not create a second departure
+                    # bubble while the actor is already walking to the portal.
+                    explicit_home = source.get("last_event") == "home_requested"
+                    speech_actor["fatigue_pending"] = bool(explicit_home)
+                    speech_actor["fatigue_emitted"] = not explicit_home
                     speech_actor["leaving_emitted"] = False
                     speech_actor["leaving_due_ms"] = None
                     speech_actor["departure_token"] = int(speech_actor["departure_token"]) + 1
@@ -518,6 +550,13 @@ class SpeechSchedulerCore:
                 "speech_phase": "idle",
                 "emotion": None,
                 "emotion_until_ms": None,
+                # Returning actors get the authored entry line again before
+                # their next work-start line.  This is the presentation
+                # boundary that was previously missing from the live host.
+                "greeting_due_ms": timestamp_ms + self._delay_ms(
+                    snapshot, employee_id, "greeting", int(actor["departure_token"]) + 1
+                ),
+                "greeting_emitted": False,
                 "work_start_due_ms": timestamp_ms,
                 "work_start_emitted": False,
                 "solo_next_due_ms": timestamp_ms + self._delay_ms(snapshot, employee_id, "solo", int(actor["departure_token"]) + 1),
@@ -705,6 +744,143 @@ class SpeechSchedulerCore:
             for employee_id in participants
         }
 
+    @staticmethod
+    def _dialogue_key(row: dict[str, Any]) -> str:
+        return f"{row.get('dialogue_id')}|{int(row.get('line_index', 0))}"
+
+    def _dialogue_pool(
+        self,
+        *,
+        locale: str,
+        category: str,
+    ) -> list[dict[str, Any]]:
+        """Read the enabled office pool through the conversation registry."""
+        if self.conversation is None:
+            return []
+        try:
+            rows = self.conversation._dialogue_lines(locale=locale, category=category)
+        except Exception:
+            return []
+        return [dict(row) for row in rows if isinstance(row, dict)]
+
+    def _take_dialogue_from_bag(
+        self,
+        snapshot: dict[str, Any],
+        *,
+        locale: str,
+        category: str,
+        seed: str | int,
+        bag_state: dict[str, dict[str, Any]],
+    ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+        """Reserve one authored line without repeating until the bag refills.
+
+        Bag state is returned separately and committed only after a movement
+        plan succeeds.  That keeps retries from burning dialogue lines and
+        makes save/load/replay reproduce the exact same sequence.
+        """
+        locale_key = str(locale).strip().casefold().split("-", 1)[0]
+        category_key = str(category).strip()
+        pool = self._dialogue_pool(locale=locale_key, category=category_key)
+        if not pool:
+            return None, None
+        by_key = {self._dialogue_key(row): row for row in pool}
+        key = f"{locale_key}|{category_key}"
+        source = bag_state.get(key) or snapshot.get("dialogue_bags", {}).get(key) or {}
+        generation = int(source.get("generation", 0) or 0)
+        used_count = int(source.get("used_count", 0) or 0)
+        remaining = [item for item in source.get("remaining", []) if item in by_key]
+        recent = [str(item) for item in source.get("recent_texts", [])]
+        if not remaining:
+            generation += 1
+            remaining = sorted(
+                by_key,
+                key=lambda item: self._stable_int(
+                    seed, "dialogue-bag", locale_key, category_key, generation, item
+                ),
+            )
+        chosen_key = next(
+            (item for item in remaining if str(by_key[item].get("text", "")) not in recent),
+            remaining[0],
+        )
+        remaining.remove(chosen_key)
+        chosen = by_key[chosen_key]
+        next_recent = (recent + [str(chosen.get("text", ""))])[-4:]
+        used_count += 1
+        bag_state[key] = {
+            "locale": locale_key,
+            "category": category_key,
+            "generation": generation,
+            "used_count": used_count,
+            "remaining": remaining,
+            "recent_texts": next_recent,
+        }
+        return chosen, bag_state[key]
+
+    def _dialogue_overrides_for_request(
+        self,
+        snapshot: dict[str, Any],
+        request: dict[str, Any],
+        *,
+        locale: str,
+        seed: str | int,
+    ) -> tuple[dict[str, Any], dict[str, dict[str, Any]], str]:
+        """Build deterministic line overrides for one candidate session."""
+        bags = copy.deepcopy(snapshot.get("dialogue_bags", {}))
+        overrides: dict[str, Any] = {}
+        if request.get("kind") == "pair":
+            categories = ("conversation_open", "conversation_reply")
+            for employee_id, category in zip(request.get("participants", []), categories):
+                row, _state = self._take_dialogue_from_bag(
+                    snapshot,
+                    locale=locale,
+                    category=category,
+                    seed=seed,
+                    bag_state=bags,
+                )
+                if row is not None:
+                    overrides[str(employee_id)] = {
+                        "dialogue_id": row.get("dialogue_id"),
+                        "line_index": int(row.get("line_index", 0)),
+                    }
+            return overrides, bags, "pair_open_reply_bags"
+
+        actor_id = str(request.get("initiator_id"))
+        category = str(request.get("category") or "idle_flavor")
+        row, _state = self._take_dialogue_from_bag(
+            snapshot,
+            locale=locale,
+            category=category,
+            seed=seed,
+            bag_state=bags,
+        )
+        if row is not None:
+            overrides[actor_id] = {
+                "dialogue_id": row.get("dialogue_id"),
+                "line_index": int(row.get("line_index", 0)),
+            }
+        return overrides, bags, "in_work_category_bag"
+
+    def _bubble_id_for_dialogue(self, line: dict[str, Any] | None) -> str | None:
+        """Resolve the registry's smallest-fitting bubble for one line.
+
+        The scheduler records the result in its event/telemetry payload so a
+        renderer and the review UI agree on the exact crop.  Shape choice is
+        content-driven; it is deliberately not a random or cursor rotation.
+        """
+        if not isinstance(line, dict) or self.conversation is None:
+            return None
+        text = line.get("text")
+        if not isinstance(text, str) or not text:
+            return None
+        try:
+            selection = self.conversation.movement.characters.dialogue_bubbles.select_bubble(
+                text,
+                locale=str(line.get("locale") or "en"),
+            )
+        except Exception:
+            return None
+        return str(getattr(selection, "bubble_id", "")) or None
+
     def _maybe_plan_session(
         self,
         snapshot: dict[str, Any],
@@ -732,6 +908,20 @@ class SpeechSchedulerCore:
                     candidates.append(candidate)
                     seen.add(key)
         for candidate in candidates:
+            candidate = dict(candidate)
+            if candidate.get("kind") == "solo" and not candidate.get("category"):
+                # Explicit self-talk callers may omit a category.  Put them
+                # into the same in-work rotation as automatic speech instead
+                # of falling back to a hash-selected line forever.
+                actor = snapshot["actors"][candidate["initiator_id"]]
+                cursor = int(actor.get("work_dialogue_cursor", 0))
+                candidate["category"] = self.IN_WORK_CATEGORIES[cursor % len(self.IN_WORK_CATEGORIES)]
+            overrides, bag_state, bag_policy = self._dialogue_overrides_for_request(
+                snapshot,
+                candidate,
+                locale=dialogue_locale,
+                seed=f"{dialogue_seed}|{snapshot['determinism']['root_event_counter']}|{candidate.get('initiator_id')}",
+            )
             try:
                 if candidate["kind"] == "pair":
                     plan = self.conversation.plan_conversation(
@@ -741,6 +931,7 @@ class SpeechSchedulerCore:
                         snapshot=conversation_snapshot,
                         dialogue_locale=dialogue_locale,
                         dialogue_seed=dialogue_seed,
+                        dialogue_line_overrides=overrides,
                     )
                 else:
                     plan = self.conversation.plan_self_talk(
@@ -748,16 +939,21 @@ class SpeechSchedulerCore:
                         snapshot=conversation_snapshot,
                         dialogue_locale=dialogue_locale,
                         dialogue_category=(
-                            None if candidate.get("fallback") == "self_talk"
-                            else candidate.get("category")
+                            candidate.get("category")
                         ),
                         dialogue_seed=dialogue_seed,
+                        dialogue_line_overrides=overrides,
                     )
             except Exception:
                 # A pair is not started without a valid movement/spot/dialogue
                 # plan.  The next seeded candidate may still be usable.
                 continue
             if plan.get("ready"):
+                snapshot["dialogue_bags"] = bag_state
+                plan["dialogue_selection"] = {
+                    "policy": bag_policy,
+                    "overrides": copy.deepcopy(overrides),
+                }
                 return candidate, plan
         if request.get("external") and request.get("kind") == "pair":
             # A valid partner may exist while every pair geometry candidate is
@@ -774,16 +970,28 @@ class SpeechSchedulerCore:
                 "fallback": "self_talk",
             }
             try:
+                overrides, bag_state, bag_policy = self._dialogue_overrides_for_request(
+                    snapshot,
+                    fallback,
+                    locale=dialogue_locale,
+                    seed=f"{dialogue_seed}|{snapshot['determinism']['root_event_counter']}|{fallback['initiator_id']}",
+                )
                 plan = self.conversation.plan_self_talk(
                     fallback["initiator_id"],
                     snapshot=conversation_snapshot,
                     dialogue_locale=dialogue_locale,
-                    dialogue_category=None,
+                    dialogue_category=fallback["category"],
                     dialogue_seed=dialogue_seed,
+                    dialogue_line_overrides=overrides,
                 )
             except Exception:
                 plan = None
             if isinstance(plan, dict) and plan.get("ready"):
+                snapshot["dialogue_bags"] = bag_state
+                plan["dialogue_selection"] = {
+                    "policy": bag_policy,
+                    "overrides": copy.deepcopy(overrides),
+                }
                 return fallback, plan
         return None
 
@@ -854,13 +1062,27 @@ class SpeechSchedulerCore:
             "conversation_plan": self._copy(plan) if plan is not None else None,
             "emotion_outcome": None,
             "emotion_hold_ms": 0,
-            "stamina_effect_hook": "actor_snapshot_numeric_delta",
+            # Lifecycle and seated work speech are presentation-only.  Only
+            # the standing-pair emotion boundary below is allowed to carry a
+            # numeric stamina delta into Central/ActorSimulationCore.
+            "numeric_effect_policy": "none",
+            "stamina_effect_milli": 0,
+            "score_delta": 0,
+            "stamina_effect_hook": "none",
             "stamina_effect_milli_by_emotion": {"sad": -1000, "happy": 2000},
+            "bubble_selection_policy": "smallest_allowed_fit",
             "bubble_started": False,
             "bubble_start_event_emitted": False,
         }
+        dialogue_by_actor = (
+            plan.get("dialogue_by_actor", {})
+            if isinstance(plan, dict) and isinstance(plan.get("dialogue_by_actor"), dict)
+            else {}
+        )
         if kind == "pair":
             first, second = participants[0], participants[1]
+            first_bubble = self._bubble_id_for_dialogue(dialogue_by_actor.get(first))
+            second_bubble = self._bubble_id_for_dialogue(dialogue_by_actor.get(second))
             session["bubble_schedule"] = [
                 {
                     "employee_id": first,
@@ -869,6 +1091,7 @@ class SpeechSchedulerCore:
                     "visible_end_ms": bubble_start_ms + self.BUBBLE_VISIBLE_MS,
                     "fade_end_ms": fade_end,
                     "turn_index": 0,
+                    "preferred_bubble_id": first_bubble,
                 },
                 {
                     "employee_id": second,
@@ -877,6 +1100,7 @@ class SpeechSchedulerCore:
                     "visible_end_ms": bubble_start_ms + self.BUBBLE_VISIBLE_MS,
                     "fade_end_ms": fade_end,
                     "turn_index": 1,
+                    "preferred_bubble_id": second_bubble,
                 },
             ]
             if mode == "standing_pair":
@@ -886,6 +1110,7 @@ class SpeechSchedulerCore:
                 session["emotion_outcome"] = "happy" if roll % 2 == 0 else "sad"
                 session["emotion_hold_ms"] = self.EMOTION_HOLD_MS
         else:
+            preferred_bubble = self._bubble_id_for_dialogue(dialogue_by_actor.get(participants[0]))
             session["bubble_schedule"] = [{
                 "employee_id": participants[0],
                 "category": category,
@@ -893,6 +1118,7 @@ class SpeechSchedulerCore:
                 "visible_end_ms": bubble_start_ms + self.BUBBLE_VISIBLE_MS,
                 "fade_end_ms": fade_end,
                 "turn_index": 0,
+                "preferred_bubble_id": preferred_bubble,
             }]
         snapshot["active_sessions"][session_id] = session
         floor_id = session["floor_id"]
@@ -907,14 +1133,17 @@ class SpeechSchedulerCore:
             actor["external_talk_due_ms"] = None
             actor["last_session_id"] = session_id
             actor["last_partner_id"] = request.get("partner_id")
-            if category == "greeting":
+            if kind == "solo":
+                actor["work_dialogue_cursor"] = int(actor.get("work_dialogue_cursor", 0)) + 1
+                actor["work_dialogue_emitted"] = int(actor.get("work_dialogue_emitted", 0)) + 1
+            if kind == "lifecycle" and category == "greeting":
                 actor["greeting_emitted"] = True
-            elif category == "work_start":
+            elif kind == "lifecycle" and category == "work_start":
                 actor["work_start_emitted"] = True
-            elif category == "fatigue":
+            elif kind == "lifecycle" and category == "fatigue":
                 actor["fatigue_emitted"] = True
                 actor["fatigue_pending"] = False
-            elif category == "leaving":
+            elif kind == "lifecycle" and category == "leaving":
                 actor["leaving_emitted"] = True
                 actor["leaving_pending"] = False
                 actor["leaving_due_ms"] = None
@@ -946,6 +1175,10 @@ class SpeechSchedulerCore:
             conversation_plan=session["conversation_plan"],
             available_modes=session["available_modes"],
             selection_policy=session["selection_policy"],
+            numeric_effect_policy=session["numeric_effect_policy"],
+            stamina_effect_milli=session["stamina_effect_milli"],
+            score_delta=session["score_delta"],
+            bubble_selection_policy=session["bubble_selection_policy"],
         )
         if bubble_start_ms <= int(timestamp_ms):
             self._append_bubble_started_event(
@@ -1024,6 +1257,8 @@ class SpeechSchedulerCore:
         emotion_until = timestamp_ms
         if emotion in {"sad", "happy"} and session.get("emotion_hold_ms", 0):
             emotion_until = timestamp_ms + int(session["emotion_hold_ms"])
+            session["numeric_effect_policy"] = "standing_pair_emotion_only"
+            session["stamina_effect_hook"] = "actor_snapshot_numeric_delta"
             emotion_pose_bindings = {
                 employee_id: {
                     "render_owner": "walking_depth",
@@ -1207,22 +1442,6 @@ class SpeechSchedulerCore:
             }
         if not self._actor_available(actor):
             return None
-        if actor.get("role") != "ceo" and (
-            actor.get("pair_pending")
-            or (
-                actor.get("pair_next_due_ms") is not None
-                and int(actor["pair_next_due_ms"]) <= now_ms
-            )
-        ):
-            request = self._mode_request(
-                snapshot,
-                employee_id,
-            counter=int(actor.get("speech_event_counter", 0)) + 1,
-            )
-            if request is not None:
-                return request
-            actor["pair_pending"] = True
-            actor["pair_next_due_ms"] = None
         if (
             self._actor_present(actor)
             and not actor.get("greeting_emitted")
@@ -1243,14 +1462,35 @@ class SpeechSchedulerCore:
                 "kind": "lifecycle", "category": "work_start", "mode": "self_talk",
                 "participants": [employee_id], "initiator_id": employee_id,
             }
+        # Entry lifecycle speech owns the first visible moment at a desk.
+        # A pair that became due while the actor was away must wait until the
+        # greeting/work-start boundary has been emitted, otherwise a return
+        # can appear to skip its authored arrival line.
+        if actor.get("role") != "ceo" and (
+            actor.get("pair_pending")
+            or (
+                actor.get("pair_next_due_ms") is not None
+                and int(actor["pair_next_due_ms"]) <= now_ms
+            )
+        ):
+            request = self._mode_request(
+                snapshot,
+                employee_id,
+                counter=int(actor.get("speech_event_counter", 0)) + 1,
+            )
+            if request is not None:
+                return request
+            actor["pair_pending"] = True
+            actor["pair_next_due_ms"] = None
         if actor.get("solo_pending") or (
             actor.get("solo_next_due_ms") is not None and int(actor["solo_next_due_ms"]) <= now_ms
         ):
-            index = self._stable_int(
-                snapshot["determinism"]["simulation_seed"], employee_id, "solo-category", int(actor.get("speech_event_counter", 0)) + 1
-            ) % len(self.SOLO_CATEGORIES)
+            # Rotate the complete authored in-work category set in order.  A
+            # cursor is persisted on the speech actor, so every category gets
+            # a turn and save/replay cannot collapse to the same five lines.
+            index = int(actor.get("work_dialogue_cursor", 0)) % len(self.IN_WORK_CATEGORIES)
             return {
-                "kind": "solo", "category": self.SOLO_CATEGORIES[index], "mode": "self_talk",
+                "kind": "solo", "category": self.IN_WORK_CATEGORIES[index], "mode": "self_talk",
                 "participants": [employee_id], "initiator_id": employee_id,
             }
         return None

@@ -57,10 +57,13 @@
     },
     "render_policy": {
       "type": "object", "additionalProperties": false,
-      "required": ["speech_and_pose_are_independent", "workseat_and_walking_are_mutually_exclusive", "bubble_anchor", "bubble_paint_order", "assignment_mutation"],
+      "required": ["speech_and_pose_are_independent", "workseat_and_walking_are_mutually_exclusive", "seat_boundary", "seat_boundary_duration_ms", "seat_boundary_tick_policy", "bubble_anchor", "bubble_paint_order", "assignment_mutation"],
       "properties": {
         "speech_and_pose_are_independent": {"const": true},
         "workseat_and_walking_are_mutually_exclusive": {"const": true},
+        "seat_boundary": {"const": "presentation_only_workseat_visual_anchor_to_transition_gate_bridge"},
+        "seat_boundary_duration_ms": {"const": 240},
+        "seat_boundary_tick_policy": {"const": "fixed_60ms_steps"},
         "bubble_anchor": {"const": "direct_head_anchor"},
         "bubble_paint_order": {"const": "turn_index_then_employee_id"},
         "assignment_mutation": {"const": false}

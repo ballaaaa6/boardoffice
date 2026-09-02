@@ -389,3 +389,116 @@ def test_runtime_presentation_crosses_speech_tracks_without_mutating_simulation(
     # is written back while the speech pose/bubble overlay is materialized.
     assert advanced["actor_snapshot"]["actors"][initiator]["assignment"] == runtime["actor_snapshot"]["actors"][initiator]["assignment"]
     assert presentation["actors"][initiator]["stamina"] == advanced["actor_snapshot"]["actors"][initiator]["stamina"]
+
+
+def test_automatic_recovery_selection_retired_wander_is_never_chosen():
+    actor_core = ActorSimulationCore(ROOT)
+    snapshot = actor_core.initial_snapshot("floor02")
+    assert actor_core._selection_weights["wander"] == 0
+    for employee_id in snapshot["actors"]:
+        choices = {
+            actor_core.choose_behavior_event(
+                employee_id,
+                simulation_time_ms=counter * 1000,
+                event_counter=counter,
+            )
+            for counter in range(40)
+        }
+        assert "wander" not in choices
+        assert choices <= {"talk", "background_effect", "popup"}
+
+
+def test_in_work_dialogue_rotates_all_categories_and_is_score_safe():
+    core = CentralGameCore(ROOT)
+    runtime = core.resolve_runtime_snapshot("floor02")
+    speech = core.speech_scheduler
+    actor_snapshot = runtime["actor_snapshot"]
+    conversation_snapshot = runtime["conversation_snapshot"]
+    current = runtime["speech_snapshot"]
+    target = next(
+        employee_id
+        for employee_id, actor in current["actors"].items()
+        if actor["role"] == "employee"
+    )
+    for employee_id, actor in current["actors"].items():
+        actor.update({
+            "greeting_due_ms": None,
+            "greeting_emitted": True,
+            "work_start_due_ms": None,
+            "work_start_emitted": True,
+            "solo_next_due_ms": None,
+            "pair_next_due_ms": None,
+            "solo_pending": False,
+            "pair_pending": False,
+            "last_activity": "working",
+        })
+        if employee_id != target:
+            actor.update({
+                "speech_phase": "emotion",
+                "emotion": "sad",
+                "emotion_until_ms": 10**9,
+            })
+    seen_categories = []
+    seen_lines = []
+    for _ in speech.IN_WORK_CATEGORIES:
+        current["actors"][target]["solo_pending"] = True
+        result = speech.advance_snapshot(
+            current,
+            60,
+            actor_snapshot=actor_snapshot,
+            conversation_snapshot=conversation_snapshot,
+            dialogue_locale="en",
+            dialogue_seed="in-work-rotation-test",
+        )
+        current = result["snapshot"]
+        started = [
+            event for event in result["events"]
+            if event.get("type") == "speech_session_started"
+            and event.get("employee_id") == target
+        ]
+        assert len(started) == 1
+        event = started[0]
+        session = current["active_sessions"][event["session_id"]]
+        assert session["kind"] == "solo"
+        assert session["category"] in speech.IN_WORK_CATEGORIES
+        assert session["numeric_effect_policy"] == "none"
+        assert session["stamina_effect_milli"] == 0
+        assert session["score_delta"] == 0
+        line = session["conversation_plan"]["dialogue_by_actor"][target]
+        seen_categories.append(session["category"])
+        seen_lines.append(line["dialogue_id"])
+        current = speech.advance_snapshot(
+            current,
+            4300,
+            actor_snapshot=actor_snapshot,
+            conversation_snapshot=conversation_snapshot,
+            dialogue_locale="en",
+            dialogue_seed="in-work-rotation-test",
+        )["snapshot"]
+    assert seen_categories == list(speech.IN_WORK_CATEGORIES)
+    assert len(set(seen_lines)) == len(seen_lines)
+    assert current["actors"][target]["work_dialogue_cursor"] == len(speech.IN_WORK_CATEGORIES)
+    assert all(
+        current["dialogue_bags"][f"en|{category}"]["used_count"] == 1
+        for category in speech.IN_WORK_CATEGORIES
+    )
+
+
+def test_critical_home_does_not_emit_legacy_fatigue_lifecycle_line():
+    core = CentralGameCore(ROOT)
+    actor_snapshot = core.resolve_actor_snapshot("floor02")
+    target = next(iter(actor_snapshot["actors"]))
+    source_actor = actor_snapshot["actors"][target]
+    source_actor.update({
+        "activity": "going_home",
+        "presence": "leaving",
+        "last_event": "critical_home_requested",
+    })
+    speech = core.speech_scheduler
+    snapshot = speech.initial_snapshot(actor_snapshot)
+    result = speech.advance_snapshot(
+        snapshot,
+        0,
+        actor_snapshot=actor_snapshot,
+    )
+    assert result["snapshot"]["actors"][target]["fatigue_pending"] is False

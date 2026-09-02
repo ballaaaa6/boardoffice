@@ -3,7 +3,7 @@
 คลังใช้งานจริงอยู่ที่ [dialogue.csv](<D:/antigravity/board office/CHARACTER/DIALOGUE/dialogue.csv>).
 แก้ข้อความ เพิ่มคำพูด เพิ่มคำแปล หรือเปลี่ยนหมวดได้ที่ไฟล์นี้ โดยไม่ต้องแก้ renderer หรือไฟล์ใน 00_STARTING_POINT/ และไม่ต้องนำเข้าทับจาก LOCAL_REVIEW อีก
 
-ณ การนำเข้าแรก 2026-08-31: 204 phrase IDs × 2 ภาษา = 408 แถว พร้อม hello_world_test/en เดิมอีก 1 แถว รวม 409 แถว. หลังผู้ใช้อนุมัติร่างขยาย ได้เติมอีก 800 phrase IDs × 2 ภาษา = 1,600 แถว ทำให้ปัจจุบันมี 1,005 IDs / 2,009 แถว. แถวที่พอดี renderer เปิดใช้แล้ว 1,347 แถว; อีก 492 แถวยังเก็บไว้แต่ `enabled=false` เพราะข้อความล้น bubble และต้องย่อก่อนเปิดใช้
+ณ การนำเข้าแรก 2026-08-31: 204 phrase IDs × 2 ภาษา = 408 แถว พร้อม hello_world_test/en เดิมอีก 1 แถว รวม 409 แถว. หลังผู้ใช้อนุมัติร่างขยาย ได้เติมอีก 800 phrase IDs × 2 ภาษา = 1,600 แถว ทำให้ปัจจุบันมี 1,005 IDs / 2,009 แถว. แถว `office` เปิดใช้แล้วครบ 1,872 แถว (รวม test row ที่เปิดใช้อีก 1 แถว); แถว context-only/template/future ยังคงปิดตาม scope และไม่ถูกเลือกเป็นบทพูดออฟฟิศ
 
 รายงานการเติมครั้งนี้อยู่ที่ [import_report.json](<D:/antigravity/board office/LOCAL_REVIEW/DIALOGUE_CATALOG_IMPORT_20260831/import_report.json>) พร้อมสำเนา CSV ก่อนเติม. ร่างต้นทางยังอยู่ใน `LOCAL_REVIEW/DIALOGUE_CATALOG_DRAFT_20260831/` เพื่อใช้อ้างอิงเท่านั้น; การแก้ครั้งต่อไปให้แก้ `dialogue.csv` โดยตรง
 
@@ -78,8 +78,10 @@ list_dialogue_lines() เมื่อไม่ใส่ filter จะคืน�
 หรือ state งาน. คู่สนทนาเลือกบรรทัดที่เปิดใช้จาก `conversation_open` ให้ผู้เริ่ม
 และ `conversation_reply` ให้คู่สนทนา; ถ้าระบุ `category` จะเลือกสองบรรทัดต่าง ID
 จากหมวดนั้น. Self-talk เลือกหนึ่งบรรทัดจาก pool ออฟฟิศทั่วไป โดยไม่นับสองหมวดคู่
-ข้างต้น. ทุกตัวเลือกใช้ hash ของผู้ร่วมสนทนา/seed/locale จึง replay ได้เหมือนเดิม
-และเปลี่ยนข้อความใน CSV ได้โดยไม่ต้องแก้โค้ด
+ข้างต้น. การเรียก resolver โดยตรงยังใช้ hash ของผู้ร่วมสนทนา/seed/locale จึง replay ได้เหมือนเดิม
+และเปลี่ยนข้อความใน CSV ได้โดยไม่ต้องแก้โค้ด. ส่วน speech scheduler ที่รันในงานจริงใช้
+persistent shuffle bag แยกตาม locale/category: หยิบทุก line ที่เปิดใช้ให้ครบก่อน refill และเก็บ
+recent-text cooldown สูงสุด 4 ข้อความเพื่อกันข้อความซ้ำติดกัน
 
 ~~~python
 dialogue = central.resolve_conversation_dialogue(
@@ -96,16 +98,16 @@ API render จาก ID ทั้ง CharacterSystem, Central character แล�
 
 ## ขอบเขตและข้อควรระวัง
 
-- รายการอ้างอิงเดิม 204 รายการและร่างที่ผู้ใช้อนุมัติอีก 800 รายการอยู่ในคลังครบ. ข้อความที่ยาวเกินกรอบยังไม่ถูกทิ้ง แต่ถูกตั้ง `enabled=false` แยกตาม locale จนกว่าจะย่อแล้วตรวจใหม่
+- รายการอ้างอิงเดิม 204 รายการและร่างที่ผู้ใช้อนุมัติอีก 800 รายการอยู่ในคลังครบ และแถว `office` เปิดใช้ครบหลังเพิ่ม adaptive font fallback (9→8→7→6→5→4 px) โดยไม่ wrap หรือ clip. แถว scope อื่นยังปิดและไม่เข้า automatic work speech
 - ตัวแปรอย่าง <0> ยังไม่มีตัวแทนค่าใน slice นี้. ต้องแก้ text เป็นข้อความสุดท้ายและวัดใหม่ก่อนเปิดใช้; อย่าเปิด placeholder ให้ลอยบนหัว
-- มีข้อความซ้ำข้าม ID ตามแหล่งเดิม. list คืนรายการตาม ID ไม่ได้รวมซ้ำหรือเพิ่มน้ำหนักให้เอง; ตัวเลือกสุ่มในอนาคตต้องกำหนด duplicate/cooldown policy
-- เลือกหมวดจากเหตุการณ์ก่อนเลือกข้อความ เช่น fatigue ต้องมี stamina state รองรับ และ work_complete ต้องมีเหตุการณ์งานเสร็จ. CSV ไม่ได้สร้าง behavior เหล่านี้
-- บทสนทนาคู่ การเดินเข้าหา การล็อกคู่ ลำดับผู้พูด และ bubble timing one-loop ถูกผูกไว้ใน behavior slice แล้ว; ระบบสุ่มน้ำหนักเหตุการณ์, stamina reducer และ home/return ถาวรยังเป็นงานถัดไป
-- การแก้ข้อความยาวขึ้นอาจไม่พอดี bubble. ตรวจจากพิกเซลด้วยฟอนต์จริง ไม่ใช่จำนวนตัวอักษร; ไม่ตัดหรือ wrap เงียบ ๆ
+- มีข้อความซ้ำข้าม ID ตามแหล่งเดิม. list คืนรายการตาม ID ไม่ได้รวมซ้ำหรือเพิ่มน้ำหนักให้เอง; scheduler ใช้ bag และ recent-text cooldown เพื่อไม่ให้ข้อความซ้ำติดกัน
+- scheduler เลือกหมวด in-work ทั้ง 11 หมวด (`anticipation`, `work_progress`, `work_complete`, `encouragement`, `praise`, `celebration`, `disappointment`, `fatigue`, `surprise`, `uncertainty`, `idle_flavor`) ระหว่าง actor อยู่ `working` โดยไม่ผูก `encouragement/praise/celebration/disappointment/fatigue` กับผลลัพธ์คุยหรือการเดินทางกลับบ้าน. CSV เพียงเก็บเนื้อหา; scheduler เป็นผู้กำหนดจังหวะและ bag
+- บทสนทนาคู่ การเดินเข้าหา การล็อกคู่ ลำดับผู้พูด bubble timing one-loop และ in-work category rotation ถูกผูกไว้ใน behavior slice แล้ว. ตัวละครจะออกจากโต๊ะเฉพาะ Talk หรือ Home; popup/VFX และบทพูดในงานยังคงนั่งที่ WorkSeat และไม่มี numeric score/stamina delta
+- การแก้ข้อความยาวขึ้นจะวัดจากพิกเซลด้วยฟอนต์จริงและเลือก BB ที่เล็กที่สุดซึ่งพอดีตามลำดับ registry (`BB4`, `BB3`, `BB6`, `BB2`, `BB1`); ไม่สุ่มรูปทรง ไม่ตัด และไม่ wrap เงียบ ๆ. ถ้าไม่ได้ pin ขนาดฟอนต์ ระบบลดขนาด fallback ถึง 4 px เพื่อให้แถวที่เปิดใช้ render ได้
 - อักขระนอกชุดฟอนต์ เช่น emoji/ภาษาใหม่ ต้องตรวจ glyph/fallback และภาพเพิ่ม. Pixel fit ไม่ได้ยืนยัน glyph coverage หรือการจัดวางภาษาไทยทั้งหมด. Pillow เครื่องนี้ยังไม่มี RAQM; gate ตรวจภาษา/ภาพยังเปิด
 
 ## Presentation ที่ใช้อยู่
 
-ใช้ fukidashi_base เป็น whole crops อนุญาต BB1/BB2/BB3/BB4/BB6 และไม่ใช้ BB5. ขนาดฟอนต์มาตรฐาน 9 px. ระบบเลือก crop ที่เล็กที่สุดซึ่ง ink/advance พอดี safe rectangle; ไทยใช้ Noto Sans Thai กับ M+ 1p medium สำหรับ ASCII บน baseline เดียวกัน
+ใช้ fukidashi_base เป็น whole crops อนุญาต BB1/BB2/BB3/BB4/BB6 และไม่ใช้ BB5. ขนาดฟอนต์มาตรฐาน 9 px (fallback อัตโนมัติถึง 4 px เมื่อจำเป็น). ระบบเลือก crop ที่เล็กที่สุดซึ่ง ink/advance พอดี safe rectangle; ไทยใช้ Noto Sans Thai กับ M+ 1p medium สำหรับ ASCII บน baseline เดียวกัน
 
 หาง bubble อิงกลาง face alpha และ actor_frame_top_y + frame_bob_y - 20 จึงตามการเดินและ idle bob. ภาพ bubble และฟอนต์ยังเป็น development inputs ที่มี provenance ต้องเปลี่ยนตาม project-owned asset/font policy ก่อน canonical release. การนำเข้าคลังครั้งนี้ไม่ใช่การปิด phase หรือการยอมรับภาพ/ภาษาเพื่อ release

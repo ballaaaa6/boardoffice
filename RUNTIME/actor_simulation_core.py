@@ -33,6 +33,13 @@ class ActorSimulationCore:
     SNAPSHOT_SCHEMA = "gds.actor_snapshot.v1"
     VERSION = "1.0.0"
     TICK_MS = 60
+    # A WorkSeat has no gameplay ground position.  This short visual-only
+    # boundary lets the sprite leave/re-enter the authored chair position
+    # without changing the navigation gate or the route timeline.
+    SEAT_TRANSITION_MS = 240
+    SEAT_TRANSITION_PHASES = ("seat_exit", "seat_entry")
+    SEAT_TRANSITION_COMPLETIONS = ("to_workseat", "wander_back", "talk_return")
+    CHARACTER_GROUND_ANCHOR_PX = (16, 31)
     MILLI_SCALE = 1000
     MAX_STAMINA_MILLI = 100000
     LOW_THRESHOLD_MILLI = 30000
@@ -110,6 +117,7 @@ class ActorSimulationCore:
         self.pathfinding = pathfinding or self.movement.pathfinding
         self.portal_lifecycle = portal_lifecycle
         self.work_seat_lifecycle = work_seat_lifecycle
+        self._fallback_work_seats = None
         self.contract_path = self.root / "CONTRACTS" / "actor_simulation.json"
         self.snapshot_schema_path = self.root / "SCHEMA" / "actor_snapshot.schema.json"
         try:
@@ -366,6 +374,307 @@ class ActorSimulationCore:
             )
         return self._normalize_uv(gate, name="transition_gate_uv")
 
+    def _workseat_visual_anchor(
+        self,
+        assignment: dict[str, Any],
+        employee: dict[str, Any],
+    ) -> list[float]:
+        """Resolve the seated character foot anchor for presentation only."""
+        work_seats = None
+        if self.work_seat_lifecycle is not None:
+            work_seats = getattr(self.work_seat_lifecycle, "work_seats", None)
+        if work_seats is None:
+            if self._fallback_work_seats is None:
+                try:
+                    from RUNTIME.work_seat_core import WorkSeatCore
+
+                    self._fallback_work_seats = WorkSeatCore(self.root)
+                except Exception as exc:
+                    raise ActorSimulationError(
+                        f"Unable to load WorkSeat visual resolver for "
+                        f"{assignment['floor_id']}.{assignment['workstation_id']}"
+                    ) from exc
+            work_seats = self._fallback_work_seats
+        try:
+            anchor = work_seats.resolve_visual_character_anchor(
+                assignment["floor_id"],
+                assignment["workstation_id"],
+                employee["character_id"],
+            )
+        except Exception as exc:
+            raise ActorSimulationError(
+                f"Unable to resolve WorkSeat visual anchor for "
+                f"{employee.get('employee_id', '<actor>')}"
+            ) from exc
+        if not isinstance(anchor, (tuple, list)) or len(anchor) != 2:
+            raise ActorSimulationError("WorkSeat visual anchor must be a two-item point")
+        return self._round_xy((float(anchor[0]), float(anchor[1])))
+
+    def _seat_transition_record(
+        self,
+        *,
+        phase: str,
+        from_ground_xy: list[float],
+        to_ground_xy: list[float],
+        direction: str,
+        completion: str | None = None,
+    ) -> dict[str, Any]:
+        if phase not in self.SEAT_TRANSITION_PHASES:
+            raise ActorSimulationError(f"Unknown seat transition phase: {phase!r}")
+        if completion not in (None, *self.SEAT_TRANSITION_COMPLETIONS):
+            raise ActorSimulationError(f"Unknown seat transition completion: {completion!r}")
+        if phase == "seat_exit" and completion is not None:
+            raise ActorSimulationError("seat_exit cannot have a completion route")
+        if phase == "seat_entry" and completion is None:
+            raise ActorSimulationError("seat_entry needs a completion route")
+        normalized_direction = str(direction or "SE").upper()
+        if normalized_direction not in {"NW", "SE", "SW", "NE"}:
+            normalized_direction = "SE"
+        return {
+            "phase": phase,
+            "anchor_source": "WorkSeatCore",
+            "from_ground_xy": self._round_xy(from_ground_xy),
+            "to_ground_xy": self._round_xy(to_ground_xy),
+            "elapsed_ms": 0,
+            "duration_ms": self.SEAT_TRANSITION_MS,
+            "render_owner": "walking_depth",
+            "action": "move",
+            "subaction": "idle",
+            "direction": normalized_direction,
+            "raw_direction": normalized_direction,
+            "visibility_alpha": 1.0,
+            "completion": completion,
+        }
+
+    def _begin_seat_exit_transition(
+        self,
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        gate: tuple[int, int],
+    ) -> None:
+        if actor["position"].get("seat_transition") is not None:
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: seat transition is already active"
+            )
+        seat_ground = self._workseat_visual_anchor(actor["assignment"], employee)
+        gate_ground = self._round_xy(
+            self.movement.uv_cell_center_to_pixel(*gate)
+        )
+        route = actor["position"].get("route")
+        direction = (
+            route.get("direction")
+            if isinstance(route, dict) and route.get("direction")
+            else actor["assignment"].get("facing", "SE")
+        )
+        actor["position"]["seat_transition"] = self._seat_transition_record(
+            phase="seat_exit",
+            from_ground_xy=seat_ground,
+            to_ground_xy=gate_ground,
+            direction=str(direction),
+        )
+        # The route remains authoritative for simulation.  Its pose is hidden
+        # behind the transition until the sprite has left the chair.
+        actor["position"]["ground_xy"] = list(seat_ground)
+        actor["position"]["uv"] = None
+
+    def _begin_seat_entry_transition(
+        self,
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        gate: tuple[int, int],
+        completion: str,
+        timestamp_ms: int | None = None,
+    ) -> None:
+        if completion not in self.SEAT_TRANSITION_COMPLETIONS:
+            raise ActorSimulationError(f"Unknown seat transition completion: {completion!r}")
+        if actor["position"].get("seat_transition") is not None:
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: seat transition is already active"
+            )
+        from_ground = actor["position"].get("ground_xy")
+        if not isinstance(from_ground, (list, tuple)) or len(from_ground) != 2:
+            from_ground = self._round_xy(
+                self.movement.uv_cell_center_to_pixel(*gate)
+            )
+        seat_ground = self._workseat_visual_anchor(actor["assignment"], employee)
+        actor["position"]["seat_transition"] = self._seat_transition_record(
+            phase="seat_entry",
+            from_ground_xy=self._round_xy(from_ground),
+            to_ground_xy=seat_ground,
+            direction=str(actor["assignment"].get("facing") or "SE"),
+            completion=completion,
+        )
+        actor["position"]["ground_xy"] = self._round_xy(from_ground)
+        actor["position"]["uv"] = list(gate)
+        if timestamp_ms is not None:
+            actor["behavior"]["activity_until_ms"] = int(timestamp_ms) + self.SEAT_TRANSITION_MS
+        # The navigation segment has reached its gate.  Keep the visual
+        # boundary as the sole owner until the actor is visibly seated.
+        actor["position"]["route"] = None
+
+    def _finish_workseat_entry(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        events: list[dict[str, Any]],
+    ) -> None:
+        floor_id = actor["assignment"]["floor_id"]
+        actor["position"] = {
+            "floor_id": floor_id,
+            "uv": None,
+            "ground_xy": None,
+            "route": None,
+        }
+        actor["presence"] = "present"
+        actor["activity"] = "working"
+        actor["conversation_phase"] = None
+        actor["behavior"].update({
+            "next_event_due_ms": self._schedule_next_event(
+                actor, employee, now_ms=int(timestamp_ms)
+            ),
+            "active_event": None,
+            "activity_started_ms": int(timestamp_ms),
+            "activity_until_ms": None,
+            "work_loop_elapsed_ms": 0,
+            "work_loop_count": 0,
+            "pending_home": False,
+            "pending_home_due_ms": None,
+        })
+        actor["last_event"] = "return_requested"
+        self._append_event(
+            snapshot,
+            events,
+            timestamp_ms=int(timestamp_ms),
+            employee_id=actor["employee_id"],
+            event_type="workseat_reentered",
+            assignment_retained=True,
+            slot_id=actor["assignment"]["slot_id"],
+            render_owner="work_seat",
+            action="work",
+            subaction="normal_work",
+        )
+
+    def _finish_wander_return(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        events: list[dict[str, Any]],
+    ) -> None:
+        floor_id = actor["assignment"]["floor_id"]
+        actor["position"] = {
+            "floor_id": floor_id,
+            "uv": None,
+            "ground_xy": None,
+            "route": None,
+        }
+        self._append_event(
+            snapshot,
+            events,
+            timestamp_ms=int(timestamp_ms),
+            employee_id=actor["employee_id"],
+            event_type="wander_returned",
+            render_owner="work_seat",
+            action="work",
+            subaction="normal_work",
+        )
+        self._complete_event(
+            snapshot,
+            actor,
+            employee,
+            timestamp_ms=int(timestamp_ms),
+            events=events,
+        )
+
+    def _finish_seat_transition(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        timestamp_ms: int,
+        events: list[dict[str, Any]],
+    ) -> None:
+        transition = actor["position"].get("seat_transition")
+        if not isinstance(transition, dict):
+            raise ActorSimulationError(f"{actor['employee_id']}: seat transition is missing")
+        phase = transition.get("phase")
+        completion = transition.get("completion")
+        actor["position"].pop("seat_transition", None)
+        if phase == "seat_exit":
+            # The route has been advancing underneath the visual boundary;
+            # retain its current pose so completion is continuous rather than
+            # snapping back to the gate.
+            return
+        if phase != "seat_entry":
+            raise ActorSimulationError(f"{actor['employee_id']}: unknown seat transition phase")
+        if completion == "to_workseat":
+            self._finish_workseat_entry(
+                snapshot, actor, employee, timestamp_ms=timestamp_ms, events=events
+            )
+            return
+        if completion == "wander_back":
+            self._finish_wander_return(
+                snapshot, actor, employee, timestamp_ms=timestamp_ms, events=events
+            )
+            return
+        if completion == "talk_return":
+            self._finish_talk_actor(
+                snapshot, actor, employee, timestamp_ms=timestamp_ms, events=events
+            )
+            return
+        raise ActorSimulationError(
+            f"{actor['employee_id']}: seat entry has unknown completion {completion!r}"
+        )
+
+    def _advance_seat_entry_transition(
+        self,
+        snapshot: dict[str, Any],
+        actor: dict[str, Any],
+        employee: dict[str, Any],
+        *,
+        start_ms: int,
+        target_ms: int,
+        events: list[dict[str, Any]],
+    ) -> int:
+        now_ms = int(start_ms)
+        while now_ms < int(target_ms):
+            transition = actor["position"].get("seat_transition")
+            if not isinstance(transition, dict):
+                break
+            duration = max(self.TICK_MS, int(transition["duration_ms"]))
+            elapsed = int(transition.get("elapsed_ms", 0))
+            remaining = duration - elapsed
+            if remaining <= 0:
+                self._finish_seat_transition(
+                    snapshot, actor, employee, timestamp_ms=now_ms, events=events
+                )
+                continue
+            until_tick = self.TICK_MS - (elapsed % self.TICK_MS)
+            step = min(int(target_ms) - now_ms, remaining, until_tick)
+            transition["elapsed_ms"] = elapsed + step
+            now_ms += step
+            progress = min(1.0, max(0.0, transition["elapsed_ms"] / duration))
+            start = transition["from_ground_xy"]
+            target = transition["to_ground_xy"]
+            actor["position"]["ground_xy"] = self._round_xy((
+                float(start[0]) + (float(target[0]) - float(start[0])) * progress,
+                float(start[1]) + (float(target[1]) - float(start[1])) * progress,
+            ))
+            actor["position"]["uv"] = None
+            if int(transition["elapsed_ms"]) >= duration:
+                self._finish_seat_transition(
+                    snapshot, actor, employee, timestamp_ms=now_ms, events=events
+                )
+        return now_ms
+
     def _route_path(
         self,
         floor_id: str,
@@ -496,6 +805,10 @@ class ActorSimulationCore:
             raise ActorSimulationError(
                 f"{actor['employee_id']}: actor cannot begin home route in current state"
             )
+        if actor["behavior"].get("active_event") is not None:
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: active recovery event must finish before home"
+            )
         assignment = actor["assignment"]
         floor_id = assignment["floor_id"]
         gate = self._workseat_gate(assignment)
@@ -521,6 +834,7 @@ class ActorSimulationCore:
             target_uv=inside,
             path=path,
         )
+        self._begin_seat_exit_transition(actor, employee, gate=gate)
         payload: dict[str, Any] = {"assignment_retained": True}
         if reason != "explicit" or work_loop_completed:
             payload.update({
@@ -849,6 +1163,60 @@ class ActorSimulationCore:
             }
         return result
 
+    def _migrate_retired_wander_routes(self, snapshot: dict[str, Any]) -> dict[str, Any]:
+        """Normalize saved idle-wander routes into the owned WorkSeat state.
+
+        ``wander`` remains readable for old deterministic replay fixtures that
+        were already in the final recovery window, but an in-flight outbound
+        or return route is no longer a legal new behavior.  Migrating only
+        those routed snapshots keeps old saves loadable without ever creating
+        a fresh walk-for-no-reason transition.
+        """
+        current = self._copy(snapshot)
+        if not isinstance(current.get("actors"), dict):
+            return current
+        for actor in current["actors"].values():
+            if not isinstance(actor, dict):
+                continue
+            # An explicit legacy/manual wander reducer is still replayable so
+            # old deterministic fixtures can close their route normally.  A
+            # newly loaded stale snapshot with no active event is the case we
+            # migrate; automatic selection is already disabled by weight=0.
+            behavior = actor.get("behavior") if isinstance(actor.get("behavior"), dict) else {}
+            if behavior.get("active_event") == "wander":
+                continue
+            position = actor.get("position") if isinstance(actor.get("position"), dict) else {}
+            route = position.get("route") if isinstance(position, dict) else None
+            phase = route.get("phase") if isinstance(route, dict) else None
+            transition = position.get("seat_transition") if isinstance(position, dict) else None
+            if phase not in self.WANDER_ROUTE_PHASES and not (
+                isinstance(transition, dict) and transition.get("completion") == "wander_back"
+            ):
+                continue
+            assignment = actor.get("assignment") if isinstance(actor.get("assignment"), dict) else {}
+            floor_id = assignment.get("floor_id")
+            if not floor_id:
+                continue
+            position.update({
+                "floor_id": floor_id,
+                "uv": None,
+                "ground_xy": None,
+                "route": None,
+            })
+            position.pop("seat_transition", None)
+            actor["presence"] = "present"
+            actor["activity"] = "working"
+            actor["conversation_phase"] = None
+            behavior.update({
+                "active_event": None,
+                "activity_started_ms": int(current.get("clock", {}).get("simulation_time_ms", 0)),
+                "activity_until_ms": None,
+                "next_event_due_ms": int(current.get("clock", {}).get("simulation_time_ms", 0)) + self.TICK_MS,
+            })
+            actor["behavior"] = behavior
+            actor["last_event"] = "legacy_wander_retired"
+        return current
+
     def validate_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(snapshot, dict):
             raise ActorSimulationError("snapshot must be an object")
@@ -856,6 +1224,7 @@ class ActorSimulationCore:
             json.dumps(snapshot, allow_nan=False)
         except (TypeError, ValueError) as exc:
             raise ActorSimulationError("snapshot must be JSON-safe") from exc
+        snapshot = self._migrate_retired_wander_routes(snapshot)
         errors = sorted(
             self._snapshot_validator.iter_errors(snapshot),
             key=lambda error: list(error.path),
@@ -910,6 +1279,74 @@ class ActorSimulationCore:
             presence = actor["presence"]
             activity = actor["activity"]
             position = actor["position"]
+            seat_transition = position.get("seat_transition")
+            if seat_transition is not None:
+                if not isinstance(seat_transition, dict):
+                    raise ActorSimulationError(
+                        f"{employee_id}: seat_transition must be an object or null"
+                    )
+                if seat_transition.get("phase") not in self.SEAT_TRANSITION_PHASES:
+                    raise ActorSimulationError(f"{employee_id}: unknown seat transition phase")
+                if seat_transition.get("anchor_source") != "WorkSeatCore":
+                    raise ActorSimulationError(f"{employee_id}: seat transition anchor source is invalid")
+                for field in ("from_ground_xy", "to_ground_xy"):
+                    point = seat_transition.get(field)
+                    if (
+                        not isinstance(point, list)
+                        or len(point) != 2
+                        or any(
+                            isinstance(value, bool)
+                            or not isinstance(value, (int, float))
+                            or not math.isfinite(float(value))
+                            for value in point
+                        )
+                    ):
+                        raise ActorSimulationError(
+                            f"{employee_id}.seat_transition.{field} must be a finite two-item point"
+                        )
+                for field in ("elapsed_ms", "duration_ms"):
+                    self._require_int(
+                        seat_transition.get(field),
+                        f"{employee_id}.seat_transition.{field}",
+                    )
+                if int(seat_transition["duration_ms"]) < self.TICK_MS:
+                    raise ActorSimulationError(f"{employee_id}: seat transition is too short")
+                if int(seat_transition["duration_ms"]) % self.TICK_MS:
+                    raise ActorSimulationError(f"{employee_id}: seat transition is not tick aligned")
+                if int(seat_transition["elapsed_ms"]) > int(seat_transition["duration_ms"]):
+                    raise ActorSimulationError(f"{employee_id}: seat transition elapsed exceeds duration")
+                if seat_transition.get("render_owner") != "walking_depth":
+                    raise ActorSimulationError(f"{employee_id}: seat transition has invalid render owner")
+                if seat_transition.get("action") != "move":
+                    raise ActorSimulationError(f"{employee_id}: seat transition has invalid action")
+                if not isinstance(seat_transition.get("subaction"), str) or not seat_transition["subaction"]:
+                    raise ActorSimulationError(f"{employee_id}: seat transition needs a subaction")
+                direction = seat_transition.get("direction")
+                if direction not in {"NW", "SE", "SW", "NE"}:
+                    raise ActorSimulationError(f"{employee_id}: seat transition direction is invalid")
+                if seat_transition.get("raw_direction") != direction:
+                    raise ActorSimulationError(f"{employee_id}: seat transition raw direction differs")
+                visibility_alpha = seat_transition.get("visibility_alpha")
+                if (
+                    isinstance(visibility_alpha, bool)
+                    or not isinstance(visibility_alpha, (int, float))
+                    or not 0 <= float(visibility_alpha) <= 1
+                ):
+                    raise ActorSimulationError(f"{employee_id}: seat transition alpha is invalid")
+                completion = seat_transition.get("completion")
+                if completion not in (None, *self.SEAT_TRANSITION_COMPLETIONS):
+                    raise ActorSimulationError(f"{employee_id}: seat transition completion is invalid")
+                if seat_transition["phase"] == "seat_exit":
+                    if completion is not None or position.get("route") is None:
+                        raise ActorSimulationError(
+                            f"{employee_id}: seat exit needs its navigation route"
+                        )
+                elif completion is None or position.get("route") is not None:
+                    raise ActorSimulationError(
+                        f"{employee_id}: seat entry needs a completed navigation route"
+                    )
+                if presence == "home":
+                    raise ActorSimulationError(f"{employee_id}: home actor cannot retain a seat transition")
             if position["floor_id"] is not None and position["floor_id"] != assignment["floor_id"]:
                 raise ActorSimulationError(f"{employee_id}: position floor differs from assignment")
             if presence == "home":
@@ -949,7 +1386,7 @@ class ActorSimulationCore:
                     raise ActorSimulationError(f"{employee_id}: wander route has wrong activity")
                 if phase in self.TALK_ROUTE_PHASES and activity != "talking":
                     raise ActorSimulationError(f"{employee_id}: talk route has wrong activity")
-            elif activity in self.ROUTE_ACTIVITIES:
+            elif activity in self.ROUTE_ACTIVITIES and seat_transition is None:
                 raise ActorSimulationError(f"{employee_id}: routed activity needs a route")
             if presence == "home" and activity != "home_recovery":
                 raise ActorSimulationError(f"{employee_id}: home actor has invalid activity")
@@ -1668,6 +2105,7 @@ class ActorSimulationCore:
                 duration_ms=outbound_duration,
                 update_window=False,
             )
+            self._begin_seat_exit_transition(actor, employee, gate=gate)
         self._append_event(
             snapshot,
             events,
@@ -1701,6 +2139,24 @@ class ActorSimulationCore:
                     timestamp_ms=int(timestamp_ms),
                     events=events,
                 )
+                transition = actor["position"].get("seat_transition")
+                if (
+                    isinstance(transition, dict)
+                    and transition.get("phase") == "seat_exit"
+                ):
+                    transition["elapsed_ms"] = min(
+                        int(transition["duration_ms"]),
+                        int(elapsed_since_accept),
+                    )
+                    transition["to_ground_xy"] = self._round_xy(pose["ground_xy"])
+                    if int(transition["elapsed_ms"]) >= int(transition["duration_ms"]):
+                        self._finish_seat_transition(
+                            snapshot,
+                            actor,
+                            employee,
+                            timestamp_ms=int(timestamp_ms),
+                            events=events,
+                        )
                 if int(route["elapsed_ms"]) >= int(route["duration_ms"]):
                     self._finish_route_segment(
                         snapshot,
@@ -1818,12 +2274,15 @@ class ActorSimulationCore:
             )
             return
         if phase == "talk_return":
-            self._finish_talk_actor(
-                snapshot,
+            gate = self._normalize_uv(
+                route.get("target_uv"), name="talk return gate_uv"
+            )
+            self._begin_seat_entry_transition(
                 actor,
                 employee,
+                gate=gate,
+                completion="talk_return",
                 timestamp_ms=int(timestamp_ms),
-                events=events,
             )
             return
         if phase == "to_portal":
@@ -1943,57 +2402,27 @@ class ActorSimulationCore:
             )
             return
         if phase == "wander_back":
-            actor["position"] = {
-                "floor_id": floor_id,
-                "uv": None,
-                "ground_xy": None,
-                "route": None,
-            }
-            self._append_event(
-                snapshot,
-                events,
-                timestamp_ms=timestamp_ms,
-                employee_id=actor["employee_id"],
-                event_type="wander_returned",
-                render_owner="work_seat",
-                action="work",
-                subaction="normal_work",
+            gate = self._normalize_uv(
+                route.get("target_uv"), name="wander return gate_uv"
+            )
+            self._begin_seat_entry_transition(
+                actor,
+                employee,
+                gate=gate,
+                completion="wander_back",
+                timestamp_ms=int(timestamp_ms),
             )
             return
         if phase == "to_workseat":
-            actor["position"] = {
-                "floor_id": floor_id,
-                "uv": None,
-                "ground_xy": None,
-                "route": None,
-            }
-            actor["presence"] = "present"
-            actor["activity"] = "working"
-            actor["conversation_phase"] = None
-            actor["behavior"].update({
-                "next_event_due_ms": self._schedule_next_event(
-                    actor, employee, now_ms=int(timestamp_ms)
-                ),
-                "active_event": None,
-                "activity_started_ms": int(timestamp_ms),
-                "activity_until_ms": None,
-                "work_loop_elapsed_ms": 0,
-                "work_loop_count": 0,
-                "pending_home": False,
-                "pending_home_due_ms": None,
-            })
-            actor["last_event"] = "return_requested"
-            self._append_event(
-                snapshot,
-                events,
-                timestamp_ms=timestamp_ms,
-                employee_id=actor["employee_id"],
-                event_type="workseat_reentered",
-                assignment_retained=True,
-                slot_id=actor["assignment"]["slot_id"],
-                render_owner="work_seat",
-                action="work",
-                subaction="normal_work",
+            gate = self._normalize_uv(
+                route.get("target_uv"), name="workseat return gate_uv"
+            )
+            self._begin_seat_entry_transition(
+                actor,
+                employee,
+                gate=gate,
+                completion="to_workseat",
+                timestamp_ms=int(timestamp_ms),
             )
             return
         raise ActorSimulationError(f"{actor['employee_id']}: unknown route phase {phase!r}")
@@ -2022,6 +2451,11 @@ class ActorSimulationCore:
         ):
             route = actor["position"].get("route")
             if not isinstance(route, dict):
+                if (
+                    isinstance(actor["position"].get("seat_transition"), dict)
+                    and actor["position"]["seat_transition"].get("phase") == "seat_entry"
+                ):
+                    return now_ms
                 raise ActorSimulationError(
                     f"{actor['employee_id']}: {actor['activity']} actor needs a route"
                 )
@@ -2081,6 +2515,26 @@ class ActorSimulationCore:
             self._emit_route_sample(
                 snapshot, actor, route, pose, timestamp_ms=now_ms, events=events
             )
+            transition = actor["position"].get("seat_transition")
+            if (
+                isinstance(transition, dict)
+                and transition.get("phase") == "seat_exit"
+            ):
+                transition["elapsed_ms"] = min(
+                    int(transition["duration_ms"]),
+                    int(transition.get("elapsed_ms", 0)) + int(step),
+                )
+                # The route pose is the moving endpoint of the visual bridge
+                # while the navigation clock continues normally.
+                transition["to_ground_xy"] = self._round_xy(pose["ground_xy"])
+                if int(transition["elapsed_ms"]) >= int(transition["duration_ms"]):
+                    self._finish_seat_transition(
+                        snapshot,
+                        actor,
+                        employee,
+                        timestamp_ms=now_ms,
+                        events=events,
+                    )
             if actor["activity"] in self.ROUTE_ACTIVITIES:
                 actor["behavior"]["activity_until_ms"] = now_ms + max(
                     0, duration - int(route["elapsed_ms"])
@@ -2154,6 +2608,7 @@ class ActorSimulationCore:
                 path=path,
                 update_window=False,
             )
+            self._begin_seat_exit_transition(actor, employee, gate=gate)
         self._append_event(
             snapshot,
             events,
@@ -2193,8 +2648,13 @@ class ActorSimulationCore:
         actor["presence"] = "present"
         actor["conversation_phase"] = None
         actor["behavior"]["active_event"] = None
-        actor["behavior"]["work_loop_elapsed_ms"] = 0
-        actor["behavior"]["work_loop_count"] = 0
+        preserve_desk_loop = (
+            event in {"popup", "background_effect"}
+            and actor["position"].get("route") is None
+        )
+        if not preserve_desk_loop:
+            actor["behavior"]["work_loop_elapsed_ms"] = 0
+            actor["behavior"]["work_loop_count"] = 0
         actor["behavior"]["activity_started_ms"] = int(timestamp_ms)
         actor["behavior"]["activity_until_ms"] = None
         actor["behavior"]["next_event_due_ms"] = self._schedule_next_event(
@@ -2345,6 +2805,28 @@ class ActorSimulationCore:
         now_ms = int(start_ms)
         while now_ms < target_ms:
             activity = actor["activity"]
+            seat_transition = actor["position"].get("seat_transition")
+            if (
+                isinstance(seat_transition, dict)
+                and seat_transition.get("phase") == "seat_entry"
+            ):
+                advanced_to = self._advance_seat_entry_transition(
+                    snapshot,
+                    actor,
+                    employee,
+                    start_ms=now_ms,
+                    target_ms=target_ms,
+                    events=events,
+                )
+                if advanced_to <= now_ms:
+                    if (
+                        isinstance(actor["position"].get("seat_transition"), dict)
+                        and actor["position"]["seat_transition"].get("phase") == "seat_entry"
+                    ):
+                        continue
+                    break
+                now_ms = advanced_to
+                continue
             if activity in self.ROUTE_ACTIVITIES or (
                 activity == "wandering" and actor["position"].get("route") is not None
             ) or (
@@ -2554,8 +3036,20 @@ class ActorSimulationCore:
                     raise ActorSimulationError(
                         f"{actor['employee_id']}: active recovery activity has no end time"
                     )
+                route_less_desk_event = (
+                    activity == "popup_event"
+                    and actor["position"].get("route") is None
+                    and actor["behavior"].get("active_event") in {
+                        "popup", "background_effect"
+                    }
+                )
                 if int(until) > target_ms:
+                    if route_less_desk_event:
+                        self._advance_work_loop(actor, target_ms - now_ms)
+                        now_ms = target_ms
                     break
+                if route_less_desk_event:
+                    self._advance_work_loop(actor, int(until) - now_ms)
                 now_ms = int(until)
                 self._complete_event(
                     snapshot,

@@ -290,6 +290,92 @@
               }
             }
           ]
+        },
+        "seat_transition": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "phase",
+                "anchor_source",
+                "from_ground_xy",
+                "to_ground_xy",
+                "elapsed_ms",
+                "duration_ms",
+                "render_owner",
+                "action",
+                "subaction",
+                "direction",
+                "raw_direction",
+                "visibility_alpha",
+                "completion"
+              ],
+              "properties": {
+                "phase": {
+                  "enum": ["seat_exit", "seat_entry"]
+                },
+                "anchor_source": {
+                  "const": "WorkSeatCore"
+                },
+                "from_ground_xy": {
+                  "type": "array",
+                  "prefixItems": [
+                    {"type": "number"},
+                    {"type": "number"}
+                  ],
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": false
+                },
+                "to_ground_xy": {
+                  "type": "array",
+                  "prefixItems": [
+                    {"type": "number"},
+                    {"type": "number"}
+                  ],
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": false
+                },
+                "elapsed_ms": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "duration_ms": {
+                  "type": "integer",
+                  "minimum": 60
+                },
+                "render_owner": {
+                  "const": "walking_depth"
+                },
+                "action": {
+                  "const": "move"
+                },
+                "subaction": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "direction": {
+                  "enum": ["NW", "SE", "SW", "NE"]
+                },
+                "raw_direction": {
+                  "enum": ["NW", "SE", "SW", "NE"]
+                },
+                "visibility_alpha": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "completion": {
+                  "enum": [null, "to_workseat", "wander_back", "talk_return"]
+                }
+              }
+            }
+          ]
         }
       }
     },
@@ -604,6 +690,7 @@
             "return_requested",
             "conversation_cancelled",
             "critical_home_requested",
+            "legacy_wander_retired",
             "emotion_happy_bonus",
             "emotion_sad_penalty"
           ]

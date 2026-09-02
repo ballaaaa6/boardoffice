@@ -349,6 +349,7 @@ class ConversationBehaviorCore:
         category: str | None = None,
         selection_seed: str | int = "0",
         start_speaker_id: str | None = None,
+        dialogue_line_overrides: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Select one line per speaker without mutating gameplay state.
 
@@ -381,6 +382,39 @@ class ConversationBehaviorCore:
         order = [start_speaker] + [value for value in participants if value != start_speaker]
         seed_prefix = f"{mode_key}|{','.join(order)}|{selection_seed}|{locale_key}|{category or ''}"
 
+        overrides = dialogue_line_overrides or {}
+
+        def override_from_pool(pool: list[dict[str, Any]], employee_id: str) -> dict[str, Any] | None:
+            """Resolve a scheduler-owned shuffle-bag choice from this pool.
+
+            The conversation planner remains the authority for locale/category
+            eligibility.  The speech lane may provide an exact line key so a
+            persisted bag can guarantee every authored line is visited before
+            refill; invalid keys deliberately fall back to the seeded choice.
+            """
+            raw = overrides.get(employee_id)
+            if raw is None:
+                return None
+            if isinstance(raw, dict):
+                override_id = raw.get("dialogue_id")
+                override_index = raw.get("line_index", 0)
+            else:
+                override_id = raw
+                override_index = 0
+            if not isinstance(override_id, str):
+                return None
+            try:
+                override_index = int(override_index)
+            except (TypeError, ValueError):
+                return None
+            for row in pool:
+                if (
+                    row.get("dialogue_id") == override_id
+                    and int(row.get("line_index", 0)) == override_index
+                ):
+                    return row
+            return None
+
         if mode_key == "self_talk":
             if category:
                 pool = self._dialogue_lines(locale=locale_key, category=category)
@@ -391,7 +425,9 @@ class ConversationBehaviorCore:
                 ]
             if not pool:
                 raise ConversationBehaviorError("no enabled general self-talk dialogue line")
-            selected = pool[self._stable_dialogue_index(seed_prefix, len(pool))]
+            selected = override_from_pool(pool, order[0])
+            if selected is None:
+                selected = pool[self._stable_dialogue_index(seed_prefix, len(pool))]
             lines = [selected]
             selection_policy = "self_talk_general"
         else:
@@ -418,11 +454,15 @@ class ConversationBehaviorCore:
                 opening_pool = fallback
                 reply_pool = fallback
                 selection_policy = "pair_general_distinct_lines_fallback"
-            first = opening_pool[
-                self._stable_dialogue_index(seed_prefix + "|opening", len(opening_pool))
-            ]
+            first = override_from_pool(opening_pool, order[0])
+            if first is None:
+                first = opening_pool[
+                    self._stable_dialogue_index(seed_prefix + "|opening", len(opening_pool))
+                ]
+            second = override_from_pool(reply_pool, order[1])
             reply_start = self._stable_dialogue_index(seed_prefix + "|reply", len(reply_pool))
-            second = reply_pool[reply_start]
+            if second is None:
+                second = reply_pool[reply_start]
             if second.get("dialogue_id") == first.get("dialogue_id") and len(reply_pool) > 1:
                 second = reply_pool[(reply_start + 1) % len(reply_pool)]
             if second.get("dialogue_id") == first.get("dialogue_id"):
@@ -1522,6 +1562,7 @@ class ConversationBehaviorCore:
         dialogue_locale: str = "en",
         dialogue_category: str | None = None,
         dialogue_seed: str | int = "0",
+        dialogue_line_overrides: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         state = self._ensure_snapshot(snapshot, None)
         actor = state["actors"].get(initiator_id)
@@ -1544,6 +1585,7 @@ class ConversationBehaviorCore:
             category=dialogue_category,
             selection_seed=dialogue_seed,
             start_speaker_id=str(timing_plan["start_speaker_id"]),
+            dialogue_line_overrides=dialogue_line_overrides,
         )
         talk_frames = int(timing_plan["talk_frames"])
         end_ms = int(timing_plan["talk_duration_ms"])
@@ -1653,6 +1695,7 @@ class ConversationBehaviorCore:
         dialogue_locale: str = "en",
         dialogue_category: str | None = None,
         dialogue_seed: str | int = "0",
+        dialogue_line_overrides: dict[str, Any] | None = None,
         gap_cells: int | None = None,
         blocked_cells: Iterable[Iterable[int]] | None = None,
         reserved_cells: Iterable[Iterable[int]] | None = None,
@@ -1677,6 +1720,7 @@ class ConversationBehaviorCore:
                     dialogue_locale=dialogue_locale,
                     dialogue_category=dialogue_category,
                     dialogue_seed=dialogue_seed,
+                    dialogue_line_overrides=dialogue_line_overrides,
                 )
             else:
                 mode = "standing_pair"
@@ -1690,6 +1734,7 @@ class ConversationBehaviorCore:
                 dialogue_locale=dialogue_locale,
                 dialogue_category=dialogue_category,
                 dialogue_seed=dialogue_seed,
+                dialogue_line_overrides=dialogue_line_overrides,
             )
         if mode not in {"standing_pair", "ceo_front", "seated_host"}:
             return self._json({"ready": False, "reason": "unsupported_mode", "snapshot": state})
@@ -1776,6 +1821,7 @@ class ConversationBehaviorCore:
             category=dialogue_category,
             selection_seed=dialogue_seed,
             start_speaker_id=str(timing_plan["start_speaker_id"]),
+            dialogue_line_overrides=dialogue_line_overrides,
         )
         talk_frames = int(timing_plan["talk_frames"])
         talk_duration_ms = int(timing_plan["talk_duration_ms"])

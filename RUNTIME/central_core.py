@@ -327,6 +327,7 @@ class CentralGameCore:
         actor_top_left: tuple[int, int] = (0, 0),
         locale: str = 'en',
         font_size_px: int | None = None,
+        preferred_bubble_id: str | None = None,
     ) -> DialogueBubbleRenderResult:
         employee = self.resolve_employee(employee_id)
         try:
@@ -337,6 +338,7 @@ class CentralGameCore:
                 actor_top_left=actor_top_left,
                 locale=locale,
                 font_size_px=font_size_px,
+                preferred_bubble_id=preferred_bubble_id,
             )
         except (CharacterSystemError, DialogueBubbleError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -416,11 +418,13 @@ class CentralGameCore:
         *,
         locale: str = 'en',
         font_size_px: int | None = None,
+        preferred_bubble_id: str | None = None,
     ) -> BubbleSelection:
         return self.characters.select_dialogue_bubble(
             text,
             locale=locale,
             font_size_px=font_size_px,
+            preferred_bubble_id=preferred_bubble_id,
         )
 
     def render_dialogue_bubble_for_character(
@@ -432,6 +436,7 @@ class CentralGameCore:
         actor_top_left: tuple[int, int] = (0, 0),
         locale: str = 'en',
         font_size_px: int | None = None,
+        preferred_bubble_id: str | None = None,
     ) -> DialogueBubbleRenderResult:
         character_id = self.resolve_character_id(query)
         try:
@@ -442,6 +447,7 @@ class CentralGameCore:
                 actor_top_left=actor_top_left,
                 locale=locale,
                 font_size_px=font_size_px,
+                preferred_bubble_id=preferred_bubble_id,
             )
         except (CharacterSystemError, DialogueBubbleError) as exc:
             raise CentralGameCoreError(str(exc)) from exc
@@ -1752,6 +1758,57 @@ class CentralGameCore:
             # an incomplete/temporary presentation request.
             return 1
 
+    @staticmethod
+    def _validate_runtime_presentation_rows(
+        actors: dict[str, dict[str, Any]],
+    ) -> None:
+        """Enforce the visible-action invariant at the render boundary."""
+        for employee_id, row in actors.items():
+            visible = bool(row.get("visible"))
+            render_owner = row.get("render_owner")
+            if not visible:
+                if render_owner != "none":
+                    raise CentralGameCoreError(
+                        f"{employee_id}: hidden presentation row must use render_owner=none"
+                    )
+                continue
+            if render_owner not in {"work_seat", "walking_depth"}:
+                raise CentralGameCoreError(
+                    f"{employee_id}: visible presentation row has invalid render owner"
+                )
+            if not isinstance(row.get("action"), str) or not row["action"]:
+                raise CentralGameCoreError(
+                    f"{employee_id}: visible presentation row lacks action"
+                )
+            if not isinstance(row.get("resolved_action"), str) or not row["resolved_action"]:
+                raise CentralGameCoreError(
+                    f"{employee_id}: visible presentation row lacks resolved action"
+                )
+            frame_count = row.get("character_frame_count")
+            frame_index = row.get("character_frame_index", row.get("frame_index"))
+            if (
+                isinstance(frame_count, bool)
+                or not isinstance(frame_count, int)
+                or frame_count < 1
+                or isinstance(frame_index, bool)
+                or not isinstance(frame_index, int)
+                or frame_index < 0
+                or frame_index >= frame_count
+            ):
+                raise CentralGameCoreError(
+                    f"{employee_id}: visible presentation frame is invalid"
+                )
+            if render_owner == "walking_depth":
+                ground = row.get("ground_xy")
+                if (
+                    not isinstance(ground, list)
+                    or len(ground) != 2
+                    or any(not isinstance(value, (int, float)) for value in ground)
+                ):
+                    raise CentralGameCoreError(
+                        f"{employee_id}: walking presentation lacks ground position"
+                    )
+
     def _runtime_base_render_actor(
         self,
         actor: dict[str, Any],
@@ -1767,11 +1824,48 @@ class CentralGameCore:
         assignment = actor['assignment']
         position = actor.get('position', {})
         route = position.get('route')
+        seat_transition = position.get('seat_transition')
         presence = str(actor.get('presence'))
         visible = presence != 'home'
         route_phase: str | None = None
         cumulative_distance_px = 0.0
-        if isinstance(route, dict):
+        if isinstance(seat_transition, dict):
+            render_owner = str(seat_transition.get('render_owner') or 'walking_depth')
+            action = str(seat_transition.get('action') or 'move')
+            subaction = str(seat_transition.get('subaction') or 'idle')
+            direction = str(
+                seat_transition.get('direction')
+                or seat_transition.get('raw_direction')
+                or assignment.get('facing')
+                or 'SE'
+            ).upper()
+            duration = max(self.actor_simulation.TICK_MS, int(seat_transition.get('duration_ms', 0)))
+            elapsed = min(duration, max(0, int(seat_transition.get('elapsed_ms', 0))))
+            progress = min(1.0, max(0.0, elapsed / duration))
+            start = seat_transition.get('from_ground_xy') or [0.0, 0.0]
+            target = seat_transition.get('to_ground_xy') or start
+            ground_xy = [
+                round(float(start[0]) + (float(target[0]) - float(start[0])) * progress, 4),
+                round(float(start[1]) + (float(target[1]) - float(start[1])) * progress, 4),
+            ]
+            current_uv = copy.deepcopy(position.get('uv'))
+            visibility_alpha = float(seat_transition.get('visibility_alpha', 1.0))
+            frame_clock_ms = elapsed
+            route_phase = (
+                str(route.get('phase')) if isinstance(route, dict)
+                else str(seat_transition.get('completion') or '')
+            ) or None
+            if isinstance(route, dict):
+                cumulative_distance_px = self._runtime_route_distance_px(actor, route)
+            else:
+                cumulative_distance_px = round(
+                    math.dist(
+                        (float(start[0]), float(start[1])),
+                        (float(ground_xy[0]), float(ground_xy[1])),
+                    ),
+                    4,
+                )
+        elif isinstance(route, dict):
             render_owner = str(route.get('render_owner') or 'walking_depth')
             action = str(route.get('action') or 'move')
             subaction = str(route.get('subaction') or 'idle')
@@ -1861,12 +1955,21 @@ class CentralGameCore:
             'current_uv': current_uv,
             'ground_xy': ground_xy,
             'route_phase': route_phase,
-            'route_elapsed_ms': frame_clock_ms if route_phase is not None else None,
+            'route_elapsed_ms': (
+                int(route.get('elapsed_ms', 0))
+                if isinstance(route, dict) else (
+                    frame_clock_ms if isinstance(seat_transition, dict) else None
+                )
+            ),
             'route_duration_ms': (
                 int(route.get('duration_ms', 0))
-                if isinstance(route, dict) else None
+                if isinstance(route, dict) else (
+                    int(seat_transition.get('duration_ms', 0))
+                    if isinstance(seat_transition, dict) else None
+                )
             ),
             'cumulative_distance_px': cumulative_distance_px,
+            'presentation_transition': copy.deepcopy(seat_transition),
             'frame_index': frame_index,
             'character_frame_index': frame_index,
             'character_frame_count': frame_count,
@@ -1892,6 +1995,7 @@ class CentralGameCore:
             'dialogue_line_index': None,
             'dialogue_text': None,
             'dialogue_locale': None,
+            'dialogue_bubble_id': None,
             'dialogue_bubble_offset_px': [0, 0],
             'presentation_phase': None,
             'speech_session_id': None,
@@ -1981,6 +2085,7 @@ class CentralGameCore:
                 'dialogue_line_index': dialogue.get('line_index'),
                 'dialogue_text': dialogue.get('text'),
                 'dialogue_locale': dialogue.get('locale'),
+                'dialogue_bubble_id': item.get('preferred_bubble_id'),
             }
         return None
 
@@ -2061,7 +2166,8 @@ class CentralGameCore:
             if relative_ms < 0:
                 continue
             plan = session.get('conversation_plan')
-            # Lifecycle lines (greeting/work-start/fatigue/leaving) may use a
+            # Lifecycle lines (greeting/work-start/leaving; legacy explicit
+            # home may still carry a fatigue compatibility session) may use a
             # self-talk plan solely to select localized text.  Their visual
             # pose must remain the actor reducer's current route/WorkSeat
             # state, so only pair/solo plans drive a timeline overlay.
@@ -2119,7 +2225,7 @@ class CentralGameCore:
                     presentation_keys = (
                         'dialogue_visible', 'dialogue_opacity', 'dialogue_phase',
                         'dialogue_id', 'dialogue_line_index', 'dialogue_text',
-                        'dialogue_locale', 'dialogue_bubble_offset_px',
+                        'dialogue_locale', 'dialogue_bubble_id', 'dialogue_bubble_offset_px',
                         'speaker_id', 'listener_id', 'loop_index', 'turn_index',
                     )
                     pose_keys = (
@@ -2133,6 +2239,13 @@ class CentralGameCore:
                     for key in keys:
                         if key in track:
                             row[key] = copy.deepcopy(track[key])
+                    scheduled_bubble = self._runtime_bubble_from_schedule(
+                        session,
+                        employee_id,
+                        sample_ms=speech_sample_ms,
+                    )
+                    if isinstance(scheduled_bubble, dict) and scheduled_bubble.get("dialogue_bubble_id"):
+                        row["dialogue_bubble_id"] = scheduled_bubble["dialogue_bubble_id"]
                     if row.get('action') in {'move', 'idle'} and 'subaction' not in track:
                         # Keep the runtime/debug vocabulary explicit on the
                         # presentation row.  The canonical resolver fields
@@ -2252,6 +2365,8 @@ class CentralGameCore:
             row['character_frame_count'] = count
             row['frame_index'] = int(row.get('frame_index', 0)) % count
             row['character_frame_index'] = row['frame_index']
+
+        self._validate_runtime_presentation_rows(actors)
 
         character_order = sorted(
             actors,

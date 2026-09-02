@@ -49,6 +49,11 @@ class WorkPresentationResult:
 
 
 class WorkSeatCore:
+    # The renderer paints a character from its foot/ground anchor rather than
+    # from the top-left of the 32x42 sprite.  Keep this value here as the
+    # shared visual bridge source; it is deliberately not a navigation cell
+    # or gameplay anchor.
+    CHARACTER_GROUND_ANCHOR_PX = (16, 31)
     SUPPORTED_DIRECTIONS = frozenset({'SE', 'SW', 'NW', 'NE'})
     PC_ANIMATED_DIRECTIONS = frozenset({'NW', 'NE'})
     TURN_SIDE_SUBACTIONS_BY_WORK_DIRECTION = {
@@ -888,6 +893,54 @@ class WorkSeatCore:
             'world_component_placement_ids': static_component_placement_ids,
             'visual_profile': profile,
         }
+
+    def resolve_visual_character_anchor(
+        self,
+        floor_id: str,
+        workstation_id: str,
+        character_id: str,
+        *,
+        subaction: str = 'normal_work',
+    ) -> tuple[float, float]:
+        """Return the seated character foot anchor in floor pixels.
+
+        WorkSeat owns the authored chair/character visual offset.  The
+        returned point is only for presentation continuity (for example, a
+        short chair-to-gate bridge); callers must never feed it to
+        navigation/pathfinding as a walkable UV or gameplay position.
+        """
+        seat = self.resolve_workstation_seat(floor_id, workstation_id)
+        try:
+            action = self.characters.render(
+                character_id,
+                'work',
+                seat['direction'],
+                subaction,
+            )
+            if not action.frames:
+                raise WorkSeatError(
+                    f'{character_id}: work action has no frames for {floor_id}.{workstation_id}'
+                )
+            human = action.frames[0]
+            chair = self.world.load_asset(seat['chair_asset_id']).convert('RGBA')
+            offset = self.resolve_world_offset(
+                seat['direction'],
+                chair_size=chair.size,
+                human_size=human.size,
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise WorkSeatError(
+                f'Unable to resolve visual character anchor for '
+                f'{floor_id}.{workstation_id}.{character_id}'
+            ) from exc
+        top_left = (
+            int(seat['chair_x_px']) + int(offset[0]),
+            int(seat['chair_y_px']) + int(offset[1]),
+        )
+        return (
+            float(top_left[0] + self.CHARACTER_GROUND_ANCHOR_PX[0]),
+            float(top_left[1] + self.CHARACTER_GROUND_ANCHOR_PX[1]),
+        )
 
     @staticmethod
     def _effective_pc_placement(

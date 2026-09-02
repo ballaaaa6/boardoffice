@@ -4,8 +4,9 @@ from __future__ import annotations
 
 This is deliberately a review tool, not a second game runtime.  It owns a
 ``RuntimePresentationHostAdapter`` exactly like an external app would, exposes
-explicit tick/command/save/load/replay endpoints plus deterministic Talk and
-Effects demos, and serves a small HTML dashboard for author review.
+explicit tick/command/save/load/replay endpoints plus deterministic Talk,
+Effects, Wander and Critical demos, and serves a small HTML dashboard for
+author review.
 """
 
 import argparse
@@ -70,6 +71,7 @@ class ReviewState:
         self._talk_demo_initiator_id: str | None = None
         self._effects_demo_ids: set[str] = set()
         self._wander_demo_actor_id: str | None = None
+        self._critical_demo_actor_id: str | None = None
         self._demo_kind: str | None = None
         self._demo_complete = False
         self.dialogue_locale = "en"
@@ -80,6 +82,7 @@ class ReviewState:
             "encode_ms": 0.0,
             "frame_sequence": 0,
         }
+        self._dialogue_pool_count_cache: dict[tuple[str, str], int] = {}
         self._reset_loop()
 
     def _validate_floor_id(self, floor_id: str) -> str:
@@ -106,8 +109,10 @@ class ReviewState:
         self._talk_demo_initiator_id = None
         self._effects_demo_ids = set()
         self._wander_demo_actor_id = None
+        self._critical_demo_actor_id = None
         self._demo_kind = None
         self._demo_complete = False
+        self._dialogue_pool_count_cache = {}
         self._reset_loop()
 
     def floors(self) -> list[dict[str, Any]]:
@@ -134,7 +139,7 @@ class ReviewState:
             "api": API_VERSION,
             "floor_count": len(self.available_floors),
             "floors": list(self.available_floors),
-            "scenarios": ["live", "talk", "effects", "critical", "wander"],
+            "scenarios": ["live", "full", "talk", "effects", "critical", "wander"],
             "channels": [
                 "actor", "movement", "workseat", "pc", "speech", "bubble",
                 "vfx", "humanball", "stamina", "portal", "persistence", "replay",
@@ -199,8 +204,9 @@ class ReviewState:
 
         Production actor timing remains the metadata-owned 120–300 second
         initial tuning.  The local review host accelerates the first/subsequent
-        due times after an actor reaches its seat so VFX, popup, wander and
-        talk states can be inspected in one browser session.
+        due times after an actor reaches its seat so VFX, popup and talk
+        states can be inspected in one browser session.  Idle wander is a
+        retired legacy route and is never armed here.
         """
         if not self._behavior_arming_enabled:
             return
@@ -241,16 +247,17 @@ class ReviewState:
         include_runtime: bool = True,
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
+        _force_critical: bool = True,
+        _demo_kind: str | None = None,
     ) -> dict[str, Any]:
-        """Start a self-running review scenario with one observable critical route.
+        """Start a self-running review scenario.
 
         All actors begin off-map at the portal and enter in a deterministic
         stagger, so the review starts with the authored spawn -> walk -> seat
-        sequence.  One actor begins at critical stamina; once that actor has
-        reached its assigned seat, the finish-current-loop rule is visible.
-        Other actors receive accelerated review-only behavior timers after
-        seating, allowing work, recovery, wander and conversation channels to
-        emerge without manual clicks.
+        sequence.  The default review run gives the first actor critical
+        stamina so the finish-current-loop rule is visible.  The normal full
+        run disables that one forced condition while retaining every live
+        behavior timer and channel.
         """
         with self.lock:
             self._select_floor(floor_id)
@@ -265,8 +272,8 @@ class ReviewState:
             actor_ids = sorted(runtime["actor_snapshot"]["actors"])
             if not actor_ids:
                 raise CentralGameCoreError(f"{self.floor_id} has no actors for live review")
-            critical_id = actor_ids[0]
-            critical = runtime["actor_snapshot"]["actors"][critical_id]
+            critical_id = actor_ids[0] if _force_critical else None
+            critical = runtime["actor_snapshot"]["actors"][critical_id] if critical_id else None
             # Every actor starts off-map at the portal, ready to enter.  The
             # stagger keeps the portal readable instead of stacking nine
             # sprites on one entry cell at time zero.
@@ -280,7 +287,8 @@ class ReviewState:
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
             self._wander_demo_actor_id = None
-            self._demo_kind = None
+            self._critical_demo_actor_id = None
+            self._demo_kind = _demo_kind
             self._demo_complete = False
             for actor in runtime["actor_snapshot"]["actors"].values():
                 actor.update({
@@ -309,24 +317,26 @@ class ReviewState:
                     "threshold_band": "normal",
                     "drain_remainder": 0,
                 })
-            critical["stamina"].update({
-                "current_milli": 5000,
-                "threshold_band": "critical",
-                "drain_remainder": 0,
-            })
-            critical["behavior"].update({
-                "next_event_due_ms": None,
-                "active_event": None,
-                "activity_started_ms": 0,
-                "activity_until_ms": 0,
-                "work_loop_elapsed_ms": 0,
-                "work_loop_count": 0,
-                "pending_home": False,
-                "pending_home_due_ms": None,
-            })
-            # Keep the critical actor in the same off-map state as everyone
-            # else.  The first request_return below starts the real portal
-            # entry route; it must not appear seated on the first frame.
+            if critical is not None:
+                critical["stamina"].update({
+                    "current_milli": 5000,
+                    "threshold_band": "critical",
+                    "drain_remainder": 0,
+                })
+                critical["behavior"].update({
+                    "next_event_due_ms": None,
+                    "active_event": None,
+                    "activity_started_ms": 0,
+                    "activity_until_ms": 0,
+                    "work_loop_elapsed_ms": 0,
+                    "work_loop_count": 0,
+                    "pending_home": False,
+                    "pending_home_due_ms": None,
+                })
+            # Keep every actor in the same off-map state.  The first
+            # request_return below starts the real portal entry route; the
+            # speech bridge will arm greeting/work-start when the actor
+            # actually re-enters the floor and reaches its owned WorkSeat.
             speech_actors = runtime["speech_snapshot"]["actors"]
             for actor in speech_actors.values():
                 actor["greeting_due_ms"] = None
@@ -344,9 +354,31 @@ class ReviewState:
             return self.tick(
                 60,
                 autopilot=True,
-                note="live simulation started",
+                note=(
+                    "full normal system run started"
+                    if _demo_kind == "full"
+                    else "live simulation started"
+                ),
                 include_runtime=include_runtime,
             )
+
+    def full_demo(
+        self,
+        *,
+        floor_id: str | None = None,
+        include_runtime: bool = True,
+        dialogue_locale: str | None = None,
+        dialogue_seed: str | int | None = None,
+    ) -> dict[str, Any]:
+        """Start the complete live system with normal stamina for every actor."""
+        return self.live_start(
+            floor_id=floor_id,
+            include_runtime=include_runtime,
+            dialogue_locale=dialogue_locale,
+            dialogue_seed=dialogue_seed,
+            _force_critical=False,
+            _demo_kind="full",
+        )
 
     def demo_talk(
         self,
@@ -433,6 +465,7 @@ class ReviewState:
             self._talk_demo_initiator_id = initiator_id
             self._effects_demo_ids = set()
             self._wander_demo_actor_id = None
+            self._critical_demo_actor_id = None
             self._demo_kind = "talk"
             self._demo_complete = False
             self._reset_loop(runtime)
@@ -589,6 +622,7 @@ class ReviewState:
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set(forced)
             self._wander_demo_actor_id = None
+            self._critical_demo_actor_id = None
             self._demo_kind = "effects"
             self._demo_complete = False
             self._reset_loop(runtime)
@@ -681,6 +715,7 @@ class ReviewState:
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
             self._wander_demo_actor_id = target_id
+            self._critical_demo_actor_id = None
             self._demo_kind = "wander"
             self._demo_complete = False
             self._reset_loop(runtime)
@@ -769,11 +804,21 @@ class ReviewState:
                         continue
                     lines.append({
                         key: line[key]
-                        for key in ("employee_id", "category", "text", "locale")
+                        for key in ("employee_id", "dialogue_id", "category", "text", "locale")
                         if key in line
                     })
                 if lines:
                     compact["dialogue_lines"] = lines
+            schedule = event.get("bubble_schedule")
+            if isinstance(schedule, list):
+                compact["bubble_ids"] = [
+                    item.get("preferred_bubble_id")
+                    for item in schedule
+                    if isinstance(item, dict) and item.get("preferred_bubble_id")
+                ]
+            for key in ("numeric_effect_policy", "stamina_effect_milli", "score_delta", "bubble_selection_policy"):
+                if key in event:
+                    compact[key] = event[key]
             for key in ("bubble_start_ms", "fade_end_ms", "movement_arrival_ms"):
                 if key in event:
                     compact[key] = event[key]
@@ -930,6 +975,7 @@ class ReviewState:
                 "route_duration_ms": row.get("route_duration_ms", route.get("duration_ms")),
                 "ground_xy": row.get("ground_xy"),
                 "current_uv": row.get("current_uv"),
+                "presentation_transition": row.get("presentation_transition"),
                 "cumulative_distance_px": row.get("cumulative_distance_px", 0),
                 "frame_index": row.get("frame_index"),
                 "character_frame_index": row.get("character_frame_index"),
@@ -942,6 +988,7 @@ class ReviewState:
                 "dialogue_id": row.get("dialogue_id"),
                 "dialogue_line_index": row.get("dialogue_line_index"),
                 "dialogue_locale": row.get("dialogue_locale"),
+                "dialogue_bubble_id": row.get("dialogue_bubble_id"),
                 "dialogue_opacity": row.get("dialogue_opacity"),
                 "dialogue_phase": row.get("dialogue_phase"),
                 "speech_mode": row.get("speech_mode"),
@@ -962,6 +1009,41 @@ class ReviewState:
                 ),
             })
         return sorted(rows, key=lambda row: row["employee_id"])
+
+    def _dialogue_coverage(self, runtime: dict[str, Any]) -> dict[str, Any]:
+        """Expose authored-line usage without making the browser inspect bags."""
+        locale = str(self.dialogue_locale).strip().casefold().split("-", 1)[0]
+        speech = runtime.get("speech_snapshot", {}) if isinstance(runtime, dict) else {}
+        bags = speech.get("dialogue_bags", {}) if isinstance(speech, dict) else {}
+        categories = tuple(self.core.speech_scheduler.IN_WORK_CATEGORIES)
+        rows: dict[str, dict[str, Any]] = {}
+        for category in categories:
+            cache_key = (locale, category)
+            pool_count = self._dialogue_pool_count_cache.get(cache_key)
+            if pool_count is None:
+                pool_count = len(self.core.list_dialogue_lines(
+                    locale=locale,
+                    category=category,
+                    usage_scope="office",
+                    enabled_only=True,
+                ))
+                self._dialogue_pool_count_cache[cache_key] = pool_count
+            bag = bags.get(f"{locale}|{category}", {}) if isinstance(bags, dict) else {}
+            remaining = bag.get("remaining", []) if isinstance(bag, dict) else []
+            rows[category] = {
+                "pool_count": int(pool_count),
+                "used_count": int(bag.get("used_count", 0)) if isinstance(bag, dict) else 0,
+                "generation": int(bag.get("generation", 0)) if isinstance(bag, dict) else 0,
+                "remaining_count": len(remaining) if isinstance(remaining, list) else int(pool_count),
+            }
+        return {
+            "locale": locale,
+            "categories": list(categories),
+            "selection_policy": "persistent_shuffle_bag_no_repeat_then_refill",
+            "bubble_selection": "smallest_allowed_fit",
+            "allowed_bubbles": ["BB1", "BB2", "BB3", "BB4", "BB6"],
+            "in_work": rows,
+        }
 
     def frame_payload(
         self,
@@ -1000,9 +1082,14 @@ class ReviewState:
             ),
             "note": note,
             "demo_session_id": self._talk_demo_session_id,
-            "demo_employee_id": self._talk_demo_initiator_id,
+            "demo_employee_id": (
+                self._talk_demo_initiator_id
+                or self._wander_demo_actor_id
+                or self._critical_demo_actor_id
+            ),
             "demo_kind": self._demo_kind,
             "demo_complete": self._demo_complete,
+            "dialogue_coverage": self._dialogue_coverage(runtime),
         }
         # Save/load/replay callers need the complete JSON-safe state. Live
         # frames do not: sending the composed snapshot on every 120ms tick
@@ -1097,6 +1184,12 @@ class ReviewState:
                 for event in frame.get("events", [])
             ):
                 self._demo_complete = True
+            if self._critical_demo_actor_id is not None and any(
+                event.get("type") == "portal_exited"
+                and str(event.get("employee_id")) == self._critical_demo_actor_id
+                for event in frame.get("events", [])
+            ):
+                self._demo_complete = True
             tick_compute_ms = (time.perf_counter() - tick_started) * 1000.0
             self._last_tick_metrics = {
                 "tick_compute_ms": round(tick_compute_ms, 3),
@@ -1132,6 +1225,7 @@ class ReviewState:
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
             self._wander_demo_actor_id = None
+            self._critical_demo_actor_id = None
             self._demo_kind = None
             self._demo_complete = False
             self.initial_runtime = copy.deepcopy(self.base_runtime)
@@ -1148,42 +1242,91 @@ class ReviewState:
     ) -> dict[str, Any]:
         with self.lock:
             self._select_floor(floor_id)
-            self._behavior_arming_enabled = True
-            self._talk_demo_session_id = None
-            self._talk_demo_initiator_id = None
-            self._effects_demo_ids = set()
-            self._wander_demo_actor_id = None
-            self._demo_kind = None
-            self._demo_complete = False
-            runtime = self.adapter.loop.runtime_snapshot
-            actor = runtime["actor_snapshot"]["actors"].get(employee_id)
-            if actor is None:
-                raise CentralGameCoreError(f"Unknown {self.floor_id} employee: {employee_id}")
+            # Always build the critical scenario from the authoritative base
+            # snapshot.  Using the currently displayed live frame can leave
+            # the selected actor halfway through an inbound/outbound route;
+            # changing only its stamina then violates the route/activity
+            # contract and makes the button look stuck.
+            runtime = copy.deepcopy(self.base_runtime)
+            actor_ids = sorted(runtime["actor_snapshot"]["actors"])
+            if not actor_ids:
+                raise CentralGameCoreError(f"{self.floor_id} has no actors for critical demo")
+            target_id = str(employee_id) if employee_id in actor_ids else actor_ids[0]
+            now_ms = int(runtime["actor_snapshot"]["clock"]["simulation_time_ms"])
+            for actor_key, actor in runtime["actor_snapshot"]["actors"].items():
+                actor["presence"] = "present"
+                actor["activity"] = "working"
+                actor["conversation_phase"] = None
+                actor["position"].update({
+                    "floor_id": self.floor_id,
+                    "uv": None,
+                    "ground_xy": None,
+                    "route": None,
+                })
+                actor["behavior"].update({
+                    "next_event_due_ms": now_ms if actor_key == target_id else 10**9,
+                    "active_event": None,
+                    "activity_started_ms": now_ms,
+                    "activity_until_ms": None,
+                    "work_loop_elapsed_ms": 0,
+                    "work_loop_count": 0,
+                    "pending_home": False,
+                    "pending_home_due_ms": None,
+                })
+            for speech_actor in runtime["speech_snapshot"]["actors"].values():
+                speech_actor.update({
+                    "last_activity": "working",
+                    "speech_phase": "idle",
+                    "greeting_due_ms": None,
+                    "greeting_emitted": True,
+                    "work_start_due_ms": None,
+                    "work_start_emitted": True,
+                    "solo_next_due_ms": None,
+                    "pair_next_due_ms": None,
+                })
+            actor = runtime["actor_snapshot"]["actors"][target_id]
             actor["stamina"].update({
                 "current_milli": 5000,
                 "threshold_band": "critical",
                 "drain_remainder": 0,
             })
             actor["behavior"].update({
-                "next_event_due_ms": 10**9,
+                "next_event_due_ms": now_ms,
                 "active_event": None,
-                "activity_started_ms": runtime["actor_snapshot"]["clock"]["simulation_time_ms"],
+                "activity_started_ms": now_ms,
                 "activity_until_ms": None,
                 "work_loop_elapsed_ms": 0,
                 "work_loop_count": 0,
                 "pending_home": False,
                 "pending_home_due_ms": None,
             })
-            actor["presence"] = "present"
-            actor["activity"] = "working"
-            actor["conversation_phase"] = None
             runtime = self.core.validate_runtime_snapshot(runtime)
             self.initial_runtime = copy.deepcopy(runtime)
             self.replay_steps = []
+            self._live_spawn_due_ms = {}
+            self._live_behavior_armed = set(runtime["actor_snapshot"]["actors"])
+            # Keep this demo focused on the critical actor.  The actor itself
+            # still follows the real work-loop boundary, seat-exit tween and
+            # portal route; unrelated recovery timers stay disabled.
+            self._behavior_arming_enabled = False
+            self._talk_demo_session_id = None
+            self._talk_demo_initiator_id = None
+            self._effects_demo_ids = set()
+            self._wander_demo_actor_id = None
+            self._critical_demo_actor_id = target_id
+            self._demo_kind = "critical"
+            self._demo_complete = False
             self._reset_loop(runtime)
-            # One small tick makes the auto-queue observable while leaving a
-            # full 720ms worknormal loop for the author to watch.
-            return self.tick(60, include_runtime=include_runtime)
+            # Start at the first 60ms boundary so the queue is immediately
+            # visible, then let the web host continue automatically.
+            result = self.tick(
+                60,
+                autopilot=False,
+                note=f"critical demo: {target_id} (finishes work loop then returns home)",
+                include_runtime=include_runtime,
+            )
+            result["demo_employee_id"] = target_id
+            return result
 
     def save(self) -> dict[str, Any]:
         with self.lock:
@@ -1211,6 +1354,7 @@ class ReviewState:
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
             self._wander_demo_actor_id = None
+            self._critical_demo_actor_id = None
             self._demo_kind = None
             self._demo_complete = False
             self.initial_runtime = copy.deepcopy(validated)
@@ -1234,6 +1378,7 @@ class ReviewState:
             self._talk_demo_initiator_id = None
             self._effects_demo_ids = set()
             self._wander_demo_actor_id = None
+            self._critical_demo_actor_id = None
             self._demo_kind = None
             self._demo_complete = False
             self.replay_steps = copy.deepcopy(package.get("steps", []))
@@ -1346,6 +1491,13 @@ class ReviewHandler(BaseHTTPRequestHandler):
                 ))
             elif self.path == "/api/live-start":
                 self._send(200, STATE.live_start(
+                    floor_id=body.get("floor_id"),
+                    include_runtime=not bool(body.get("compact", False)),
+                    dialogue_locale=body.get("dialogue_locale"),
+                    dialogue_seed=body.get("dialogue_seed"),
+                ))
+            elif self.path == "/api/demo-full":
+                self._send(200, STATE.full_demo(
                     floor_id=body.get("floor_id"),
                     include_runtime=not bool(body.get("compact", False)),
                     dialogue_locale=body.get("dialogue_locale"),

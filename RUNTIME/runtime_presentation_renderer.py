@@ -301,6 +301,10 @@ class RuntimePresentationRenderer:
                 text,
                 actor_top_left=self._bubble_actor_top_left(row),
                 locale=str(row.get("dialogue_locale") or "en"),
+                preferred_bubble_id=(
+                    str(row.get("dialogue_bubble_id"))
+                    if row.get("dialogue_bubble_id") else None
+                ),
             )
         except Exception as exc:
             raise RuntimePresentationRenderError(

@@ -38,3 +38,13 @@ def test_review_demo_pause_is_explicitly_opt_in():
     assert 'id="autoPauseDemo"' in HTML
     assert "if($('autoPauseDemo').checked)" in HTML
     assert "live continues" in HTML
+
+
+def test_review_host_exposes_normal_full_system_and_auto_critical_demo_buttons():
+    assert 'id="fullDemo"' in HTML
+    assert "Full system demo (normal)" in HTML
+    assert "/api/demo-full" in HTML
+    assert 'id="critical"' in HTML
+    assert "Critical demo</button>" in HTML
+    assert "begin('/api/demo-critical',{employee_id:selected})" in HTML
+    assert "resume:false" not in HTML

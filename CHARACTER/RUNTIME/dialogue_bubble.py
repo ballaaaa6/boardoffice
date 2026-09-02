@@ -379,6 +379,7 @@ class DialogueBubbleRenderer:
         *,
         locale: str = 'en',
         font_size_px: int | None = None,
+        preferred_bubble_id: str | None = None,
     ) -> BubbleSelection:
         text = self._validate_text(text)
         metrics = self.measure_text(text, locale=locale, font_size_px=font_size_px)
@@ -387,12 +388,49 @@ class DialogueBubbleRenderer:
         except DialogueFontError as exc:
             raise DialogueBubbleError(str(exc)) from exc
         attempts: list[BubbleLayout] = []
-        for bubble_id in self.selection_order:
+        # ``preferred_bubble_id`` is a compatibility/presentation hint from
+        # the scheduler.  Bubble shape is never randomized or forced by that
+        # hint: the registry order remains the authoritative smallest-fitting
+        # rule, so BB1/BB2/BB3/BB4/BB6 are selected solely from rendered text.
+        if preferred_bubble_id is not None and str(preferred_bubble_id) not in self.allowed_bubble_ids:
+            raise DialogueBubbleError(
+                f'Unknown or excluded preferred dialogue bubble: {preferred_bubble_id}'
+            )
+        order = list(self.selection_order)
+        for bubble_id in order:
             preset = self.get_bubble(bubble_id)
             layout = self._layout(preset, text, metrics, runs)
             attempts.append(layout)
             if layout.fit:
                 return BubbleSelection(preset, layout, tuple(attempts))
+        # The authored office catalogue contains longer lines than the
+        # original 9px review copy.  Keep the no-wrap/no-overflow contract by
+        # stepping the font down only when the caller did not explicitly pin
+        # a size.  Extremely long text (for example a 100-character probe)
+        # still fails instead of being clipped.
+        if font_size_px is None:
+            # A few of the author-approved office lines are long even for
+            # BB1.  Step down to the smallest readable development size so
+            # every enabled catalog row remains renderable without wrapping
+            # or clipping.  Explicit font sizes still remain strict.
+            for fallback_size in (8, 7, 6, 5, 4):
+                try:
+                    fallback_metrics = self.measure_text(
+                        text, locale=locale, font_size_px=fallback_size
+                    )
+                    fallback_runs = self.fonts.get_runs(
+                        text, locale, size_px=fallback_metrics.font_size_px
+                    )
+                except DialogueFontError as exc:
+                    raise DialogueBubbleError(str(exc)) from exc
+                for bubble_id in order:
+                    preset = self.get_bubble(bubble_id)
+                    layout = self._layout(
+                        preset, text, fallback_metrics, fallback_runs
+                    )
+                    attempts.append(layout)
+                    if layout.fit:
+                        return BubbleSelection(preset, layout, tuple(attempts))
         raise DialogueBubbleError(
             f'Dialogue text {text!r} cannot fit any allowed bubble at font size '
             f'{metrics.font_size_px}px (maximum safe width is {max(self._presets[i].safe_rect[2] - self._presets[i].safe_rect[0] for i in self.allowed_bubble_ids)}px)'
@@ -429,11 +467,13 @@ class DialogueBubbleRenderer:
         frame_bob_y: int = 0,
         locale: str = 'en',
         font_size_px: int | None = None,
+        preferred_bubble_id: str | None = None,
     ) -> DialogueBubbleRenderResult:
         selection = self.select_bubble(
             text,
             locale=locale,
             font_size_px=font_size_px,
+            preferred_bubble_id=preferred_bubble_id,
         )
         try:
             runs = self.fonts.get_runs(
@@ -520,6 +560,7 @@ class DialogueBubbleRenderer:
         actor_top_left: tuple[int, int] = (0, 0),
         locale: str = 'en',
         font_size_px: int | None = None,
+        preferred_bubble_id: str | None = None,
     ) -> DialogueBubbleRenderResult:
         actor_x, actor_y = (int(actor_top_left[0]), int(actor_top_left[1]))
         anchor_x = actor_x + self._frame_head_anchor_x(character_id, frame_id)
@@ -532,4 +573,5 @@ class DialogueBubbleRenderer:
             frame_bob_y=bob_y,
             locale=locale,
             font_size_px=font_size_px,
+            preferred_bubble_id=preferred_bubble_id,
         )

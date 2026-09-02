@@ -88,6 +88,7 @@ def test_review_host_exposes_all_floors_channels_and_runtime_metrics():
     capabilities = state.capabilities()
     assert len(floors) == 25
     assert {row["floor_id"] for row in floors} == set(capabilities["floors"])
+    assert {"live", "full", "talk", "effects", "critical", "wander"} <= set(capabilities["scenarios"])
     assert {"actor", "movement", "workseat", "pc", "speech", "bubble", "vfx", "humanball", "stamina", "portal", "persistence", "replay"} <= set(capabilities["channels"])
 
     payload = state.live_start(floor_id="floor00", include_runtime=False)
@@ -132,6 +133,46 @@ def test_review_wander_demo_exposes_moving_frames_and_completes():
             break
     assert saw_nonzero_frame
     assert payload["demo_complete"] is True
+
+
+def test_review_critical_demo_restarts_from_a_valid_seated_state_and_completes():
+    state = ReviewState()
+    live = state.live_start(floor_id="floor02", include_runtime=False)
+    actor_id = live["actors"][0]["employee_id"]
+
+    # The button may be pressed while the live run has the selected actor on
+    # an inbound route.  Critical must discard that transient display state
+    # and construct a valid working/WorkSeat boundary of its own.
+    payload = state.demo_critical(actor_id, floor_id="floor02", include_runtime=False)
+    actor = next(row for row in payload["actors"] if row["employee_id"] == actor_id)
+    assert payload["demo_kind"] == "critical"
+    assert payload["demo_employee_id"] == actor_id
+    assert actor["activity"] == "working"
+    assert actor["presence"] == "present"
+    assert actor["stamina_band"] == "critical"
+    assert any(event["type"] == "home_queued" for event in payload["events"])
+
+    for _ in range(70):
+        payload = state.tick(360, autopilot=True, include_runtime=False)
+        if payload["demo_complete"]:
+            break
+
+    actor = next(row for row in payload["actors"] if row["employee_id"] == actor_id)
+    assert payload["demo_complete"] is True
+    assert actor["activity"] == "home_recovery"
+    assert actor["presence"] == "home"
+
+
+def test_review_full_demo_starts_all_systems_with_normal_stamina():
+    state = ReviewState()
+    payload = state.full_demo(floor_id="floor02", include_runtime=False)
+
+    assert payload["demo_kind"] == "full"
+    assert "full normal system run" in payload["note"]
+    assert payload["demo_complete"] is False
+    assert payload["actors"]
+    assert {actor["stamina_band"] for actor in payload["actors"]} == {"normal"}
+    assert any(actor["route_phase"] in {"portal_entry", "to_workseat"} for actor in payload["actors"])
 
 
 def test_review_live_ticks_remain_bounded_after_talk_plan_is_accepted():

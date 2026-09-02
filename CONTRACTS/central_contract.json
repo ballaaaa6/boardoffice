@@ -96,9 +96,11 @@
       "CentralGameCore.advance_speech_snapshot"
     ],
     "categories": {
-      "solo_recurring": ["encouragement", "uncertainty", "surprise", "work_progress", "idle_flavor"],
+      "in_work_rotation": ["anticipation", "work_progress", "work_complete", "encouragement", "praise", "celebration", "disappointment", "fatigue", "surprise", "uncertainty", "idle_flavor"],
+      "solo_recurring": ["anticipation", "work_progress", "work_complete", "encouragement", "praise", "celebration", "disappointment", "fatigue", "surprise", "uncertainty", "idle_flavor"],
       "pair_exchange": ["conversation_open", "conversation_reply"],
-      "lifecycle_one_shot": ["greeting", "work_start", "fatigue", "leaving"]
+      "lifecycle_one_shot": ["greeting", "work_start", "leaving"],
+      "legacy_compatibility": {"fatigue": "explicit_home_request_only"}
     },
     "timing_policy": "solo_30_60s_pair_45_75s_greeting_2_3s_bubble_4000ms_fade_300ms",
     "lane_policy": "one_speech_lane_per_floor_until_fade_end",
@@ -149,7 +151,7 @@
     "content_list_api": "list_dialogue_lines(locale, category, usage_scope, enabled_only)",
     "content_reload_api": "reload_dialogue_content_validates_before_replacing_memory_snapshot",
     "disabled_content_policy": "inspectable_but_rejected_by_all_dialogue_id_render_paths",
-    "category_selection": "pair_open_then_reply_self_general_deterministic_selection",
+    "category_selection": "in_work_persistent_shuffle_bag_no_repeat_pair_open_then_reply",
     "bubble_registry": "CHARACTER/DIALOGUE/bubble_presets.json",
     "font_registry": "CHARACTER/DIALOGUE/dialogue_fonts.json",
     "runtime": "CHARACTER/RUNTIME/dialogue_bubble.py",
