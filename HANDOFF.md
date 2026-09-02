@@ -24,7 +24,7 @@
 - Required audits pass: Room Navigation, Navigation Occupancy, WorkSeat, WorkSeat lifecycle, Phase 6 Spatial, Central integrity, gameplay-metadata family, and conversation.
 - All-floor smoke: **25 floors / 219 assigned actors**, zero automatic wander choices; dialogue catalog reload: **2,009 rows / 1,873 enabled rows** (1,872 office + legacy test); all enabled office rows fit the renderer.
 - Browser smoke after restart: decoded frame buffers, live clock advancing, Talk bubble visible and returning to work, no warning/error console entries. Live status check on 2026-09-02 returned HTTP 200 from the project server on port 8765 (PID 2772).
-- Repository status check: `main` is 3 commits ahead of `origin/main`; the intentional status refresh edits `HANDOFF.md`, `ROADMAP.md`, `README.md` and `README_TH.md`, while six untracked source/reference entries remain outside release scope.
+- Repository status check: `main` matches `origin/main` at `b4807cf` after the status refresh was pushed; six untracked source/reference entries remain outside release scope and were not included in the commit.
 
 ## Closeout status
 
