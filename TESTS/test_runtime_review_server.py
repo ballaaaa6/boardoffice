@@ -45,6 +45,30 @@ def test_canvas_tick_does_not_call_full_frame_renderer(monkeypatch):
     assert payload["render_state"]["clock_ms"] == 60
 
 
+def test_canvas_request_does_not_call_pillow_character_effect_or_workseat_renderers(monkeypatch):
+    state = ReviewState()
+
+    def fail_render(*args, **kwargs):
+        raise AssertionError("canvas request must stay metadata-only")
+
+    for target in (state.core.characters, state.core, state.core.work_seats):
+        for name in (
+            "render",
+            "render_effect",
+            "render_humanball",
+            "render_floor_with_work",
+            "render_floor_with_work_effects",
+        ):
+            if hasattr(target, name):
+                monkeypatch.setattr(target, name, fail_render)
+
+    payload = state.demo_effects(renderer="canvas", include_runtime=False)
+
+    assert payload["renderer"] == "canvas"
+    assert payload["render_state"]["schema"] == "gds.runtime_render_state.v1"
+    assert "image_data_url" not in payload
+
+
 def test_review_talk_demo_starts_real_route_and_compact_event_stream():
     state = ReviewState()
     payload = state.demo_talk(dialogue_locale="th", dialogue_seed="review-talk", include_runtime=False)

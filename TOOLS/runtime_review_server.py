@@ -13,6 +13,7 @@ import argparse
 import base64
 import copy
 import json
+import mimetypes
 import sys
 import threading
 import time
@@ -20,7 +21,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from io import BytesIO
 from pathlib import Path
 from typing import Any
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
@@ -39,6 +40,7 @@ from RUNTIME.runtime_render_state import RuntimeRenderStateProjector
 DEFAULT_PORT = 8765
 FLOOR_ID = "floor02"
 HTML_PATH = PROJECT_ROOT / "WEB" / "runtime_review.html"
+WEB_ROOT = PROJECT_ROOT / "WEB"
 API_VERSION = "v2"
 
 
@@ -1587,6 +1589,78 @@ class ReviewHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_bytes(
+        self,
+        status: int,
+        body: bytes,
+        *,
+        content_type: str,
+        cache_control: str = "no-store",
+    ) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", cache_control)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Vary", "Origin")
+        self.end_headers()
+        self.wfile.write(body)
+
+    @staticmethod
+    def _web_static_path(path: str) -> Path | None:
+        """Resolve only the review page's explicit WEB assets.
+
+        The review host is intentionally not a general-purpose file server.
+        Canvas can request its generated manifest/bundle and its two modules;
+        every other path remains an API/404 route.
+        """
+        decoded = unquote(path)
+        if decoded in {
+            "/runtime_render_manifest.json",
+            "/runtime_canvas_renderer.js",
+            "/runtime_render_client.js",
+        }:
+            relative = decoded.lstrip("/")
+        elif decoded.startswith("/runtime_assets/"):
+            relative = decoded.removeprefix("/runtime_assets/")
+        else:
+            return None
+        if any(part in {"", ".", ".."} for part in Path(relative).parts):
+            return None
+        relative_path = (
+            Path("runtime_assets") / Path(relative)
+            if decoded.startswith("/runtime_assets/")
+            else Path(relative)
+        )
+        candidate = (WEB_ROOT / relative_path).resolve()
+        web_root = WEB_ROOT.resolve()
+        if candidate != web_root and web_root not in candidate.parents:
+            return None
+        return candidate
+
+    def _serve_web_static(self, path: str) -> bool:
+        target = self._web_static_path(path)
+        if target is None:
+            return False
+        if not target.is_file():
+            self._send(404, {"error": "not found"})
+            return True
+        content_type = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
+        cache_control = (
+            "public, max-age=31536000, immutable"
+            if WEB_ROOT.joinpath("runtime_assets") in target.parents
+            else "no-store"
+        )
+        self._send_bytes(
+            200,
+            target.read_bytes(),
+            content_type=content_type,
+            cache_control=cache_control,
+        )
+        return True
+
     def _error(self, status: int, exc: Exception) -> None:
         self._send(status, {"error": str(exc), "type": exc.__class__.__name__})
 
@@ -1607,6 +1681,8 @@ class ReviewHandler(BaseHTTPRequestHandler):
             renderer = query.get("renderer", [None])[0]
             if path in {"/", "/index.html"}:
                 self._send(200, HTML_PATH.read_text(encoding="utf-8"), content_type="text/html")
+                return
+            if self._serve_web_static(path):
                 return
             if path == "/api/state":
                 self._send(200, STATE.current(include_runtime=False, renderer=renderer or "raster"))

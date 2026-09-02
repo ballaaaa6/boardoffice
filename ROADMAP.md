@@ -62,3 +62,20 @@ The long-running full live trace exposed a pending-talk/lifecycle ownership seam
 - [x] Add multi-actor long-run and noncompact runtime regressions, queue telemetry, and a fresh API/browser stress run; rerun `python -m pytest -q` plus the required navigation/WorkSeat/Phase 6/Central/F2/conversation audits.
 
 Engineering verification result: **348 tests passed**, all required audits and runtime presentation QA passed, and the fresh `floor02` API run reached `137400ms` with 9 work-start bubbles and 0 lifecycle-boundary violations. Author visual/gameplay acceptance at `http://127.0.0.1:8765/` is still pending.
+
+## Lean component-renderer prototype — 2026-09-03
+
+This isolated prototype keeps the existing Python simulation and raster review
+fallback, while adding an image-free `floor02` render-state contract and a
+browser Canvas compositor. It is ready for author review before any Cloudflare
+deployment work begins.
+
+- [x] Define and implement the renderer-neutral `gds.runtime_render_state.v1` protocol without changing gameplay, navigation, WorkSeat or canonical assets.
+- [x] Add explicit `renderer=canvas` API responses with no `image_data_url`; retain `renderer=raster` as the default compatibility path.
+- [x] Build the deterministic 600×600 `floor02` static/component manifest and 181 derived browser assets without editing source registries.
+- [x] Add Canvas static caching, pixel-art component composition, walking occluder masks, interpolation, dialogue overlays and 100ms polling with RAF rendering.
+- [x] Verify Canvas and Raster in the local review page across Full, Talk, Effects, Critical, Save/Load and Replay flows.
+- [x] Benchmark: Canvas payload p50 **23.7KB** vs Raster **136.4KB** (−**82.63%**); server call p50 **1.13ms** vs **10.63ms** (−**89.34%**); lean encode **0ms**.
+- [x] Engineering verification: **364 tests passed**, parity/no-Pillow guards passed, required navigation/world/WorkSeat/Phase 6/Central/F2/gameplay audits passed, and raster presentation QA passed.
+- [ ] Author visual acceptance of the Canvas output and smoothness on the reference machine.
+- [ ] Cloudflare slice: move the same metadata contract behind Worker/Durable Object and publish static component assets after author acceptance.

@@ -219,23 +219,23 @@ Run `python TOOLS/build_runtime_render_manifest.py --floor-id floor02`, the mani
 
 ### Task 4 — Implement the browser Canvas component renderer
 
-- [ ] Add `WEB/runtime_canvas_renderer.js` with the exact public methods in the spec. Draw static cache once, then dynamic layers per RAF. Set `ctx.imageSmoothingEnabled = false` for all pixel-art contexts.
-- [ ] Add `WEB/runtime_render_client.js` with 100ms polling, timeout/retry, state sequencing and RAF lifecycle. Never fetch or decode from the RAF callback.
-- [ ] Draw character body/face crops from manifest frame rules, workstation PC/effect/HumanBall channels, the authored occluder masks and dialogue bubbles. Keep paint order aligned with `presentation.character_order` and `bubble_order`.
-- [ ] Interpolate ground coordinates between sequential states over the server interval; use current frame indices for sprite animation; snap on a sequence gap, floor change or missing previous state.
-- [ ] Add a visible `Canvas`/`Raster` toggle to `WEB/runtime_review.html`. Canvas mode calls `renderer=canvas`; raster mode continues the existing double-buffered `<img>` path. Keep telemetry cards and all existing demo controls working in both modes.
-- [ ] Add static web contract tests for Canvas, `requestAnimationFrame`, state polling, `renderer=canvas`, absence of a canvas-path `image_data_url` dependency and preservation of raster fallback.
+- [x] Add `WEB/runtime_canvas_renderer.js` with the exact public methods in the spec. Draw static cache once, then dynamic layers per RAF. Set `ctx.imageSmoothingEnabled = false` for all pixel-art contexts.
+- [x] Add `WEB/runtime_render_client.js` with 100ms polling, timeout/retry, state sequencing and RAF lifecycle. Never fetch or decode from the RAF callback.
+- [x] Draw character body/face crops from manifest frame rules, workstation PC/effect/HumanBall channels, the authored occluder masks and dialogue bubbles. Keep paint order aligned with `presentation.character_order` and `bubble_order`.
+- [x] Interpolate ground coordinates between sequential states over the server interval; use current frame indices for sprite animation; snap on a sequence gap, floor change or missing previous state.
+- [x] Add a visible `Canvas`/`Raster` toggle to `WEB/runtime_review.html`. Canvas mode calls `renderer=canvas`; raster mode continues the existing double-buffered `<img>` path. Keep telemetry cards and all existing demo controls working in both modes.
+- [x] Add static web contract tests for Canvas, `requestAnimationFrame`, state polling, `renderer=canvas`, absence of a canvas-path `image_data_url` dependency and preservation of raster fallback.
 
 Run the web contract tests, then open the explicit branch server port in a browser and inspect floor02, full system, Talk, Effects, Critical, save/load and replay in both modes. Record browser console errors and observed frame smoothness before committing as `feat: add lean canvas runtime preview`.
 
 ### Task 5 — Benchmark, parity audit and handoff
 
-- [ ] Add `TOOLS/benchmark_runtime_renderers.py` to run equal floor02 simulation ticks through headless and raster paths, reporting p50/p95 tick time, render/encode time, payload bytes, actor count and process RSS where available.
-- [ ] Verify the lean path does not import/use Pillow in request processing by instrumenting `RuntimePresentationRenderer.render_runtime_snapshot`, `_image_data_url` and the relevant WorkSeat/character render methods to raise during canvas API calls.
-- [ ] Compare raster frame metadata to projected state for actor IDs, resolved action/direction/subaction, frame indices/counts, workstation channels, dialogue and paint order over a scripted spawn/work/talk/effects/critical trace.
-- [ ] Run `python -m pytest -q`, all required navigation/world/WorkSeat/Phase 6/Central/F2/gameplay-metadata audits, `git diff --check`, manifest determinism and the benchmark. Inspect `git status` for generated caches/debug artifacts.
-- [ ] Update `HANDOFF.md` with the actual branch commits, measured numbers, tests, current acceptance status and next CF gate. Update `ROADMAP.md` only if milestone scope or acceptance status changes.
-- [ ] Use the finishing-development-branch procedure after all tests and audits are green; do not claim visual acceptance until the author reviews the browser output.
+- [x] Add `TOOLS/benchmark_runtime_renderers.py` to run equal floor02 simulation ticks through headless and raster paths, reporting p50/p95 tick time, render/encode time, payload bytes, actor count and process RSS where available.
+- [x] Verify the lean path does not import/use Pillow in request processing by instrumenting `RuntimePresentationRenderer.render_runtime_snapshot`, `_image_data_url` and the relevant WorkSeat/character render methods to raise during canvas API calls.
+- [x] Compare raster frame metadata to projected state for actor IDs, resolved action/direction/subaction, frame indices/counts, workstation channels, dialogue and paint order over a scripted spawn/work/talk/effects/critical trace.
+- [x] Run `python -m pytest -q`, all required navigation/world/WorkSeat/Phase 6/Central/F2/gameplay-metadata audits, `git diff --check`, manifest determinism and the benchmark. Inspect `git status` for generated caches/debug artifacts.
+- [x] Update `HANDOFF.md` with the actual branch commits, measured numbers, tests, current acceptance status and next CF gate. Update `ROADMAP.md` only if milestone scope or acceptance status changes.
+- [x] Use the finishing-development-branch procedure after all tests and audits are green; do not claim visual acceptance until the author reviews the browser output.
 
 ## Plan self-review
 

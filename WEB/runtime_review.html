@@ -20,6 +20,9 @@
        which reads as rapid flashing/shimmer.  Keep the last frame opaque
        until the decoded replacement is ready, then swap atomically. */
     #scene, #sceneAlt { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; image-rendering:auto; opacity:0; }
+    #runtimeCanvas { position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; display:none; }
+    .scene-frame.canvas-mode #runtimeCanvas { display:block; }
+    .scene-frame.canvas-mode #scene, .scene-frame.canvas-mode #sceneAlt { display:none; }
     #scene.visible, #sceneAlt.visible { opacity:1; }
     .toolbar { display:flex; flex-wrap:wrap; gap:7px; }
     button, select { background:#243449; color:#e5edf5; border:1px solid #425a73; border-radius:7px; padding:8px 10px; cursor:pointer; }
@@ -71,7 +74,7 @@
   <div id="subtitle" class="subtitle">Loading the selected floor host…</div>
   <div class="grid">
     <section class="panel stage">
-      <div class="scene-frame"><img id="scene" class="visible" alt="Rendered runtime frame"><img id="sceneAlt" alt="Rendered runtime frame"></div>
+      <div id="sceneFrame" class="scene-frame"><canvas id="runtimeCanvas" width="600" height="600" aria-label="Canvas runtime frame"></canvas><img id="scene" class="visible" alt="Rendered runtime frame"><img id="sceneAlt" alt="Rendered runtime frame"></div>
       <div class="toolbar">
         <button id="liveToggle" class="primary">Pause live</button><span id="liveStatus" class="live-status">● LIVE</span>
         <button data-speed="1" class="active">1×</button><button data-speed="2">2×</button><button data-speed="4">4×</button><button data-speed="8">8×</button>
@@ -88,6 +91,7 @@
         <label>Actor <select id="actorSelect"><option value="">auto</option></select></label>
         <label>Talk mode <select id="talkMode"><option value="">seeded auto</option><option value="self_talk">self-talk</option><option value="ceo_front">CEO front</option><option value="seated_host">seated host</option><option value="standing_pair">standing pair</option></select></label>
         <label>Partner <select id="partnerSelect"><option value="">auto</option></select></label>
+        <label>Renderer <select id="rendererMode"><option value="raster">Raster fallback</option><option value="canvas">Canvas components</option></select></label>
         <label>Dialogue <select id="locale"><option value="en">English</option><option value="th">ไทย</option></select></label>
         <label>Seed <input id="seed" type="text" value="0" spellcheck="false"></label>
         <label><input id="showRoutes" type="checkbox" checked> show route samples</label>
@@ -118,16 +122,23 @@
   const $ = (id) => document.getElementById(id);
   let state = null; let selected = null; let saved = null; let floors = []; let capabilities = null;
   let live = true; let autoSpeed = 1; let busy = false; let rafId = null; let nextLiveAt = 0; let liveGeneration = 0;
+  let rendererMode = new URLSearchParams(location.search).get('renderer') === 'canvas' ? 'canvas' : 'raster';
+  let canvasRenderer = null; let canvasClient = null; let canvasModulePromise = null;
   let retryAttempt = 0; let demoCompletionShown = false;
   let visibleScene = 'scene'; let sceneToken = 0;
   const SIM_STEP_MS = 60; const MIN_FRAME_WALL_MS = 16; const REQUEST_TIMEOUT_MS = 5000;
   const RETRY_BASE_MS = 250; const RETRY_MAX_MS = 4000; const seenEvents = new Set();
   const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const API_ROOT = location.protocol === 'file:' ? 'http://127.0.0.1:8765' : '';
+  function bodyWithRenderer(body) {
+    if(body === undefined) return body;
+    return {...body, renderer:rendererMode};
+  }
   async function api(path, body) {
     const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const requestBody = bodyWithRenderer(body);
     try {
-      const r = await fetch(`${API_ROOT}${path}`, body === undefined ? {signal:controller.signal} : {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+      const r = await fetch(`${API_ROOT}${path}`, requestBody === undefined ? {signal:controller.signal} : {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(requestBody),signal:controller.signal});
       let x; try { x = await r.json(); } catch (_) { throw new Error(`HTTP ${r.status}`); }
       if(!r.ok) throw new Error(x.error || r.statusText); return x;
     } catch(e) {
@@ -217,6 +228,65 @@
     target.classList.remove('visible');
     target.src = src;
   }
+  function setRendererVisibility() {
+    $('sceneFrame').classList.toggle('canvas-mode', rendererMode === 'canvas');
+    $('rendererMode').value = rendererMode;
+  }
+  async function ensureCanvasClient() {
+    if(canvasClient) return canvasClient;
+    if(!canvasModulePromise) {
+      const base = API_ROOT || location.origin;
+      canvasModulePromise = Promise.all([
+        import(`${base}/runtime_canvas_renderer.js`),
+        import(`${base}/runtime_render_client.js`),
+      ]);
+    }
+    const [{RuntimeCanvasRenderer},{RuntimeRenderClient}] = await canvasModulePromise;
+    if(!canvasRenderer) {
+      canvasRenderer = new RuntimeCanvasRenderer({
+        canvas:$('runtimeCanvas'),
+        manifestUrl:`${API_ROOT}/runtime_render_manifest.json`,
+      });
+      await canvasRenderer.loadManifest();
+    }
+    canvasClient = new RuntimeRenderClient({
+      renderer:canvasRenderer,
+      apiRoot:API_ROOT,
+      intervalMs:100,
+      requestBody:() => ({elapsed_ms:SIM_STEP_MS * autoSpeed,autopilot:true,compact:true,...settings()}),
+      onState:(payload) => {
+        if(rendererMode !== 'canvas') return;
+        render(payload);
+        if($('note').textContent.startsWith('canvas reconnecting:')) {
+          setNote('Canvas component renderer active');
+        }
+      },
+      onError:(error) => { if(rendererMode === 'canvas' && live) $('note').textContent = `canvas reconnecting: ${error.message}`; },
+    });
+    return canvasClient;
+  }
+  async function changeRendererMode(value) {
+    const next = value === 'canvas' ? 'canvas' : 'raster';
+    if(next === rendererMode) { setRendererVisibility(); return; }
+    const resume = live;
+    setLive(false);
+    rendererMode = next;
+    setRendererVisibility();
+    try {
+      if(rendererMode === 'canvas') {
+        await ensureCanvasClient();
+        render(await api('/api/state?renderer=canvas'));
+      } else if(state && state.renderer === 'canvas') {
+        render(await api('/api/state?renderer=raster'));
+      }
+      if(resume) setLive(true);
+      setNote(`${rendererMode === 'canvas' ? 'Canvas component' : 'Raster fallback'} renderer active`);
+    } catch(e) {
+      rendererMode = 'raster'; setRendererVisibility();
+      setNote(`Canvas renderer unavailable: ${e.message}`);
+      if(resume) setLive(true);
+    }
+  }
   function formatEvent(e) {
     const time = `${e.timestamp_ms ?? 0}ms`;
     const who = e.employee_id || (Array.isArray(e.participants) ? e.participants.join(',') : '');
@@ -249,7 +319,11 @@
     $('log').textContent = [...fresh.reverse(), ...old].slice(0, 260).join('\n');
   }
   function render(x) {
-    state = x; setScene(x.image_data_url); $('clock').textContent = x.clock_ms ?? 0; $('frames').textContent = x.frame_count ?? 0; $('selectedFloor').textContent = x.floor_id || selectedFloor(); $('actorsTitle').textContent = `Actors on ${x.floor_id || selectedFloor()}`;
+    state = x;
+    if(x.renderer === 'canvas' || rendererMode === 'canvas') {
+      if(canvasRenderer && x.render_state) canvasRenderer.setState(x.render_state);
+    } else setScene(x.image_data_url);
+    $('clock').textContent = x.clock_ms ?? 0; $('frames').textContent = x.frame_count ?? 0; $('selectedFloor').textContent = x.floor_id || selectedFloor(); $('actorsTitle').textContent = `Actors on ${x.floor_id || selectedFloor()}`;
     const floorMeta = floors.find(item => item.floor_id === (x.floor_id || selectedFloor()));
     $('subtitle').textContent = `${x.floor_id || selectedFloor()} · ${floorMeta?.layout_id || 'runtime floor'} · ${floorMeta?.actor_count ?? (x.actors || []).length} assigned actors. Spawn starts at the portal, then each actor walks to its owned WorkSeat; use Full system, Talk, Effects or Critical to inspect the live channels.`;
     if(x.note) setNote(x.note);
@@ -297,10 +371,19 @@
     $('liveToggle').classList.toggle('primary', live); $('liveStatus').textContent = live ? '● LIVE' : '● PAUSED'; $('liveStatus').classList.toggle('paused', !live);
     if(live) retryAttempt = 0;
     if(rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
-    if(live) { nextLiveAt = performance.now(); rafId = requestAnimationFrame(now => pumpLive(now, generation)); }
+    if(canvasClient) canvasClient.stop();
+    if(live) {
+      if(rendererMode === 'canvas') {
+        ensureCanvasClient().then(client => {
+          if(live && rendererMode === 'canvas' && generation === liveGeneration) client.start();
+        }).catch(e => { if(generation === liveGeneration) setNote(`canvas start failed: ${e.message}`); });
+      } else {
+        nextLiveAt = performance.now(); rafId = requestAnimationFrame(now => pumpLive(now, generation));
+      }
+    }
   }
   async function pumpLive(now, generation) {
-    if(!live || generation !== liveGeneration) { return; }
+    if(!live || generation !== liveGeneration || rendererMode !== 'raster') { return; }
     if(!busy && now >= nextLiveAt) {
       busy = true;
       let retryScheduled = false;
@@ -351,10 +434,13 @@
   $('partnerSelect').onchange = () => { if(state) render(state); };
   $('talkMode').onchange = () => { $('partnerSelect').disabled = $('talkMode').value === 'self_talk'; setNote(`talk mode: ${$('talkMode').value || 'seeded auto'}`); };
   $('showRoutes').onchange = () => { if(state) { $('log').textContent=''; seenEvents.clear(); render(state); } };
+  $('rendererMode').onchange = () => changeRendererMode($('rendererMode').value);
+  setRendererVisibility();
   (async function boot() {
     try {
       $('log').textContent=''; seenEvents.clear();
       const health = await api('/api/health'); renderCapabilities(await api('/api/capabilities')); populateFloors(await api('/api/floors'));
+      if(rendererMode === 'canvas') await ensureCanvasClient();
       render(await api('/api/live-start',{compact:true,...settings()})); setNote(location.protocol === 'file:' ? `connected to localhost host (${health.api || 'api'})` : ''); setLive(true);
     }
     catch(e) { setLive(false); $('note').textContent = 'เปิดผ่าน http://127.0.0.1:8765/ และตรวจว่า runtime_review_server.py ทำงานอยู่'; $('log').textContent=`${e.message}\n\nStart: python TOOLS/runtime_review_server.py`; }
