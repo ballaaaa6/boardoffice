@@ -6,6 +6,45 @@ import time
 from TOOLS.runtime_review_server import ReviewState
 
 
+def test_canvas_payload_is_image_free_and_does_not_call_raster_encoder(monkeypatch):
+    state = ReviewState()
+
+    def fail_encode(*args, **kwargs):
+        raise AssertionError("canvas payload must not encode a raster")
+
+    monkeypatch.setattr(type(state), "_image_data_url", staticmethod(fail_encode))
+    payload = state.current(renderer="canvas", include_runtime=False)
+
+    assert payload["renderer"] == "canvas"
+    assert payload["render_state"]["schema"] == "gds.runtime_render_state.v1"
+    assert "image_data_url" not in payload
+    assert payload["metrics"]["encode_ms"] == 0.0
+
+
+def test_raster_payload_remains_available_as_explicit_fallback():
+    state = ReviewState()
+    payload = state.current(renderer="raster", include_runtime=False)
+
+    assert payload["renderer"] == "raster"
+    assert payload["image_data_url"].startswith("data:image/")
+
+
+def test_canvas_tick_does_not_call_full_frame_renderer(monkeypatch):
+    state = ReviewState()
+
+    def fail_render(*args, **kwargs):
+        raise AssertionError("canvas tick must not render a full frame")
+
+    monkeypatch.setattr(
+        "RUNTIME.runtime_presentation_renderer.RuntimePresentationRenderer.render_runtime_snapshot",
+        fail_render,
+    )
+    payload = state.tick(60, renderer="canvas", include_runtime=False)
+
+    assert payload["renderer"] == "canvas"
+    assert payload["render_state"]["clock_ms"] == 60
+
+
 def test_review_talk_demo_starts_real_route_and_compact_event_stream():
     state = ReviewState()
     payload = state.demo_talk(dialogue_locale="th", dialogue_seed="review-talk", include_runtime=False)

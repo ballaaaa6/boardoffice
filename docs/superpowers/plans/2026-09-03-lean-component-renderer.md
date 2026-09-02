@@ -197,12 +197,12 @@ Run `python -m pytest -q TESTS/test_runtime_render_state.py TESTS/test_runtime_p
 
 ### Task 2 — Add canvas/raster server selection
 
-- [ ] Import the projector in `TOOLS/runtime_review_server.py` and create one projector per `ReviewState`.
-- [ ] Add `renderer: Literal["raster", "canvas"] = "raster"` to `frame_payload`, `current` and `tick`. Validate unknown values with `ValueError`.
-- [ ] For canvas payloads, project the runtime/presentation state, return `renderer`, `render_state`, actor cards/events/telemetry needed by the existing side panel, and set `metrics.encode_ms` to `0.0`; do not access `frame["image"]`.
-- [ ] For raster payloads, preserve the current `image_data_url` and complete-state behavior.
-- [ ] Parse `renderer` from query strings and POST bodies for `/api/state`, `/api/tick`, `/api/reset`, `/api/live-start` and demo endpoints. Preserve current defaults.
-- [ ] Add focused tests that monkeypatch the raster encoder/renderer to raise and prove a canvas request still succeeds; assert raster still returns a data URL.
+- [x] Import the projector in `TOOLS/runtime_review_server.py` and create one projector per `ReviewState`.
+- [x] Add `renderer: Literal["raster", "canvas"] = "raster"` to `frame_payload`, `current` and `tick`. Validate unknown values with `ValueError`.
+- [x] For canvas payloads, project the runtime/presentation state, return `renderer`, `render_state`, actor cards/events/telemetry needed by the existing side panel, and set `metrics.encode_ms` to `0.0`; do not access `frame["image"]`.
+- [x] For raster payloads, preserve the current `image_data_url` and complete-state behavior.
+- [x] Parse `renderer` from query strings and POST bodies for `/api/state`, `/api/tick`, `/api/reset`, `/api/live-start` and demo endpoints. Preserve current defaults.
+- [x] Add focused tests that monkeypatch the raster encoder/renderer to raise and prove a canvas request still succeeds; assert raster still returns a data URL.
 
 Run server unit tests and a direct handler/API smoke with `renderer=canvas`. Commit as `feat: expose lean render state from review host`.
 

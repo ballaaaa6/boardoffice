@@ -20,6 +20,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from io import BytesIO
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlsplit
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
@@ -28,7 +29,11 @@ if str(PROJECT_ROOT) not in sys.path:
 from RUNTIME.central_core import CentralGameCore, CentralGameCoreError
 from RUNTIME.runtime_persistence import RuntimePersistenceError
 from RUNTIME.runtime_presentation_host import RuntimePresentationHostAdapter
-from RUNTIME.runtime_presentation_renderer import RuntimePresentationLoop
+from RUNTIME.runtime_presentation_renderer import (
+    RuntimePresentationLoop,
+    RuntimePresentationRenderer,
+)
+from RUNTIME.runtime_render_state import RuntimeRenderStateProjector
 
 
 DEFAULT_PORT = 8765
@@ -76,6 +81,8 @@ class ReviewState:
         self._demo_complete = False
         self.dialogue_locale = "en"
         self.dialogue_seed: str | int = "0"
+        self._raster_renderer: RuntimePresentationRenderer | None = None
+        self.render_state_projector = RuntimeRenderStateProjector(self.core)
         self._last_tick_metrics: dict[str, Any] = {
             "tick_compute_ms": 0.0,
             "render_ms": 0.0,
@@ -172,9 +179,30 @@ class ReviewState:
             # schema walk for this review-only high-frequency preview.
             validate_runtime_each_frame=False,
             copy_runtime_snapshot_each_frame=False,
+            render_mode="headless",
         )
         self.adapter = RuntimePresentationHostAdapter(loop, copy_frames=False)
         self.adapter.render_current()
+
+    @staticmethod
+    def _validate_renderer(renderer: str | None) -> str:
+        value = "raster" if renderer is None else str(renderer).strip().casefold()
+        if value not in {"raster", "canvas"}:
+            raise ValueError("renderer must be raster or canvas")
+        return value
+
+    def _raster_image(self, frame: dict[str, Any]) -> Any:
+        image = frame.get("image")
+        if image is not None:
+            return image
+        if self._raster_renderer is None:
+            self._raster_renderer = RuntimePresentationRenderer(self.core)
+        image, _presentation = self._raster_renderer.render_runtime_snapshot(
+            frame["runtime_snapshot"],
+            floor_id=self.floor_id,
+            validate=False,
+        )
+        return image
 
     def _ready_return_commands(self, runtime: dict[str, Any]) -> list[dict[str, Any]]:
         """Mirror an external app's ready-gated return policy for live review.
@@ -251,6 +279,7 @@ class ReviewState:
         include_runtime: bool = True,
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
+        renderer: str = "raster",
         _force_critical: bool = True,
         _demo_kind: str | None = None,
     ) -> dict[str, Any]:
@@ -364,6 +393,7 @@ class ReviewState:
                     else "live simulation started"
                 ),
                 include_runtime=include_runtime,
+                renderer=renderer,
             )
 
     def full_demo(
@@ -373,6 +403,7 @@ class ReviewState:
         include_runtime: bool = True,
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
         """Start the complete live system with normal stamina for every actor."""
         return self.live_start(
@@ -380,6 +411,7 @@ class ReviewState:
             include_runtime=include_runtime,
             dialogue_locale=dialogue_locale,
             dialogue_seed=dialogue_seed,
+            renderer=renderer,
             _force_critical=False,
             _demo_kind="full",
         )
@@ -394,6 +426,7 @@ class ReviewState:
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
         include_runtime: bool = True,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
         """Start one deterministic employee conversation for visual review.
 
@@ -534,6 +567,7 @@ class ReviewState:
                     autopilot=False,
                     note=f"talk demo: {initiator_id} (live advances route and bubbles)",
                     include_runtime=include_runtime,
+                    renderer=renderer,
                 )
                 self._talk_demo_session_id = next(
                     (
@@ -558,6 +592,7 @@ class ReviewState:
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
         include_runtime: bool = True,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
         """Start a deterministic HumanBall + VFX review side by side."""
         with self.lock:
@@ -651,6 +686,7 @@ class ReviewState:
                     autopilot=False,
                     note="effects demo: HumanBall + VFX (live advances channels)",
                     include_runtime=include_runtime,
+                    renderer=renderer,
                 )
                 result["demo_complete"] = False
                 return result
@@ -663,6 +699,7 @@ class ReviewState:
         *,
         floor_id: str | None = None,
         include_runtime: bool = True,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
         """Start one deterministic outbound/return wander route for review."""
         with self.lock:
@@ -744,6 +781,7 @@ class ReviewState:
                     autopilot=False,
                     note=f"wander demo: {target_id} (live advances outbound and return route)",
                     include_runtime=include_runtime,
+                    renderer=renderer,
                 )
                 result["demo_employee_id"] = target_id
                 return result
@@ -1147,22 +1185,38 @@ class ReviewState:
         *,
         note: str | None = None,
         include_runtime: bool = True,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
+        renderer_key = self._validate_renderer(renderer)
         runtime = frame["runtime_snapshot"]
         actor_clock = runtime["actor_snapshot"]["clock"]["simulation_time_ms"]
         compact_events = not include_runtime
-        encode_started = time.perf_counter()
-        image_data_url = self._image_data_url(frame["image"], compact=not include_runtime)
-        encode_ms = round((time.perf_counter() - encode_started) * 1000.0, 3)
         metrics = copy.deepcopy(self._last_tick_metrics)
-        metrics["encode_ms"] = encode_ms
+        render_state = None
+        image_data_url = None
+        if renderer_key == "canvas":
+            render_state = self.render_state_projector.project(
+                runtime,
+                floor_id=self.floor_id,
+                sequence=int(self.adapter.frame_count),
+                events=frame.get("events", []),
+                presentation=frame["presentation"],
+            )
+            metrics["encode_ms"] = 0.0
+        else:
+            encode_started = time.perf_counter()
+            image_data_url = self._image_data_url(
+                self._raster_image(frame),
+                compact=not include_runtime,
+            )
+            metrics["encode_ms"] = round((time.perf_counter() - encode_started) * 1000.0, 3)
         payload = {
+            "renderer": renderer_key,
             "floor_id": self.floor_id,
             "frame_count": self.adapter.frame_count,
             "clock_ms": actor_clock,
             "frame_sequence": int(self.adapter.frame_count),
             "metrics": metrics,
-            "image_data_url": image_data_url,
             "actors": self._actor_rows(frame),
             "events": (
                 self._compact_events(frame.get("events"))
@@ -1187,6 +1241,10 @@ class ReviewState:
             "demo_complete": self._demo_complete,
             "dialogue_coverage": self._dialogue_coverage(runtime),
         }
+        if renderer_key == "canvas":
+            payload["render_state"] = render_state
+        else:
+            payload["image_data_url"] = image_data_url
         # Save/load/replay callers need the complete JSON-safe state. Live
         # frames do not: sending the composed snapshot on every 120ms tick
         # made the browser transfer and parse nearly 2MB per frame.
@@ -1204,12 +1262,14 @@ class ReviewState:
         *,
         note: str | None = None,
         include_runtime: bool = True,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
         with self.lock:
             return self.frame_payload(
                 self.adapter.last_frame or self.adapter.render_current(),
                 note=note,
                 include_runtime=include_runtime,
+                renderer=renderer,
             )
 
     def tick(
@@ -1223,6 +1283,7 @@ class ReviewState:
         include_runtime: bool = True,
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
         with self.lock:
             tick_started = time.perf_counter()
@@ -1296,7 +1357,12 @@ class ReviewState:
                 "dialogue_seed": self.dialogue_seed,
             })
             payload_started = time.perf_counter()
-            payload = self.frame_payload(frame, note=note, include_runtime=include_runtime)
+            payload = self.frame_payload(
+                frame,
+                note=note,
+                include_runtime=include_runtime,
+                renderer=renderer,
+            )
             payload["metrics"]["payload_build_ms"] = round(
                 (time.perf_counter() - payload_started) * 1000.0,
                 3,
@@ -1308,6 +1374,7 @@ class ReviewState:
         *,
         floor_id: str | None = None,
         include_runtime: bool = True,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
         with self.lock:
             self._select_floor(floor_id)
@@ -1322,7 +1389,11 @@ class ReviewState:
             self.initial_runtime = copy.deepcopy(self.base_runtime)
             self.replay_steps = []
             self._reset_loop()
-            return self.current(note="reset", include_runtime=include_runtime)
+            return self.current(
+                note="reset",
+                include_runtime=include_runtime,
+                renderer=renderer,
+            )
 
     def demo_critical(
         self,
@@ -1330,6 +1401,7 @@ class ReviewState:
         *,
         floor_id: str | None = None,
         include_runtime: bool = True,
+        renderer: str = "raster",
     ) -> dict[str, Any]:
         with self.lock:
             self._select_floor(floor_id)
@@ -1415,6 +1487,7 @@ class ReviewState:
                 autopilot=False,
                 note=f"critical demo: {target_id} (finishes work loop then returns home)",
                 include_runtime=include_runtime,
+                renderer=renderer,
             )
             result["demo_employee_id"] = target_id
             return result
@@ -1430,7 +1503,7 @@ class ReviewState:
                 ),
             }
 
-    def load(self, runtime: dict[str, Any]) -> dict[str, Any]:
+    def load(self, runtime: dict[str, Any], *, renderer: str = "raster") -> dict[str, Any]:
         with self.lock:
             validated = self.core.deserialize_runtime_snapshot(runtime)
             assignment_floors = {
@@ -1451,9 +1524,9 @@ class ReviewState:
             self.initial_runtime = copy.deepcopy(validated)
             self.replay_steps = []
             self._reset_loop(validated)
-            return self.current(note="loaded snapshot")
+            return self.current(note="loaded snapshot", renderer=renderer)
 
-    def replay(self, package: dict[str, Any]) -> dict[str, Any]:
+    def replay(self, package: dict[str, Any], *, renderer: str = "raster") -> dict[str, Any]:
         with self.lock:
             initial = package.get("initial_runtime_snapshot") if isinstance(package, dict) else None
             assignment_floors = {
@@ -1475,7 +1548,11 @@ class ReviewState:
             self.replay_steps = copy.deepcopy(package.get("steps", []))
             self._reset_loop(result["snapshot"])
             frame = self.adapter.last_frame or self.adapter.render_current()
-            payload = self.frame_payload(frame, note="deterministic replay complete")
+            payload = self.frame_payload(
+                frame,
+                note="deterministic replay complete",
+                renderer=renderer,
+            )
             payload["replay_trace"] = result.get("trace", [])
             return payload
 
@@ -1524,23 +1601,27 @@ class ReviewHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         try:
-            if self.path in {"/", "/index.html"}:
+            parsed = urlsplit(self.path)
+            path = parsed.path
+            query = parse_qs(parsed.query)
+            renderer = query.get("renderer", [None])[0]
+            if path in {"/", "/index.html"}:
                 self._send(200, HTML_PATH.read_text(encoding="utf-8"), content_type="text/html")
                 return
-            if self.path == "/api/state":
-                self._send(200, STATE.current(include_runtime=False))
+            if path == "/api/state":
+                self._send(200, STATE.current(include_runtime=False, renderer=renderer or "raster"))
                 return
-            if self.path == "/api/floors":
+            if path == "/api/floors":
                 self._send(200, {
                     "api": API_VERSION,
                     "selected_floor_id": STATE.floor_id,
                     "floors": STATE.floors(),
                 })
                 return
-            if self.path in {"/api/capabilities", "/api/manifest"}:
+            if path in {"/api/capabilities", "/api/manifest"}:
                 self._send(200, STATE.capabilities())
                 return
-            if self.path == "/api/health":
+            if path == "/api/health":
                 self._send(200, {
                     "ok": True,
                     "server": "gds-runtime-review",
@@ -1549,7 +1630,7 @@ class ReviewHandler(BaseHTTPRequestHandler):
                     "floor_count": len(STATE.available_floors),
                 })
                 return
-            if self.path == "/api/policy":
+            if path == "/api/policy":
                 policy = STATE.core.employee_metadata.stamina_policy()
                 self._send(200, {
                     "floor_id": STATE.floor_id,
@@ -1575,26 +1656,31 @@ class ReviewHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         try:
             body = self._read_json()
-            if self.path == "/api/reset":
+            path = urlsplit(self.path).path
+            renderer = body.get("renderer", "raster")
+            if path == "/api/reset":
                 self._send(200, STATE.reset(
                     floor_id=body.get("floor_id"),
                     include_runtime=not bool(body.get("compact", False)),
+                    renderer=renderer,
                 ))
-            elif self.path == "/api/live-start":
+            elif path == "/api/live-start":
                 self._send(200, STATE.live_start(
                     floor_id=body.get("floor_id"),
                     include_runtime=not bool(body.get("compact", False)),
                     dialogue_locale=body.get("dialogue_locale"),
                     dialogue_seed=body.get("dialogue_seed"),
+                    renderer=renderer,
                 ))
-            elif self.path == "/api/demo-full":
+            elif path == "/api/demo-full":
                 self._send(200, STATE.full_demo(
                     floor_id=body.get("floor_id"),
                     include_runtime=not bool(body.get("compact", False)),
                     dialogue_locale=body.get("dialogue_locale"),
                     dialogue_seed=body.get("dialogue_seed"),
+                    renderer=renderer,
                 ))
-            elif self.path == "/api/demo-talk":
+            elif path == "/api/demo-talk":
                 employee_id = body.get("employee_id")
                 if employee_id is not None and not isinstance(employee_id, str):
                     raise ValueError("employee_id must be text when supplied")
@@ -1606,15 +1692,17 @@ class ReviewHandler(BaseHTTPRequestHandler):
                     dialogue_locale=body.get("dialogue_locale"),
                     dialogue_seed=body.get("dialogue_seed"),
                     include_runtime=not bool(body.get("compact", False)),
+                    renderer=renderer,
                 ))
-            elif self.path == "/api/demo-effects":
+            elif path == "/api/demo-effects":
                 self._send(200, STATE.demo_effects(
                     floor_id=body.get("floor_id"),
                     dialogue_locale=body.get("dialogue_locale"),
                     dialogue_seed=body.get("dialogue_seed"),
                     include_runtime=not bool(body.get("compact", False)),
+                    renderer=renderer,
                 ))
-            elif self.path == "/api/demo-wander":
+            elif path == "/api/demo-wander":
                 employee_id = body.get("employee_id")
                 if employee_id is not None and not isinstance(employee_id, str):
                     raise ValueError("employee_id must be text when supplied")
@@ -1622,8 +1710,9 @@ class ReviewHandler(BaseHTTPRequestHandler):
                     employee_id,
                     floor_id=body.get("floor_id"),
                     include_runtime=not bool(body.get("compact", False)),
+                    renderer=renderer,
                 ))
-            elif self.path == "/api/tick":
+            elif path == "/api/tick":
                 elapsed_ms = body.get("elapsed_ms", 60)
                 if isinstance(elapsed_ms, bool) or not isinstance(elapsed_ms, int) or elapsed_ms < 0:
                     raise ValueError("elapsed_ms must be a non-negative integer")
@@ -1635,8 +1724,9 @@ class ReviewHandler(BaseHTTPRequestHandler):
                     include_runtime=not bool(body.get("compact", False)),
                     dialogue_locale=body.get("dialogue_locale"),
                     dialogue_seed=body.get("dialogue_seed"),
+                    renderer=renderer,
                 ))
-            elif self.path == "/api/demo-critical":
+            elif path == "/api/demo-critical":
                 employee_id = body.get("employee_id")
                 if not isinstance(employee_id, str) or not employee_id:
                     raise ValueError("employee_id is required")
@@ -1644,13 +1734,14 @@ class ReviewHandler(BaseHTTPRequestHandler):
                     employee_id,
                     floor_id=body.get("floor_id"),
                     include_runtime=not bool(body.get("compact", False)),
+                    renderer=renderer,
                 ))
-            elif self.path == "/api/save":
+            elif path == "/api/save":
                 self._send(200, STATE.save())
-            elif self.path == "/api/load":
-                self._send(200, STATE.load(body.get("runtime_snapshot")))
-            elif self.path == "/api/replay":
-                self._send(200, STATE.replay(body))
+            elif path == "/api/load":
+                self._send(200, STATE.load(body.get("runtime_snapshot"), renderer=renderer))
+            elif path == "/api/replay":
+                self._send(200, STATE.replay(body, renderer=renderer))
             else:
                 self._send(404, {"error": "not found"})
         except (CentralGameCoreError, RuntimePersistenceError, ValueError, KeyError) as exc:
