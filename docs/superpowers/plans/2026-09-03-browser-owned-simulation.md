@@ -34,6 +34,7 @@
 | `WEB/runtime_simulation_prng.js` | Match the Python seeded-random sequence and expose deterministic choice/d6 helpers. |
 | `WEB/runtime_simulation_state.js` | Clone, validate and normalize `gds.runtime_snapshot.v1` browser state. |
 | `WEB/runtime_simulation_clock.js` | Fixed 60ms accumulator, bounded catch-up and visibility policy. |
+| `WEB/package.json` | Scope the browser ES modules as Node/browser-compatible modules for the dependency-free test harness. |
 | `WEB/runtime_simulation_navigation.js` | Browser data-backed room/occupancy/portal/path queries. |
 | `WEB/runtime_simulation_actor.js` | Actor reducer, route progress, action/direction/subaction and animation clocks. |
 | `WEB/runtime_simulation_work_seat.js` | WorkSeat ownership, seat entry/exit boundaries, workstation and PC channels. |
@@ -239,10 +240,10 @@ git commit -m "feat: define browser simulation bundle contract"
 - `validateRuntimeSnapshot(snapshot) -> snapshot`
 - `cloneRuntimeSnapshot(snapshot) -> snapshot`
 - `FixedStepClock({ stepMs = 60, maxCatchupMs = 1000 })`
-- `FixedStepClock.pushElapsed(elapsedMs) -> number`
+- `FixedStepClock.pushElapsed(elapsedMs) -> number[]`
 - `BrowserRuntimeCore.create(...)` and methods from the plan interface
 
-- [ ] **Step 1: Write failing Node tests for seed, state and clock contracts.**
+- [x] **Step 1: Write failing Node tests for seed, state and clock contracts.**
 
   Use Node's built-in `node:test` and `node:assert/strict`. The seed vector
   must include the first five integer outputs and one d6 result exported by
@@ -266,13 +267,13 @@ test("browser core starts from the canonical snapshot without network", async ()
 });
 ```
 
-- [ ] **Step 2: Run the Node tests to verify they fail.**
+- [x] **Step 2: Run the Node tests to verify they fail.**
 
   Run: `node --test TESTS/browser_runtime_test.mjs`
 
   Expected: FAIL because the browser modules and methods are not implemented.
 
-- [ ] **Step 3: Implement the exact seeded-random and snapshot primitives.**
+- [x] **Step 3: Implement the exact seeded-random and snapshot primitives.**
 
   Match the Python seed namespace and integer ordering from the generated seed
   vector. Use unsigned 32-bit arithmetic explicitly, never `Math.random()`.
@@ -280,7 +281,7 @@ test("browser core starts from the canonical snapshot without network", async ()
   fields and validate actor-id sets across actor, speech and conversation
   channels before mutation.
 
-- [ ] **Step 4: Implement the fixed-step clock.**
+- [x] **Step 4: Implement the fixed-step clock.**
 
   Keep `accumulatorMs`, `simulationClockMs`, `stepMs` and `maxCatchupMs` as
   integers. `pushElapsed()` caps elapsed input, emits at most
@@ -288,7 +289,7 @@ test("browser core starts from the canonical snapshot without network", async ()
   of the next visible frame. `reset()` clears the accumulator. Visibility
   handling belongs to the browser loop, not the simulation core.
 
-- [ ] **Step 5: Implement the no-DOM core shell.**
+- [x] **Step 5: Implement the no-DOM core shell.**
 
   `BrowserRuntimeCore.create()` accepts either an in-memory `bundle` for tests
   or fetches `bundleUrl` exactly once. Its constructor clones and validates the
@@ -296,7 +297,7 @@ test("browser core starts from the canonical snapshot without network", async ()
   the clock and return a valid unchanged-state projection; it must not touch
   Canvas, DOM, `Image` or a server endpoint.
 
-- [ ] **Step 6: Add the stdin parity runner and commit the primitive slice.**
+- [x] **Step 6: Add the stdin parity runner and commit the primitive slice.**
 
   `TESTS/browser_runtime_parity_runner.mjs` reads one JSON trace from stdin,
   creates the core with the supplied bundle, runs each command step and writes

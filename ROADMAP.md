@@ -2,7 +2,7 @@
 
 **Project root:** `D:\antigravity\board office`
 **Source of truth:** unpacked project root
-**Updated:** 2026-09-02 (Asia/Bangkok)
+**Updated:** 2026-09-03 (Asia/Bangkok)
 
 ## Completed milestone — Phase 8E runtime review
 
@@ -92,7 +92,8 @@ complete yet.
 - [x] Write `docs/superpowers/specs/2026-09-03-browser-owned-simulation-design.md` with the browser authority boundary, alternatives, parity contract, persistence, timing and 24-hour gates.
 - [x] Write `docs/superpowers/plans/2026-09-03-browser-owned-simulation.md` with bundle export, deterministic JS runtime, behavior-port, persistence, no-request UI, parity and endurance tasks.
 - [ ] Author review and approval of the browser-owned simulation design/plan.
-- [ ] Export and validate the deterministic `floor02` browser bootstrap bundle and Python parity traces.
+- [x] Export and validate the deterministic `floor02` browser bootstrap bundle and Python parity traces.
+- [x] Add deterministic browser PRNG/state/clock primitives, a no-DOM core shell and a stdin parity checkpoint; Node and focused Python tests pass.
 - [ ] Port navigation, actor, WorkSeat, speech, dialogue, effects, stamina, save/load and replay behavior with exact trace parity.
 - [ ] Integrate Browser source mode with zero periodic `/api/tick` calls while preserving Python Canvas/Raster fallback.
 - [ ] Pass simulated 24-hour, real browser soak, author visual/gameplay and release-clean gates.

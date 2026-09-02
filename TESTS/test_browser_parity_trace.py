@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -50,3 +52,43 @@ def test_parity_trace_rejects_unsupported_schema():
 
     with pytest.raises(TraceContractError, match="unsupported schema"):
         validate_trace(broken)
+
+
+def test_node_parity_runner_returns_image_free_shell_checkpoints():
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node.js is required for the browser runtime checkpoint")
+    from RUNTIME.browser_bundle_contract import validate_bundle
+    from TOOLS.build_runtime_simulation_bundle import build_bundle
+
+    bundle = build_bundle(ROOT, "floor02")
+    validate_bundle(bundle, root=ROOT, expected_floor_id="floor02")
+    trace = {
+        "floor_id": "floor02",
+        "seed": "browser-test-seed",
+        "steps": [
+            {
+                "elapsed_ms": 60,
+                "actor_commands": [],
+                "speech_commands": [],
+            }
+        ],
+    }
+    completed = subprocess.run(
+        [node, "TESTS/browser_runtime_parity_runner.mjs"],
+        cwd=ROOT,
+        check=True,
+        input=json.dumps({"bundle": bundle, "trace": trace}, separators=(",", ":")),
+        text=True,
+        capture_output=True,
+    )
+    result = json.loads(completed.stdout)
+
+    assert result["schema"] == "gds.browser_runtime_parity_result.v1"
+    assert result["floor_id"] == "floor02"
+    assert len(result["steps"]) == 1
+    checkpoint = result["steps"][0]
+    assert checkpoint["snapshot"]["schema"] == "gds.runtime_snapshot.v1"
+    assert checkpoint["snapshot"]["actor_snapshot"]["clock"]["simulation_time_ms"] == 60
+    assert checkpoint["render_state"]["schema"] == "gds.runtime_render_state.v1"
+    assert "image_data_url" not in checkpoint["render_state"]

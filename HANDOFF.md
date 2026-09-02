@@ -3,7 +3,7 @@
 **Updated:** 2026-09-03 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
 **Branch:** `codex/browser-simulation`
-**Status:** The browser-owned simulation exploration branch is isolated and has a reviewed design plus implementation plan. No browser simulation source has been implemented yet; the parent lean renderer remains the engineering-verified baseline, and author/design acceptance is **acceptance-pending**.
+**Status:** The browser-owned simulation exploration branch is isolated and has a reviewed design plus implementation plan. Tasks 1–2 are implemented and checkpointed; navigation/actor/WorkSeat behavior remains to be ported. The parent lean renderer remains the engineering-verified baseline, and author/design acceptance is **acceptance-pending**.
 
 ## Current state
 
@@ -38,6 +38,8 @@
 - The proposed target is single-user browser-owned simulation: one generated Python bootstrap bundle, deterministic JavaScript fixed-step runtime, existing Canvas component renderer, and zero `/api/tick` calls after bootstrap.
 - Python `CentralGameCore` remains the source/oracle for generated data, parity traces, local fallback and raster comparison. No Pyodide, Pillow-in-browser, WebGL or shared Durable Object authority is part of this branch.
 - No canonical world/character asset, starting-point file or reference hash has been changed. No Cloudflare deployment has started.
+- Task 1 exports and validates `WEB/runtime_simulation_bootstrap.json` plus the Python `spawn_work` oracle trace. The bundle is metadata-only and contains no image bytes.
+- Task 2 adds deterministic SHA-256-seeded SplitMix64 helpers, synchronized snapshot validation, a bounded 60ms fixed-step clock, a no-DOM `BrowserRuntimeCore` shell and a stdin parity runner. The shell loads a bundle once, advances its clocks locally and emits image-free render-state metadata.
 
 ## Verification
 
@@ -49,11 +51,12 @@
 - Room Navigation, Navigation Occupancy, WorkSeat, WorkSeat lifecycle, Phase 6 Spatial, Central integrity, F2/gameplay-metadata family and conversation audits passed. Runtime presentation QA passed.
 - Fresh branch API/static smoke: manifest, static PNG and JS assets returned HTTP 200; Canvas state returned 9 actors with `gds.runtime_render_state.v1` and no `image_data_url`; raw encoded traversal returned HTTP 404. Browser smoke showed Canvas/Raster, Full, Talk, Effects, Critical, Save/Load and Replay with no browser console errors.
 - `git diff --check` passed. No release archive was created. The central audit's semantic checks pass; its `release_clean` flag is separate and currently reflects test-generated local Python cache files, not committed package content.
+- Browser branch checkpoint: Node browser tests → **5 passed**; focused Python bundle/trace plus Node parity checkpoint → **8 passed**; `git diff --check` passed.
 
 ## Acceptance gate
 
-Engineering verification for the parent lean renderer is complete. For this branch, the browser-owned simulation design and plan still need author review before implementation begins. After implementation, the author must review the browser-owned page for visual parity, pixel-art sharpness, dialogue bubble appearance, walking depth, save/load/replay behavior and perceived smoothness. The Canvas bubble is intentionally drawn as a lightweight browser overlay, so exact raster visual parity remains an author decision.
+Engineering verification for the parent lean renderer is complete. For this branch, the browser-owned simulation design and plan remain acceptance-pending. After implementation, the author must review the browser-owned page for visual parity, pixel-art sharpness, dialogue bubble appearance, walking depth, save/load/replay behavior and perceived smoothness. The Canvas bubble is intentionally drawn as a lightweight browser overlay, so exact raster visual parity remains an author decision.
 
 **Active handoff:** this file only. `ROADMAP.md` is the single active milestone plan.
 
-**Next concrete task:** review the committed browser-owned simulation spec and plan; after approval, execute Task 1 to export the deterministic `floor02` bootstrap bundle and Python parity traces before porting any runtime behavior.
+**Next concrete task:** execute Task 3: port bundle-backed navigation, actor movement/action clocks and WorkSeat ownership, starting with failing `spawn_work` parity assertions.
