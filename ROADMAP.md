@@ -133,13 +133,24 @@ Engineering evidence: full Python suite **403 passed**, browser unit suite **14 
 
 ## Walking visitor bubble lift follow-up — 2026-09-03
 
-The author-approved behavior correction is implemented and regenerated into the browser bundle. Engineering verification is complete; visual/gameplay acceptance remains a separate pending gate.
+The original behavior correction remains implemented and regenerated for `seated_host`; the shared `ceo_front` visitor lift was corrected by the combined slice below. Engineering verification is complete; visual/gameplay acceptance remains a separate pending gate.
 
 - [x] Add the contract/schema field for the visitor extra `[0, -20]` offset.
-- [x] Apply the extra offset only to the walking visitor in `seated_host` and `ceo_front`, producing actual `-40px` total height while leaving the seated host at normal `-20px`.
+- [x] Apply the extra offset to the walking visitor in `seated_host`, producing actual `-40px` total height while leaving its host at normal `-20px`.
 - [x] Regenerate the `floor02` browser bundle and verify all **11 VFX** and **6 HumanBall** IDs remain present.
 - [x] Add Python/browser bundle regressions; full Python suite **403 passed**, focused conversation/browser suite **48 passed**, browser unit suite **14 passed**.
-- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/` before push.
+- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/`.
+
+## Combined startup stamina + CEO bubble correction — 2026-09-03
+
+Two author-requested behavior corrections were implemented and verified together. The scope stayed limited to the review-host startup default and the `ceo_front` conversation branch.
+
+- [x] Make normal `/api/live-start` begin every actor at `100` stamina and retain the low-energy actor only in the explicit Critical demo path.
+- [x] Keep `seated_host` visitor extra `[0, -20]` and its actual `-40px` result unchanged.
+- [x] Make `ceo_front` use explicit `[0, 0]` bubble extras for both visitor and CEO, producing actual `-20px` for both.
+- [x] Leave `standing_pair`, self-talk, effects, assets, metadata and all unrelated modes unchanged.
+- [x] Update the targeted Python/review/bundle regressions and regenerate the embedded `floor02` browser bundle; no global contract/schema change was needed.
+- [x] Run the full Python/browser, compile/lint and focused runtime checks; author visual/gameplay acceptance remains pending.
 
 ## Integration checkpoint — 2026-09-03
 

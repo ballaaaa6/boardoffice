@@ -270,8 +270,18 @@ def test_self_talk_uses_general_line_and_never_leaves_workseat():
     assert finished["snapshot"]["actors"][employee_id]["phase"] == "working"
 
 
-@pytest.mark.parametrize("mode", ["seated_host", "ceo_front"])
-def test_walking_visitor_bubble_uses_double_height_offset(mode: str):
+@pytest.mark.parametrize(
+    ("mode", "expected_extra_offset", "expected_actual_delta"),
+    [
+        ("seated_host", [0, -20], -40),
+        ("ceo_front", [0, 0], -20),
+    ],
+)
+def test_walking_visitor_bubble_uses_mode_specific_offsets(
+    mode: str,
+    expected_extra_offset: list[int],
+    expected_actual_delta: int,
+):
     core = CentralGameCore(ROOT)
     snapshot = core.resolve_conversation_snapshot("floor02")
     employees = [
@@ -298,14 +308,14 @@ def test_walking_visitor_bubble_uses_double_height_offset(mode: str):
         if row["timestamp_ms"] == plan["talk_start_ms"] + 500
     )
 
-    assert plan["bubble_offset_by_actor"][visitor_id] == [0, -20]
-    assert at_reply["actors"][visitor_id]["dialogue_bubble_offset_px"] == [0, -20]
+    assert plan["bubble_offset_by_actor"].get(visitor_id, [0, 0]) == expected_extra_offset
+    assert at_reply["actors"][visitor_id].get("dialogue_bubble_offset_px", [0, 0]) == expected_extra_offset
     assert at_reply["actors"][host_id].get("dialogue_bubble_offset_px", [0, 0]) == [0, 0]
 
     renderer = ConversationPairGifRenderer(ROOT)
     visitor_bubble = renderer._bubble_payload(visitor_id, at_reply["actors"][visitor_id])["bubble"]
     host_bubble = renderer._bubble_payload(host_id, at_reply["actors"][host_id])["bubble"]
-    assert visitor_bubble.bubble_top_left[1] - visitor_bubble.head_anchor[1] == -40
+    assert visitor_bubble.bubble_top_left[1] - visitor_bubble.head_anchor[1] == expected_actual_delta
     assert host_bubble.bubble_top_left[1] - host_bubble.head_anchor[1] == -20
 
 

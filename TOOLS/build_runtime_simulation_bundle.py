@@ -266,7 +266,10 @@ def _conversation_inputs(
         elif mode == "ceo_front":
             endpoint_by_actor[initiator_id] = list(spot["endpoint_uv"][0])
             facing_by_actor[initiator_id] = str(spot["endpoint_facing"]).upper()
-            bubble_offsets = {initiator_id: list(walking_visitor_bubble_extra_offset)}
+            bubble_offsets = {
+                initiator_id: [0, 0],
+                partner_id: [0, 0],
+            }
             host_id = partner_id
             visitor_ids = [initiator_id]
         else:

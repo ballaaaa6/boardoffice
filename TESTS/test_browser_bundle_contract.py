@@ -61,10 +61,12 @@ def test_floor02_bundle_is_deterministic_and_contains_runtime_inputs(tmp_path):
         for key, plan in first["conversation"]["plans"].items()
         if key.endswith("|ceo_front")
     )
-    for plan in (seated_host, ceo_front):
-        visitor_id = plan["visitor_ids"][0]
-        assert plan["bubble_offset_by_actor"][visitor_id] == [0, -20]
-        assert plan["bubble_offset_by_actor"].get(plan["host_id"], [0, 0]) == [0, 0]
+    seated_visitor_id = seated_host["visitor_ids"][0]
+    assert seated_host["bubble_offset_by_actor"].get(seated_visitor_id, [0, 0]) == [0, -20]
+    assert seated_host["bubble_offset_by_actor"].get(seated_host["host_id"], [0, 0]) == [0, 0]
+    ceo_visitor_id = ceo_front["visitor_ids"][0]
+    assert ceo_front["bubble_offset_by_actor"].get(ceo_visitor_id, [0, 0]) == [0, 0]
+    assert ceo_front["bubble_offset_by_actor"].get(ceo_front["host_id"], [0, 0]) == [0, 0]
     assert validate_bundle(first, root=ROOT, expected_floor_id="floor02")["bundle_revision"] == first[
         "bundle_revision"
     ]

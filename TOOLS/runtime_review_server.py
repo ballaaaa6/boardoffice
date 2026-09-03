@@ -284,17 +284,17 @@ class ReviewState:
         dialogue_locale: str | None = None,
         dialogue_seed: str | int | None = None,
         renderer: str = "raster",
-        _force_critical: bool = True,
+        _force_critical: bool = False,
         _demo_kind: str | None = None,
     ) -> dict[str, Any]:
         """Start a self-running review scenario.
 
         All actors begin off-map at the portal and enter in a deterministic
         stagger, so the review starts with the authored spawn -> walk -> seat
-        sequence.  The default review run gives the first actor critical
-        stamina so the finish-current-loop rule is visible.  The normal full
-        run disables that one forced condition while retaining every live
-        behavior timer and channel.
+        sequence.  The normal review run keeps every actor at full stamina
+        while retaining every live behavior timer and channel.  The explicit
+        Critical demo is responsible for demonstrating the finish-current-loop
+        rule with one low-energy actor.
         """
         with self.lock:
             self._select_floor(floor_id)

@@ -1901,9 +1901,14 @@ class ConversationBehaviorCore:
                 )
                 for employee_id in endpoint_by_actor
             }
-        elif mode in {"seated_host", "ceo_front"}:
+        elif mode == "seated_host":
             bubble_offset_by_actor = {
                 initiator_id: list(self.walking_visitor_bubble_extra_offset_px),
+            }
+        elif mode == "ceo_front":
+            bubble_offset_by_actor = {
+                initiator_id: [0, 0],
+                partner_id: [0, 0],
             }
 
         tracks: dict[str, list[dict[str, Any]]] = {}

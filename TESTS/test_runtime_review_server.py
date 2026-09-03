@@ -237,6 +237,15 @@ def test_review_host_exposes_all_floors_channels_and_runtime_metrics():
     assert payload["metrics"]["encode_ms"] is not None
 
 
+def test_review_live_start_defaults_every_actor_to_normal_stamina():
+    state = ReviewState()
+    payload = state.live_start(floor_id="floor02", include_runtime=False)
+
+    assert payload["actors"]
+    assert {actor["stamina"] for actor in payload["actors"]} == {100.0}
+    assert {actor["stamina_band"] for actor in payload["actors"]} == {"normal"}
+
+
 def test_review_talk_demo_can_force_self_talk_mode():
     state = ReviewState()
     payload = state.demo_talk(
