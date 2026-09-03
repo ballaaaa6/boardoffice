@@ -7,6 +7,7 @@
 ## Current state
 
 - `main` remains the active checkout. Static world/character assets, authored geometry, WorkSeat placement, navigation occupancy and reference pixels were preserved.
+- Push checkpoint: commit `c3f3d3c` (`feat: finalize lean runtime and visual bubble corrections`) is pushed to `origin/main` on 2026-09-03. The immutable `00_STARTING_POINT/` archive and scratch image remain untracked and untouched.
 - Python remains the gameplay oracle and local raster fallback. The browser-owned `floor02` slice is deterministic and metadata-only after its bootstrap load; its core does not poll `/api/tick` while stepping. The review page still intentionally exposes the existing raster/API fallback.
 - The existing project review server is healthy at `http://127.0.0.1:8765/` (PID `17724`). The prior PID `9780` was replaced after applying the walking-visitor BB change; the stale PID `11232` had previously loaded speech v1. There is now one project listener on port `8765`.
 - Startup stamina audit: the canonical actor snapshot, browser bootstrap bundle and `/api/reset` all start every actor at `100000` milli-stamina (`100`, `normal`). The browser boot/reset path calls `/api/live-start`, whose review-only default intentionally selects `EMP_W1_0010` and overrides it to `5000` (`5`, `critical`) for the critical-route demonstration. No source, asset, schema or bundle change was made; the review server was restored to reset state after the probe.
