@@ -7,7 +7,7 @@
 ## Current state
 
 - `main` remains the active checkout. Static world/character assets, authored geometry, WorkSeat placement, navigation occupancy and reference pixels were preserved.
-- Push checkpoint: commit `c3f3d3c` (`feat: finalize lean runtime and visual bubble corrections`) is pushed to `origin/main` on 2026-09-03. The immutable `00_STARTING_POINT/` archive and scratch image remain untracked and untouched.
+- Push checkpoint: commit `cefa4bd` (`fix: normalize startup stamina and CEO bubbles`) is pushed to `origin/main` on 2026-09-03. The immutable `00_STARTING_POINT/` archive and scratch image remain untracked and untouched.
 - Python remains the gameplay oracle and local raster fallback. The browser-owned `floor02` slice is deterministic and metadata-only after its bootstrap load; its core does not poll `/api/tick` while stepping. The review page still intentionally exposes the existing raster/API fallback.
 - The project review server was restarted from the updated source for live verification and then stopped after the check; port `8765` has no listener and no duplicate project server remains. Static assets and the user's untracked starting-point files were untouched.
 - Startup stamina correction: the canonical actor snapshot, browser bootstrap bundle and `/api/reset` start every actor at `100000` milli-stamina (`100`, `normal`), and the browser boot/reset path now gets the same normal default from `/api/live-start`. The explicit Critical demo still sets its selected actor to `5000` (`5`, `critical`).
