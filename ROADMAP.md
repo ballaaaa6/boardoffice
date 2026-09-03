@@ -118,15 +118,18 @@ The standing-pair visual/gameplay acceptance, Canvas/Raster acceptance, browser 
 ## TypeScript/JavaScript runtime migration design — 2026-09-03
 
 The author approved the staged Browser-owned runtime direction. The detailed
-design is recorded in `docs/superpowers/specs/2026-09-03-tsjs-runtime-migration-design.md`.
-This is a design checkpoint only; no production runtime migration has started.
+design is recorded in docs/superpowers/specs/2026-09-03-tsjs-runtime-migration-design.md
+and the task-by-task execution plan is recorded in
+docs/superpowers/plans/2026-09-03-tsjs-runtime-migration.md. No production
+runtime migration has started.
 
 - [x] Survey the current Python/browser/data boundaries and migration-tool options.
 - [x] Select contract-first TypeScript porting with Python retained as oracle,
   builder, QA and fallback.
 - [x] Define the target module boundaries, bundle rules, parity strategy,
   browser zero-request behavior, Cloudflare packaging and rollback gates.
-- [ ] Author review of the migration specification.
+- [x] Author review of the migration specification.
+- [ ] Select the execution mode and begin the Task 1 toolchain checkpoint.
 - [ ] Complete lean-first source-profile, neutral-frame, facade-boundary,
   legacy-caller and contract-freeze prerequisites before implementation.
 - [ ] Add the TypeScript toolchain and begin the production runtime port only
