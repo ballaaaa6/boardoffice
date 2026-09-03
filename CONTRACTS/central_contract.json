@@ -110,7 +110,7 @@
       "legacy_compatibility": {"fatigue": "explicit_home_request_only"}
     },
     "timing_policy": "solo_30_60s_pair_45_75s_greeting_2_3s_bubble_4000ms_fade_300ms",
-    "lane_policy": "one_speech_lane_per_floor_until_fade_end",
+    "lane_policy": "compatibility_projection_only; one_actor_slot_per_actor_until_fade_end",
       "pose_policy": "speech_selects_timing_and_plan; CentralGameCore_commits_actor_route_or_working_overlay",
     "leaving_trigger_source": "CentralGameCore.actor_draws_over_reception",
     "assignment_mutation": false

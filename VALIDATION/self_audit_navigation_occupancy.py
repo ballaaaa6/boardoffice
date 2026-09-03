@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
+
+try:
+    from VALIDATION._common import resolve_root
+except ModuleNotFoundError:
+    from _common import resolve_root
+
 
 # Keep the audit runnable both as ``python -m VALIDATION...`` and as the
 # documented direct script invocation from the repository root.
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+ROOT = resolve_root(anchor=__file__)
 
 from RUNTIME.central_core import CentralGameCore
 

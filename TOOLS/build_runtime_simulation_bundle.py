@@ -3,15 +3,16 @@ from __future__ import annotations
 """Build the metadata-only bootstrap consumed by the browser simulation."""
 
 import argparse
-import copy
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+PROJECT_ROOT = ensure_project_root(__file__)
 
 from CHARACTER.RUNTIME.frame_rules import load_frame_registry
 from RUNTIME.browser_bundle_contract import (
@@ -23,6 +24,7 @@ from RUNTIME.browser_bundle_contract import (
     validate_bundle,
 )
 from RUNTIME.central_core import CentralGameCore
+from RUNTIME.visual_selection_core import VisualSelectionCore
 
 
 DEFAULT_FLOOR_ID = "floor02"
@@ -213,7 +215,6 @@ def _conversation_inputs(
     """
     rows = [core.employee_metadata.get(row["employee_id"]) for row in core.employee_metadata.initial_roster(floor_id)]
     rows.sort(key=lambda row: (int(row["assignment"].get("assignment_order", 0)), row["employee_id"]))
-    by_id = {row["employee_id"]: row for row in rows}
     gates = {
         row["employee_id"]: core.navigation_occupancy.workstation_access(
             floor_id, row["assignment"]["workstation_id"]
@@ -228,6 +229,9 @@ def _conversation_inputs(
         None,
     )
     plans: dict[str, dict[str, Any]] = {}
+    walking_visitor_bubble_extra_offset = list(
+        core.conversation.walking_visitor_bubble_extra_offset_px
+    )
 
     def add_plan(
         initiator: dict[str, Any],
@@ -262,14 +266,14 @@ def _conversation_inputs(
         elif mode == "ceo_front":
             endpoint_by_actor[initiator_id] = list(spot["endpoint_uv"][0])
             facing_by_actor[initiator_id] = str(spot["endpoint_facing"]).upper()
-            bubble_offsets = {initiator_id: [0, 0]}
+            bubble_offsets = {initiator_id: list(walking_visitor_bubble_extra_offset)}
             host_id = partner_id
             visitor_ids = [initiator_id]
         else:
             selected = spot.get("selected_side") or {}
             endpoint_by_actor[initiator_id] = list(selected["candidate_uv"])
             facing_by_actor[initiator_id] = str(spot["visitor_idle_direction"]).upper()
-            bubble_offsets = {initiator_id: [0, 0]}
+            bubble_offsets = {initiator_id: list(walking_visitor_bubble_extra_offset)}
             host_id = partner_id
             visitor_ids = [initiator_id]
         plans[f"{initiator_id}|{partner_id}|{mode}"] = {
@@ -393,6 +397,7 @@ def build_bundle(root: str | Path, floor_id: str = DEFAULT_FLOOR_ID) -> dict[str
         "frame_rules": _json_copy(frame_registry["frames"]),
         "dialogue": _dialogue_inputs(core),
         "effects": _effect_inputs(core),
+        "visual_catalog": VisualSelectionCore(project_root).catalog(),
         "conversation": _conversation_inputs(core, floor_id),
         "initial_snapshot": _browser_snapshot(core.resolve_runtime_snapshot(
             floor_id,

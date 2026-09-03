@@ -352,7 +352,7 @@ def test_pending_talk_cancellation_preserves_the_owned_workseat_position():
     assert cancelled["snapshot"]["actors"][INITIATOR]["position"] == pending_position
 
 
-def test_pending_talk_keeps_work_clock_running_while_speech_lane_is_busy():
+def test_talk_admission_is_independent_from_another_floor_bubble():
     core, runtime = _quiet_runtime()
     actor_ids = sorted(runtime["actor_snapshot"]["actors"])
     blocker, initiator = actor_ids[:2]
@@ -380,11 +380,16 @@ def test_pending_talk_keeps_work_clock_running_while_speech_lane_is_busy():
 
     pending = current["actor_snapshot"]["actors"][initiator]
     assert pending["activity"] == "talking"
-    assert pending["conversation_phase"] == "talk_pending"
-    assert pending["behavior"]["talk"] is None
+    # The blocker owns only its own actor slot.  A free same-floor partner can
+    # still admit the initiator's pair while the blocker bubble is visible.
+    assert pending["conversation_phase"] == "walking_to_talk"
+    assert pending["behavior"]["talk"] is not None
     assert int(pending["behavior"]["work_loop_elapsed_ms"]) != before_loop
     assert int(pending["stamina"]["current_milli"]) < before_stamina
-    assert current["speech_snapshot"]["actors"][initiator]["external_talk_pending"] is True
+    assert current["speech_snapshot"]["actors"][initiator]["external_talk_pending"] is False
+    session_id = pending["behavior"]["talk"]["session_id"]
+    assert current["speech_snapshot"]["actor_slots"][initiator]["active_session_id"] == session_id
+    assert session_id in current["speech_snapshot"]["active_sessions"]
 
 
 def test_unaccepted_talk_request_times_out_back_to_working():

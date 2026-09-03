@@ -1,5 +1,3 @@
-import { stableHash64 } from "./runtime_simulation_prng.js";
-
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -10,26 +8,22 @@ function clone(value) {
 }
 
 export class BrowserEffectsReducer {
-  constructor({ employees = {}, effects = {}, seed = "gds-browser-runtime-v1" } = {}) {
+  constructor({ employees = {}, effects = {}, visualSelection = null } = {}) {
     this.employees = employees;
     this.effects = effects;
-    this.seed = seed;
+    this.visualSelection = visualSelection;
   }
 
   presentation(actor, sampleMs) {
     const event = actor?.behavior?.active_event;
     if (event !== "background_effect" && event !== "popup") return null;
     if (actor.presence === "home") return null;
-    const employee = this.employees?.[actor.employee_id] || {};
-    const profile = employee.stamina_profile?.stamina_policy?.visual_recovery_references || {};
-    const ids = event === "background_effect"
-      ? (Array.isArray(profile.effect_ids) ? profile.effect_ids : [])
-      : (Array.isArray(profile.humanball_ids) ? profile.humanball_ids : []);
-    const counter = Number(actor.behavior?.event_counter || 0);
-    const index = ids.length
-      ? Number(stableHash64(actor.employee_id, event, counter) % BigInt(ids.length))
-      : null;
-    const assetId = index === null ? null : ids[index];
+    const channel = event === "background_effect" ? "vfx" : "humanball";
+    const binding = actor.behavior?.visual_channels?.[channel]?.active_binding;
+    const assetId = isObject(binding) ? binding.asset_id : null;
+    const selectionSource = isObject(binding) && binding.selection_source
+      ? binding.selection_source
+      : "shuffle_bag";
     const elapsed = Math.max(
       0,
       Number(sampleMs) - Number(actor.behavior?.activity_started_ms || sampleMs),
@@ -38,6 +32,10 @@ export class BrowserEffectsReducer {
       return {
         channel: "vfx",
         asset_id: assetId,
+        selection_source: selectionSource,
+        visual_event_id: binding?.event_id ?? null,
+        visual_generation: binding?.generation ?? null,
+        visual_cursor_after: binding?.cursor_after ?? null,
         render_owner: "work_seat",
         action: "work",
         subaction: "normal_work",
@@ -49,6 +47,10 @@ export class BrowserEffectsReducer {
     return {
       channel: "humanball",
       asset_id: assetId,
+      selection_source: selectionSource,
+      visual_event_id: binding?.event_id ?? null,
+      visual_generation: binding?.generation ?? null,
+      visual_cursor_after: binding?.cursor_after ?? null,
       render_owner: "work_seat",
       action: "work",
       subaction: "normal_work",

@@ -1285,8 +1285,8 @@ class CentralGameCore:
         """Advance the authoritative actor/speech loop in deterministic slices.
 
         The actor reducer owns activity, locomotion and stamina.  Speech owns
-        lane timing and dialogue selection.  A talk request is accepted only
-        after the speech lane has a valid plan; Central then commits that plan
+        actor-slot timing and dialogue selection.  A talk request is accepted
+        only after the speech scheduler has a valid plan; Central then commits that plan
         back into the actor reducer (outbound route, hold/emotion boundary and
         return route).  Keeping the bridge at the shared 60 ms boundary avoids
         the old failure mode where speech showed a conversation while the
@@ -1539,7 +1539,7 @@ class CentralGameCore:
                     chunk_actor_events.extend(accepted.get("events", []))
 
                 # A talk return can finish in the same actor slice in which the
-                # speech lane was advanced.  Feed that completion back without
+                # speech scheduler was advanced.  Feed that completion back without
                 # advancing the speech clock, then commit any newly-started
                 # non-lifecycle plan on the next pass through the same helper.
                 return_commands = _bridge_from_actor_events(chunk_actor_events, [])
@@ -2043,6 +2043,7 @@ class CentralGameCore:
                     employee,
                     active_event,
                     counter=int(actor.get('behavior', {}).get('event_counter', 0)),
+                    actor=actor,
                 )
             except (EmployeeMetadataError, ActorSimulationError, KeyError, TypeError, ValueError):
                 binding = None

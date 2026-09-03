@@ -497,6 +497,22 @@
           ],
           "minimum": 0
         },
+        "visual_channels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "vfx",
+            "humanball"
+          ],
+          "properties": {
+            "vfx": {
+              "$ref": "#/$defs/visualChannelState"
+            },
+            "humanball": {
+              "$ref": "#/$defs/visualChannelState"
+            }
+          }
+        },
         "talk": {
           "anyOf": [
             {
@@ -599,6 +615,83 @@
                 "return_duration_ms": {"type": "integer", "minimum": 0}
               }
             }
+          ]
+        }
+      }
+    },
+    "visualBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "channel",
+        "asset_id",
+        "event_id",
+        "employee_id",
+        "started_at_ms",
+        "ends_at_ms",
+        "generation",
+        "cursor_after"
+      ],
+      "properties": {
+        "channel": {
+          "enum": ["vfx", "humanball"]
+        },
+        "asset_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "event_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "employee_id": {
+          "type": "string",
+          "pattern": "^EMP_W[12]_[0-9]{4}$"
+        },
+        "started_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ends_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cursor_after": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "visualChannelState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalog_profile",
+        "generation",
+        "cursor",
+        "active_binding"
+      ],
+      "properties": {
+        "catalog_profile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cursor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "active_binding": {
+          "anyOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/visualBinding"}
           ]
         }
       }

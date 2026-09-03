@@ -1,35 +1,25 @@
 from __future__ import annotations
 
-import hashlib
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
-
-def _sha(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open('rb') as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b''):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def _load(path: Path) -> Any:
-    return json.loads(path.read_text(encoding='utf-8'))
+try:
+    from VALIDATION._common import load_json, resolve_root
+except ModuleNotFoundError:
+    from _common import load_json, resolve_root
 
 
 def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]:
-    root = Path(core_root).resolve()
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    root = resolve_root(core_root)
 
     from RUNTIME.central_core import CentralGameCore
+    from RUNTIME.asset_utils import file_sha256
     from WORLD.RUNTIME.floor_renderer import png_sha256, rgba_sha256
 
-    refs = _load(root / 'VALIDATION' / 'reference_hashes.json')
+    refs = load_json(root / 'VALIDATION' / 'reference_hashes.json')
     core = CentralGameCore(root)
 
     pc_animation_registry = core.world.pc_animation
@@ -109,7 +99,6 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'CHARACTER/EFFECTS/humanball_v1.json',
         # Phase 8E central timing policy aligns character, VFX and HumanBall
         # presentation to the 60 ms simulation tick (360/240/240).
-        'CHARACTER/BUILD_MANIFEST.json',
         'CHARACTER/FINAL_MANIFEST.json',
         'CHARACTER/RUNTIME/action_renderer.py',
         'CHARACTER/RUNTIME/effect_renderer.py',
@@ -130,6 +119,9 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         'WORLD/REGISTRY/visual_variants.json',
         'WORLD/REGISTRY/pc_animation.json',
         'WORLD/RUNTIME/layout_core.py',
+        # Track A moves the canonical RGBA hash implementation into a shared
+        # leaf helper without changing rendered pixels or asset hashes.
+        'WORLD/RUNTIME/floor_renderer.py',
         # Phase 8E dialogue presentation adds public runtime exports while
         # leaving the frozen character/world payloads unchanged.
         'CHARACTER/RUNTIME/__init__.py',
@@ -141,7 +133,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         if not p.is_file():
             payload_missing.append(rel)
             continue
-        actual = _sha(p)
+        actual = file_sha256(p)
         if actual != expected and rel not in evolved_payload_files:
             payload_mismatches.append({'path': rel, 'expected': expected, 'actual': actual})
 
@@ -182,8 +174,8 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
     ]
     schema_errors: list[dict[str, Any]] = []
     for schema_rel, data_rel in schema_pairs:
-        schema = _load(root / schema_rel)
-        data = _load(root / data_rel)
+        schema = load_json(root / schema_rel)
+        data = load_json(root / data_rel)
         errors = sorted(Draft202012Validator(schema).iter_errors(data), key=lambda e: list(e.path))
         if errors:
             schema_errors.append({
@@ -192,11 +184,11 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
                 'errors': [err.message for err in errors[:10]],
             })
 
-    cards_payload = _load(root / 'CHARACTER' / 'IDENTITY' / 'CHARACTERS' / 'identity_cards.json')
-    aliases_payload = _load(root / 'CHARACTER' / 'IDENTITY' / 'CHARACTERS' / 'identity_alias_index.json')
+    cards_payload = load_json(root / 'CHARACTER' / 'IDENTITY' / 'CHARACTERS' / 'identity_cards.json')
+    aliases_payload = load_json(root / 'CHARACTER' / 'IDENTITY' / 'CHARACTERS' / 'identity_alias_index.json')
     cards = cards_payload['characters']
     card_by_id = {row['character_id']: row for row in cards}
-    technical = _load(root / 'CHARACTER' / 'CHARACTERS' / 'characters.json')['characters']
+    technical = load_json(root / 'CHARACTER' / 'CHARACTERS' / 'characters.json')['characters']
     tech_by_id = {row['character_id']: row for row in technical}
     employee_rows = core.list_employees()
     employee_wave1 = core.list_employees(wave=1)

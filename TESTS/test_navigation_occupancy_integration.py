@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from RUNTIME.central_core import CentralGameCore
 
 

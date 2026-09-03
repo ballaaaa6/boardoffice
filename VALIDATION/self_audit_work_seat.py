@@ -1,40 +1,32 @@
 from __future__ import annotations
 
-import hashlib
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 from PIL import Image
 
-
-def _load(path: Path) -> Any:
-    return json.loads(path.read_text(encoding='utf-8'))
-
-
-def _rgba_sha256(image: Image.Image) -> str:
-    rgba = image.convert('RGBA')
-    payload = rgba.width.to_bytes(4, 'big') + rgba.height.to_bytes(4, 'big') + rgba.tobytes()
-    return hashlib.sha256(payload).hexdigest()
+try:
+    from VALIDATION._common import load_json, resolve_root
+except ModuleNotFoundError:
+    from _common import load_json, resolve_root
 
 
 def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]:
-    root = Path(core_root).resolve()
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    root = resolve_root(core_root)
 
     from CHARACTER.RUNTIME.character_system import CharacterSystem
+    from RUNTIME.asset_utils import rgba_sha256
     from RUNTIME.work_seat_core import WorkSeatCore
-    from WORLD.RUNTIME.floor_renderer import FloorRenderer, png_sha256, rgba_sha256
+    from WORLD.RUNTIME.floor_renderer import FloorRenderer, png_sha256
     from WORLD.RUNTIME.room_navigation_core import RoomNavigationCore
 
-    families = _load(root / 'WORLD' / 'REGISTRY' / 'chair_families.json')
-    assets = _load(root / 'WORLD' / 'REGISTRY' / 'world_assets.json')['assets']
-    refs = _load(root / 'VALIDATION' / 'chair_source_reference.json')['parts']
-    floor_refs = _load(root / 'VALIDATION' / 'work_seat_floor_reference_hashes.json')['floors']
-    pose = _load(root / 'CONTRACTS' / 'work_pose_profiles.json')
+    families = load_json(root / 'WORLD' / 'REGISTRY' / 'chair_families.json')
+    assets = load_json(root / 'WORLD' / 'REGISTRY' / 'world_assets.json')['assets']
+    refs = load_json(root / 'VALIDATION' / 'chair_source_reference.json')['parts']
+    floor_refs = load_json(root / 'VALIDATION' / 'work_seat_floor_reference_hashes.json')['floors']
+    pose = load_json(root / 'CONTRACTS' / 'work_pose_profiles.json')
 
     schema_errors: list[dict[str, Any]] = []
     for schema_rel, data_rel in (
@@ -42,8 +34,8 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         ('SCHEMA/work_pose_profiles.schema.json', 'CONTRACTS/work_pose_profiles.json'),
         ('SCHEMA/WORLD/character_direction_bridge.schema.json', 'WORLD/REGISTRY/character_direction_bridge.json'),
     ):
-        schema = _load(root / schema_rel)
-        data = _load(root / data_rel)
+        schema = load_json(root / schema_rel)
+        data = load_json(root / data_rel)
         errors = list(Draft202012Validator(schema).iter_errors(data))
         if errors:
             schema_errors.append({
@@ -77,7 +69,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
             chair_hash_errors.append({'part_id': part_id, 'error': 'missing_blob'})
             continue
         with Image.open(blob) as im:
-            actual_rgba = _rgba_sha256(im.convert('RGBA'))
+            actual_rgba = rgba_sha256(im.convert('RGBA'))
         if actual_rgba != ref['rgba_sha256'] or asset['rgba_sha256'] != ref['rgba_sha256']:
             chair_hash_errors.append({
                 'part_id': part_id,

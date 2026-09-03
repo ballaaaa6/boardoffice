@@ -3,15 +3,17 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+ROOT = ensure_project_root(__file__)
 OUTPUT_NAME = "PHASE8D_WORKSEAT_SINGLE_ACTOR_QA_20260831"
 CASES = [
     ("F0_CEO_SE", "floor00", "ceo"),

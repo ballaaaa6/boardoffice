@@ -129,7 +129,6 @@ class GameplayMetadataFamilyCore:
         canonical_instances = self._instance_geometry(canonical_occ)
 
         for floor_id in members:
-            floor_room = self.room_navigation.room_cells(floor_id)
             floor_portal = self.room_navigation.portal(floor_id)
             floor_occ = self.occupancy.resolve_floor(floor_id)
 

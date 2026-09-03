@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from RUNTIME.work_seat_core import WorkSeatCore, WorkSeatError
-from RUNTIME.work_seat_lifecycle import WorkSeatLifecycle, WorkSeatLifecycleError
+from RUNTIME.work_seat_lifecycle import WorkSeatLifecycle
 from WORLD.RUNTIME.layout_core import LayoutCore
 from WORLD.RUNTIME.navigation_occupancy_core import NavigationOccupancyCore
 from WORLD.RUNTIME.walking_depth_core import WalkingDepthCore

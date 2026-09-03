@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
-
-def _load(path: Path) -> Any:
-    return json.loads(path.read_text(encoding='utf-8'))
+try:
+    from VALIDATION._common import load_json, resolve_root
+except ModuleNotFoundError:
+    from _common import load_json, resolve_root
 
 
 def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]:
-    root = Path(core_root).resolve()
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    root = resolve_root(core_root)
 
     from VALIDATION.self_audit_central import audit as audit_base
     from RUNTIME.central_core import CentralGameCore
@@ -23,8 +21,8 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
     base = audit_base(root, write_report=False)
     core = CentralGameCore(root)
 
-    spatial_registry = _load(root / 'WORLD' / 'REGISTRY' / 'spatial_profiles.json')
-    spatial_schema = _load(root / 'SCHEMA' / 'WORLD' / 'spatial_profiles.schema.json')
+    spatial_registry = load_json(root / 'WORLD' / 'REGISTRY' / 'spatial_profiles.json')
+    spatial_schema = load_json(root / 'SCHEMA' / 'WORLD' / 'spatial_profiles.schema.json')
     schema_errors = sorted(
         Draft202012Validator(spatial_schema).iter_errors(spatial_registry),
         key=lambda e: list(e.path),

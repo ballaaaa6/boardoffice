@@ -2,16 +2,18 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from collections import deque
 from pathlib import Path
 from typing import Any
 
 from PIL import Image, ImageDraw
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+ROOT = ensure_project_root(__file__)
 
 from WORLD.RUNTIME.floor_renderer import FloorRenderer
 from WORLD.RUNTIME.navigation_occupancy_core import NavigationOccupancyCore
@@ -284,8 +286,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description='Render Phase 8A navigation QA artifacts')
     parser.add_argument('--output', required=True, help='External review output directory')
     args = parser.parse_args()
-    root = Path(__file__).resolve().parents[1]
-    report = Phase8ANavigationQA(root).generate_review_bundle(args.output)
+    report = Phase8ANavigationQA(ROOT).generate_review_bundle(args.output)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if report['status'] == 'PASS' else 1
 

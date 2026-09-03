@@ -373,9 +373,9 @@ def test_full_live_lifecycle_bubbles_follow_their_actor_boundaries():
         dialogue_seed="lifecycle-boundaries",
     )
     events = list(payload["events"])
-    # A floor has one speech lane by contract.  Use a larger host slice here
-    # to let the deterministic queue drain without rendering 1,700 separate
-    # browser frames; the actor-level 60 ms tests cover per-frame progress.
+    # Let the deterministic actor-slot queue drain without rendering 1,700
+    # separate browser frames; the actor-level 60 ms tests cover per-frame
+    # progress.
     for _ in range(300):
         payload = state.tick(
             360,

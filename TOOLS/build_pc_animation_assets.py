@@ -8,49 +8,26 @@ content-addressed cell blobs and the small runtime registry consumed by
 """
 
 import argparse
-import hashlib
 import json
-from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 from PIL import Image
 
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
 
-def file_sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+ensure_project_root(__file__)
 
-
-def rgba_sha256(image: Image.Image) -> str:
-    rgba = image.convert("RGBA")
-    payload = (
-        rgba.width.to_bytes(4, "big")
-        + rgba.height.to_bytes(4, "big")
-        + rgba.tobytes()
-    )
-    return hashlib.sha256(payload).hexdigest()
-
-
-def png_bytes(image: Image.Image) -> bytes:
-    output = BytesIO()
-    image.convert("RGBA").save(output, format="PNG")
-    return output.getvalue()
-
-
-def load_json(path: Path) -> Any:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def write_json(path: Path, payload: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+from RUNTIME.asset_utils import (  # noqa: E402
+    file_sha256,
+    load_json,
+    png_bytes,
+    rgba_sha256,
+    write_json,
+)
 
 
 def build(root: Path, source_office: Path) -> dict[str, Any]:

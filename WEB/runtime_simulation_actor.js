@@ -78,11 +78,13 @@ function quantizeMs(milliseconds) {
 }
 
 export class BrowserActorReducer {
-  constructor({ employees = {}, navigation, workSeat } = {}) {
+  constructor({ employees = {}, navigation, workSeat, visualSelection } = {}) {
     if (!navigation || !workSeat) throw new TypeError("BrowserActorReducer needs navigation and WorkSeat reducers");
+    if (!visualSelection) throw new TypeError("BrowserActorReducer needs visual selection");
     this.employees = employees;
     this.navigation = navigation;
     this.workSeat = workSeat;
+    this.visualSelection = visualSelection;
   }
 
   employeeFor(actor) {
@@ -143,6 +145,146 @@ export class BrowserActorReducer {
     return Number(nowMs) + this.nextIntervalMs(employee, {
       counter: Number(actor.behavior.event_counter || 0),
       nowMs,
+    });
+  }
+
+  chooseBehaviorEvent(actor, employee, nowMs) {
+    const policy = this.staminaPolicy(employee);
+    const recoveryEvents = policy.recovery_events;
+    const eligible = [];
+    for (const event of WEIGHTED_EVENTS) {
+      const weight = Number(recoveryEvents?.[event]?.selection_weight || 0);
+      const cooldownUntil = Number(actor.behavior.cooldowns?.[event] || 0);
+      if (weight > 0 && Number(nowMs) >= cooldownUntil) eligible.push([event, weight]);
+    }
+    if (eligible.length === 0) throw new TypeError("No eligible weighted recovery event");
+    const total = eligible.reduce((sum, [, weight]) => sum + weight, 0);
+    let ticket = Number(stableHash64(
+      employee.employee_id,
+      this.staminaProfile(employee).profile_seed,
+      Number(actor.behavior.event_counter || 0),
+      Number(nowMs),
+    ) % BigInt(total));
+    for (const [event, weight] of eligible) {
+      if (ticket < weight) return event;
+      ticket -= weight;
+    }
+    return eligible.at(-1)[0];
+  }
+
+  activityDurationMs(employee, event, counter) {
+    const values = this.staminaPolicy(employee).recovery_events?.[event]?.activity_duration_seconds_range;
+    if (!Array.isArray(values) || values.length !== 2) {
+      throw new TypeError(`${employee.employee_id}: activity duration range is invalid`);
+    }
+    const lower = Number(values[0]);
+    const upper = Number(values[1]);
+    if (!Number.isInteger(lower) || !Number.isInteger(upper) || lower < 1 || upper < lower) {
+      throw new TypeError(`${employee.employee_id}: activity duration range is invalid`);
+    }
+    const ticket = stableHash64(
+      employee.employee_id,
+      this.staminaProfile(employee).profile_seed,
+      "duration",
+      event,
+      Number(counter),
+    );
+    return quantizeMs(
+      (lower + Number(ticket % BigInt(upper - lower + 1)))
+      * 1000
+      * Number(this.staminaProfile(employee).event_timing_multiplier_percent)
+      / 100,
+    );
+  }
+
+  ensureVisualChannels(actor) {
+    if (!isObject(actor.behavior)) throw new TypeError(`${actor.employee_id}: behavior is required`);
+    if (!isObject(actor.behavior.visual_channels)) actor.behavior.visual_channels = {};
+    for (const channel of ["vfx", "humanball"]) {
+      if (!isObject(actor.behavior.visual_channels[channel])) {
+        actor.behavior.visual_channels[channel] = this.visualSelection.initialChannelState(channel);
+      }
+      this.visualSelection.validateChannelState(actor.behavior.visual_channels[channel], channel);
+    }
+    return actor.behavior.visual_channels;
+  }
+
+  visualChannelForEvent(event) {
+    if (event === "background_effect") return "vfx";
+    if (event === "popup") return "humanball";
+    return null;
+  }
+
+  visualEventId(actor, event, counter, timestampMs) {
+    return `visual:${actor.employee_id}:${event}:${counter}:${timestampMs}`;
+  }
+
+  presentationForBehavior(actor, event) {
+    if (event === "talk") {
+      return { channel: "conversation", behavior: "talk", binding: "speech_scheduler_behavior_request" };
+    }
+    const channel = this.visualChannelForEvent(event);
+    if (channel) {
+      const binding = this.ensureVisualChannels(actor)[channel].active_binding;
+      const payload = {
+        channel,
+        asset_id: binding?.asset_id ?? null,
+        selection_source: binding?.selection_source || "shuffle_bag",
+        render_owner: "work_seat",
+        action: "work",
+        subaction: "normal_work",
+        character_frame_ms: 360,
+      };
+      payload[channel === "vfx" ? "effect_frame_ms" : "humanball_frame_ms"] = 240;
+      if (binding) {
+        payload.visual_event_id = binding.event_id;
+        payload.visual_generation = binding.generation;
+        payload.visual_cursor_after = binding.cursor_after;
+      }
+      return payload;
+    }
+    return { channel: "movement", render_owner: "walking_depth", action: "move", subaction: "idle" };
+  }
+
+  startEvent(context, actor, employee, event, timestampMs, events) {
+    if (!WEIGHTED_EVENTS.includes(event)) throw new TypeError(`Unknown weighted recovery event: ${event}`);
+    const counter = Number(actor.behavior.event_counter || 0) + 1;
+    actor.behavior.event_counter = counter;
+    actor.behavior.active_event = event;
+    actor.behavior.activity_started_ms = Number(timestampMs);
+    actor.behavior.activity_until_ms = event === "talk"
+      ? null
+      : Number(timestampMs) + this.activityDurationMs(employee, event, counter);
+    actor.behavior.next_event_due_ms = null;
+    actor.behavior.talk = null;
+    actor.behavior.cooldowns = actor.behavior.cooldowns || {};
+    actor.behavior.cooldowns[event] = Number(timestampMs) + this.nextIntervalMs(employee, {
+      counter,
+      nowMs: Number(timestampMs),
+      event,
+    });
+    actor.presence = "present";
+    actor.activity = EVENT_ACTIVITY[event];
+    actor.conversation_phase = event === "talk" ? "talk_pending" : null;
+    const channel = this.visualChannelForEvent(event);
+    if (channel) {
+      const visualChannels = this.ensureVisualChannels(actor);
+      const visualEventId = this.visualEventId(actor, event, counter, timestampMs);
+      const selected = this.visualSelection.select(visualChannels[channel], {
+        channel,
+        simulationSeed: String(context.snapshot.determinism.simulation_seed),
+        employeeId: actor.employee_id,
+        eventId: visualEventId,
+        startedAtMs: Number(timestampMs),
+        endsAtMs: Number(actor.behavior.activity_until_ms),
+      });
+      visualChannels[channel] = selected.state;
+    }
+    this.appendEvent(context, events, actor, timestampMs, "behavior_started", {
+      behavior: event,
+      activity: actor.activity,
+      activity_until_ms: actor.behavior.activity_until_ms,
+      presentation: this.presentationForBehavior(actor, event),
     });
   }
 
@@ -753,6 +895,17 @@ export class BrowserActorReducer {
   completeEvent(context, actor, employee, timestampMs, events) {
     const event = actor.behavior.active_event;
     if (!WEIGHTED_EVENTS.includes(event)) throw new TypeError(`${actor.employee_id}: missing active recovery event`);
+    const channel = this.visualChannelForEvent(event);
+    if (channel) {
+      const visualChannels = this.ensureVisualChannels(actor);
+      const active = visualChannels[channel].active_binding;
+      if (active) {
+        visualChannels[channel] = this.visualSelection.clearActive(
+          visualChannels[channel],
+          { channel, eventId: active.event_id },
+        );
+      }
+    }
     const policy = this.staminaPolicy(employee).recovery_events?.[event] || {};
     const range = policy.recovery_amount_range || [0, 0];
     const counter = integer(actor.behavior.event_counter, 0);
@@ -977,6 +1130,21 @@ export class BrowserActorReducer {
       }
       if (actor.activity === "working") {
         const behavior = actor.behavior;
+        const talk = behavior.talk;
+        const stationaryTalk = isObject(talk) && !Boolean(
+          talk.route_committed ?? Boolean(talk.outbound_path_cells_uv?.length),
+        );
+        if (stationaryTalk) {
+          const overlayEnd = integer(talk.return_start_at_ms, nowMs);
+          if (overlayEnd > nowMs) {
+            const stepTarget = Math.min(targetMs, overlayEnd);
+            this.drainWork(actor, employee, stepTarget - nowMs);
+            nowMs = stepTarget;
+            if (nowMs < overlayEnd) break;
+          }
+          this.finishTalkActor(context, actor, employee, nowMs, events);
+          continue;
+        }
         if (actor.stamina.threshold_band === "critical" && !behavior.pending_home) {
           const loopElapsed = integer(behavior.work_loop_elapsed_ms, 0);
           const offset = WORK_LOOP_MS - loopElapsed;
@@ -1010,8 +1178,28 @@ export class BrowserActorReducer {
           }
           break;
         }
-        this.drainWork(actor, employee, targetMs - nowMs);
-        nowMs = targetMs;
+        let due = behavior.next_event_due_ms;
+        if (due === null || due === undefined) {
+          due = this.scheduleNextEvent(actor, employee, nowMs);
+          behavior.next_event_due_ms = due;
+        }
+        const stepTarget = Math.min(targetMs, Number(due));
+        this.drainWork(actor, employee, stepTarget - nowMs);
+        nowMs = stepTarget;
+        if (nowMs >= targetMs) continue;
+        let event;
+        try {
+          event = this.chooseBehaviorEvent(actor, employee, nowMs);
+        } catch (error) {
+          if (!(error instanceof TypeError) || error.message !== "No eligible weighted recovery event") throw error;
+          const futureCooldowns = Object.values(behavior.cooldowns || {})
+            .map((value) => Number(value))
+            .filter((value) => value > nowMs);
+          if (futureCooldowns.length === 0) throw error;
+          behavior.next_event_due_ms = Math.min(...futureCooldowns);
+          continue;
+        }
+        this.startEvent(context, actor, employee, event, nowMs, events);
         continue;
       }
       if (actor.activity === "popup_event") {
@@ -1035,6 +1223,7 @@ export class BrowserActorReducer {
     if (!isObject(actor)) throw new TypeError("actor must be an object");
     if (!Number.isInteger(elapsedMs) || elapsedMs < 0) throw new TypeError("elapsedMs must be a non-negative integer");
     const employee = this.employeeFor(actor);
+    this.ensureVisualChannels(actor);
     const events = [];
     const nowMs = Number(context.nowMs);
     const targetMs = nowMs + elapsedMs;

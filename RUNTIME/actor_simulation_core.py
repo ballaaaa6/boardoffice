@@ -21,6 +21,7 @@ from jsonschema import Draft202012Validator
 
 from RUNTIME.character_movement_core import CharacterMovementCore, CharacterMovementError
 from RUNTIME.employee_registry import EmployeeMetadataError, EmployeeMetadataRegistry
+from RUNTIME.visual_selection_core import VisualSelectionCore, VisualSelectionError
 from WORLD.RUNTIME.pathfinding_core import PathfindingError
 
 
@@ -110,6 +111,10 @@ class ActorSimulationCore:
     ):
         self.root = Path(root).resolve()
         self.employee_registry = employee_registry or EmployeeMetadataRegistry(self.root)
+        try:
+            self.visual_selection = VisualSelectionCore(self.root)
+        except VisualSelectionError as exc:
+            raise ActorSimulationError(str(exc)) from exc
         self.slot_resolver = slot_resolver
         self.movement = movement or CharacterMovementCore(
             self.root,
@@ -877,45 +882,44 @@ class ActorSimulationCore:
         event: str,
         *,
         counter: int,
+        actor: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Describe the visual channel while leaving its clock to the renderer."""
-        refs = self.employee_registry.stamina_policy().get(
-            "visual_recovery_references", {}
-        )
         if event == "talk":
             return {
                 "channel": "conversation",
                 "behavior": "talk",
                 "binding": "speech_scheduler_behavior_request",
             }
-        if event == "background_effect":
-            ids = refs.get("effect_ids", []) if isinstance(refs, dict) else []
-            asset_id = ids[
-                self._stable_int(employee["employee_id"], event, counter) % len(ids)
-            ] if ids else None
-            return {
-                "channel": "vfx",
-                "asset_id": asset_id,
+        if event in {"background_effect", "popup"}:
+            if actor is None:
+                raise ActorSimulationError(
+                    f"{event} presentation requires its actor binding"
+                )
+            channel = "vfx" if event == "background_effect" else "humanball"
+            visual_channels = actor.get("behavior", {}).get("visual_channels", {})
+            channel_state = visual_channels.get(channel, {})
+            binding = channel_state.get("active_binding")
+            payload = {
+                "channel": channel,
+                "asset_id": binding.get("asset_id") if isinstance(binding, dict) else None,
+                "selection_source": "shuffle_bag",
                 "render_owner": "work_seat",
                 "action": "work",
                 "subaction": "normal_work",
                 "character_frame_ms": 360,
-                "effect_frame_ms": 240,
             }
-        if event == "popup":
-            ids = refs.get("humanball_ids", []) if isinstance(refs, dict) else []
-            asset_id = ids[
-                self._stable_int(employee["employee_id"], event, counter) % len(ids)
-            ] if ids else None
-            return {
-                "channel": "humanball",
-                "asset_id": asset_id,
-                "render_owner": "work_seat",
-                "action": "work",
-                "subaction": "normal_work",
-                "character_frame_ms": 360,
-                "humanball_frame_ms": 240,
-            }
+            if channel == "vfx":
+                payload["effect_frame_ms"] = 240
+            else:
+                payload["humanball_frame_ms"] = 240
+            if isinstance(binding, dict):
+                payload.update({
+                    "visual_event_id": binding.get("event_id"),
+                    "visual_generation": binding.get("generation"),
+                    "visual_cursor_after": binding.get("cursor_after"),
+                })
+            return payload
         return {
             "channel": "movement",
             "render_owner": "walking_depth",
@@ -1095,6 +1099,10 @@ class ActorSimulationCore:
                 "pending_home": False,
                 "pending_home_due_ms": None,
                 "talk": None,
+                "visual_channels": {
+                    "vfx": self.visual_selection.initial_channel_state("vfx"),
+                    "humanball": self.visual_selection.initial_channel_state("humanball"),
+                },
             },
             "conversation_phase": None,
             "last_event": "initial",
@@ -1158,6 +1166,13 @@ class ActorSimulationCore:
             behavior.setdefault("pending_home", False)
             behavior.setdefault("pending_home_due_ms", None)
             behavior.setdefault("talk", None)
+            visual_channels = behavior.get("visual_channels")
+            if not isinstance(visual_channels, dict):
+                visual_channels = {}
+                behavior["visual_channels"] = visual_channels
+            for channel in ("vfx", "humanball"):
+                if channel not in visual_channels:
+                    visual_channels[channel] = self.visual_selection.initial_channel_state(channel)
             talk = behavior.get("talk")
             if isinstance(talk, dict):
                 # ``route_committed`` was added after the first talk-session
@@ -1418,6 +1433,19 @@ class ActorSimulationCore:
             profile = self._profile(employee)
             if behavior["profile_seed"] != profile.get("profile_seed"):
                 raise ActorSimulationError(f"{employee_id}: behavior profile seed changed")
+            visual_channels = behavior.get("visual_channels", {})
+            if not isinstance(visual_channels, dict):
+                raise ActorSimulationError(f"{employee_id}: visual_channels must be an object")
+            for channel in ("vfx", "humanball"):
+                try:
+                    self.visual_selection.validate_channel_state(
+                        visual_channels.get(channel),
+                        channel,
+                    )
+                except VisualSelectionError as exc:
+                    raise ActorSimulationError(
+                        f"{employee_id}.visual_channels.{channel}: {exc}"
+                    ) from exc
             self._require_int(behavior["event_counter"], f"{employee_id}.event_counter")
             self._require_int(
                 behavior["activity_started_ms"],
@@ -2257,7 +2285,7 @@ class ActorSimulationCore:
         if actor["activity"] != "talking" or actor["conversation_phase"] != "talk_pending":
             raise ActorSimulationError(f"{actor['employee_id']}: only pending talk can be cancelled")
         # A pending talk request is created by a seated actor while the
-        # speech lane is busy.  Cancelling that request must release only the
+        # speech scheduler has not admitted it yet.  Cancelling that request must release only the
         # conversation state; the actor still owns the WorkSeat and its
         # current presentation anchor.  Routed talk sessions are accepted
         # before they can leave the seat, so a pending request has no route to
@@ -2636,6 +2664,42 @@ class ActorSimulationCore:
             # finishes the current segment and hands off to the next phase.
         return now_ms
 
+    @staticmethod
+    def _visual_channel_for_event(event: str) -> str | None:
+        if event == "background_effect":
+            return "vfx"
+        if event == "popup":
+            return "humanball"
+        return None
+
+    @staticmethod
+    def _visual_event_id(actor: dict[str, Any], *, event: str, counter: int, timestamp_ms: int) -> str:
+        return f"visual:{actor['employee_id']}:{event}:{counter}:{timestamp_ms}"
+
+    def _clear_visual_binding(
+        self,
+        actor: dict[str, Any],
+        *,
+        event: str,
+    ) -> None:
+        channel = self._visual_channel_for_event(event)
+        if channel is None:
+            return
+        state = actor["behavior"]["visual_channels"][channel]
+        active = state.get("active_binding")
+        if active is None:
+            return
+        try:
+            actor["behavior"]["visual_channels"][channel] = self.visual_selection.clear_active(
+                state,
+                channel=channel,
+                event_id=active.get("event_id"),
+            )
+        except VisualSelectionError as exc:
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: cannot clear {channel} visual binding"
+            ) from exc
+
     def _start_event(
         self,
         snapshot: dict[str, Any],
@@ -2672,6 +2736,29 @@ class ActorSimulationCore:
         actor["presence"] = "present"
         actor["activity"] = self.EVENT_ACTIVITY[event]
         actor["conversation_phase"] = "talk_pending" if event == "talk" else None
+        visual_channel = self._visual_channel_for_event(event)
+        if visual_channel is not None:
+            visual_event_id = self._visual_event_id(
+                actor,
+                event=event,
+                counter=counter,
+                timestamp_ms=timestamp_ms,
+            )
+            try:
+                visual_state, _binding = self.visual_selection.select(
+                    actor["behavior"]["visual_channels"][visual_channel],
+                    channel=visual_channel,
+                    simulation_seed=str(snapshot["determinism"]["simulation_seed"]),
+                    employee_id=actor["employee_id"],
+                    event_id=visual_event_id,
+                    started_at_ms=int(timestamp_ms),
+                    ends_at_ms=int(actor["behavior"]["activity_until_ms"]),
+                )
+            except VisualSelectionError as exc:
+                raise ActorSimulationError(
+                    f"{actor['employee_id']}: cannot select {visual_channel} visual"
+                ) from exc
+            actor["behavior"]["visual_channels"][visual_channel] = visual_state
         if event == "wander":
             assignment = actor["assignment"]
             floor_id = assignment["floor_id"]
@@ -2709,6 +2796,7 @@ class ActorSimulationCore:
                 employee,
                 event,
                 counter=counter,
+                actor=actor,
             ),
         )
 
@@ -2724,6 +2812,7 @@ class ActorSimulationCore:
         event = actor["behavior"].get("active_event")
         if event not in self.WEIGHTED_EVENTS:
             raise ActorSimulationError(f"{actor['employee_id']}: missing active recovery event")
+        self._clear_visual_binding(actor, event=event)
         counter = int(actor["behavior"]["event_counter"])
         stamina = actor["stamina"]
         before = int(stamina["current_milli"])
@@ -2936,7 +3025,7 @@ class ActorSimulationCore:
                 # A weighted talk event is a request until Central accepts a
                 # speech/conversation session.  It must not consume the old
                 # generic 5–8 second activity window while waiting in the
-                # speech lane.
+                # actor-owned speech slot.
                 talk = actor["behavior"].get("talk")
                 if actor["conversation_phase"] == "talk_pending" and talk is None:
                     queue_deadline = int(actor["behavior"].get("activity_started_ms", now_ms)) + self.TALK_QUEUE_TIMEOUT_MS

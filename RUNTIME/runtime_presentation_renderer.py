@@ -18,7 +18,6 @@ No simulation snapshot is mutated by this renderer.
 """
 
 import copy
-from pathlib import Path
 from typing import Any, Literal, TYPE_CHECKING
 
 from PIL import Image

@@ -2,48 +2,18 @@ from __future__ import annotations
 
 import json
 import random
-import sys
-from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+ROOT = ensure_project_root(__file__)
 
 from RUNTIME.central_core import CentralGameCore
-
-
-def build_global_palette(frames: list[Image.Image]) -> list[int]:
-    if not frames:
-        raise ValueError('frames required')
-    strip = Image.new('RGBA', (frames[0].width * len(frames), frames[0].height), (0, 0, 0, 0))
-    for idx, frame in enumerate(frames):
-        strip.alpha_composite(frame.convert('RGBA'), (idx * frame.width, 0))
-    alpha = strip.getchannel('A')
-    rgb = Image.new('RGB', strip.size, (0, 0, 0))
-    rgb.paste(strip, mask=alpha)
-    pal = rgb.quantize(colors=255, method=Image.Quantize.MEDIANCUT)
-    palette = pal.getpalette() or []
-    if len(palette) < 768:
-        palette += [0] * (768 - len(palette))
-    return palette[:768]
-
-
-def to_palette(im: Image.Image, palette: list[int]) -> Image.Image:
-    rgba = im.convert('RGBA')
-    alpha = rgba.getchannel('A')
-    rgb = Image.new('RGB', rgba.size, (0, 0, 0))
-    rgb.paste(rgba, mask=alpha)
-    palette_image = Image.new('P', (1, 1))
-    palette_image.putpalette(palette)
-    pal = rgb.quantize(colors=255, palette=palette_image, dither=Image.Dither.NONE)
-    transparent_mask = alpha.point(lambda a: 255 if a == 0 else 0)
-    pal.paste(255, mask=transparent_mask)
-    pal.putpalette(palette)
-    pal.info['transparency'] = 255
-    return pal
-
+from TOOLS._image_utils import build_global_palette, to_palette
 
 def main() -> int:
     core = CentralGameCore(ROOT)

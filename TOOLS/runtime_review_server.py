@@ -14,7 +14,6 @@ import base64
 import copy
 import json
 import mimetypes
-import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -23,9 +22,12 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlsplit
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+PROJECT_ROOT = ensure_project_root(__file__)
 
 from RUNTIME.central_core import CentralGameCore, CentralGameCoreError
 from RUNTIME.runtime_persistence import RuntimePersistenceError
@@ -897,7 +899,7 @@ class ReviewState:
         """Keep review demos focused on their authored event, not timer chatter.
 
         Returning a talk visitor changes its activity back to ``working`` in
-        the same Central slice.  The speech lane quite correctly treats that
+        the same Central slice.  The speech scheduler quite correctly treats that
         as a fresh work-start opportunity, but that unrelated bubble would
         obscure the talk return the dashboard is meant to review.  Remove only
         those newly-created routine sessions from the review host snapshot;
@@ -925,6 +927,32 @@ class ReviewState:
                 if isinstance(sessions, dict):
                     for session_id in routine_ids:
                         sessions.pop(session_id, None)
+            claims = speech_snapshot.get("resource_claims")
+            if isinstance(claims, dict):
+                for claim_id, claim in list(claims.items()):
+                    if (
+                        isinstance(claim, dict)
+                        and str(claim.get("session_id")) in routine_ids
+                    ):
+                        claims.pop(claim_id, None)
+            actor_slots = speech_snapshot.get("actor_slots")
+            if isinstance(actor_slots, dict):
+                for slot in actor_slots.values():
+                    if not isinstance(slot, dict):
+                        continue
+                    if str(slot.get("active_session_id")) in routine_ids:
+                        session_id = slot.get("active_session_id")
+                        slot["active_session_id"] = None
+                        slot["active_until_ms"] = None
+                        if session_id in routine_ids:
+                            slot["last_completed_session_id"] = None
+                    queued_ids = slot.get("queued_request_ids")
+                    if isinstance(queued_ids, list):
+                        slot["queued_request_ids"] = [
+                            request_id
+                            for request_id in queued_ids
+                            if str(request_id) not in routine_ids
+                        ]
             lanes = speech_snapshot.get("lanes")
             if isinstance(lanes, dict):
                 for lane in lanes.values():
@@ -941,6 +969,14 @@ class ReviewState:
                             session_id
                             for session_id in queued
                             if str(session_id) not in routine_ids
+                        ]
+                    queued_requests = lane.get("queued_requests")
+                    if isinstance(queued_requests, list):
+                        lane["queued_requests"] = [
+                            request
+                            for request in queued_requests
+                            if not isinstance(request, dict)
+                            or str(request.get("session_id")) not in routine_ids
                         ]
             speech_actors = speech_snapshot.get("actors", {})
             actor_rows = actor_snapshot.get("actors", {}) if isinstance(actor_snapshot, dict) else {}
@@ -962,6 +998,7 @@ class ReviewState:
                         "pair_pending": False,
                         "last_activity": actor_row.get("activity", "working"),
                     })
+            self.core.speech_scheduler._refresh_legacy_lanes(speech_snapshot)
         for key in ("events", "speech_events"):
             events = frame.get(key)
             if isinstance(events, list):

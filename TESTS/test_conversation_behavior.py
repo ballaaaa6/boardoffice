@@ -270,6 +270,45 @@ def test_self_talk_uses_general_line_and_never_leaves_workseat():
     assert finished["snapshot"]["actors"][employee_id]["phase"] == "working"
 
 
+@pytest.mark.parametrize("mode", ["seated_host", "ceo_front"])
+def test_walking_visitor_bubble_uses_double_height_offset(mode: str):
+    core = CentralGameCore(ROOT)
+    snapshot = core.resolve_conversation_snapshot("floor02")
+    employees = [
+        employee_id
+        for employee_id, actor in snapshot["actors"].items()
+        if actor["role"] == "employee"
+    ]
+    visitor_id = employees[0]
+    partner_id = (
+        next(employee_id for employee_id, actor in snapshot["actors"].items() if actor["role"] == "ceo")
+        if mode == "ceo_front"
+        else employees[1]
+    )
+
+    plan = core.resolve_conversation_plan(
+        visitor_id,
+        partner_id=partner_id,
+        mode=mode,
+        snapshot=snapshot,
+    )
+    host_id = plan["host_id"]
+    at_reply = next(
+        row for row in plan["timeline"]
+        if row["timestamp_ms"] == plan["talk_start_ms"] + 500
+    )
+
+    assert plan["bubble_offset_by_actor"][visitor_id] == [0, -20]
+    assert at_reply["actors"][visitor_id]["dialogue_bubble_offset_px"] == [0, -20]
+    assert at_reply["actors"][host_id].get("dialogue_bubble_offset_px", [0, 0]) == [0, 0]
+
+    renderer = ConversationPairGifRenderer(ROOT)
+    visitor_bubble = renderer._bubble_payload(visitor_id, at_reply["actors"][visitor_id])["bubble"]
+    host_bubble = renderer._bubble_payload(host_id, at_reply["actors"][host_id])["bubble"]
+    assert visitor_bubble.bubble_top_left[1] - visitor_bubble.head_anchor[1] == -40
+    assert host_bubble.bubble_top_left[1] - host_bubble.head_anchor[1] == -20
+
+
 def test_gif_bubbles_use_exact_head_anchors_and_later_turn_paints_last():
     renderer = ConversationPairGifRenderer(ROOT)
     snapshot = renderer.core.resolve_conversation_snapshot("floor02")

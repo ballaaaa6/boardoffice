@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import json
-import sys
 from collections import Counter
-from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT))
+try:
+    from VALIDATION._common import resolve_root
+except ModuleNotFoundError:
+    from _common import resolve_root
+
+ROOT=resolve_root(anchor=__file__)
 from WORLD.RUNTIME.ground_footprint_core import GroundFootprintCore
 
 fp=GroundFootprintCore(ROOT/'WORLD')

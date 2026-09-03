@@ -54,7 +54,7 @@
     "assignment_validation": "resolve_against_employee_metadata_and_runtime_workseat_slot",
     "position_policy": "floor_uv_or_route_reference_when_present; null_while_home",
     "render_policy": "render_action_and_render_owner_are_derived_presentation_outputs",
-    "conversation_policy": "actor_route_is_authoritative; stationary_talk_is_a_working_overlay; speech_lane_owns_timing",
+    "conversation_policy": "actor_route_is_authoritative; stationary_talk_is_a_working_overlay; speech_scheduler_owns_timing",
     "unassigned_actor_policy": "not_eligible_for_runtime_behavior_or_workseat_render"
   },
   "state_vocabulary": {
@@ -244,6 +244,16 @@
     "cooldown_storage": "absolute_simulation_time_ms",
     "event_counter_scope": "per_actor_and_root",
     "visual_side_effect_policy": "visual_registry_metadata_never_mutates_stamina",
+    "visual_selection": {
+      "catalog_source": "CHARACTER/EFFECTS/gds_effects_v1.json#effect_order + CHARACTER/EFFECTS/humanball_v1.json#humanball_order",
+      "algorithm": "deterministic_per_actor_per_channel_shuffle_bag",
+      "state_fields": ["catalog_profile", "generation", "cursor", "active_binding"],
+      "automatic_vfx_pool_size": 11,
+      "automatic_humanball_pool_size": 6,
+      "render_selection_boundary": "behavior_started_event_admission",
+      "network_policy": "no_per_event_request",
+      "explicit_event_preset_policy": "fixed_mapping_does_not_advance_automatic_bag"
+    },
     "threshold_event_policy": "emit_once_per_band_crossing",
     "critical_event_policy": "auto_queue_home_at_critical_then_finish_current_normal_work_loop",
     "talk_session_policy": {

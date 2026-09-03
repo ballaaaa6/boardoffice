@@ -69,7 +69,7 @@ def test_initial_timers_use_authorized_categories_and_ranges():
     assert speech.initial_snapshot("floor02")["lanes"]
 
 
-def test_lane_blocks_new_session_until_fade_and_keeps_pose_binding_independent():
+def test_actor_slots_allow_independent_bubbles_without_a_floor_mutex():
     actor_snapshot = _actor_snapshot()
     before = copy.deepcopy(actor_snapshot)
     speech = SpeechSchedulerCore(ROOT)
@@ -77,88 +77,217 @@ def test_lane_blocks_new_session_until_fade_and_keeps_pose_binding_independent()
     first = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
     assert actor_snapshot == before
     started = [event for event in first["events"] if event["type"] == "speech_session_started"]
-    assert len(started) == 1
-    session_id = started[0]["session_id"]
-    assert first["snapshot"]["lanes"]["floor02"]["active_session_id"] == session_id
+    assert len(started) >= 2
+    # The v1 floor view is only a compatibility projection.  Multiple active
+    # sessions intentionally make its single-session pointer null.
+    assert first["snapshot"]["lanes"]["floor02"]["active_session_id"] is None
+    occupied = [
+        employee_id
+        for employee_id, slot in first["snapshot"]["actor_slots"].items()
+        if slot["active_session_id"] is not None
+    ]
+    assert len(occupied) == len({employee_id for event in started for employee_id in event["participants"]})
+    assert all(
+        first["snapshot"]["actor_slots"][employee_id]["active_session_id"]
+        == next(event["session_id"] for event in started if employee_id in event["participants"])
+        for employee_id in occupied
+    )
     assert started[0]["pose_bindings"][started[0]["participants"][0]]["action"] in {"idle", "work"}
 
     held = speech.advance_snapshot(first["snapshot"], 4000, actor_snapshot=actor_snapshot)
-    # The old window owns the lane through the 300 ms fade.  No second
-    # session is allowed to start before the exact 4.3 s boundary.
-    assert not any(event["type"] == "speech_session_started" for event in held["events"])
-    finished = speech.advance_snapshot(held["snapshot"], 300, actor_snapshot=actor_snapshot)
-    assert any(event["type"] == "speech_session_completed" for event in finished["events"])
-    assert any(event["type"] == "speech_session_started" for event in finished["events"])
+    # Each actor owns its own bubble window.  Later admissions may happen for
+    # actors whose slots are free, even while another floor bubble is visible.
+    for session_id, session in held["snapshot"]["active_sessions"].items():
+        assert all(
+            held["snapshot"]["actor_slots"][employee_id]["active_session_id"] == session_id
+            for employee_id in session["participants"]
+        )
 
-
-def test_lane_queue_exposes_the_pending_speech_category():
-    actor_snapshot = _actor_snapshot()
-    speech = SpeechSchedulerCore(ROOT)
-    snapshot = _quiet_scheduler(speech, actor_snapshot)
-    actor_ids = sorted(snapshot["actors"])
-    blocker, pair_actor, greeting_actor = actor_ids[:3]
-    for actor in snapshot["actors"].values():
-        actor.update({
-            "pair_next_due_ms": None,
-            "solo_next_due_ms": None,
-        })
-    snapshot["actors"][blocker].update({
-        "greeting_due_ms": 0,
-        "greeting_emitted": False,
-    })
-    first = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
-    snapshot = first["snapshot"]
-    snapshot["actors"][pair_actor].update({
-        "pair_pending": True,
-    })
-    snapshot["actors"][greeting_actor].update({
-        "greeting_due_ms": 60,
-        "greeting_emitted": False,
-    })
-
-    queued = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
-    requests = queued["snapshot"]["lanes"]["floor02"]["queued_requests"]
-    request = next(item for item in requests if item["initiator_id"] == greeting_actor)
-    assert requests[0]["initiator_id"] == greeting_actor
-    assert request["category"] == "greeting"
-    assert request["kind"] == "lifecycle"
-    assert request["request_id"]
-
-
-def test_lane_queue_is_cleared_when_no_request_remains_eligible():
-    actor_snapshot = _actor_snapshot()
-    speech = SpeechSchedulerCore(ROOT)
-    snapshot = _quiet_scheduler(speech, actor_snapshot)
-    actor_ids = sorted(snapshot["actors"])
-    blocker, queued_actor = actor_ids[:2]
-    for actor in snapshot["actors"].values():
-        actor.update({
-            "pair_next_due_ms": None,
-            "solo_next_due_ms": None,
-        })
-    snapshot["actors"][blocker].update({
-        "greeting_due_ms": 0,
-        "greeting_emitted": False,
-    })
-    first = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
-    current = first["snapshot"]
-    current["actors"][queued_actor].update({
-        "greeting_due_ms": 60,
-        "greeting_emitted": False,
-    })
-    queued = speech.advance_snapshot(current, 60, actor_snapshot=actor_snapshot)
-    assert queued["snapshot"]["lanes"]["floor02"]["queued_requests"]
-
-    queued["snapshot"]["actors"][queued_actor]["speech_phase"] = "active"
-    cleared = speech.advance_snapshot(
-        queued["snapshot"],
-        60,
+    target_session = max(
+        (event["session_id"] for event in started),
+        key=lambda session_id: first["snapshot"]["active_sessions"][session_id]["fade_end_ms"],
+    )
+    target = first["snapshot"]["active_sessions"][target_session]
+    finished = speech.advance_snapshot(
+        held["snapshot"],
+        max(0, target["fade_end_ms"] - held["snapshot"]["clock"]["simulation_time_ms"]),
         actor_snapshot=actor_snapshot,
     )
+    assert any(
+        event["type"] == "speech_session_completed" and event["session_id"] == target_session
+        for event in finished["events"]
+    )
+    assert f"talk-claim:{target_session}" not in finished["snapshot"]["resource_claims"]
 
-    lane = cleared["snapshot"]["lanes"]["floor02"]
-    assert lane["queued_requests"] == []
-    assert lane["queued_session_ids"] == []
+
+def test_legacy_floor_lane_snapshot_migrates_active_pair_to_actor_slots():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    employees = [
+        employee_id
+        for employee_id, actor in sorted(snapshot["actors"].items())
+        if actor["role"] == "employee"
+    ]
+    for actor in snapshot["actors"].values():
+        actor.update({
+            "greeting_due_ms": None,
+            "greeting_emitted": True,
+            "work_start_due_ms": None,
+            "work_start_emitted": True,
+            "solo_next_due_ms": None,
+            "pair_next_due_ms": None,
+            "solo_pending": False,
+            "pair_pending": False,
+        })
+    snapshot["actors"][employees[0]]["pair_pending"] = True
+    started = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    event = next(
+        event for event in started["events"]
+        if event["type"] == "speech_session_started" and event["kind"] == "pair"
+    )
+
+    legacy = copy.deepcopy(started["snapshot"])
+    legacy["schema"] = speech.LEGACY_SCHEMA
+    legacy["version"] = speech.LEGACY_VERSION
+    legacy.pop("actor_slots")
+    legacy.pop("pending_requests")
+    legacy.pop("resource_claims")
+
+    migrated = speech.validate_snapshot(legacy)
+    assert migrated["schema"] == speech.SCHEMA
+    assert migrated["version"] == speech.VERSION
+    for employee_id in event["participants"]:
+        assert migrated["actor_slots"][employee_id]["active_session_id"] == event["session_id"]
+    claim_id = f"talk-claim:{event['session_id']}"
+    assert migrated["resource_claims"][claim_id]["session_id"] == event["session_id"]
+
+
+def test_different_actors_on_one_floor_can_start_independent_bubbles():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    actor_ids = [
+        employee_id
+        for employee_id, actor in sorted(snapshot["actors"].items())
+        if actor["role"] == "employee"
+    ][:2]
+    for actor in snapshot["actors"].values():
+        actor.update({
+            "greeting_due_ms": None,
+            "work_start_due_ms": None,
+            "solo_next_due_ms": None,
+            "pair_next_due_ms": None,
+            "solo_pending": False,
+            "pair_pending": False,
+        })
+    for employee_id in actor_ids:
+        snapshot["actors"][employee_id]["solo_pending"] = True
+
+    result = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    started = [
+        event for event in result["events"]
+        if event["type"] == "speech_session_started"
+    ]
+
+    assert {event["participants"][0] for event in started} == set(actor_ids)
+    assert len(result["snapshot"]["active_sessions"]) == 2
+    assert all(
+        result["snapshot"]["actor_slots"][employee_id]["active_session_id"]
+        for employee_id in actor_ids
+    )
+
+
+def test_one_actor_slot_cannot_overlap_even_when_another_floor_bubble_is_active():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    target = next(
+        employee_id
+        for employee_id, actor in sorted(snapshot["actors"].items())
+        if actor["role"] == "employee"
+    )
+    for actor in snapshot["actors"].values():
+        actor.update({
+            "greeting_due_ms": None,
+            "work_start_due_ms": None,
+            "solo_next_due_ms": None,
+            "pair_next_due_ms": None,
+            "solo_pending": False,
+            "pair_pending": False,
+        })
+    snapshot["actors"][target]["solo_pending"] = True
+    first = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    first_count = len(first["snapshot"]["active_sessions"])
+    first["snapshot"]["actors"][target]["solo_pending"] = True
+
+    second = speech.advance_snapshot(first["snapshot"], 60, actor_snapshot=actor_snapshot)
+
+    assert first_count == 1
+    assert len(second["snapshot"]["active_sessions"]) == first_count
+    assert not any(
+        event["type"] == "speech_session_started"
+        and event.get("participants") == [target]
+        for event in second["events"]
+    )
+
+
+def test_floor_projection_does_not_queue_unrelated_actor_requests():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    actor_ids = [
+        employee_id
+        for employee_id, actor in sorted(snapshot["actors"].items())
+        if actor["role"] == "employee"
+    ][:2]
+    for actor in snapshot["actors"].values():
+        actor.update({
+            "greeting_due_ms": None,
+            "greeting_emitted": True,
+            "work_start_due_ms": None,
+            "work_start_emitted": True,
+            "pair_next_due_ms": None,
+            "solo_next_due_ms": None,
+            "pair_pending": False,
+            "solo_pending": False,
+        })
+    for employee_id in actor_ids:
+        snapshot["actors"][employee_id]["solo_pending"] = True
+
+    result = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    started = [event for event in result["events"] if event["type"] == "speech_session_started"]
+    assert {event["participants"][0] for event in started} == set(actor_ids)
+    assert result["snapshot"]["pending_requests"] == {}
+    assert result["snapshot"]["lanes"]["floor02"]["queued_requests"] == []
+
+
+def test_actor_slot_queue_ids_are_cleared_when_a_request_is_admitted():
+    actor_snapshot = _actor_snapshot()
+    speech = SpeechSchedulerCore(ROOT)
+    snapshot = _quiet_scheduler(speech, actor_snapshot)
+    queued_actor = next(
+        employee_id
+        for employee_id, actor in sorted(snapshot["actors"].items())
+        if actor["role"] == "employee"
+    )
+    for actor in snapshot["actors"].values():
+        actor.update({
+            "greeting_due_ms": None,
+            "greeting_emitted": True,
+            "work_start_due_ms": None,
+            "work_start_emitted": True,
+            "pair_next_due_ms": None,
+            "solo_next_due_ms": None,
+            "pair_pending": False,
+            "solo_pending": False,
+        })
+    snapshot["actors"][queued_actor]["solo_pending"] = True
+
+    result = speech.advance_snapshot(snapshot, 60, actor_snapshot=actor_snapshot)
+    assert result["snapshot"]["actor_slots"][queued_actor]["active_session_id"]
+    assert result["snapshot"]["actor_slots"][queued_actor]["queued_request_ids"] == []
+    assert result["snapshot"]["pending_requests"] == {}
 
 
 def test_entry_lifecycle_speech_precedes_pair_when_both_are_due():

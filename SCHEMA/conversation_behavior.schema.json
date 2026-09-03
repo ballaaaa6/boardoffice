@@ -79,8 +79,11 @@
     },
     "coordinate_contract": {
       "type": "object",
-      "required": ["grid", "axis_direction_convention", "standing_pair", "seated_host", "ceo_front"],
+      "required": ["grid", "axis_direction_convention", "walking_visitor_bubble_extra_offset_px", "standing_pair", "seated_host", "ceo_front"],
       "properties": {
+        "walking_visitor_bubble_extra_offset_px": {
+          "const": [0, -20]
+        },
         "standing_pair": {
           "type": "object",
           "additionalProperties": false,

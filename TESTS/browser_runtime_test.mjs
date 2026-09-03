@@ -7,6 +7,7 @@ import {
   cloneRuntimeSnapshot,
   validateRuntimeSnapshot,
 } from "../WEB/runtime_simulation_state.js";
+import { BrowserVisualSelection } from "../WEB/runtime_simulation_visual_selection.js";
 import { FixedStepClock } from "../WEB/runtime_simulation_clock.js";
 import { BrowserNavigation } from "../WEB/runtime_simulation_navigation.js";
 import { BrowserWorkSeatReducer } from "../WEB/runtime_simulation_work_seat.js";
@@ -58,6 +59,7 @@ function fixtureBundle() {
       constants: {},
     },
     world: { floor: { floor_id: "floor02" }, navigation: {} },
+    visual_catalog: visualCatalogFixture(),
     initial_snapshot: fixtureSnapshot(),
   };
 }
@@ -65,6 +67,27 @@ function fixtureBundle() {
 async function checkedInBundle() {
   const path = new URL("../WEB/runtime_simulation_bootstrap.json", import.meta.url);
   return JSON.parse(await readFile(path, "utf8"));
+}
+
+function visualCatalogFixture() {
+  return {
+    profile_id: "gds.visual_catalog.v1",
+    catalog_profile: "gds.visual_catalog.v1:test-profile",
+    vfx: {
+      ids: [
+        "fire_original", "speed_wind", "idea_overclock", "coffee_energy",
+        "sunshine_bloom", "heart_burst", "cherry_blossom_swirl", "thunder_cloud",
+        "stock_crash", "low_battery_drain", "static_noise_field",
+      ],
+      registry_schema: "gds_effect_registry_v1",
+      registry_hash: "0".repeat(64),
+    },
+    humanball: {
+      ids: ["controller", "coin", "horse", "bench", "purple_bot", "purple_bot_body"],
+      registry_schema: "gds_humanball_registry_v1",
+      registry_hash: "1".repeat(64),
+    },
+  };
 }
 
 test("seeded random sequence is deterministic and never uses Math.random", () => {
@@ -79,6 +102,56 @@ test("seeded random sequence is deterministic and never uses Math.random", () =>
   ]);
   assert.equal(rng.d6(), 3);
   assert.equal(["a", "b", "c"].includes(rng.choice(["a", "b", "c"])), true);
+});
+
+test("browser visual shuffle bags cover every catalog item before repeating", () => {
+  const selection = new BrowserVisualSelection({ catalog: visualCatalogFixture() });
+  let state = selection.initialChannelState("vfx");
+  const selected = [];
+  for (let index = 0; index < 23; index += 1) {
+    const result = selection.select(state, {
+      channel: "vfx",
+      simulationSeed: "browser-bag-seed",
+      employeeId: "EMP_W1_0010",
+      eventId: `event-${index}`,
+      startedAtMs: index * 60,
+      endsAtMs: (index + 1) * 60,
+    });
+    state = selection.clearActive(result.state, { channel: "vfx", eventId: `event-${index}` });
+    selected.push(result.binding.asset_id);
+  }
+  assert.equal(new Set(selected.slice(0, 11)).size, 11);
+  assert.equal(new Set(selected.slice(11, 22)).size, 11);
+});
+
+test("browser visual rendering reads an active binding without reselection", async () => {
+  const selection = new BrowserVisualSelection({ catalog: visualCatalogFixture() });
+  const selected = selection.select(selection.initialChannelState("humanball"), {
+    channel: "humanball",
+    simulationSeed: "browser-binding-seed",
+    employeeId: "EMP_W1_0010",
+    eventId: "event-a",
+    startedAtMs: 0,
+    endsAtMs: 600,
+  });
+  const actor = {
+    employee_id: "EMP_W1_0010",
+    presence: "present",
+    behavior: {
+      active_event: "popup",
+      activity_started_ms: 0,
+      visual_channels: { vfx: selection.initialChannelState("vfx"), humanball: selected.state },
+    },
+  };
+  const { BrowserEffectsReducer } = await import("../WEB/runtime_simulation_effects.js");
+  const effects = new BrowserEffectsReducer({ catalog: visualCatalogFixture() });
+  assert.equal(effects.presentation(actor, 0).asset_id, selected.binding.asset_id);
+  assert.equal(effects.presentation(actor, 240).asset_id, selected.binding.asset_id);
+  const legacyActor = structuredClone(actor);
+  legacyActor.behavior.visual_channels.humanball.active_binding = null;
+  const legacyPresentation = effects.presentation(legacyActor, 0);
+  assert.equal(legacyPresentation.asset_id, null);
+  assert.equal(legacyPresentation.selection_source, "shuffle_bag");
 });
 
 test("runtime snapshot validation checks all synchronized actor channels", () => {
@@ -239,6 +312,15 @@ test("browser effects expose metadata channels without image payloads", async ()
   actor.behavior.activity_started_ms = 0;
   actor.behavior.activity_until_ms = 600;
   actor.behavior.next_event_due_ms = null;
+  const selected = core.visualSelection.select(actor.behavior.visual_channels.humanball, {
+    channel: "humanball",
+    simulationSeed: "browser-test-seed",
+    employeeId,
+    eventId: `visual:${employeeId}:popup:1:0`,
+    startedAtMs: 0,
+    endsAtMs: 600,
+  });
+  actor.behavior.visual_channels.humanball = selected.state;
   for (const speechActor of Object.values(snapshot.speech_snapshot.actors)) {
     speechActor.greeting_due_ms = 999999;
     speechActor.greeting_emitted = true;
@@ -258,9 +340,97 @@ test("browser effects expose metadata channels without image payloads", async ()
   });
   const result = core.step(60);
   const row = result.renderState.actors.find((item) => item.employee_id === employeeId);
-  assert.equal(row.channels.humanball.asset_id, "purple_bot");
+  assert.equal(row.channels.humanball.asset_id, selected.binding.asset_id);
+  assert.equal(bundle.visual_catalog.humanball.ids.includes(row.channels.humanball.asset_id), true);
   assert.equal(row.channels.humanball.humanball_frame_index, 0);
   assert.equal("image_data_url" in result.renderState, false);
   assert.equal(JSON.stringify(result.renderState).includes("data:image"), false);
+  core.destroy();
+});
+
+test("browser actor selects visuals at event admission and clears them at completion", async () => {
+  const bundle = await checkedInBundle();
+  const core = await BrowserRuntimeCore.create({
+    bundle,
+    floorId: "floor02",
+    seed: "browser-visual-event-seed",
+  });
+  const snapshot = core.snapshot();
+  const employeeId = "EMP_W1_0010";
+  const actor = snapshot.actor_snapshot.actors[employeeId];
+  actor.behavior.next_event_due_ms = 0;
+  actor.behavior.cooldowns = {
+    talk: 999999,
+    background_effect: 0,
+    popup: 999999,
+    wander: 999999,
+  };
+  for (const speechActor of Object.values(snapshot.speech_snapshot.actors)) {
+    speechActor.greeting_due_ms = 999999;
+    speechActor.greeting_emitted = true;
+    speechActor.work_start_due_ms = 999999;
+    speechActor.work_start_emitted = true;
+    speechActor.solo_next_due_ms = 999999;
+    speechActor.pair_next_due_ms = 999999;
+    speechActor.solo_pending = false;
+    speechActor.pair_pending = false;
+  }
+  core.load({
+    floor_id: "floor02",
+    bundle_revision: bundle.bundle_revision,
+    snapshot,
+    sequence: 0,
+    command_history: [],
+  });
+  const started = core.step(60);
+  const startedActor = started.snapshot.actor_snapshot.actors[employeeId];
+  const binding = startedActor.behavior.visual_channels.vfx.active_binding;
+  assert.equal(startedActor.behavior.active_event, "background_effect");
+  assert.equal(bundle.visual_catalog.vfx.ids.includes(binding.asset_id), true);
+  assert.equal(started.renderState.actors.find((row) => row.employee_id === employeeId).channels.vfx.asset_id, binding.asset_id);
+
+  for (let index = 0; index < 80; index += 1) core.step(60);
+  const completed = core.snapshot().actor_snapshot.actors[employeeId];
+  assert.equal(completed.behavior.active_event, null);
+  assert.equal(completed.behavior.visual_channels.vfx.active_binding, null);
+  core.destroy();
+});
+
+test("browser speech admits independent actor bubbles on the same floor", async () => {
+  const bundle = await checkedInBundle();
+  const core = await BrowserRuntimeCore.create({
+    bundle,
+    floorId: "floor02",
+    seed: "browser-speech-slot-seed",
+  });
+  const runtimeSnapshot = core.snapshot();
+  const employeeIds = Object.keys(runtimeSnapshot.speech_snapshot.actors)
+    .filter((employeeId) => runtimeSnapshot.speech_snapshot.actors[employeeId].role === "employee")
+    .sort()
+    .slice(0, 2);
+  for (const actor of Object.values(runtimeSnapshot.speech_snapshot.actors)) {
+    actor.greeting_due_ms = null;
+    actor.greeting_emitted = true;
+    actor.work_start_due_ms = null;
+    actor.work_start_emitted = true;
+    actor.solo_next_due_ms = null;
+    actor.pair_next_due_ms = null;
+    actor.solo_pending = false;
+    actor.pair_pending = false;
+  }
+  for (const employeeId of employeeIds) runtimeSnapshot.speech_snapshot.actors[employeeId].solo_pending = true;
+  const result = core.speechReducer.step(runtimeSnapshot.speech_snapshot, {
+    actorSnapshot: runtimeSnapshot.actor_snapshot,
+    conversationSnapshot: runtimeSnapshot.conversation_snapshot,
+    elapsedMs: 60,
+    dialogueSeed: "browser-speech-slot-seed",
+  });
+  const started = result.events.filter((event) => event.type === "speech_session_started");
+  assert.equal(started.length, 2);
+  assert.equal(Object.keys(result.snapshot.active_sessions).length, 2);
+  assert.deepEqual(
+    employeeIds.map((employeeId) => Boolean(result.snapshot.actor_slots[employeeId].active_session_id)),
+    [true, true],
+  );
   core.destroy();
 });

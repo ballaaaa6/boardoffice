@@ -13,14 +13,16 @@ both samples.
 import argparse
 import json
 import os
-import sys
 import time
 from pathlib import Path
 from typing import Any, Iterable
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+PROJECT_ROOT = ensure_project_root(__file__)
 
 from TOOLS.runtime_review_server import ReviewState
 

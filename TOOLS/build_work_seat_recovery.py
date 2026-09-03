@@ -1,42 +1,26 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 from PIL import Image
 
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
 
-def file_sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open('rb') as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b''):
-            h.update(chunk)
-    return h.hexdigest()
+ensure_project_root(__file__)
 
-
-def rgba_sha256(image: Image.Image) -> str:
-    rgba = image.convert('RGBA')
-    payload = rgba.width.to_bytes(4, 'big') + rgba.height.to_bytes(4, 'big') + rgba.tobytes()
-    return hashlib.sha256(payload).hexdigest()
-
-
-def png_bytes(image: Image.Image) -> bytes:
-    bio = BytesIO()
-    image.convert('RGBA').save(bio, format='PNG')
-    return bio.getvalue()
-
-
-def load_json(path: Path) -> Any:
-    return json.loads(path.read_text(encoding='utf-8'))
-
-
-def write_json(path: Path, payload: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+from RUNTIME.asset_utils import (  # noqa: E402
+    file_sha256,
+    load_json,
+    png_bytes,
+    rgba_sha256,
+    write_json,
+)
 
 
 def build(core_root: Path, source_office: Path) -> dict[str, Any]:

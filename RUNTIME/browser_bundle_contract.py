@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
+from RUNTIME.asset_utils import file_sha256
+
 
 BUNDLE_SCHEMA = "gds.browser_runtime_bundle.v1"
 TRACE_SCHEMA = "gds.browser_runtime_parity_trace.v1"
@@ -74,10 +76,6 @@ def canonical_json(value: Any) -> str:
         raise BundleContractError(f"value is not canonical JSON: {exc}") from exc
 
 
-def _sha256_bytes(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
 def canonical_source_hashes(root: str | Path) -> dict[str, str]:
     """Hash every canonical registry consumed by the browser bundle."""
     project_root = Path(root).resolve()
@@ -86,7 +84,7 @@ def canonical_source_hashes(root: str | Path) -> dict[str, str]:
         path = project_root / relative
         if not path.is_file():
             raise BundleContractError(f"missing canonical source: {relative}")
-        result[relative] = _sha256_bytes(path)
+        result[relative] = file_sha256(path)
     return result
 
 
@@ -227,6 +225,23 @@ def validate_bundle(
     effects = _require_mapping(data.get("effects"), "effects")
     _require_mapping(effects.get("effects"), "effects.effects")
     _require_mapping(effects.get("humanballs"), "effects.humanballs")
+    visual_catalog = _require_mapping(data.get("visual_catalog"), "visual_catalog")
+    if visual_catalog.get("profile_id") != "gds.visual_catalog.v1":
+        raise BundleContractError("visual_catalog has unsupported profile")
+    if not isinstance(visual_catalog.get("catalog_profile"), str) or not visual_catalog["catalog_profile"]:
+        raise BundleContractError("visual_catalog.catalog_profile must be non-empty text")
+    for channel, schema, minimum in (
+        ("vfx", "gds_effect_registry_v1", 11),
+        ("humanball", "gds_humanball_registry_v1", 6),
+    ):
+        record = _require_mapping(visual_catalog.get(channel), f"visual_catalog.{channel}")
+        if record.get("registry_schema") != schema:
+            raise BundleContractError(f"visual_catalog.{channel} registry schema is unsupported")
+        ids = _require_non_empty_list(record.get("ids"), f"visual_catalog.{channel}.ids")
+        if len(ids) < minimum or any(not isinstance(asset_id, str) or not asset_id for asset_id in ids):
+            raise BundleContractError(f"visual_catalog.{channel}.ids is invalid")
+        if len(set(ids)) != len(ids):
+            raise BundleContractError(f"visual_catalog.{channel}.ids must be unique")
     _validate_snapshot_shape(data.get("initial_snapshot"), "initial_snapshot")
 
     revision = data.get("bundle_revision")

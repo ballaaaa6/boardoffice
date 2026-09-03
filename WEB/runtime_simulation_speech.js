@@ -9,6 +9,25 @@ const BUBBLE_FADE_MS = 300;
 const SESSION_HOLD_MS = 4300;
 const EMOTION_HOLD_MS = 1200;
 const PAIR_CATEGORIES = ["conversation_open", "conversation_reply"];
+const PRIORITY = {
+  leaving: 0,
+  fatigue: 1,
+  greeting: 2,
+  work_start: 3,
+  conversation_open: 4,
+  pair: 4,
+  solo: 5,
+};
+const ROUTE_CELL_KEYS = new Set([
+  "endpoint_by_actor",
+  "endpoint_cells_uv",
+  "endpoint_uv",
+  "gate_uv",
+  "candidate_uv",
+  "outbound_path_cells_uv",
+  "inbound_path_cells_uv",
+  "path_cells_uv",
+]);
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -69,6 +88,140 @@ export class BrowserSpeechReducer {
     this.seed = seed;
   }
 
+  ensureSnapshotShape(snapshot) {
+    if (!isObject(snapshot.actor_slots)) snapshot.actor_slots = {};
+    if (!isObject(snapshot.pending_requests)) snapshot.pending_requests = {};
+    if (!isObject(snapshot.resource_claims)) snapshot.resource_claims = {};
+    if (!isObject(snapshot.lanes)) snapshot.lanes = {};
+    if (!isObject(snapshot.active_sessions)) snapshot.active_sessions = {};
+    if (!isObject(snapshot.completed_sessions)) snapshot.completed_sessions = {};
+    for (const employeeId of Object.keys(snapshot.actors || {})) {
+      const slot = isObject(snapshot.actor_slots[employeeId])
+        ? snapshot.actor_slots[employeeId]
+        : {};
+      slot.employee_id = employeeId;
+      if (slot.active_session_id === undefined) slot.active_session_id = null;
+      if (slot.active_until_ms === undefined) slot.active_until_ms = null;
+      if (!Array.isArray(slot.queued_request_ids)) slot.queued_request_ids = [];
+      if (slot.last_completed_session_id === undefined) slot.last_completed_session_id = null;
+      snapshot.actor_slots[employeeId] = slot;
+    }
+    for (const [sessionId, session] of Object.entries(snapshot.active_sessions)) {
+      if (!isObject(session) || session.kind !== "pair") continue;
+      const claimId = session.resource_claim_id || `talk-claim:${sessionId}`;
+      session.resource_claim_id = claimId;
+      if (!isObject(snapshot.resource_claims[claimId])) {
+        snapshot.resource_claims[claimId] = {
+          claim_id: claimId,
+          session_id: sessionId,
+          floor_id: session.floor_id,
+          participants: [...(session.participants || [])],
+          mode: session.mode,
+          status: "active",
+          release_at_ms: session.fade_end_ms,
+          reserved_cells_uv: [],
+        };
+      }
+    }
+    this.refreshLegacyLanes(snapshot);
+    return snapshot;
+  }
+
+  slotAvailable(snapshot, employeeId) {
+    return snapshot.actor_slots?.[employeeId]?.active_session_id == null;
+  }
+
+  planReservedCells(plan) {
+    if (!isObject(plan)) return [];
+    const found = new Set();
+    const addCell = (value) => {
+      if (!Array.isArray(value) || value.length !== 2) return;
+      if (!value.every((item) => Number.isFinite(Number(item)))) return;
+      const cell = [integer(value[0]), integer(value[1])];
+      found.add(`${cell[0]},${cell[1]}`);
+    };
+    const collectCells = (value) => {
+      if (!Array.isArray(value)) return;
+      if (value.length === 2 && value.every((item) => !Array.isArray(item))) {
+        addCell(value);
+        return;
+      }
+      for (const child of value) collectCells(child);
+    };
+    const visit = (value) => {
+      if (!isObject(value)) return;
+      for (const [key, child] of Object.entries(value)) {
+        if (ROUTE_CELL_KEYS.has(key)) {
+          collectCells(child);
+        } else if (key === "route_info" || key === "spot" || isObject(child)) {
+          visit(child);
+        }
+      }
+    };
+    visit(plan);
+    return [...found]
+      .map((key) => key.split(",").map(Number))
+      .sort((left, right) => left[1] - right[1] || left[0] - right[0]);
+  }
+
+  activeReservedCells(snapshot) {
+    const found = new Set();
+    for (const claim of Object.values(snapshot.resource_claims || {})) {
+      if (!isObject(claim) || claim.status !== "active") continue;
+      for (const cell of claim.reserved_cells_uv || []) {
+        if (Array.isArray(cell) && cell.length === 2) {
+          found.add(`${integer(cell[0])},${integer(cell[1])}`);
+        }
+      }
+    }
+    return [...found]
+      .map((key) => key.split(",").map(Number))
+      .sort((left, right) => left[1] - right[1] || left[0] - right[0]);
+  }
+
+  hasReservedCellConflict(left, right) {
+    const occupied = new Set((right || []).map((cell) => `${integer(cell[0])},${integer(cell[1])}`));
+    return (left || []).some((cell) => occupied.has(`${integer(cell[0])},${integer(cell[1])}`));
+  }
+
+  refreshLegacyLanes(snapshot) {
+    if (!isObject(snapshot.lanes)) snapshot.lanes = {};
+    const floors = new Set(Object.values(snapshot.actors || {}).map((actor) => String(actor.floor_id)));
+    for (const floorId of [...floors].sort()) {
+      const lane = snapshot.lanes[floorId] || (snapshot.lanes[floorId] = {
+        floor_id: floorId,
+        active_session_id: null,
+        active_until_ms: null,
+        queued_session_ids: [],
+        queued_requests: [],
+        last_completed_session_id: null,
+      });
+      const active = Object.entries(snapshot.active_sessions || {})
+        .filter(([, session]) => isObject(session) && String(session.floor_id) === floorId)
+        .sort(([left], [right]) => left.localeCompare(right));
+      lane.active_session_id = active.length === 1 ? active[0][0] : null;
+      lane.active_until_ms = active.length === 1 ? active[0][1].fade_end_ms : null;
+      const queued = Object.values(snapshot.pending_requests || {})
+        .filter((request) => isObject(request) && String(snapshot.actors?.[request.initiator_id]?.floor_id) === floorId)
+        .sort((left, right) => (
+          (PRIORITY[left.category] ?? PRIORITY.solo) - (PRIORITY[right.category] ?? PRIORITY.solo)
+          || integer(left.due_ms) - integer(right.due_ms)
+          || String(left.initiator_id).localeCompare(String(right.initiator_id))
+        ));
+      lane.queued_requests = clone(queued);
+      lane.queued_session_ids = queued.map((request) => String(request.initiator_id));
+    }
+    for (const floorId of Object.keys(snapshot.lanes)) {
+      if (!floors.has(floorId)) delete snapshot.lanes[floorId];
+    }
+    for (const [employeeId, slot] of Object.entries(snapshot.actor_slots || {})) {
+      slot.queued_request_ids = Object.entries(snapshot.pending_requests || {})
+        .filter(([, request]) => isObject(request) && (request.participants || [request.initiator_id]).includes(employeeId))
+        .map(([requestId]) => requestId)
+        .sort();
+    }
+  }
+
   employee(employeeId) {
     const value = this.employees?.[employeeId];
     if (!isObject(value)) throw new TypeError(`Unknown employee: ${employeeId}`);
@@ -94,6 +247,7 @@ export class BrowserSpeechReducer {
     for (const [employeeId, speechActor] of Object.entries(snapshot.actors || {})) {
       const actor = actorSnapshot.actors[employeeId];
       if (!isObject(actor)) continue;
+      const previousActivity = speechActor.last_activity;
       speechActor.last_activity = String(actor.activity || speechActor.last_activity || "working");
       speechActor.stamina_band = String(
         actor.stamina?.threshold_band || speechActor.stamina_band || "normal",
@@ -119,7 +273,7 @@ export class BrowserSpeechReducer {
       }
       if (
         actor.activity === "working"
-        && speechActor.last_activity !== "working"
+        && previousActivity !== "working"
         && speechActor.speech_phase === "idle"
         && speechActor.work_start_due_ms === null
       ) {
@@ -240,6 +394,7 @@ export class BrowserSpeechReducer {
         const convActor = conversationSnapshot?.actors?.[employeeId];
         return floorOf(actor) === floor
           && roleOf(actor) === "employee"
+          && this.slotAvailable(snapshot, employeeId)
           && this.actorAvailable(speechActor, actor, convActor);
       })
       .sort((left, right) => (
@@ -254,12 +409,14 @@ export class BrowserSpeechReducer {
     const speechActor = snapshot.actors[initiatorId];
     const conversationActor = conversationSnapshot?.actors?.[initiatorId];
     const external = Boolean(speechActor?.external_talk_pending);
-    if (!this.actorAvailable(speechActor, initiator, conversationActor, external)) return [];
+    if (!this.slotAvailable(snapshot, initiatorId)
+      || !this.actorAvailable(speechActor, initiator, conversationActor, external)) return [];
     if (roleOf(initiator) === "ceo") return [];
     const ceos = Object.keys(snapshot.actors || {}).filter((employeeId) => {
       const actor = actorSnapshot.actors[employeeId];
       return floorOf(actor) === floorOf(initiator)
         && roleOf(actor) === "ceo"
+        && this.slotAvailable(snapshot, employeeId)
         && this.actorAvailable(
           snapshot.actors[employeeId],
           actor,
@@ -382,7 +539,7 @@ export class BrowserSpeechReducer {
     return result;
   }
 
-  buildPlan(snapshot, actorSnapshot, request, dialogueLocale, dialogueSeed) {
+  buildPlan(snapshot, actorSnapshot, request, dialogueLocale, dialogueSeed, reservedCells = []) {
     const initiatorId = request.initiator_id;
     const mode = request.mode || (request.kind === "pair" ? "standing_pair" : "self_talk");
     const counter = integer(snapshot.determinism?.root_event_counter, 0);
@@ -444,6 +601,12 @@ export class BrowserSpeechReducer {
     plan.talk_end_ms = plan.talk_start_ms + integer(plan.talk_duration_ms, SESSION_HOLD_MS);
     plan.talk_frames = Math.ceil((integer(plan.talk_duration_ms, SESSION_HOLD_MS) + BUBBLE_FADE_MS) / TICK_MS);
     plan.route_info = request.kind === "pair" ? this.buildRouteInfo(actorSnapshot, plan) : {};
+    if (request.kind === "pair" && this.hasReservedCellConflict(
+      this.planReservedCells(plan),
+      reservedCells,
+    )) {
+      return null;
+    }
     plan.dialogue_by_actor = selectedLines;
     plan.dialogue_selection = {
       policy: request.kind === "pair" ? "pair_open_reply_bags" : "in_work_category_bag",
@@ -563,8 +726,42 @@ export class BrowserSpeechReducer {
     };
   }
 
+  retryRequest(snapshot, request, nowMs) {
+    const employeeId = String(request.initiator_id);
+    const actor = snapshot.actors[employeeId];
+    if (!actor) return;
+    if (request.external) {
+      actor.external_talk_pending = true;
+      actor.external_talk_due_ms = nowMs + this.delayMs(
+        snapshot,
+        employeeId,
+        "retry",
+        integer(actor.departure_token, 0) + 1,
+      );
+    } else if (request.kind === "pair") {
+      actor.pair_pending = false;
+      actor.pair_next_due_ms = nowMs + this.delayMs(
+        snapshot,
+        employeeId,
+        "retry",
+        integer(actor.departure_token, 0) + 1,
+      );
+    } else if (request.kind === "solo") {
+      actor.solo_pending = false;
+      actor.solo_next_due_ms = nowMs + this.delayMs(
+        snapshot,
+        employeeId,
+        "retry",
+        integer(actor.departure_token, 0) + 1,
+      );
+    }
+  }
+
   startSession(snapshot, actorSnapshot, request, plan, timestampMs, events, dialogueLocale) {
     const participants = [...request.participants];
+    if (participants.some((employeeId) => !this.slotAvailable(snapshot, employeeId))) {
+      throw new TypeError("actor speech slot is already active");
+    }
     const kind = String(request.kind);
     const mode = String(request.mode || (kind === "pair" ? "standing_pair" : "self_talk"));
     const category = String(request.category || "idle_flavor");
@@ -611,6 +808,20 @@ export class BrowserSpeechReducer {
       bubble_start_event_emitted: false,
     };
     if (kind === "pair") {
+      const claimId = `talk-claim:${sessionId}`;
+      session.resource_claim_id = claimId;
+      snapshot.resource_claims[claimId] = {
+        claim_id: claimId,
+        session_id: sessionId,
+        floor_id: floorId,
+        participants: [...participants],
+        mode,
+        status: "active",
+        release_at_ms: fadeEndMs,
+        reserved_cells_uv: this.planReservedCells(plan),
+      };
+    }
+    if (kind === "pair") {
       for (let index = 0; index < participants.length; index += 1) {
         const employeeId = participants[index];
         const line = plan.dialogue_by_actor?.[employeeId];
@@ -655,18 +866,12 @@ export class BrowserSpeechReducer {
       });
     }
     snapshot.active_sessions[sessionId] = session;
-    const lane = snapshot.lanes[floorId] || (snapshot.lanes[floorId] = {
-      floor_id: floorId,
-      active_session_id: null,
-      active_until_ms: null,
-      queued_session_ids: [],
-      queued_requests: [],
-      last_completed_session_id: null,
-    });
-    lane.active_session_id = sessionId;
-    lane.active_until_ms = fadeEndMs;
     for (const employeeId of participants) {
       const speechActor = snapshot.actors[employeeId];
+      const slot = snapshot.actor_slots[employeeId];
+      slot.active_session_id = sessionId;
+      slot.active_until_ms = fadeEndMs;
+      slot.queued_request_ids = [];
       speechActor.speech_event_counter = integer(speechActor.speech_event_counter, 0) + 1;
       speechActor.speech_phase = "active";
       speechActor.external_talk_pending = request.external ? false : speechActor.external_talk_pending;
@@ -697,6 +902,7 @@ export class BrowserSpeechReducer {
         speechActor.pair_next_due_ms = null;
       }
     }
+    this.refreshLegacyLanes(snapshot);
     this.appendEvent(snapshot, events, timestampMs, "speech_session_started", {
       employee_id: participants[0],
       session_id: sessionId,
@@ -715,6 +921,7 @@ export class BrowserSpeechReducer {
       conversation_plan: session.conversation_plan,
       emotion_roll: session.emotion_roll,
       emotion_outcome: session.emotion_outcome,
+      resource_claim_id: session.resource_claim_id || null,
     });
     const talkCommands = [];
     if (kind === "pair") {
@@ -792,11 +999,15 @@ export class BrowserSpeechReducer {
     const session = snapshot.active_sessions[sessionId];
     if (!session) return;
     delete snapshot.active_sessions[sessionId];
-    const lane = snapshot.lanes[session.floor_id];
-    if (lane) {
-      lane.active_session_id = null;
-      lane.active_until_ms = null;
-      lane.last_completed_session_id = sessionId;
+    for (const employeeId of session.participants || []) {
+      const slot = snapshot.actor_slots?.[employeeId];
+      if (!slot) continue;
+      slot.active_session_id = null;
+      slot.active_until_ms = null;
+      slot.last_completed_session_id = sessionId;
+    }
+    if (session.resource_claim_id) {
+      delete snapshot.resource_claims[session.resource_claim_id];
     }
     const emotion = session.emotion_outcome;
     this.appendEvent(snapshot, events, timestampMs, "speech_session_completed", {
@@ -830,6 +1041,7 @@ export class BrowserSpeechReducer {
     }
     snapshot.completed_sessions = snapshot.completed_sessions || {};
     snapshot.completed_sessions[sessionId] = session;
+    this.refreshLegacyLanes(snapshot);
   }
 
   finishEmotions(snapshot, timestampMs, events) {
@@ -846,6 +1058,7 @@ export class BrowserSpeechReducer {
   }
 
   processAt(snapshot, actorSnapshot, conversationSnapshot, nowMs, events, dialogueLocale, dialogueSeed) {
+    this.ensureSnapshotShape(snapshot);
     this.finishEmotions(snapshot, nowMs, events);
     for (const session of Object.values(snapshot.active_sessions || {})) {
       if (!session.bubble_start_event_emitted && integer(session.bubble_start_ms) <= nowMs) {
@@ -858,11 +1071,8 @@ export class BrowserSpeechReducer {
       }
     }
     this.syncActorState(snapshot, actorSnapshot, nowMs);
-    for (const lane of Object.values(snapshot.lanes || {})) {
-      lane.queued_session_ids = [];
-      lane.queued_requests = [];
-    }
-    const byFloor = {};
+    snapshot.pending_requests = {};
+    const records = [];
     for (const employeeId of Object.keys(snapshot.actors || {}).sort()) {
       const request = this.requestForActor(
         snapshot,
@@ -872,41 +1082,77 @@ export class BrowserSpeechReducer {
         nowMs,
       );
       if (request) {
-        const floor = snapshot.actors[employeeId].floor_id;
-        (byFloor[floor] ||= []).push(request);
+        const metadata = this.queuedMetadata(snapshot, request, nowMs);
+        records.push({ request, metadata });
       }
     }
+    records.sort((left, right) => (
+      (PRIORITY[left.metadata.category] ?? PRIORITY.solo)
+      - (PRIORITY[right.metadata.category] ?? PRIORITY.solo)
+      || integer(left.metadata.due_ms) - integer(right.metadata.due_ms)
+      || left.metadata.initiator_id.localeCompare(right.metadata.initiator_id)
+    ));
     const started = [];
-    for (const floor of Object.keys(byFloor).sort()) {
-      const lane = snapshot.lanes[floor] || (snapshot.lanes[floor] = {
-        floor_id: floor,
-        active_session_id: null,
-        active_until_ms: null,
-        queued_session_ids: [],
-        queued_requests: [],
-        last_completed_session_id: null,
-      });
-      const records = byFloor[floor]
-        .map((request) => ({ request, metadata: this.queuedMetadata(snapshot, request, nowMs) }))
-        .sort((left, right) => (
-          (left.metadata.category === "leaving" ? 0 : left.metadata.category === "fatigue" ? 1 : left.metadata.category === "greeting" ? 2 : left.metadata.category === "work_start" ? 3 : left.metadata.category === "conversation_open" ? 4 : 5)
-          - (right.metadata.category === "leaving" ? 0 : right.metadata.category === "fatigue" ? 1 : right.metadata.category === "greeting" ? 2 : right.metadata.category === "work_start" ? 3 : right.metadata.category === "conversation_open" ? 4 : 5)
-          || integer(left.metadata.due_ms) - integer(right.metadata.due_ms)
-          || left.metadata.initiator_id.localeCompare(right.metadata.initiator_id)
-        ));
-      if (lane.active_session_id) {
-        lane.queued_session_ids = records.map((record) => record.metadata.initiator_id);
-        lane.queued_requests = records.map((record) => record.metadata);
+    for (const { request, metadata } of records) {
+      const requestId = String(metadata.request_id);
+      snapshot.pending_requests[requestId] = metadata;
+      const participants = (request.participants || []).map(String);
+      if (participants.some((employeeId) => !this.slotAvailable(snapshot, employeeId))) continue;
+
+      const candidates = [request];
+      if (request.kind === "pair") {
+        const seen = new Set([`${request.mode || ""}|${request.partner_id || ""}`]);
+        for (const candidate of this.modeRequests(
+          snapshot,
+          actorSnapshot,
+          conversationSnapshot,
+          request.initiator_id,
+        )) {
+          const key = `${candidate.mode || ""}|${candidate.partner_id || ""}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          candidates.push({ ...candidate, external: Boolean(request.external) });
+        }
+      }
+      const dialogueBagsBefore = clone(snapshot.dialogue_bags || {});
+      let planned = null;
+      for (const candidate of candidates) {
+        snapshot.dialogue_bags = clone(dialogueBagsBefore);
+        const plan = this.buildPlan(
+          snapshot,
+          actorSnapshot,
+          candidate,
+          dialogueLocale,
+          dialogueSeed,
+          this.activeReservedCells(snapshot),
+        );
+        if (plan) {
+          planned = { request: candidate, plan };
+          break;
+        }
+      }
+      if (!planned) {
+        snapshot.dialogue_bags = dialogueBagsBefore;
+        this.retryRequest(snapshot, request, nowMs);
         continue;
       }
-      for (const { request } of records) {
-        const plan = this.buildPlan(snapshot, actorSnapshot, request, dialogueLocale, dialogueSeed);
-        if (!plan) continue;
-        const startedSession = this.startSession(snapshot, actorSnapshot, request, plan, nowMs, events, dialogueLocale);
-        started.push(...startedSession.talkCommands);
-        break;
+      if (planned.request.participants.some((employeeId) => !this.slotAvailable(snapshot, employeeId))) {
+        snapshot.dialogue_bags = dialogueBagsBefore;
+        continue;
       }
+      const startedSession = this.startSession(
+        snapshot,
+        actorSnapshot,
+        planned.request,
+        planned.plan,
+        nowMs,
+        events,
+        dialogueLocale,
+      );
+      started.push(...startedSession.talkCommands);
+      delete snapshot.pending_requests[requestId];
     }
+    this.refreshLegacyLanes(snapshot);
     return started;
   }
 
@@ -919,6 +1165,7 @@ export class BrowserSpeechReducer {
     dialogueSeed = this.seed,
   } = {}) {
     if (!isObject(snapshot)) throw new TypeError("speech snapshot is required");
+    this.ensureSnapshotShape(snapshot);
     const startMs = integer(snapshot.clock?.simulation_time_ms, 0);
     const targetMs = startMs + integer(elapsedMs, 0);
     const events = [];

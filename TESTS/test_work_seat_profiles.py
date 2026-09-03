@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
+from VALIDATION._common import resolve_root
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+ROOT = resolve_root(anchor=__file__)
 
 
 def test_verified_se_and_nw_profiles_and_derived_sw_ne_offsets():

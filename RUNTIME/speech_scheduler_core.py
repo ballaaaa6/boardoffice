@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """Deterministic speech timing and conversation trigger scheduler.
 
-Speech owns when a line may start, which floor lane is occupied, and which
+Speech owns when a line may start, which actor bubble slots are occupied, and which
 conversation mode/plan is eligible.  It does not mutate workstation
 ownership, animation registries or stamina.  Central commits an accepted
 plan into the actor reducer, which owns the physical talk route and return.
@@ -20,12 +20,14 @@ from RUNTIME.employee_registry import EmployeeMetadataError, EmployeeMetadataReg
 
 
 class SpeechSchedulerError(ValueError):
-    """Raised when speech timing, lane state or trigger data is invalid."""
+    """Raised when speech timing, actor-slot state or trigger data is invalid."""
 
 
 class SpeechSchedulerCore:
-    SCHEMA = "gds.speech_scheduler_snapshot.v1"
-    VERSION = "1.0.0"
+    SCHEMA = "gds.speech_scheduler_snapshot.v2"
+    VERSION = "2.0.0"
+    LEGACY_SCHEMA = "gds.speech_scheduler_snapshot.v1"
+    LEGACY_VERSION = "1.0.0"
     TICK_MS = 60
     BUBBLE_VISIBLE_MS = 4000
     BUBBLE_FADE_MS = 300
@@ -92,7 +94,7 @@ class SpeechSchedulerCore:
             self.snapshot_schema = json.loads(self.schema_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             raise SpeechSchedulerError("Speech scheduler contract/schema cannot be loaded") from exc
-        if self.contract.get("schema") != "gds.speech_scheduler.v1":
+        if self.contract.get("schema") != "gds.speech_scheduler.v2":
             raise SpeechSchedulerError("Unsupported speech scheduler contract")
         self._validator = Draft202012Validator(self.snapshot_schema)
         timing = self.contract.get("timing", {})
@@ -238,6 +240,20 @@ class SpeechSchedulerCore:
         result["actors"] = {
             key: result["actors"][key] for key in sorted(result.get("actors", {}))
         }
+        result["actor_slots"] = {
+            key: result["actor_slots"][key]
+            for key in sorted(result.get("actor_slots", {}))
+        }
+        result["pending_requests"] = {
+            key: result["pending_requests"][key]
+            for key in sorted(result.get("pending_requests", {}))
+        }
+        result["resource_claims"] = {
+            key: result["resource_claims"][key]
+            for key in sorted(result.get("resource_claims", {}))
+        }
+        # ``lanes`` is retained as a read-only compatibility projection for
+        # old save viewers.  It is never consulted for admission.
         result["lanes"] = {
             key: result["lanes"][key] for key in sorted(result.get("lanes", {}))
         }
@@ -252,6 +268,78 @@ class SpeechSchedulerCore:
             actor.setdefault("work_dialogue_cursor", 0)
             actor.setdefault("work_dialogue_emitted", 0)
         return result
+
+    @classmethod
+    def _migrate_snapshot_shape(cls, snapshot: dict[str, Any]) -> dict[str, Any]:
+        """Upgrade a v1 floor-lane snapshot to the actor-slot shape.
+
+        The migration deliberately keeps the old ``lanes`` object as a
+        diagnostic projection so saved review packages remain inspectable.
+        Runtime admission never reads it as a mutex.
+        """
+        result = cls._copy(snapshot)
+        legacy = (
+            result.get("schema") == cls.LEGACY_SCHEMA
+            or result.get("version") == cls.LEGACY_VERSION
+        )
+        result["schema"] = cls.SCHEMA
+        result["version"] = cls.VERSION
+        actors = result.get("actors") if isinstance(result.get("actors"), dict) else {}
+        active_sessions = result.get("active_sessions") if isinstance(result.get("active_sessions"), dict) else {}
+        actor_slots = result.get("actor_slots") if isinstance(result.get("actor_slots"), dict) else {}
+        for employee_id in actors:
+            slot = actor_slots.get(employee_id)
+            if not isinstance(slot, dict):
+                slot = {}
+            slot.setdefault("employee_id", employee_id)
+            slot.setdefault("active_session_id", None)
+            slot.setdefault("active_until_ms", None)
+            slot.setdefault("queued_request_ids", [])
+            slot.setdefault("last_completed_session_id", None)
+            actor_slots[employee_id] = slot
+        if legacy:
+            for session_id, session in active_sessions.items():
+                if not isinstance(session, dict):
+                    continue
+                for employee_id in session.get("participants", []):
+                    slot = actor_slots.get(employee_id)
+                    if isinstance(slot, dict) and slot.get("active_session_id") is None:
+                        slot["active_session_id"] = session_id
+                        slot["active_until_ms"] = session.get("fade_end_ms")
+            pending: dict[str, Any] = {}
+            for lane in (result.get("lanes") or {}).values():
+                if not isinstance(lane, dict):
+                    continue
+                for request in lane.get("queued_requests", []):
+                    if isinstance(request, dict) and request.get("request_id"):
+                        pending[str(request["request_id"])] = request
+            result["pending_requests"] = pending
+        else:
+            result.setdefault("pending_requests", {})
+        claims = result.get("resource_claims") if isinstance(result.get("resource_claims"), dict) else {}
+        for session_id, session in active_sessions.items():
+            if not isinstance(session, dict) or session.get("kind") != "pair":
+                continue
+            claim_id = str(session.get("resource_claim_id") or f"talk-claim:{session_id}")
+            session["resource_claim_id"] = claim_id
+            claims.setdefault(claim_id, {
+                "claim_id": claim_id,
+                "session_id": session_id,
+                "floor_id": session.get("floor_id"),
+                "participants": list(session.get("participants", [])),
+                "mode": session.get("mode"),
+                "status": "active",
+                "release_at_ms": session.get("fade_end_ms"),
+                "reserved_cells_uv": [],
+            })
+        result["actor_slots"] = actor_slots
+        result["resource_claims"] = claims
+        return result
+
+    @classmethod
+    def _slot_available(cls, snapshot: dict[str, Any], employee_id: str) -> bool:
+        slot = snapshot.get("actor_slots", {}).get(employee_id, {})
+        return isinstance(slot, dict) and slot.get("active_session_id") is None
 
     def _delay_ms(
         self,
@@ -379,6 +467,9 @@ class SpeechSchedulerCore:
                 "emotion_rng_state": self._initial_emotion_rng_state(simulation_seed),
             },
             "actors": {},
+            "actor_slots": {},
+            "pending_requests": {},
+            "resource_claims": {},
             "lanes": {},
             "active_sessions": {},
             "dialogue_bags": {},
@@ -390,6 +481,13 @@ class SpeechSchedulerCore:
             snapshot["actors"][employee_id] = self._actor_state(
                 str(employee_id), actor, now_ms=spawned_at_ms, snapshot=snapshot
             )
+            snapshot["actor_slots"][str(employee_id)] = {
+                "employee_id": str(employee_id),
+                "active_session_id": None,
+                "active_until_ms": None,
+                "queued_request_ids": [],
+                "last_completed_session_id": None,
+            }
         snapshot["lanes"] = {
             floor: {
                 "floor_id": floor,
@@ -406,6 +504,7 @@ class SpeechSchedulerCore:
     def validate_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(snapshot, dict):
             raise SpeechSchedulerError("speech snapshot must be an object")
+        snapshot = self._migrate_snapshot_shape(snapshot)
         try:
             json.dumps(snapshot, allow_nan=False)
         except (TypeError, ValueError) as exc:
@@ -416,7 +515,7 @@ class SpeechSchedulerCore:
             raise SpeechSchedulerError(f"{first.json_path or '$'}: {first.message}")
         current = self._canonical(snapshot)
         determinism = current["determinism"]
-        for lane in current["lanes"].values():
+        for lane in current.get("lanes", {}).values():
             lane.setdefault("queued_requests", [])
         if "emotion_rng_state" not in determinism:
             # Old snapshots did not persist a d6 state.  Seed the migrated
@@ -448,8 +547,14 @@ class SpeechSchedulerCore:
                 actor.get("external_talk_pending"), bool
             ):
                 raise SpeechSchedulerError(f"{employee_id}: external_talk_pending must be boolean")
-            if actor.get("floor_id") not in current["lanes"]:
-                raise SpeechSchedulerError(f"{employee_id}: missing speech lane")
+            slot = current["actor_slots"].get(employee_id)
+            if not isinstance(slot, dict) or slot.get("employee_id") != employee_id:
+                raise SpeechSchedulerError(f"{employee_id}: actor slot is missing or mismatched")
+            if slot.get("active_session_id") is not None:
+                active_id = slot["active_session_id"]
+                session = current["active_sessions"].get(active_id)
+                if not isinstance(session, dict) or employee_id not in session.get("participants", []):
+                    raise SpeechSchedulerError(f"{employee_id}: actor slot points at an invalid session")
             for key in (
                 "greeting_due_ms", "work_start_due_ms", "solo_next_due_ms", "pair_next_due_ms",
                 "emotion_until_ms", "leaving_due_ms", "external_talk_due_ms",
@@ -463,7 +568,7 @@ class SpeechSchedulerCore:
                 raise SpeechSchedulerError(f"{employee_id}: unknown emotion")
             if actor.get("speech_phase") == "emotion" and actor.get("emotion_until_ms") is None:
                 raise SpeechSchedulerError(f"{employee_id}: emotion phase needs an end time")
-        for floor_id, lane in current["lanes"].items():
+        for floor_id, lane in current.get("lanes", {}).items():
             if lane.get("floor_id") != floor_id:
                 raise SpeechSchedulerError(f"speech lane key mismatch: {floor_id!r}")
             active_id = lane.get("active_session_id")
@@ -489,6 +594,20 @@ class SpeechSchedulerCore:
                 raise SpeechSchedulerError(f"{session_id}: unknown session mode")
             if session.get("fade_end_ms") != int(session.get("start_ms", 0)) + self.SESSION_HOLD_MS:
                 raise SpeechSchedulerError(f"{session_id}: speech session duration is not 4300ms")
+            for employee_id in participants:
+                slot = current["actor_slots"].get(employee_id, {})
+                if slot.get("active_session_id") != session_id:
+                    raise SpeechSchedulerError(
+                        f"{session_id}: participant {employee_id} is not atomically slotted"
+                    )
+        for claim_id, claim in current["resource_claims"].items():
+            if not isinstance(claim, dict) or claim.get("claim_id") != claim_id:
+                raise SpeechSchedulerError(f"resource claim key mismatch: {claim_id!r}")
+            session_id = claim.get("session_id")
+            if session_id not in current["active_sessions"]:
+                raise SpeechSchedulerError(f"{claim_id}: resource claim points at unknown session")
+            if claim.get("status") != "active":
+                raise SpeechSchedulerError(f"{claim_id}: resource claim is not active")
         return current
 
     def _append_event(
@@ -689,6 +808,8 @@ class SpeechSchedulerCore:
         for employee_id, actor in snapshot["actors"].items():
             if employee_id == initiator_id or actor.get("floor_id") != floor_id:
                 continue
+            if not self._slot_available(snapshot, employee_id):
+                continue
             if role is not None and actor.get("role") != role:
                 continue
             if not self._actor_available(actor):
@@ -729,13 +850,20 @@ class SpeechSchedulerCore:
         """
         initiator = snapshot["actors"].get(initiator_id)
         external_talk = bool(initiator and initiator.get("external_talk_pending"))
-        initiator_available = self._actor_available(initiator) if initiator is not None else False
+        initiator_available = (
+            self._actor_available(initiator)
+            and self._slot_available(snapshot, initiator_id)
+            if initiator is not None else False
+        )
         if external_talk and initiator is not None:
             # The actor reducer owns the talking activity window.  A bridge
             # event may therefore arrive while activity is ``talking``; the
-            # speech lane may still choose a valid pair without stealing the
+            # speech scheduler may still choose a valid pair without stealing the
             # actor's independent pose/stamina clock.
-            initiator_available = self._actor_available(initiator, allow_entering=True)
+            initiator_available = (
+                self._actor_available(initiator, allow_entering=True)
+                and self._slot_available(snapshot, initiator_id)
+            )
             if initiator_available and self._actor_activity(initiator) != "working":
                 initiator_available = self._actor_present(initiator) and not initiator.get("locked") and initiator.get("speech_phase") in (None, "idle")
         if initiator is None or initiator.get("role") == "ceo" or not initiator_available:
@@ -946,6 +1074,109 @@ class SpeechSchedulerCore:
             }
         return overrides, bags, "in_work_category_bag"
 
+    @staticmethod
+    def _plan_reserved_cells(plan: dict[str, Any] | None) -> list[list[int]]:
+        """Extract physical route/spot cells used by an accepted pair plan."""
+        if not isinstance(plan, dict):
+            return []
+        found: set[tuple[int, int]] = set()
+
+        route_cell_keys = {
+            "endpoint_by_actor",
+            "endpoint_cells_uv",
+            "endpoint_uv",
+            "gate_uv",
+            "candidate_uv",
+            "outbound_path_cells_uv",
+            "inbound_path_cells_uv",
+            "path_cells_uv",
+        }
+
+        def collect_cells(value: Any) -> None:
+            if not isinstance(value, list):
+                return
+            if len(value) == 2 and not any(isinstance(item, (list, tuple, dict)) for item in value):
+                try:
+                    found.add((int(value[0]), int(value[1])))
+                except (TypeError, ValueError):
+                    return
+                return
+            for child in value:
+                collect_cells(child)
+
+        def visit(value: Any) -> None:
+            if not isinstance(value, dict):
+                return
+            for child_key, child in value.items():
+                if str(child_key) in route_cell_keys:
+                    collect_cells(child)
+                elif child_key in {"route_info", "spot"} or isinstance(child, dict):
+                    visit(child)
+
+        visit(plan)
+        return [[u, v] for u, v in sorted(found, key=lambda item: (item[1], item[0]))]
+
+    def _active_reserved_cells(self, snapshot: dict[str, Any]) -> list[list[int]]:
+        cells: set[tuple[int, int]] = set()
+        for claim in snapshot.get("resource_claims", {}).values():
+            if not isinstance(claim, dict) or claim.get("status") != "active":
+                continue
+            for cell in claim.get("reserved_cells_uv", []):
+                if isinstance(cell, (list, tuple)) and len(cell) == 2:
+                    try:
+                        cells.add((int(cell[0]), int(cell[1])))
+                    except (TypeError, ValueError):
+                        continue
+        return [[u, v] for u, v in sorted(cells, key=lambda item: (item[1], item[0]))]
+
+    def _refresh_legacy_lanes(self, snapshot: dict[str, Any]) -> None:
+        """Refresh the v1 floor view without making it an admission mutex."""
+        lanes = snapshot.setdefault("lanes", {})
+        floors = {str(actor.get("floor_id")) for actor in snapshot.get("actors", {}).values()}
+        for floor_id in sorted(floors):
+            lane = lanes.setdefault(floor_id, {
+                "floor_id": floor_id,
+                "active_session_id": None,
+                "active_until_ms": None,
+                "queued_session_ids": [],
+                "queued_requests": [],
+                "last_completed_session_id": None,
+            })
+            active = sorted(
+                (
+                    (session_id, session)
+                    for session_id, session in snapshot.get("active_sessions", {}).items()
+                    if isinstance(session, dict) and session.get("floor_id") == floor_id
+                ),
+                key=lambda item: item[0],
+            )
+            lane["active_session_id"] = active[0][0] if len(active) == 1 else None
+            lane["active_until_ms"] = active[0][1].get("fade_end_ms") if len(active) == 1 else None
+            queued = [
+                request for request in snapshot.get("pending_requests", {}).values()
+                if isinstance(request, dict)
+                and snapshot.get("actors", {}).get(request.get("initiator_id"), {}).get("floor_id") == floor_id
+            ]
+            queued.sort(key=lambda item: (
+                self.PRIORITY.get(str(item.get("category")), self.PRIORITY["solo"]),
+                int(item.get("due_ms", 0)),
+                str(item.get("initiator_id", "")),
+            ))
+            lane["queued_requests"] = self._copy(queued)
+            lane["queued_session_ids"] = [str(item.get("initiator_id")) for item in queued]
+        for floor_id in list(lanes):
+            if floor_id not in floors:
+                del lanes[floor_id]
+        for employee_id, slot in snapshot.get("actor_slots", {}).items():
+            if not isinstance(slot, dict):
+                continue
+            slot["queued_request_ids"] = sorted(
+                request_id
+                for request_id, request in snapshot.get("pending_requests", {}).items()
+                if isinstance(request, dict)
+                and employee_id in request.get("participants", [request.get("initiator_id")])
+            )
+
     def _bubble_id_for_dialogue(self, line: dict[str, Any] | None) -> str | None:
         """Resolve the registry's smallest-fitting bubble for one line.
 
@@ -979,6 +1210,7 @@ class SpeechSchedulerCore:
         if self.conversation is None or conversation_snapshot is None:
             return request, None
         candidates = [request]
+        reserved_cells = self._active_reserved_cells(snapshot)
         if request.get("kind") == "pair":
             generated = self._mode_requests(
                 snapshot,
@@ -1023,6 +1255,7 @@ class SpeechSchedulerCore:
                         dialogue_seed=dialogue_seed,
                         dialogue_line_overrides=overrides,
                         emotion_roll=emotion_roll,
+                        reserved_cells=reserved_cells,
                     )
                 else:
                     plan = self.conversation.plan_self_talk(
@@ -1098,6 +1331,15 @@ class SpeechSchedulerCore:
         plan: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         participants = list(request["participants"])
+        unavailable = [
+            employee_id
+            for employee_id in participants
+            if not self._slot_available(snapshot, employee_id)
+        ]
+        if unavailable:
+            raise SpeechSchedulerError(
+                f"actor speech slot is already active: {','.join(sorted(unavailable))}"
+            )
         kind = str(request["kind"])
         mode = str(request.get("mode") or ("self_talk" if kind != "pair" else "standing_pair"))
         category = str(request.get("category") or "idle_flavor")
@@ -1168,6 +1410,19 @@ class SpeechSchedulerCore:
             "bubble_started": False,
             "bubble_start_event_emitted": False,
         }
+        if kind == "pair":
+            claim_id = f"talk-claim:{session_id}"
+            session["resource_claim_id"] = claim_id
+            snapshot["resource_claims"][claim_id] = {
+                "claim_id": claim_id,
+                "session_id": session_id,
+                "floor_id": session["floor_id"],
+                "participants": list(participants),
+                "mode": mode,
+                "status": "active",
+                "release_at_ms": fade_end,
+                "reserved_cells_uv": self._plan_reserved_cells(plan),
+            }
         dialogue_by_actor = (
             plan.get("dialogue_by_actor", {})
             if isinstance(plan, dict) and isinstance(plan.get("dialogue_by_actor"), dict)
@@ -1242,11 +1497,12 @@ class SpeechSchedulerCore:
             }]
         snapshot["active_sessions"][session_id] = session
         floor_id = session["floor_id"]
-        lane = snapshot["lanes"][floor_id]
-        lane["active_session_id"] = session_id
-        lane["active_until_ms"] = fade_end
         for employee_id in participants:
             actor = snapshot["actors"][employee_id]
+            slot = snapshot["actor_slots"][employee_id]
+            slot["active_session_id"] = session_id
+            slot["active_until_ms"] = fade_end
+            slot["queued_request_ids"] = []
             actor["speech_event_counter"] = int(actor.get("speech_event_counter", 0)) + 1
             actor["speech_phase"] = "active"
             if request.get("external"):
@@ -1274,6 +1530,7 @@ class SpeechSchedulerCore:
             elif kind == "pair":
                 actor["pair_pending"] = False
                 actor["pair_next_due_ms"] = None
+        self._refresh_legacy_lanes(snapshot)
         self._append_event(
             snapshot,
             events,
@@ -1354,11 +1611,15 @@ class SpeechSchedulerCore:
     ) -> None:
         session = snapshot["active_sessions"].pop(session_id)
         floor_id = session["floor_id"]
-        lane = snapshot["lanes"][floor_id]
-        lane["active_session_id"] = None
-        lane["active_until_ms"] = None
-        lane["last_completed_session_id"] = session_id
         participants = list(session["participants"])
+        for employee_id in participants:
+            slot = snapshot["actor_slots"][employee_id]
+            slot["active_session_id"] = None
+            slot["active_until_ms"] = None
+            slot["last_completed_session_id"] = session_id
+        claim_id = session.get("resource_claim_id")
+        if claim_id is not None:
+            snapshot["resource_claims"].pop(str(claim_id), None)
         self._append_event(
             snapshot,
             events,
@@ -1418,6 +1679,7 @@ class SpeechSchedulerCore:
             snapshot.setdefault("completed_sessions", {})[session_id] = session
         else:
             snapshot.setdefault("completed_sessions", {})[session_id] = session
+        self._refresh_legacy_lanes(snapshot)
 
     def _finish_participants(
         self,
@@ -1502,7 +1764,7 @@ class SpeechSchedulerCore:
         now_ms: int,
     ) -> dict[str, Any] | None:
         actor = snapshot["actors"][employee_id]
-        if actor.get("speech_phase") != "idle":
+        if actor.get("speech_phase") != "idle" or not self._slot_available(snapshot, employee_id):
             return None
         if (
             actor.get("leaving_pending")
@@ -1715,7 +1977,6 @@ class SpeechSchedulerCore:
             self._apply_command(current, command, timestamp_ms=start_ms)
 
         now_ms = start_ms
-        first_pass = True
         while now_ms <= target_ms:
             self._finish_emotions(current, timestamp_ms=now_ms, events=events)
             for session in current["active_sessions"].values():
@@ -1739,71 +2000,56 @@ class SpeechSchedulerCore:
 
             self._sync_actor_state(current, actor_snapshot, now_ms=now_ms)
             started_any = False
-            by_floor: dict[str, list[dict[str, Any]]] = {}
-            # Queue metadata is a live projection, not a durable request
-            # store.  Clear it before rebuilding eligibility so an actor that
-            # became locked/talking/away cannot leave a ghost request visible
-            # after its lane has stopped reporting it.
-            for lane in current["lanes"].values():
-                lane["queued_session_ids"] = []
-                lane["queued_requests"] = []
+            request_records: list[tuple[dict[str, Any], dict[str, Any]]] = []
+            current["pending_requests"] = {}
             for employee_id in sorted(current["actors"]):
                 request = self._request_for_actor(current, employee_id, now_ms=now_ms)
                 if request is not None:
-                    floor = current["actors"][employee_id]["floor_id"]
-                    by_floor.setdefault(floor, []).append(request)
-            for floor_id in sorted(by_floor):
-                lane = current["lanes"][floor_id]
-                request_records = [
-                    (
+                    request_records.append((
                         request,
                         self._queued_request_metadata(
                             current,
                             request,
                             now_ms=now_ms,
                         ),
-                    )
-                    for request in by_floor[floor_id]
-                ]
-                request_records.sort(
-                    key=lambda record: (
-                        self.PRIORITY.get(
-                            record[1]["category"],
-                            self.PRIORITY["solo"],
-                        ),
-                        int(record[1]["due_ms"]),
-                        record[1]["initiator_id"],
-                    )
+                    ))
+            request_records.sort(
+                key=lambda record: (
+                    self.PRIORITY.get(record[1]["category"], self.PRIORITY["solo"]),
+                    int(record[1]["due_ms"]),
+                    record[1]["initiator_id"],
                 )
-                queued_metadata = [metadata for _request, metadata in request_records]
-                if lane.get("active_session_id") is not None:
-                    lane["queued_session_ids"] = [item["initiator_id"] for item in queued_metadata]
-                    lane["queued_requests"] = queued_metadata
+            )
+            for request, metadata in request_records:
+                request_id = str(metadata["request_id"])
+                current["pending_requests"][request_id] = metadata
+                participants = [str(value) for value in request.get("participants", [])]
+                if any(not self._slot_available(current, employee_id) for employee_id in participants):
                     continue
-                lane["queued_session_ids"] = []
-                lane["queued_requests"] = []
-                for request, _metadata in request_records:
-                    plan = None
-                    planned = self._maybe_plan_session(
-                        current,
-                        request,
-                        conversation_snapshot=conversation_snapshot,
-                        dialogue_locale=dialogue_locale,
-                        dialogue_seed=dialogue_seed,
-                    )
-                    if planned is None:
-                        self._retry_request(current, request, now_ms=now_ms)
-                        continue
-                    request, plan = planned
-                    self._start_session(current, request, timestamp_ms=now_ms, events=events, plan=plan)
-                    started_any = True
-                    break
+                planned = self._maybe_plan_session(
+                    current,
+                    request,
+                    conversation_snapshot=conversation_snapshot,
+                    dialogue_locale=dialogue_locale,
+                    dialogue_seed=dialogue_seed,
+                )
+                if planned is None:
+                    self._retry_request(current, request, now_ms=now_ms)
+                    continue
+                request, plan = planned
+                if any(not self._slot_available(current, employee_id) for employee_id in request.get("participants", [])):
+                    continue
+                self._start_session(current, request, timestamp_ms=now_ms, events=events, plan=plan)
+                current["pending_requests"].pop(request_id, None)
+                started_any = True
+
+            self._refresh_legacy_lanes(current)
 
             if started_any:
-                first_pass = False
                 if now_ms == target_ms:
                     break
-                # A new lane now advances to its fade boundary.
+                # Advance to the next session boundary after admitting every
+                # currently compatible actor request.
                 next_boundaries = [
                     int(session["bubble_start_ms"])
                     for session in current["active_sessions"].values()
@@ -1849,8 +2095,6 @@ class SpeechSchedulerCore:
             if next_ms <= now_ms:
                 next_ms = min(target_ms, now_ms + self.TICK_MS)
             now_ms = next_ms
-            first_pass = False
-
         current["clock"]["simulation_time_ms"] = target_ms
         if validate:
             current = self.validate_snapshot(current)

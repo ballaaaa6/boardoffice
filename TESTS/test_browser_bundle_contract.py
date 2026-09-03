@@ -51,6 +51,20 @@ def test_floor02_bundle_is_deterministic_and_contains_runtime_inputs(tmp_path):
     assert endpoints[0][0] == endpoints[1][0]
     assert endpoints[1][1] - endpoints[0][1] == 4
     assert standing_pair["spot"]["endpoint_facings"] == ["SW", "NE"]
+    seated_host = next(
+        plan
+        for key, plan in first["conversation"]["plans"].items()
+        if key.endswith("|seated_host")
+    )
+    ceo_front = next(
+        plan
+        for key, plan in first["conversation"]["plans"].items()
+        if key.endswith("|ceo_front")
+    )
+    for plan in (seated_host, ceo_front):
+        visitor_id = plan["visitor_ids"][0]
+        assert plan["bubble_offset_by_actor"][visitor_id] == [0, -20]
+        assert plan["bubble_offset_by_actor"].get(plan["host_id"], [0, 0]) == [0, 0]
     assert validate_bundle(first, root=ROOT, expected_floor_id="floor02")["bundle_revision"] == first[
         "bundle_revision"
     ]

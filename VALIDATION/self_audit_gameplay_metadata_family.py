@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
+
+try:
+    from VALIDATION._common import resolve_root
+except ModuleNotFoundError:
+    from _common import resolve_root
 
 
 def audit(core_root: str | Path, *, write_report: bool = True) -> dict:
-    root = Path(core_root).resolve()
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    root = resolve_root(core_root)
     from RUNTIME.central_core import CentralGameCore
 
     core = CentralGameCore(root)

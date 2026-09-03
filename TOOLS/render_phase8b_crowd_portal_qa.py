@@ -4,13 +4,15 @@ import json
 import math
 from pathlib import Path
 from typing import Any
-import sys
 
 from PIL import Image, ImageChops, ImageDraw
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+PROJECT_ROOT = ensure_project_root(__file__)
 
 from RUNTIME.central_core import CentralGameCore
 
@@ -707,9 +709,8 @@ class CrowdPortalRenderer:
 
 
 if __name__ == '__main__':
-    project_root = Path(__file__).resolve().parents[1]
-    out = project_root / 'LOCAL_REVIEW' / 'PHASE8B_CROWD_PORTAL_QA'
-    renderer = CrowdPortalRenderer(project_root)
+    out = PROJECT_ROOT / 'LOCAL_REVIEW' / 'PHASE8B_CROWD_PORTAL_QA'
+    renderer = CrowdPortalRenderer(PROJECT_ROOT)
     result = renderer.render_all(out)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     raise SystemExit(0 if result['status'] == 'PASS' else 1)

@@ -2,50 +2,44 @@
 
 **Updated:** 2026-09-03 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** `main` (`18f0436`) now contains the engineering-verified lean component-renderer, browser-owned simulation slice (Tasks 1–4), and the approved standing-pair orientation correction. Visual/gameplay acceptance and the remaining browser persistence/UI/endurance gates remain **acceptance-pending**.
+**Status:** Track A lean cleanup and the combined VFX/Popup + per-actor BB correction are engineering-complete. The production TypeScript/JavaScript migration has not started. Author visual/gameplay acceptance is still separate and pending. Startup stamina behavior was audited on 2026-09-03; no runtime fix has been applied and the small review-host correction is pending author approval.
 
 ## Current state
 
-- Static world/character assets, WorkSeat placement, navigation occupancy and reference hashes are unchanged.
-- Current standing-pair geometry/facing contract is equal `u`, four-cell `v` separation, upper-right/lower-`v` endpoint → `SW`, lower-left/higher-`v` endpoint → `NE`.
-- Implemented standing-pair orientation correction (2026-09-03): the contract/schema now prefer V with U fallback and `ascending_v`; the resolver default reads that contract, the browser bundle was regenerated, and browser transition/fade sampling was aligned with the Python oracle. Static world/character assets, WorkSeat placement and reference hashes are unchanged.
-- The opener bubble retains `[0, -20]`; the reply retains `[0, 0]`. Standing-pair emotion uses one persisted replayable d6 with even → `happy` and odd → `sad`.
-- Talk return retains the owned WorkSeat and the existing 240ms `seat_entry` boundary before exposing `work_seat/work/normal_work`.
-
-## Implemented follow-up correction — 2026-09-02
-
-- Actor-side `talk_pending` now continues the normal work clock and stamina while waiting for the single floor speech lane; critical/cancel/timeout paths have explicit ownership.
-- Cancelling a pending talk no longer clears the actor's owned WorkSeat position. Routed talks still use their authored route/hold/return flow, and completion preserves the work-loop clock instead of forcing a frame-zero hold.
-- Speech requests retain request id, category, mode, participants, due time and external/lifecycle identity in the queue. Lifecycle priority is ordered before routine pair/solo talk, and unrelated lifecycle completion cannot clear another actor's pending request.
-- `spawned`, `workseat_entered` and `returned_to_work` are explicit Central → SpeechScheduler boundaries carrying the actor event timestamp. Greeting and work-start BBs are armed from those boundaries; generic actor sync no longer re-arms work-start on unrelated transitions.
-- Live behavior-timer arming skips actors whose stationary SpeechScheduler overlay is active, preventing a new weighted event from competing with the overlay.
-- The review panel now exposes speech queue position/category/request id/due time, so a waiting BB can be distinguished from a frozen actor.
-- Cloudflare feasibility baseline: the current web path is a local Python/Pillow review host, not a deployable Worker. A warmed live `floor02` probe measured simulation-only p50 `0.23ms`, but advance+render p50 `12.2ms`, WebP encode p50 `8.76ms`, no-HTTP tick wall p50 `20.98ms`, and compact payload p50 about `140KB`; the active local server process was about `275MB` working set. The primary hotspot is full-frame rasterization/Base64 transport, not actor simulation.
-- Recommended migration is staged: publish JSON-only state/delta and render the existing 600×600 scene in browser Canvas while keeping raster fallback; then choose Workers Static Assets + client-side JS/TS simulation for single-user use, or add a Durable Object authority/WebSocket only if multiple viewers must share one world clock. Do not move the current resident Python/Pillow server into a Worker as-is.
-- Lean component renderer and browser-owned simulation (2026-09-03): the latest browser branch was fast-forwarded into `main` at `18f0436`; its lean parent is included in the same history. The merged slice adds the image-free headless/Canvas path plus deterministic browser simulation Tasks 1–4 while retaining Python/raster compatibility; canonical gameplay/assets/reference hashes are unchanged.
-- Local feature worktrees and branches `codex/browser-simulation` and `codex/lean-component-renderer` were removed after merge. The only local branch/worktree remaining is `main`; `origin/main` remains untouched and `main` is ahead by 13 commits.
-- Read-only lean audit (2026-09-03): canonical tracked source has no cloned code/image payloads beyond the exact duplicate `CHARACTER/BUILD_MANIFEST.json` / `CHARACTER/FINAL_MANIFEST.json` pair and empty package initializers. All 429 hashed world blobs are referenced; 458 registry entries intentionally resolve to those 429 shared blobs.
-- Main retains the raster path as compatibility fallback while the merged browser path is still an exploration slice: after bootstrap it can advance image-free state locally, but browser persistence/replay hardening, no-request UI source-mode wiring and endurance/Cloudflare gates are not yet closed.
+- `main` remains the active checkout. Static world/character assets, authored geometry, WorkSeat placement, navigation occupancy and reference pixels were preserved.
+- Python remains the gameplay oracle and local raster fallback. The browser-owned `floor02` slice is deterministic and metadata-only after its bootstrap load; its core does not poll `/api/tick` while stepping. The review page still intentionally exposes the existing raster/API fallback.
+- The existing project review server is healthy at `http://127.0.0.1:8765/` (PID `17724`). The prior PID `9780` was replaced after applying the walking-visitor BB change; the stale PID `11232` had previously loaded speech v1. There is now one project listener on port `8765`.
+- Startup stamina audit: the canonical actor snapshot, browser bootstrap bundle and `/api/reset` all start every actor at `100000` milli-stamina (`100`, `normal`). The browser boot/reset path calls `/api/live-start`, whose review-only default intentionally selects `EMP_W1_0010` and overrides it to `5000` (`5`, `critical`) for the critical-route demonstration. No source, asset, schema or bundle change was made; the review server was restored to reset state after the probe.
+- `RUNTIME/visual_selection_core.py` is the canonical selector for both channels. It derives the catalog from the registries, persists only profile/generation/cursor/active binding, and selects at event admission with a per-actor/per-channel deterministic shuffle bag.
+- Automatic visual coverage is now all **11/11 VFX** IDs and all **6/6 HumanBall** IDs. Rendering reads the persisted binding and never reselects per frame or performs a per-event request.
+- `SpeechSchedulerCore` and `BrowserSpeechReducer` now use one bubble slot per actor. Same-actor overlap is rejected; pair participants claim both slots atomically; physical conversation spot/path cells remain independently claimed. `lanes` remains only a compatibility/diagnostic projection and is not an admission mutex.
+- Legacy speech v1 snapshots migrate to scheduler v2 actor slots, pending requests and resource claims. Browser state migration mirrors the same shape.
+- The checked-in bundle is regenerated and validated: visual catalog profile `gds.visual_catalog.v1:e224b1dcf9091c77ef3c057cf31636365fe500c3c1af9ee2b94a411b3cf6c527`, bundle revision `0c44dc981c2fd4d157d456e8f67967a928f64fd5a4695de8b1bed7d97efbdd05`, speech snapshot v2.
+- The walking-visitor BB correction is implemented in the contract, Python conversation planner and browser bundle generator. In `seated_host` and `ceo_front`, the visitor receives an extra `[0, -20]` on top of the normal `-20px` anchor, giving an actual `-40px` total; the seated host remains at the normal `-20px`. `standing_pair` keeps its existing explicit opener lift.
 
 ## Verification
 
-- `python -B -m pytest -p no:cacheprovider -q` after the orientation correction → **377 passed in 411.33s**.
-- `node --test TESTS/browser_runtime_test.mjs` → **10 passed**.
-- Focused conversation, live-talk, bundle and browser-parity regression → **38 passed in 192.04s**.
-- Room Navigation, Navigation Occupancy, WorkSeat, WorkSeat lifecycle, Phase 6 Spatial, Central integrity, gameplay-metadata family and conversation audits → **PASS**.
-- Runtime presentation QA (`TOOLS/render_runtime_presentation_qa.py`) → **PASS**; static assets and reference hashes unchanged.
-- Fresh API long-run on `floor02` with the project server: simulated clock reached `137400ms`; 9 portal entries, 9 work-start bubbles, 6 observed WorkSeat entries, 0 lifecycle-boundary violations, and queue category telemetry present. The full noncompact stationary-overlay regression confirms work-loop/stamina progress for pending actors.
-- `git diff --check` → **PASS**. No release package was created; release-clean packaging remains a separate operation.
-- Conversation visual QA renderer (`python TOOLS/render_conversation_pair_gif.py`) → **PASS**; floor02 standing-pair manifest resolves `axis=V`, endpoints `[250,150]`/`[250,154]`, `EMP_W1_0031` → `SW` and `EMP_W1_0010` → `NE`.
-- Review server: `http://127.0.0.1:8765/`, health HTTP 200, project process PID `6688`, intentionally left running for author review.
-- Cloudflare spike used the existing healthy review server and in-memory/read-only probes; no duplicate development server was started, no canonical asset/reference hash was changed, and no release package was created.
-- Workspace audit: `LOCAL_REVIEW/` is about `3.05GiB` (mostly generated GIF/PNG review runs), `releases/.staging/` is `185.67MiB` with 17 extracted candidates, and the two overlapping prototype worktrees total about `163.33MiB`; these are ignored/non-runtime artifacts. `WORLD/COMPILED_NAV/OCCUPANCY/` and `PREVIEW/` are absent.
-- Current server observation: PID `6688` is the existing project review host on port `8765`; it was not started or stopped by this merge task. Port `8766` has no listener. Restart the existing review host before visual review if it must load the newly merged source from a fresh process.
+- `python -B -m pytest -q` → **403 passed**.
+- `node --test TESTS/browser_runtime_test.mjs` → **14 passed**.
+- Final focused conversation/speech/contract/parity/renderer regressions → **48 passed**.
+- `python -B -m compileall -q RUNTIME WORLD CHARACTER TOOLS VALIDATION TESTS` → **PASS**.
+- `ruff check RUNTIME WORLD CHARACTER TOOLS VALIDATION TESTS --select F401,F841` → **PASS**.
+- Lean audit → **0 exact duplicates, 21 duplicate function-body groups, 3 shared bootstrap calls, 16 direct CLI candidates, 0 selected Ruff findings**. The remaining function groups are retained domain/test helpers until a safe shared boundary is proven.
+- Central, Conversation, F2 gameplay metadata, Phase 6, Room Navigation, Navigation Occupancy, WorkSeat and WorkSeat lifecycle audits → **PASS**.
+- `git diff --check` → **PASS**.
+- `CONTRACTS/central_contract.json` SHA256 matches its checked-in `checksums.sha256` entry; after replacing the prior process, the review server is PID `17724` on port `8765` with no duplicate project listener.
+- Live browser/API recheck → **PASS**: the fresh server reports speech snapshot v2 with per-actor slots and physical resource claims. The `seated_host` and `ceo_front` live plans carry visitor `[0, -20]` and leave the host at default; the Effects demo exposes independent `humanball:controller` and `vfx:low_battery_drain` bindings. The regenerated bundle contains all **11 VFX** and **6 HumanBall** IDs.
+- Browser review page → **PASS**: Canvas renderer loaded the regenerated bundle, Talk mode was set to `seated host`, and the page was paused at the `8400ms` arrival/bubble-start boundary with the visitor BB visible in telemetry while the seated host remained unchanged.
+- Startup API probe → **PASS/DIAGNOSIS**: `/api/live-start` at `60ms` returned exactly one forced critical actor (`EMP_W1_0010`, `5.0`) and eight actors at `100.0`; `/api/reset`, `CentralGameCore.resolve_runtime_snapshot()` and `runtime_simulation_bootstrap.json` returned all actors at `100.0`.
+- Focused review tests → **31 passed**: `python -B -m pytest -q TESTS/test_runtime_review_server.py TESTS/test_runtime_review_web.py`.
 
-## Acceptance gate
+## Next task and open gates
 
-Engineering verification is complete for the merged raster/lean/browser slice. The author should review the Canvas/Raster page for visual parity, pixel-art sharpness, dialogue bubble appearance, walking depth, perceived smoothness and the existing full-system/Talk/Effects/Critical/save-load/replay behavior. Do not close the visual/gameplay gate until it is explicitly accepted.
+1. On author approval, make the normal `/api/live-start` path preserve `100` stamina for every actor; retain low-energy behavior only behind the explicit Critical demo. Expected change is limited to the review host default, its text and a regression assertion; no gameplay contract/bundle/asset regeneration is expected.
+2. Author reviews and accepts the live walking-visitor BB lift and complete VFX/HumanBall catalog behavior at `http://127.0.0.1:8765/` (especially Canvas/Raster parity and standing-pair orientation).
+3. Close the remaining browser persistence/replay, zero-request UI source-mode, endurance and Cloudflare/deployment gates.
+4. Only after those contracts are frozen, begin the planned TS/JS production migration from the canonical Python contracts and browser parity tests.
 
-**Next concrete task:** get explicit author visual/gameplay acceptance of the corrected standing-pair orientation on the review page. After that, resume Canvas/Raster acceptance, browser persistence/replay, zero-request UI mode, soak and Cloudflare decisions. Before packaging, trim duplicate telemetry/projection work and clean generated workspace artifacts through an explicit maintenance action.
+No release archive was rebuilt in this session. There is no blocker for the current engineering slice; author acceptance is the remaining approval gate.
 
 **Active handoff:** this file only. `ROADMAP.md` is the single active milestone plan.

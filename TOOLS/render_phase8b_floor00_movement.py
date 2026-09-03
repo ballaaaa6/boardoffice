@@ -2,17 +2,16 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-if __package__ is None or __package__ == '':
-    ROOT = Path(__file__).resolve().parents[1]
-    if str(ROOT) not in sys.path:
-        sys.path.insert(0, str(ROOT))
-else:
-    ROOT = Path(__file__).resolve().parents[1]
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+ROOT = ensure_project_root(__file__)
 
 from RUNTIME.central_core import CentralGameCore
 from WORLD.RUNTIME.pathfinding_core import PathfindingCore

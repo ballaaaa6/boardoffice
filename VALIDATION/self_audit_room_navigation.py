@@ -2,11 +2,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+try:
+    from VALIDATION._common import resolve_root
+except ModuleNotFoundError:
+    from _common import resolve_root
+
 
 def audit(root: str | Path, *, write_report: bool = True) -> dict:
-    root=Path(root).resolve()
-    import sys
-    if str(root) not in sys.path: sys.path.insert(0,str(root))
+    root=resolve_root(root)
     from WORLD.RUNTIME.room_navigation_core import RoomNavigationCore
     nav=RoomNavigationCore(root/'WORLD')
     floors=nav.floors
@@ -66,5 +69,4 @@ def audit(root: str | Path, *, write_report: bool = True) -> dict:
     return report
 
 if __name__=='__main__':
-    import sys
-    r=audit(Path(__file__).resolve().parents[1]); print(json.dumps(r,indent=2,ensure_ascii=False)); raise SystemExit(0 if r['pass'] else 1)
+    r=audit(resolve_root(anchor=__file__)); print(json.dumps(r,indent=2,ensure_ascii=False)); raise SystemExit(0 if r['pass'] else 1)

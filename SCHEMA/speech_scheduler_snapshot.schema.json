@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "gds.speech_scheduler_snapshot.v1",
-  "title": "GDS persistent speech scheduler snapshot",
+  "$id": "gds.speech_scheduler_snapshot.v2",
+  "title": "GDS persistent speech scheduler snapshot v2",
   "type": "object",
   "additionalProperties": true,
-  "required": ["schema", "version", "clock", "determinism", "actors", "lanes", "active_sessions"],
+  "required": ["schema", "version", "clock", "determinism", "actors", "actor_slots", "pending_requests", "resource_claims", "active_sessions"],
   "properties": {
-    "schema": {"const": "gds.speech_scheduler_snapshot.v1"},
-    "version": {"const": "1.0.0"},
+    "schema": {"const": "gds.speech_scheduler_snapshot.v2"},
+    "version": {"const": "2.0.0"},
     "clock": {
       "type": "object", "additionalProperties": false,
       "required": ["simulation_time_ms", "tick_ms"],
@@ -29,6 +29,19 @@
       "type": "object",
       "propertyNames": {"pattern": "^EMP_W[12]_[0-9]{4}$"},
       "additionalProperties": {"$ref": "#/$defs/speechActor"}
+    },
+    "actor_slots": {
+      "type": "object",
+      "propertyNames": {"pattern": "^EMP_W[12]_[0-9]{4}$"},
+      "additionalProperties": {"$ref": "#/$defs/actorSlot"}
+    },
+    "pending_requests": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/queuedRequest"}
+    },
+    "resource_claims": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/resourceClaim"}
     },
     "lanes": {
       "type": "object",
@@ -86,6 +99,34 @@
         "emotion_until_ms": {"$ref": "#/$defs/nullableMs"},
         "work_dialogue_cursor": {"type": "integer", "minimum": 0},
         "work_dialogue_emitted": {"type": "integer", "minimum": 0}
+      }
+    },
+    "actorSlot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["employee_id", "active_session_id", "active_until_ms", "queued_request_ids", "last_completed_session_id"],
+      "properties": {
+        "employee_id": {"type": "string", "pattern": "^EMP_W[12]_[0-9]{4}$"},
+        "active_session_id": {"type": ["string", "null"]},
+        "active_until_ms": {"$ref": "#/$defs/nullableMs"},
+        "queued_request_ids": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "last_completed_session_id": {"type": ["string", "null"]}
+      }
+    },
+    "resourceClaim": {
+      "type": "object", "additionalProperties": false,
+      "required": ["claim_id", "session_id", "floor_id", "participants", "mode", "status", "release_at_ms", "reserved_cells_uv"],
+      "properties": {
+        "claim_id": {"type": "string", "minLength": 1},
+        "session_id": {"type": "string", "minLength": 1},
+        "floor_id": {"type": "string", "pattern": "^floor[0-9]+$"},
+        "participants": {"type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true, "items": {"type": "string", "pattern": "^EMP_W[12]_[0-9]{4}$"}},
+        "mode": {"enum": ["ceo_front", "seated_host", "standing_pair"]},
+        "status": {"const": "active"},
+        "release_at_ms": {"type": "integer", "minimum": 0},
+        "reserved_cells_uv": {
+          "type": "array",
+          "items": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer"}}
+        }
       }
     },
     "lane": {

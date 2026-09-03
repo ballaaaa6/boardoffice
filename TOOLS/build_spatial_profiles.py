@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import json
-import sys
 from collections import defaultdict
 from pathlib import Path
+
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
 
 SCOPE = ("chair", "desk", "pc", "reception")
 
@@ -13,9 +17,7 @@ def dump_json(path: Path, data: object) -> None:
 
 
 def build(root: Path) -> dict:
-    root = root.resolve()
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    root = ensure_project_root(root)
     from WORLD.RUNTIME.layout_core import LayoutCore
 
     core = LayoutCore(root / "WORLD")

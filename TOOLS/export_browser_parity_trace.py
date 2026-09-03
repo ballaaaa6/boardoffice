@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import argparse
 import copy
-import json
-import sys
 from pathlib import Path
 from typing import Any
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+PROJECT_ROOT = ensure_project_root(__file__)
 
 from RUNTIME.browser_bundle_contract import TRACE_SCHEMA, VERSION, canonical_json, validate_trace
 from RUNTIME.central_core import CentralGameCore
@@ -131,8 +132,8 @@ def _scenario_steps(scenario: str) -> list[dict[str, Any]]:
         ]
     if scenario == "talk_pair":
         # Isolate one deterministic pair so this checkpoint exercises the
-        # browser speech lane and committed talk routes without unrelated
-        # automatic office chatter winning the floor lane.
+        # browser speech scheduler and committed talk routes without unrelated
+        # automatic office chatter winning the checkpoint.
         # Stop immediately after the shared emotion hold starts the authored
         # return boundary.  A later idle checkpoint would intentionally allow
         # the general lifecycle scheduler to open another session, which is a
@@ -207,6 +208,23 @@ def export_trace(
     runtime = core.resolve_runtime_snapshot(floor_id, simulation_seed=seed)
     projector = RuntimeRenderStateProjector(core)
     runtime = _prepare_scenario_runtime(runtime, scenario=scenario)
+    if scenario == "effects_humanball":
+        # The scenario injects an already-admitted popup so the parity check
+        # starts at a stable frame.  Seed the same persistent visual binding
+        # the live actor reducer would create at behavior admission; renderers
+        # must never infer the asset from the event name alone.
+        actor = runtime["actor_snapshot"]["actors"]["EMP_W1_0031"]
+        behavior = actor["behavior"]
+        visual_state, _binding = core.actor_simulation.visual_selection.select(
+            behavior["visual_channels"]["humanball"],
+            channel="humanball",
+            simulation_seed=runtime["actor_snapshot"]["determinism"]["simulation_seed"],
+            employee_id=actor["employee_id"],
+            event_id="visual:EMP_W1_0031:popup:1:0",
+            started_at_ms=int(behavior["activity_started_ms"]),
+            ends_at_ms=int(behavior["activity_until_ms"]),
+        )
+        behavior["visual_channels"]["humanball"] = visual_state
     # The snapshot was constructed by Central and is validated once here.
     # Subsequent checkpoints use the trusted in-place path; this keeps a long
     # route trace cheap without changing the reducer's fixed 60ms semantics.

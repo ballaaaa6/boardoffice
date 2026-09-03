@@ -1,24 +1,26 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
+try:
+    from VALIDATION._common import load_json, resolve_root
+except ModuleNotFoundError:
+    from _common import load_json, resolve_root
 
-ROOT = Path(__file__).resolve().parents[1]
+
+ROOT = resolve_root(anchor=__file__)
 
 
-def audit(root: str | Path = ROOT) -> dict[str, Any]:
-    root = Path(root).resolve()
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+def audit(root: str | Path = ROOT, *, write_report: bool = True) -> dict[str, Any]:
+    root = resolve_root(root)
     from RUNTIME.central_core import CentralGameCore
 
-    schema = json.loads((root / "SCHEMA" / "conversation_behavior.schema.json").read_text(encoding="utf-8"))
-    contract = json.loads((root / "CONTRACTS" / "conversation_behavior.json").read_text(encoding="utf-8"))
+    schema = load_json(root / "SCHEMA" / "conversation_behavior.schema.json")
+    contract = load_json(root / "CONTRACTS" / "conversation_behavior.json")
     schema_errors = [error.message for error in Draft202012Validator(schema).iter_errors(contract)]
     core = CentralGameCore(root)
     floor_ids = sorted(core.world.floors, key=lambda value: int(value.removeprefix("floor")))
@@ -112,10 +114,11 @@ def audit(root: str | Path = ROOT) -> dict[str, Any]:
             "timing_policy": contract["timing"]["talk_duration_policy"],
         },
     }
-    report = root / "LOCAL_REVIEW" / "PHASE8E_CONVERSATION_QA_20260901" / "CONVERSATION_BEHAVIOR_AUDIT.json"
-    report.parent.mkdir(parents=True, exist_ok=True)
-    report.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    result["report_json"] = str(report)
+    if write_report:
+        report = root / "LOCAL_REVIEW" / "PHASE8E_CONVERSATION_QA_20260901" / "CONVERSATION_BEHAVIOR_AUDIT.json"
+        report.parent.mkdir(parents=True, exist_ok=True)
+        report.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        result["report_json"] = str(report)
     return result
 
 

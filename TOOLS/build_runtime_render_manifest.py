@@ -12,18 +12,21 @@ import hashlib
 import json
 import re
 import shutil
-import sys
 from pathlib import Path
 from typing import Any
 
 from PIL import Image
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+PROJECT_ROOT = ensure_project_root(__file__)
 
 from CHARACTER.RUNTIME.asset_registry import AssetRegistry
 from CHARACTER.RUNTIME.frame_rules import load_frame_registry
+from RUNTIME.asset_utils import file_sha256
 from RUNTIME.central_core import CentralGameCore
 from WORLD.RUNTIME.layout_core import LayoutCore
 
@@ -44,10 +47,6 @@ class RuntimeRenderManifestError(ValueError):
 
 def _safe_name(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value))
-
-
-def _sha256_bytes(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _source_hashes(root: Path) -> dict[str, str]:
@@ -71,7 +70,7 @@ def _source_hashes(root: Path) -> dict[str, str]:
         path = root / relative
         if not path.is_file():
             raise RuntimeRenderManifestError(f"Missing canonical source: {relative}")
-        result[relative] = _sha256_bytes(path)
+        result[relative] = file_sha256(path)
     return result
 
 
@@ -81,7 +80,7 @@ def _file_record(output_dir: Path, path: Path, *, kind: str) -> dict[str, Any]:
         "file": relative,
         "url": f"/runtime_assets/{relative}",
         "kind": kind,
-        "sha256": _sha256_bytes(path),
+        "sha256": file_sha256(path),
     }
     with Image.open(path) as image:
         record["width"] = int(image.width)
@@ -266,7 +265,6 @@ def build_manifest(
 
     workstation_records: dict[str, dict[str, Any]] = {}
     workstation_placement_ids: set[str] = set()
-    effect_profile = core.work_seats.effect_work_local_profile
     humanball_data = core.characters.humanballs.data
     humanball_offsets = _humanball_offsets(humanball_data)
 

@@ -19,9 +19,15 @@ import re
 from pathlib import Path
 from typing import Any, Iterable
 
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = ensure_project_root(__file__)
 OUTPUT_PATH = ROOT / "CHARACTER" / "EMPLOYEES" / "employee_metadata.json"
+
+from RUNTIME.asset_utils import file_sha256, load_json
 
 SCHEMA = "gds.employee_metadata.v1"
 VERSION = "1.0.0"
@@ -148,14 +154,6 @@ NICKNAME_SUFFIXES = (
 )
 
 
-def _load(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
 def _digest(seed: str, value: str) -> bytes:
     return hashlib.sha256(f"{seed}|{value}".encode("utf-8")).digest()
 
@@ -262,9 +260,9 @@ def _build_workstation_slots(root: Path) -> list[dict[str, Any]]:
     floors_path = root / "WORLD" / "REGISTRY" / "floors.json"
     layouts_path = root / "WORLD" / "REGISTRY" / "layouts.json"
     direction_path = root / "WORLD" / "REGISTRY" / "workstation_directions.json"
-    floors = _load(floors_path)["floors"]
-    layouts = _load(layouts_path)["layouts"]
-    directions = _load(direction_path)["layout_directions"]
+    floors = load_json(floors_path)["floors"]
+    layouts = load_json(layouts_path)["layouts"]
+    directions = load_json(direction_path)["layout_directions"]
 
     slots: list[dict[str, Any]] = []
     for floor_id in sorted(floors, key=_floor_sort_key):
@@ -438,8 +436,8 @@ def build_metadata(root: str | Path = ROOT) -> dict[str, Any]:
     event_presets_path = root / "CHARACTER" / "EFFECTS" / "event_presets.json"
     humanballs_path = root / "CHARACTER" / "EFFECTS" / "humanball_v1.json"
 
-    technical = _load(technical_path)
-    cards_data = _load(cards_path)
+    technical = load_json(technical_path)
+    cards_data = load_json(cards_path)
     cards = list(cards_data["characters"])
     technical_rows = list(technical["characters"])
     if len(cards) != WAVE1_SIZE or len(technical_rows) != WAVE1_SIZE:
@@ -536,9 +534,9 @@ def build_metadata(root: str | Path = ROOT) -> dict[str, Any]:
             "seat_transition_ready": slot["seat_transition_ready"],
         }
 
-    effects = _load(effects_path)
-    event_presets = _load(event_presets_path)
-    humanballs = _load(humanballs_path)
+    effects = load_json(effects_path)
+    event_presets = load_json(event_presets_path)
+    humanballs = load_json(humanballs_path)
     effect_ids = list(effects["effect_order"])
     positive_effect_ids = [
         effect_id
@@ -552,7 +550,7 @@ def build_metadata(root: str | Path = ROOT) -> dict[str, Any]:
         if effect_id in positive_effect_ids
     ]
 
-    floor_count = len(_load(floors_path)["floors"])
+    floor_count = len(load_json(floors_path)["floors"])
     assigned_count = len(slots)
     custom_assigned_count = sum(
         1
@@ -581,11 +579,11 @@ def build_metadata(root: str | Path = ROOT) -> dict[str, Any]:
             "stamina_profile_seed": STAMINA_PROFILE_SEED,
             "initial_assignment_seed": ASSIGNMENT_SEED,
             "source_hashes": {
-                "technical_character_registry_sha256": _sha256(technical_path),
-                "identity_cards_sha256": _sha256(cards_path),
-                "floor_registry_sha256": _sha256(floors_path),
-                "layout_registry_sha256": _sha256(layouts_path),
-                "direction_registry_sha256": _sha256(directions_path),
+                "technical_character_registry_sha256": file_sha256(technical_path),
+                "identity_cards_sha256": file_sha256(cards_path),
+                "floor_registry_sha256": file_sha256(floors_path),
+                "layout_registry_sha256": file_sha256(layouts_path),
+                "direction_registry_sha256": file_sha256(directions_path),
             },
         },
         "source_registries": {

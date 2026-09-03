@@ -30,7 +30,10 @@ function validateActorChannel(channel, key) {
   if (key === "actor_snapshot" && channel.schema !== "gds.actor_snapshot.v1") {
     throw new TypeError("actor_snapshot schema is unsupported");
   }
-  if (key === "speech_snapshot" && channel.schema !== "gds.speech_scheduler_snapshot.v1") {
+  if (key === "speech_snapshot" && ![
+    "gds.speech_scheduler_snapshot.v1",
+    "gds.speech_scheduler_snapshot.v2",
+  ].includes(channel.schema)) {
     throw new TypeError("speech_snapshot schema is unsupported");
   }
   const actors = requireObject(channel.actors, `${key}.actors`);
@@ -42,6 +45,54 @@ function validateActorChannel(channel, key) {
   return actors;
 }
 
+function migrateSpeechSnapshot(snapshot) {
+  const speech = snapshot.speech_snapshot;
+  if (!isObject(speech)) return;
+  const legacy = speech.schema === "gds.speech_scheduler_snapshot.v1"
+    || speech.version === "1.0.0";
+  if (legacy) {
+    speech.schema = "gds.speech_scheduler_snapshot.v2";
+    speech.version = "2.0.0";
+  }
+  if (!isObject(speech.actor_slots)) speech.actor_slots = {};
+  if (!isObject(speech.pending_requests)) speech.pending_requests = {};
+  if (!isObject(speech.resource_claims)) speech.resource_claims = {};
+  for (const [employeeId, actor] of Object.entries(speech.actors || {})) {
+    const slot = isObject(speech.actor_slots[employeeId])
+      ? speech.actor_slots[employeeId]
+      : {};
+    slot.employee_id = employeeId;
+    if (slot.active_session_id === undefined) slot.active_session_id = null;
+    if (slot.active_until_ms === undefined) slot.active_until_ms = null;
+    if (!Array.isArray(slot.queued_request_ids)) slot.queued_request_ids = [];
+    if (slot.last_completed_session_id === undefined) slot.last_completed_session_id = null;
+    speech.actor_slots[employeeId] = slot;
+    for (const [sessionId, session] of Object.entries(speech.active_sessions || {})) {
+      if (!isObject(session) || !Array.isArray(session.participants) || !session.participants.includes(employeeId)) continue;
+      slot.active_session_id = sessionId;
+      slot.active_until_ms = session.fade_end_ms ?? null;
+    }
+    if (!isObject(actor)) continue;
+  }
+  for (const [sessionId, session] of Object.entries(speech.active_sessions || {})) {
+    if (!isObject(session) || session.kind !== "pair") continue;
+    const claimId = session.resource_claim_id || `talk-claim:${sessionId}`;
+    session.resource_claim_id = claimId;
+    if (!isObject(speech.resource_claims[claimId])) {
+      speech.resource_claims[claimId] = {
+        claim_id: claimId,
+        session_id: sessionId,
+        floor_id: session.floor_id,
+        participants: [...(session.participants || [])],
+        mode: session.mode,
+        status: "active",
+        release_at_ms: session.fade_end_ms,
+        reserved_cells_uv: [],
+      };
+    }
+  }
+}
+
 export function validateRuntimeSnapshot(snapshot) {
   requireObject(snapshot, "runtime snapshot");
   if (snapshot.schema !== RUNTIME_SNAPSHOT_SCHEMA) {
@@ -50,6 +101,8 @@ export function validateRuntimeSnapshot(snapshot) {
   if (snapshot.version !== RUNTIME_SNAPSHOT_VERSION) {
     throw new TypeError("runtime snapshot version is unsupported");
   }
+
+  migrateSpeechSnapshot(snapshot);
 
   const actorSnapshot = requireChannel(snapshot, "actor_snapshot");
   const speechSnapshot = requireChannel(snapshot, "speech_snapshot");

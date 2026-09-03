@@ -7,13 +7,9 @@ import zlib
 
 from PIL import Image
 
+from RUNTIME.asset_utils import rgba_sha256
+
 from .layout_core import LayoutCore
-
-
-def rgba_sha256(image: Image.Image) -> str:
-    image = image.convert("RGBA")
-    payload = image.size[0].to_bytes(4, "big") + image.size[1].to_bytes(4, "big") + image.tobytes()
-    return hashlib.sha256(payload).hexdigest()
 
 
 def png_sha256(image: Image.Image) -> str:

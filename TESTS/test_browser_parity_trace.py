@@ -355,7 +355,8 @@ def test_effects_humanball_browser_checkpoint_keeps_effect_channel_metadata_only
         if row["employee_id"] == "EMP_W1_0031"
     )
     assert actual_row["channels"] == expected_row["channels"]
-    assert actual_row["channels"]["humanball"]["asset_id"] == "purple_bot"
+    assert actual_row["channels"]["humanball"]["asset_id"] == expected_row["channels"]["humanball"]["asset_id"]
+    assert actual_row["channels"]["humanball"]["asset_id"] in bundle["visual_catalog"]["humanball"]["ids"]
     assert "image_data_url" not in actual_step["render_state"]
 
 

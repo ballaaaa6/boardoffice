@@ -1,9 +1,9 @@
 {
-  "$schema": "gds.speech_scheduler.v1",
-  "schema": "gds.speech_scheduler.v1",
-  "contract_id": "contract.gds.speech_scheduler.v1",
-  "version": "1.0.0",
-  "scope": "deterministic_speech_lane_and_conversation_trigger_scheduler",
+  "$schema": "gds.speech_scheduler.v2",
+  "schema": "gds.speech_scheduler.v2",
+  "contract_id": "contract.gds.speech_scheduler.v2",
+  "version": "2.0.0",
+  "scope": "deterministic_actor_slot_and_conversation_trigger_scheduler",
   "runtime": "RUNTIME/speech_scheduler_core.py",
   "api": [
     "CentralGameCore.resolve_speech_snapshot",
@@ -90,7 +90,7 @@
     "retry_interval_seconds_range": [15, 30],
     "timer_semantics": "work_time_only_reset_after_return_to_work",
     "first_bubble_boundary": "conversation_talk_arrival",
-    "no_overlap_scope": "one_speech_lane_per_floor",
+    "no_overlap_scope": "one_bubble_slot_per_actor",
     "same_session_pair_bubbles_may_overlap": true
   },
   "conversation_modes": {
@@ -138,11 +138,22 @@
     "return_after_emotion": true
   },
   "lane": {
-    "scope": "floor",
-    "lock_window": "first_bubble_until_fade_end",
+    "scope": "deprecated_floor_diagnostic_projection",
+    "lock_window": "not_used_for_admission",
     "queue_policy": "priority_then_due_time_then_employee_id",
       "priority_order": ["leaving", "fatigue", "greeting", "work_start", "conversation_open", "pair", "solo"],
       "queue_metadata": ["request_id", "initiator_id", "kind", "category", "mode", "participants", "due_ms", "external"]
+  },
+  "actor_slots": {
+    "scope": "one_slot_per_actor",
+    "lock_window": "active_bubble_until_fade_end",
+    "pair_admission": "atomically_claim_all_participant_slots",
+    "queue_policy": "priority_then_due_time_then_employee_id"
+  },
+  "resource_claims": {
+    "scope": "pair_only_physical_talk_spot_path_and_crowd",
+    "admission": "candidate_specific_reserved_cells",
+    "release": "session_fade_end_or_cancel"
   },
   "actor_bridge": {
     "talk_behavior": "behavior_started.actor_request_to_speech_plan",

@@ -4,8 +4,6 @@ import json
 from pathlib import Path
 from urllib.request import urlopen
 
-import pytest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 HTML = (ROOT / "WEB" / "runtime_review.html").read_text(encoding="utf-8")

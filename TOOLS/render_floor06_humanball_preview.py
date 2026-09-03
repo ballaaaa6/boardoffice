@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+try:
+    from TOOLS._bootstrap import ensure_project_root
+except ModuleNotFoundError:
+    from _bootstrap import ensure_project_root
+
+ROOT = ensure_project_root(__file__)
 
 from RUNTIME.central_core import CentralGameCore
-from TOOLS.render_floor06_work_effects import build_global_palette, to_palette
+from TOOLS._image_utils import build_global_palette, to_palette
 
 
 def build_review_assignments(core: CentralGameCore) -> tuple[list[dict], list[dict]]:

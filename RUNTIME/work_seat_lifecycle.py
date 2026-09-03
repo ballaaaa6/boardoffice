@@ -840,7 +840,6 @@ class WorkSeatLifecycle:
     ):
         """Render one seated state while keeping channel indices independent."""
         character_id = self._character_id(character_query)
-        slot = self.resolve_interaction_slot(floor_id, workstation_id)
         if effect_frame_index is None:
             effect_frame_index = character_frame_index
         if humanball_frame_index is None:

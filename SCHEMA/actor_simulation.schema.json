@@ -173,7 +173,7 @@
           "const": "render_action_and_render_owner_are_derived_presentation_outputs"
         },
         "conversation_policy": {
-          "const": "actor_route_is_authoritative; stationary_talk_is_a_working_overlay; speech_lane_owns_timing"
+          "const": "actor_route_is_authoritative; stationary_talk_is_a_working_overlay; speech_scheduler_owns_timing"
         },
         "unassigned_actor_policy": {
           "const": "not_eligible_for_runtime_behavior_or_workseat_render"
@@ -509,6 +509,7 @@
         "cooldown_storage",
         "event_counter_scope",
         "visual_side_effect_policy",
+        "visual_selection",
         "threshold_event_policy",
         "critical_event_policy"
       ],
@@ -565,6 +566,18 @@
         },
         "visual_side_effect_policy": {
           "const": "visual_registry_metadata_never_mutates_stamina"
+        },
+        "visual_selection": {
+          "const": {
+            "catalog_source": "CHARACTER/EFFECTS/gds_effects_v1.json#effect_order + CHARACTER/EFFECTS/humanball_v1.json#humanball_order",
+            "algorithm": "deterministic_per_actor_per_channel_shuffle_bag",
+            "state_fields": ["catalog_profile", "generation", "cursor", "active_binding"],
+            "automatic_vfx_pool_size": 11,
+            "automatic_humanball_pool_size": 6,
+            "render_selection_boundary": "behavior_started_event_admission",
+            "network_policy": "no_per_event_request",
+            "explicit_event_preset_policy": "fixed_mapping_does_not_advance_automatic_bag"
+          }
         },
         "threshold_event_policy": {
           "const": "emit_once_per_band_crossing"

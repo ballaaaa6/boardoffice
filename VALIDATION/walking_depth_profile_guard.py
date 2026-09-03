@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
-import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
+
+try:
+    from VALIDATION._common import resolve_root
+except ModuleNotFoundError:
+    from _common import resolve_root
 
 
 ACTOR_SIZE = (32, 42)
@@ -53,9 +57,7 @@ def _actor_overlaps_alpha(depth, row: dict[str, Any], ground_xy: tuple[int, int]
 
 
 def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]:
-    root = Path(core_root).resolve()
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    root = resolve_root(core_root)
 
     from RUNTIME.character_movement_core import CharacterMovementCore
     from WORLD.RUNTIME.walking_depth_core import WalkingDepthCore

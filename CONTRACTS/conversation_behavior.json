@@ -80,6 +80,7 @@
       "V+": {"axis": "V", "sign": "+", "uv_delta": [0, 1], "direction": "SW"},
       "V-": {"axis": "V", "sign": "-", "uv_delta": [0, -1], "direction": "NE"}
     },
+    "walking_visitor_bubble_extra_offset_px": [0, -20],
     "standing_pair": {
       "preferred_axis": "V",
       "fallback_axis": "U",

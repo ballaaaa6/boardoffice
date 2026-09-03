@@ -19,7 +19,7 @@ from typing import Any, Iterable
 
 from RUNTIME.character_movement_core import CharacterMovementCore, CharacterMovementError
 from CHARACTER.RUNTIME.character_system import CharacterSystemError
-from RUNTIME.conversation_spot_core import ConversationSpotCore, ConversationSpotError
+from RUNTIME.conversation_spot_core import ConversationSpotCore
 from RUNTIME.crowd_movement_core import CrowdMovementReservationError, DynamicActorReservationCore
 from RUNTIME.employee_registry import EmployeeMetadataError, EmployeeMetadataRegistry
 from RUNTIME.work_seat_core import WorkSeatCore, WorkSeatError
@@ -86,7 +86,8 @@ class ConversationBehaviorCore:
         self.contract = json.loads(
             (self.root / "CONTRACTS" / "conversation_behavior.json").read_text(encoding="utf-8")
         )
-        standing_contract = self.contract.get("coordinate_contract", {}).get("standing_pair", {})
+        coordinate_contract = self.contract.get("coordinate_contract", {})
+        standing_contract = coordinate_contract.get("standing_pair", {})
         try:
             opener_offset = list(standing_contract.get("opener_bubble_extra_offset_px", [0, 0]))
         except TypeError as exc:
@@ -97,6 +98,16 @@ class ConversationBehaviorCore:
         ):
             raise ConversationBehaviorError("standing pair opener bubble offset must contain two integers")
         self.standing_pair_opener_bubble_offset_px = list(opener_offset)
+        try:
+            visitor_offset = list(coordinate_contract.get("walking_visitor_bubble_extra_offset_px", [0, 0]))
+        except TypeError as exc:
+            raise ConversationBehaviorError("walking visitor bubble offset must be a pair") from exc
+        if len(visitor_offset) != 2 or any(
+            isinstance(value, bool) or not isinstance(value, int)
+            for value in visitor_offset
+        ):
+            raise ConversationBehaviorError("walking visitor bubble offset must contain two integers")
+        self.walking_visitor_bubble_extra_offset_px = list(visitor_offset)
         timing_contract = self.contract.get("timing", {})
         try:
             self.default_bubble_visible_ms = int(
@@ -399,7 +410,7 @@ class ConversationBehaviorCore:
             """Resolve a scheduler-owned shuffle-bag choice from this pool.
 
             The conversation planner remains the authority for locale/category
-            eligibility.  The speech lane may provide an exact line key so a
+            eligibility.  The speech scheduler may provide an exact line key so a
             persisted bag can guarantee every authored line is visited before
             refill; invalid keys deliberately fall back to the seeded choice.
             """
@@ -1515,7 +1526,7 @@ class ConversationBehaviorCore:
                 state_index = bisect_right(timestamps, timestamp) - 1
                 state = copy.deepcopy(states[max(0, state_index)])
                 # A seated host remains in the normal Work action while the
-                # speech lane owns its bubble.  Keep that action animated on
+                # speech scheduler owns its bubble.  Keep that action animated on
                 # the authored 360 ms character clock instead of leaving the
                 # first frame pinned for the whole conversation window.  Move
                 # and explicit one-shot states already carry their own frame
@@ -1889,6 +1900,10 @@ class ConversationBehaviorCore:
                     if employee_id == opening_speaker_id else [0, 0]
                 )
                 for employee_id in endpoint_by_actor
+            }
+        elif mode in {"seated_host", "ceo_front"}:
+            bubble_offset_by_actor = {
+                initiator_id: list(self.walking_visitor_bubble_extra_offset_px),
             }
 
         tracks: dict[str, list[dict[str, Any]]] = {}

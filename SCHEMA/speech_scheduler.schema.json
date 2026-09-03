@@ -1,20 +1,20 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "gds.speech_scheduler.v1",
+  "$id": "gds.speech_scheduler.v2",
   "title": "GDS deterministic speech scheduler contract",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "$schema", "schema", "contract_id", "version", "scope", "runtime", "api",
-    "categories", "work_dialogue_policy", "timing", "conversation_modes", "emotion", "lane", "actor_bridge",
+    "categories", "work_dialogue_policy", "timing", "conversation_modes", "emotion", "lane", "actor_slots", "resource_claims", "actor_bridge",
     "assignment_policy", "render_policy", "leaving_trigger_source"
   ],
   "properties": {
-    "$schema": {"const": "gds.speech_scheduler.v1"},
-    "schema": {"const": "gds.speech_scheduler.v1"},
-    "contract_id": {"const": "contract.gds.speech_scheduler.v1"},
-    "version": {"const": "1.0.0"},
-    "scope": {"const": "deterministic_speech_lane_and_conversation_trigger_scheduler"},
+    "$schema": {"const": "gds.speech_scheduler.v2"},
+    "schema": {"const": "gds.speech_scheduler.v2"},
+    "contract_id": {"const": "contract.gds.speech_scheduler.v2"},
+    "version": {"const": "2.0.0"},
+    "scope": {"const": "deterministic_actor_slot_and_conversation_trigger_scheduler"},
     "runtime": {"const": "RUNTIME/speech_scheduler_core.py"},
     "api": {"type": "array", "minItems": 3, "uniqueItems": true, "items": {"type": "string"}},
     "categories": {
@@ -67,7 +67,7 @@
         "retry_interval_seconds_range": {"const": [15, 30]},
         "timer_semantics": {"const": "work_time_only_reset_after_return_to_work"},
         "first_bubble_boundary": {"const": "conversation_talk_arrival"},
-        "no_overlap_scope": {"const": "one_speech_lane_per_floor"},
+        "no_overlap_scope": {"const": "one_bubble_slot_per_actor"},
         "same_session_pair_bubbles_may_overlap": {"const": true}
       }
     },
@@ -113,12 +113,31 @@
         "return_after_emotion": {"const": true}
       }
     },
+    "actor_slots": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scope", "lock_window", "pair_admission", "queue_policy"],
+      "properties": {
+        "scope": {"const": "one_slot_per_actor"},
+        "lock_window": {"const": "active_bubble_until_fade_end"},
+        "pair_admission": {"const": "atomically_claim_all_participant_slots"},
+        "queue_policy": {"const": "priority_then_due_time_then_employee_id"}
+      }
+    },
+    "resource_claims": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scope", "admission", "release"],
+      "properties": {
+        "scope": {"const": "pair_only_physical_talk_spot_path_and_crowd"},
+        "admission": {"const": "candidate_specific_reserved_cells"},
+        "release": {"const": "session_fade_end_or_cancel"}
+      }
+    },
     "lane": {
       "type": "object", "additionalProperties": false,
       "required": ["scope", "lock_window", "queue_policy", "priority_order"],
       "properties": {
-        "scope": {"const": "floor"},
-        "lock_window": {"const": "first_bubble_until_fade_end"},
+        "scope": {"const": "deprecated_floor_diagnostic_projection"},
+        "lock_window": {"const": "not_used_for_admission"},
         "queue_policy": {"const": "priority_then_due_time_then_employee_id"},
        "priority_order": {"const": ["leaving", "fatigue", "greeting", "work_start", "conversation_open", "pair", "solo"]},
        "queue_metadata": {

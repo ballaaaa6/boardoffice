@@ -1,33 +1,31 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
-
-def _load(path: Path) -> Any:
-    return json.loads(path.read_text(encoding="utf-8"))
+try:
+    from VALIDATION._common import load_json, resolve_root
+except ModuleNotFoundError:
+    from _common import load_json, resolve_root
 
 
 def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]:
-    root = Path(core_root).resolve()
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    root = resolve_root(core_root)
     from RUNTIME.central_core import CentralGameCore
 
     schema_path = root / "SCHEMA" / "work_seat_lifecycle.schema.json"
     contract_path = root / "CONTRACTS" / "work_seat_lifecycle.json"
-    schema = _load(schema_path)
-    contract = _load(contract_path)
+    schema = load_json(schema_path)
+    contract = load_json(contract_path)
     schema_errors = [error.message for error in Draft202012Validator(schema).iter_errors(contract)]
 
     core = CentralGameCore(root)
     slot_audit = core.audit_work_seat_interaction_slots()
-    metadata = _load(root / "CHARACTER" / "CHARACTERS" / "characters.json")
-    cards = _load(root / "CHARACTER" / "IDENTITY" / "CHARACTERS" / "identity_cards.json")
+    metadata = load_json(root / "CHARACTER" / "CHARACTERS" / "characters.json")
+    cards = load_json(root / "CHARACTER" / "IDENTITY" / "CHARACTERS" / "identity_cards.json")
     cards_by_id = {row["character_id"]: row for row in cards["characters"]}
     profile_rows = metadata["characters"]
     metadata_ok = (
@@ -41,7 +39,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
             for row in profile_rows
         )
     )
-    actions = _load(root / "CHARACTER" / "ACTIONS" / "gds_standard_v1.json")
+    actions = load_json(root / "CHARACTER" / "ACTIONS" / "gds_standard_v1.json")
     semantics = actions.get("action_semantics", {})
     semantics_ok = (
         semantics.get("primary_groups") == ["idle", "move", "work"]

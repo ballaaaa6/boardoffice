@@ -11,6 +11,7 @@ import { BrowserActorReducer } from "./runtime_simulation_actor.js";
 import { BrowserWorkSeatReducer } from "./runtime_simulation_work_seat.js";
 import { BrowserSpeechReducer } from "./runtime_simulation_speech.js";
 import { BrowserEffectsReducer } from "./runtime_simulation_effects.js";
+import { BrowserVisualSelection } from "./runtime_simulation_visual_selection.js";
 
 const BROWSER_BUNDLE_SCHEMA = "gds.browser_runtime_bundle.v1";
 const BROWSER_BUNDLE_VERSION = "1.0.0";
@@ -40,6 +41,7 @@ function requireBundle(bundle, floorId = null) {
     throw new TypeError("browser runtime bundle must use a 60ms simulation step");
   }
   if (!isObject(bundle.world)) throw new TypeError("browser runtime bundle world is required");
+  if (!isObject(bundle.visual_catalog)) throw new TypeError("browser runtime bundle visual catalog is required");
   validateRuntimeSnapshot(bundle.initial_snapshot);
   return bundle;
 }
@@ -139,10 +141,14 @@ export class BrowserRuntimeCore {
       assets: this.bundle.assets,
       characters: this.bundle.characters,
     });
+    this.visualSelection = new BrowserVisualSelection({
+      catalog: this.bundle.visual_catalog,
+    });
     this.actorReducer = new BrowserActorReducer({
       employees: this.bundle.employees,
       navigation: this.navigation,
       workSeat: this.workSeatReducer,
+      visualSelection: this.visualSelection,
     });
     this.speechReducer = new BrowserSpeechReducer({
       employees: this.bundle.employees,
@@ -156,6 +162,7 @@ export class BrowserRuntimeCore {
       employees: this.bundle.employees,
       effects: this.bundle.effects,
       seed: this.seed,
+      visualSelection: this.visualSelection,
     });
     this.state = initialSnapshot;
     this.clock = new FixedStepClock({
