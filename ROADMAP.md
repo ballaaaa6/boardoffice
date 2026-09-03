@@ -41,7 +41,7 @@ The original Phase 8E gate is closed. The host-first realtime design documents r
 
 The previously approved correction is implemented and verified; visual/gameplay acceptance is **acceptance-pending** until the author reviews the live page.
 
-- [x] Carry planned standing-pair endpoint facings through Central into the actor `talk_hold` pose: lower `u` → `SW`, higher `u` → `NE`.
+- [x] Carry planned standing-pair endpoint facings through Central into the actor `talk_hold` pose: the original 2026-09-02 U-axis mapping was later superseded by the V-axis orientation correction below.
 - [x] Keep the opener bubble at the explicit extra `[0, -20]` offset and the reply at `[0, 0]`.
 - [x] Use one persisted replayable d6 per standing pair with even → `happy` and odd → `sad`.
 - [x] Make the review demo completion gate wait for every participant to finish `seat_entry` and expose `work_seat/work/normal_work`.
@@ -63,40 +63,48 @@ The long-running full live trace exposed a pending-talk/lifecycle ownership seam
 
 Engineering verification result: **348 tests passed**, all required audits and runtime presentation QA passed, and the fresh `floor02` API run reached `137400ms` with 9 work-start bubbles and 0 lifecycle-boundary violations. Author visual/gameplay acceptance at `http://127.0.0.1:8765/` is still pending.
 
+## Standing-pair orientation correction — 2026-09-03
+
+The attached reference requires the standing pair to occupy the V axis: equal `u`, four-cell `v` separation, with the upper-right/lower-`v` actor facing `SW` and the lower-left/higher-`v` actor facing `NE`. Engineering verification is complete; visual/gameplay acceptance remains a separate author gate.
+
+- [x] Change the conversation contract/schema to prefer V, fall back to U, and order endpoints by ascending `v`.
+- [x] Make the resolver default read the contract instead of hardcoding U; keep the authored `SW`/`NE` endpoint-facing order.
+- [x] Regenerate the deterministic browser bundle and add core/live-route/browser geometry assertions.
+- [x] Align browser transition rounding and persistent-bubble fade sampling with the Python parity oracle exposed by the V-axis route.
+- [x] Verify with full pytest **377 passed**, browser unit tests **10 passed**, focused conversation/browser regression **38 passed**, required navigation/occupancy/WorkSeat/Phase 6/Central/F2/conversation audits **PASS**, and conversation visual QA **PASS**.
+- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/`.
+
 ## Lean component-renderer prototype — 2026-09-03
 
-This isolated prototype keeps the existing Python simulation and raster review
-fallback, while adding an image-free `floor02` render-state contract and a
-browser Canvas compositor. It is ready for author review before any Cloudflare
-deployment work begins.
+The merged `main` history now contains the engineering-verified headless JSON + browser Canvas prototype. The raster compatibility path remains available until the author accepts the Canvas behavior.
 
-- [x] Define and implement the renderer-neutral `gds.runtime_render_state.v1` protocol without changing gameplay, navigation, WorkSeat or canonical assets.
-- [x] Add explicit `renderer=canvas` API responses with no `image_data_url`; retain `renderer=raster` as the default compatibility path.
-- [x] Build the deterministic 600×600 `floor02` static/component manifest and 181 derived browser assets without editing source registries.
-- [x] Add Canvas static caching, pixel-art component composition, walking occluder masks, interpolation, dialogue overlays and 100ms polling with RAF rendering.
-- [x] Verify Canvas and Raster in the local review page across Full, Talk, Effects, Critical, Save/Load and Replay flows.
-- [x] Benchmark: Canvas payload p50 **23.7KB** vs Raster **136.4KB** (−**82.63%**); server call p50 **1.13ms** vs **10.63ms** (−**89.34%**); lean encode **0ms**.
-- [x] Engineering verification: **364 tests passed**, parity/no-Pillow guards passed, required navigation/world/WorkSeat/Phase 6/Central/F2/gameplay audits passed, and raster presentation QA passed.
-- [ ] Author visual acceptance of the Canvas output and smoothness on the reference machine.
-- [ ] Cloudflare slice: move the same metadata contract behind Worker/Durable Object and publish static component assets after author acceptance.
+- [x] Add a metadata-only `gds.runtime_render_state.v1` projection and headless loop without materializing Pillow frames.
+- [x] Preserve the Python/Pillow raster path as the explicit compatibility fallback.
+- [x] Build the deterministic `floor02` static/component manifest and Canvas renderer with 100ms polling plus RAF composition/interpolation.
+- [x] Verify parity across spawn/work, Talk, Effects/HumanBall and Critical traces, plus no-Pillow Canvas requests.
+- [x] Measure Canvas p50 request `1.13ms` versus raster `10.63ms`, payload `23.7KB` versus `136.4KB`, and `82.63%` payload reduction.
+- [ ] Author visual/gameplay acceptance for Canvas/Raster parity, pixel sharpness, dialogue bubbles, walking depth and perceived smoothness.
+- [x] Merge the derived lean renderer history into `main` while retaining raster fallback and canonical asset/hash contracts.
+- [ ] After acceptance, trim duplicate canvas telemetry/projection work, publish the derived bundle, and choose the Cloudflare authority model.
 
-## Browser-owned simulation exploration — 2026-09-03
+The prototype is intentionally not yet a closed production milestone: it is limited to `floor02`, retains two presentation implementations for fallback/parity, and carries generated derived browser assets that should be treated as build/deployment output rather than new gameplay source.
 
-This branch explores the next optimization: after one bootstrap load, a
-single-user browser advances the runtime locally and uses the existing Canvas
-component renderer. The Python runtime remains the canonical oracle and local
-fallback. Task 4 is now engineering-complete; persistence/replay hardening,
-UI source-mode integration and endurance/Cloudflare gates remain open.
+## Browser-owned simulation slice — 2026-09-03
 
-- [x] Create isolated branch `codex/browser-simulation` from the verified lean renderer branch.
-- [x] Write `docs/superpowers/specs/2026-09-03-browser-owned-simulation-design.md` with the browser authority boundary, alternatives, parity contract, persistence, timing and 24-hour gates.
-- [x] Write `docs/superpowers/plans/2026-09-03-browser-owned-simulation.md` with bundle export, deterministic JS runtime, behavior-port, persistence, no-request UI, parity and endurance tasks.
-- [ ] Author review and approval of the browser-owned simulation design/plan.
+The latest browser-owned simulation work is now merged into `main` at `18f0436`. After one bootstrap load, a single-user browser can advance deterministic runtime state locally and use the existing Canvas component renderer. The Python runtime remains the canonical oracle and local fallback. Tasks 1–4 are engineering-complete; persistence/replay hardening, UI source-mode integration and endurance/Cloudflare gates remain open.
+
 - [x] Export and validate the deterministic `floor02` browser bootstrap bundle and Python parity traces.
-- [x] Add deterministic browser PRNG/state/clock primitives, a no-DOM core shell and a stdin parity checkpoint; Node and focused Python tests pass.
-- [x] Port bundle-backed navigation, actor movement/action clocks and WorkSeat ownership with exact `spawn_work` and home-route boundary parity.
-- [x] Port speech/dialogue, standing-pair conversation, effects, HumanBall, stamina/lifecycle and critical-home boundaries with focused exact parity traces.
+- [x] Add deterministic browser PRNG/state/clock primitives, a no-DOM core shell and stdin parity checkpoint.
+- [x] Port bundle-backed navigation, actor movement/action clocks and WorkSeat ownership with spawn/work and home-route parity.
+- [x] Port speech/dialogue, standing-pair conversation, effects, HumanBall, stamina/lifecycle and critical-home boundaries with focused parity traces.
 - [ ] Harden browser save/load/replay behavior with an explicit versioned package and exact replay parity.
 - [ ] Integrate Browser source mode with zero periodic `/api/tick` calls while preserving Python Canvas/Raster fallback.
 - [ ] Pass simulated 24-hour, real browser soak, author visual/gameplay and release-clean gates.
 - [ ] Decide the separate Cloudflare static deployment/persistence or shared Durable Object/WebSocket slice.
+
+## Integration checkpoint — 2026-09-03
+
+- [x] Fast-forward merge of the latest browser-owned simulation work into `main` at `18f0436`.
+- [x] Remove the merged local feature worktrees and branches; retain only `main` locally and leave `origin/main` unchanged.
+- [x] Run merged verification: full Python suite **377 passed**, browser runtime **10 passed**, browser parity **8 passed**, focused renderer/server/web/benchmark/bundle suite **62 passed**.
+- [ ] Author visual/gameplay acceptance and complete browser persistence/replay, zero-request UI source mode, soak and Cloudflare gates.

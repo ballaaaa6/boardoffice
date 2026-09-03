@@ -81,13 +81,13 @@
       "V-": {"axis": "V", "sign": "-", "uv_delta": [0, -1], "direction": "NE"}
     },
     "standing_pair": {
-      "preferred_axis": "U",
-      "fallback_axis": "V",
+      "preferred_axis": "V",
+      "fallback_axis": "U",
       "talk_gap_cells": 4,
       "minimum_gap_cells": 3,
       "open_ring_radius_cells": 2,
       "portal_margin_cells": 3,
-      "endpoint_order": "ascending_u",
+      "endpoint_order": "ascending_v",
       "endpoint_facing_order": ["SW", "NE"],
       "opener_bubble_extra_offset_px": [0, -20],
       "between_desks": "reject"

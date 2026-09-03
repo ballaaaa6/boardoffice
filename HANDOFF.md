@@ -2,13 +2,13 @@
 
 **Updated:** 2026-09-03 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Branch:** `codex/browser-simulation`
-**Status:** The browser-owned simulation exploration branch is isolated and has a reviewed design plus implementation plan. Tasks 1–4 are implemented and checkpointed; persistence/replay, UI source-mode integration and endurance/Cloudflare gates remain open. The parent lean renderer remains the engineering-verified baseline, and author/design acceptance is **acceptance-pending**.
+**Status:** `main` (`18f0436`) now contains the engineering-verified lean component-renderer, browser-owned simulation slice (Tasks 1–4), and the approved standing-pair orientation correction. Visual/gameplay acceptance and the remaining browser persistence/UI/endurance gates remain **acceptance-pending**.
 
 ## Current state
 
 - Static world/character assets, WorkSeat placement, navigation occupancy and reference hashes are unchanged.
-- Standing-pair geometry/facing remains the approved contract: equal `v`, four-cell `u` separation, lower `u` → `SW`, higher `u` → `NE`.
+- Current standing-pair geometry/facing contract is equal `u`, four-cell `v` separation, upper-right/lower-`v` endpoint → `SW`, lower-left/higher-`v` endpoint → `NE`.
+- Implemented standing-pair orientation correction (2026-09-03): the contract/schema now prefer V with U fallback and `ascending_v`; the resolver default reads that contract, the browser bundle was regenerated, and browser transition/fade sampling was aligned with the Python oracle. Static world/character assets, WorkSeat placement and reference hashes are unchanged.
 - The opener bubble retains `[0, -20]`; the reply retains `[0, 0]`. Standing-pair emotion uses one persisted replayable d6 with even → `happy` and odd → `sad`.
 - Talk return retains the owned WorkSeat and the existing 240ms `seat_entry` boundary before exposing `work_seat/work/normal_work`.
 
@@ -20,45 +20,32 @@
 - `spawned`, `workseat_entered` and `returned_to_work` are explicit Central → SpeechScheduler boundaries carrying the actor event timestamp. Greeting and work-start BBs are armed from those boundaries; generic actor sync no longer re-arms work-start on unrelated transitions.
 - Live behavior-timer arming skips actors whose stationary SpeechScheduler overlay is active, preventing a new weighted event from competing with the overlay.
 - The review panel now exposes speech queue position/category/request id/due time, so a waiting BB can be distinguished from a frozen actor.
-
-## Lean component-renderer branch prototype — 2026-09-03
-
-- Isolated worktree: `D:\antigravity\board office\.worktrees\lean-component-renderer`.
-- Design spec committed as `15be4fa`; implementation plan as `93fcafb`; implementation and verification commit as `dc36f55`.
-- CentralGameCore, navigation, WorkSeat, speech, stamina, replay semantics, canonical world/character assets and reference hashes remain unchanged.
-- `RuntimePresentationLoop(render_mode="headless")` advances the same Central snapshot without materializing a Pillow frame. `renderer=canvas` returns `gds.runtime_render_state.v1` metadata with no `image_data_url`; `renderer=raster` remains the default compatibility path.
-- The deterministic floor02 bundle contains a 600×600 static scene plus 181 derived component files for workstation layers, character crops, effects, HumanBall and occluder masks.
-- The review page has a visible Canvas/Raster toggle; Canvas uses 100ms polling plus RAF composition/interpolation, while Raster retains the decoded double-buffered image path.
-
-## Browser-owned simulation exploration branch — 2026-09-03
-
-- Isolated worktree: `D:\antigravity\board office\.worktrees\browser-simulation` on `codex/browser-simulation`, branched from the verified lean renderer commit `abc0d86`.
-- Design spec: `docs/superpowers/specs/2026-09-03-browser-owned-simulation-design.md`.
-- Implementation plan: `docs/superpowers/plans/2026-09-03-browser-owned-simulation.md`.
-- The proposed target is single-user browser-owned simulation: one generated Python bootstrap bundle, deterministic JavaScript fixed-step runtime, existing Canvas component renderer, and zero `/api/tick` calls after bootstrap.
-- Python `CentralGameCore` remains the source/oracle for generated data, parity traces, local fallback and raster comparison. No Pyodide, Pillow-in-browser, WebGL or shared Durable Object authority is part of this branch.
-- No canonical world/character asset, starting-point file or reference hash has been changed. No Cloudflare deployment has started.
-- Task 1 exports and validates `WEB/runtime_simulation_bootstrap.json` plus the Python `spawn_work` oracle trace. The bundle is metadata-only and contains no image bytes.
-- Task 2 adds deterministic SHA-256-seeded SplitMix64 helpers, synchronized snapshot validation, a bounded 60ms fixed-step clock, a no-DOM `BrowserRuntimeCore` shell and a stdin parity runner. The shell loads a bundle once, advances its clocks locally and emits image-free render-state metadata.
-- Task 3 adds bundle-backed A* navigation, route/portal pose progression, actor work/stamina/frame clocks, WorkSeat visual anchors/PC channels and seat exit/entry boundaries. The `spawn_work` trace matches Python across 20 fixed slices; the home-route boundary matches at 60ms.
-- Task 4 adds browser speech/dialogue lane state, seeded dialogue bags, compact standing-pair conversation plans, routed talk/return commands, emotion/stamina effects, HumanBall/VFX metadata channels and critical-home lifecycle ordering. No image payloads are created by the browser runtime.
+- Cloudflare feasibility baseline: the current web path is a local Python/Pillow review host, not a deployable Worker. A warmed live `floor02` probe measured simulation-only p50 `0.23ms`, but advance+render p50 `12.2ms`, WebP encode p50 `8.76ms`, no-HTTP tick wall p50 `20.98ms`, and compact payload p50 about `140KB`; the active local server process was about `275MB` working set. The primary hotspot is full-frame rasterization/Base64 transport, not actor simulation.
+- Recommended migration is staged: publish JSON-only state/delta and render the existing 600×600 scene in browser Canvas while keeping raster fallback; then choose Workers Static Assets + client-side JS/TS simulation for single-user use, or add a Durable Object authority/WebSocket only if multiple viewers must share one world clock. Do not move the current resident Python/Pillow server into a Worker as-is.
+- Lean component renderer and browser-owned simulation (2026-09-03): the latest browser branch was fast-forwarded into `main` at `18f0436`; its lean parent is included in the same history. The merged slice adds the image-free headless/Canvas path plus deterministic browser simulation Tasks 1–4 while retaining Python/raster compatibility; canonical gameplay/assets/reference hashes are unchanged.
+- Local feature worktrees and branches `codex/browser-simulation` and `codex/lean-component-renderer` were removed after merge. The only local branch/worktree remaining is `main`; `origin/main` remains untouched and `main` is ahead by 13 commits.
+- Read-only lean audit (2026-09-03): canonical tracked source has no cloned code/image payloads beyond the exact duplicate `CHARACTER/BUILD_MANIFEST.json` / `CHARACTER/FINAL_MANIFEST.json` pair and empty package initializers. All 429 hashed world blobs are referenced; 458 registry entries intentionally resolve to those 429 shared blobs.
+- Main retains the raster path as compatibility fallback while the merged browser path is still an exploration slice: after bootstrap it can advance image-free state locally, but browser persistence/replay hardening, no-request UI source-mode wiring and endurance/Cloudflare gates are not yet closed.
 
 ## Verification
 
-- Full suite: `python -m pytest -p no:cacheprovider -q` → **364 passed** in 251.85s.
-- Focused renderer/web/server/parity/benchmark tests → **57 passed**; final web contract rerun → **10 passed**.
-- Benchmark on equal floor02 60ms ticks (60 samples, 5 warmups): Canvas p50 request **1.13ms**, raster **10.63ms**; Canvas payload **23.7KB**, raster **136.4KB**; payload reduction **82.63%**; raster encode p50 **9.774ms**, Canvas encode **0ms**. Canvas RSS stayed approximately flat during the sample; raster grew while initializing/caching its image path.
-- Parity trace passed across spawn/work, Talk, Effects/HumanBall and Critical paths for actor IDs, resolved action/direction/subaction, frame metadata, workstation channels, dialogue and paint order.
-- No-Pillow guard passed: Canvas API/demo requests do not call full-frame, character, effect, HumanBall or WorkSeat image renderers.
-- Room Navigation, Navigation Occupancy, WorkSeat, WorkSeat lifecycle, Phase 6 Spatial, Central integrity, F2/gameplay-metadata family and conversation audits passed. Runtime presentation QA passed.
-- Fresh branch API/static smoke: manifest, static PNG and JS assets returned HTTP 200; Canvas state returned 9 actors with `gds.runtime_render_state.v1` and no `image_data_url`; raw encoded traversal returned HTTP 404. Browser smoke showed Canvas/Raster, Full, Talk, Effects, Critical, Save/Load and Replay with no browser console errors.
-- `git diff --check` passed. No release archive was created. The central audit's semantic checks pass; its `release_clean` flag is separate and currently reflects test-generated local Python cache files, not committed package content.
-- Browser branch checkpoint: Node browser tests → **10 passed**; bundle contract tests → **5 passed**; full Python browser parity traces → **8 passed**; `git diff --check` passed. The full Python suite reached **376 passed, 1 unrelated pre-existing failure** in `test_employee_metadata_matches_schema_and_is_deterministic` because generated floor/layout/direction source hashes differ from the checked-in metadata generation block; no metadata or registry files were changed on this branch.
+- `python -B -m pytest -p no:cacheprovider -q` after the orientation correction → **377 passed in 411.33s**.
+- `node --test TESTS/browser_runtime_test.mjs` → **10 passed**.
+- Focused conversation, live-talk, bundle and browser-parity regression → **38 passed in 192.04s**.
+- Room Navigation, Navigation Occupancy, WorkSeat, WorkSeat lifecycle, Phase 6 Spatial, Central integrity, gameplay-metadata family and conversation audits → **PASS**.
+- Runtime presentation QA (`TOOLS/render_runtime_presentation_qa.py`) → **PASS**; static assets and reference hashes unchanged.
+- Fresh API long-run on `floor02` with the project server: simulated clock reached `137400ms`; 9 portal entries, 9 work-start bubbles, 6 observed WorkSeat entries, 0 lifecycle-boundary violations, and queue category telemetry present. The full noncompact stationary-overlay regression confirms work-loop/stamina progress for pending actors.
+- `git diff --check` → **PASS**. No release package was created; release-clean packaging remains a separate operation.
+- Conversation visual QA renderer (`python TOOLS/render_conversation_pair_gif.py`) → **PASS**; floor02 standing-pair manifest resolves `axis=V`, endpoints `[250,150]`/`[250,154]`, `EMP_W1_0031` → `SW` and `EMP_W1_0010` → `NE`.
+- Review server: `http://127.0.0.1:8765/`, health HTTP 200, project process PID `6688`, intentionally left running for author review.
+- Cloudflare spike used the existing healthy review server and in-memory/read-only probes; no duplicate development server was started, no canonical asset/reference hash was changed, and no release package was created.
+- Workspace audit: `LOCAL_REVIEW/` is about `3.05GiB` (mostly generated GIF/PNG review runs), `releases/.staging/` is `185.67MiB` with 17 extracted candidates, and the two overlapping prototype worktrees total about `163.33MiB`; these are ignored/non-runtime artifacts. `WORLD/COMPILED_NAV/OCCUPANCY/` and `PREVIEW/` are absent.
+- Current server observation: PID `6688` is the existing project review host on port `8765`; it was not started or stopped by this merge task. Port `8766` has no listener. Restart the existing review host before visual review if it must load the newly merged source from a fresh process.
 
 ## Acceptance gate
 
-Engineering verification for the parent lean renderer is complete. For this branch, the browser-owned simulation design and plan remain acceptance-pending. After implementation, the author must review the browser-owned page for visual parity, pixel-art sharpness, dialogue bubble appearance, walking depth, save/load/replay behavior and perceived smoothness. The Canvas bubble is intentionally drawn as a lightweight browser overlay, so exact raster visual parity remains an author decision.
+Engineering verification is complete for the merged raster/lean/browser slice. The author should review the Canvas/Raster page for visual parity, pixel-art sharpness, dialogue bubble appearance, walking depth, perceived smoothness and the existing full-system/Talk/Effects/Critical/save-load/replay behavior. Do not close the visual/gameplay gate until it is explicitly accepted.
+
+**Next concrete task:** get explicit author visual/gameplay acceptance of the corrected standing-pair orientation on the review page. After that, resume Canvas/Raster acceptance, browser persistence/replay, zero-request UI mode, soak and Cloudflare decisions. Before packaging, trim duplicate telemetry/projection work and clean generated workspace artifacts through an explicit maintenance action.
 
 **Active handoff:** this file only. `ROADMAP.md` is the single active milestone plan.
-
-**Next concrete task:** execute Task 5: add the explicit browser save/load/replay package and prove resumed/replayed checkpoints remain exact without losing uint64 determinism state.

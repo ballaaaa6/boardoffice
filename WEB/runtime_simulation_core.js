@@ -53,7 +53,7 @@ function integer(value, fallback = 0) {
 }
 
 function round4(value) {
-  return Math.round(Number(value) * 10000) / 10000;
+  return Number(Number(value).toFixed(4));
 }
 
 function actorAssignment(actor) {
@@ -217,10 +217,9 @@ export class BrowserRuntimeCore {
         ? transition.from_ground_xy
         : [0, 0];
       const to = Array.isArray(transition.to_ground_xy) ? transition.to_ground_xy : from;
-      const talkRoundBias = route?.phase === "talk_outbound" ? 1e-10 : 0;
       ground = [
-        round4(numeric(from[0]) + (numeric(to[0]) - numeric(from[0])) * progress - talkRoundBias),
-        round4(numeric(from[1]) + (numeric(to[1]) - numeric(from[1])) * progress - talkRoundBias),
+        round4(numeric(from[0]) + (numeric(to[0]) - numeric(from[0])) * progress),
+        round4(numeric(from[1]) + (numeric(to[1]) - numeric(from[1])) * progress),
       ];
       currentUv = Array.isArray(position.uv) ? [...position.uv] : null;
       routePhase = route?.phase || transition.completion || null;

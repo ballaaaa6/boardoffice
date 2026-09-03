@@ -99,9 +99,11 @@ def test_standing_pair_hold_uses_planned_endpoint_facings_in_live_actor_route():
     )
     plan = started["conversation_plan"]
     endpoints = plan["endpoint_by_actor"]
-    lower_u = min(endpoints, key=lambda employee_id: tuple(endpoints[employee_id])[0])
-    higher_u = max(endpoints, key=lambda employee_id: tuple(endpoints[employee_id])[0])
-    assert plan["facing_by_actor"] == {lower_u: "SW", higher_u: "NE"}
+    lower_v = min(endpoints, key=lambda employee_id: tuple(endpoints[employee_id])[1])
+    higher_v = max(endpoints, key=lambda employee_id: tuple(endpoints[employee_id])[1])
+    assert endpoints[lower_v][0] == endpoints[higher_v][0]
+    assert endpoints[higher_v][1] - endpoints[lower_v][1] == 4
+    assert plan["facing_by_actor"] == {lower_v: "SW", higher_v: "NE"}
 
     arrival_ms = int(started["movement_arrival_ms"])
     held = core.advance_runtime_snapshot(
@@ -109,7 +111,7 @@ def test_standing_pair_hold_uses_planned_endpoint_facings_in_live_actor_route():
         arrival_ms - int(accepted["actor_snapshot"]["clock"]["simulation_time_ms"]),
     )
 
-    for employee_id in (lower_u, higher_u):
+    for employee_id in (lower_v, higher_v):
         route = held["actor_snapshot"]["actors"][employee_id]["position"]["route"]
         assert route["phase"] == "talk_hold"
         assert route["direction"] == plan["facing_by_actor"][employee_id]

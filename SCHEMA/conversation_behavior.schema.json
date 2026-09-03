@@ -90,13 +90,13 @@
             "endpoint_facing_order", "opener_bubble_extra_offset_px", "between_desks"
           ],
           "properties": {
-            "preferred_axis": {"const": "U"},
-            "fallback_axis": {"const": "V"},
+            "preferred_axis": {"const": "V"},
+            "fallback_axis": {"const": "U"},
             "talk_gap_cells": {"const": 4},
             "minimum_gap_cells": {"const": 3},
             "open_ring_radius_cells": {"const": 2},
             "portal_margin_cells": {"const": 3},
-            "endpoint_order": {"const": "ascending_u"},
+            "endpoint_order": {"const": "ascending_v"},
             "endpoint_facing_order": {
               "const": ["SW", "NE"]
             },

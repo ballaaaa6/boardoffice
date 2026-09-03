@@ -307,7 +307,7 @@ class ConversationSpotCore:
         self,
         floor_id: str,
         *,
-        preferred_axis: str = "U",
+        preferred_axis: str | None = None,
         gap_cells: int | None = None,
         blocked_cells: Iterable[Iterable[int]] | None = None,
         reserved_cells: Iterable[Iterable[int]] | None = None,
@@ -319,7 +319,11 @@ class ConversationSpotCore:
             raise ConversationSpotError(
                 f"standing_pair gap_cells must be >= {self.minimum_gap_cells}: {gap}"
             )
-        preferred = str(preferred_axis).strip().upper()
+        preferred = (
+            self.standing_pair_preferred_axis
+            if preferred_axis is None
+            else str(preferred_axis).strip().upper()
+        )
         if preferred not in {"U", "V"}:
             raise ConversationSpotError(f"Unsupported preferred axis: {preferred_axis!r}")
         axes = [preferred, "U" if preferred == "V" else "V"]

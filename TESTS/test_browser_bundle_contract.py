@@ -41,6 +41,16 @@ def test_floor02_bundle_is_deterministic_and_contains_runtime_inputs(tmp_path):
     assert first["dialogue"]["lines"]
     assert first["effects"]["effects"]
     assert first["initial_snapshot"]["schema"] == "gds.runtime_snapshot.v1"
+    standing_pair = next(
+        plan
+        for key, plan in first["conversation"]["plans"].items()
+        if key.endswith("|standing_pair")
+    )
+    endpoints = [tuple(cell) for cell in standing_pair["spot"]["endpoint_uv"]]
+    assert standing_pair["spot"]["axis"] == "V"
+    assert endpoints[0][0] == endpoints[1][0]
+    assert endpoints[1][1] - endpoints[0][1] == 4
+    assert standing_pair["spot"]["endpoint_facings"] == ["SW", "NE"]
     assert validate_bundle(first, root=ROOT, expected_floor_id="floor02")["bundle_revision"] == first[
         "bundle_revision"
     ]

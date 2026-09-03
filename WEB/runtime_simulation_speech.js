@@ -1006,7 +1006,9 @@ export class BrowserSpeechReducer {
         opacity = 1;
         phase = "visible";
       } else {
-        opacity = Math.max(0, Math.min(1, 1 - ((sampleMs - visibleEnd) / Math.max(1, fadeEnd - visibleEnd))));
+        const fadeSampleMs = visibleEnd
+          + Math.floor((sampleMs - visibleEnd) / TICK_MS) * TICK_MS;
+        opacity = Math.max(0, Math.min(1, 1 - ((fadeSampleMs - visibleEnd) / Math.max(1, fadeEnd - visibleEnd))));
         phase = opacity > 0 ? "fading" : "hidden";
       }
       const line = session.conversation_plan?.dialogue_by_actor?.[employeeId] || null;
