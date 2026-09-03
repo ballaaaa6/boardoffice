@@ -413,7 +413,7 @@ git commit -m "feat: port browser movement and workseat runtime"
 - `BrowserEffectsReducer.step(snapshot, context, elapsedMs) -> { snapshot, events }`
 - `BrowserRuntimeCore.step()` preserves speech/effects/lifecycle channels
 
-- [ ] **Step 1: Add failing scenario assertions.**
+- [x] **Step 1: Add failing scenario assertions.**
 
   Generate and compare `talk_pair`, `effects_humanball` and `critical_home`
   traces. Assert pending request identity/category/due time, lane position,
@@ -421,13 +421,13 @@ git commit -m "feat: port browser movement and workseat runtime"
   dialogue id/locale/text/bubble/opacity, VFX/HumanBall frame channels,
   stamina events, portal exit and return-to-work fields.
 
-- [ ] **Step 2: Run the scenario tests to verify they fail.**
+- [x] **Step 2: Run the scenario tests to verify they fail.**
 
   Run: `PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider -q TESTS/test_browser_parity_trace.py -k "talk_pair or effects_humanball or critical_home"`
 
   Expected: FAIL because the browser core has no speech/effect reducers.
 
-- [ ] **Step 3: Implement the speech lane and seeded dialogue decisions.**
+- [x] **Step 3: Implement the speech lane and seeded dialogue decisions.**
 
   Port request ordering, lifecycle priority, pending ownership, timeout and
   completion boundaries from `SpeechSchedulerCore` and the recent Central
@@ -436,21 +436,21 @@ git commit -m "feat: port browser movement and workseat runtime"
   dialogue from exported enabled catalog rows and preserve locale, category,
   bubble id, line index, fade timings and opener/reply offsets.
 
-- [ ] **Step 4: Implement standing-pair and conversation state.**
+- [x] **Step 4: Implement standing-pair and conversation state.**
 
   Preserve lower-`u`/higher-`u` participant order, `SW`/`NE` endpoint facing,
   four-cell separation, one replayable d6 per pair and even/odd emotion
   mapping. Store session/request ids and completion events in the same snapshot
   channels so unrelated lifecycle completion cannot clear another request.
 
-- [ ] **Step 5: Implement effects, HumanBall and stamina channels.**
+- [x] **Step 5: Implement effects, HumanBall and stamina channels.**
 
   Port only metadata transitions: effect asset id/frame index/clock,
   HumanBall owner/position/frame, PC clock and stamina recovery events. Use
   exported frame counts and timing; never inspect image pixels or compose a
   full frame.
 
-- [ ] **Step 6: Wire lifecycle ordering and run all scenario parity tests.**
+- [x] **Step 6: Wire lifecycle ordering and run all scenario parity tests.**
 
   Apply speech/effect reducers at the same boundaries as Python, then call the
   existing browser render-state projector. Sort events by timestamp and event
@@ -462,6 +462,12 @@ git commit -m "feat: port browser movement and workseat runtime"
 
   Expected: all required scenario traces match ids, labels, clocks, events,
   channels, dialogue and paint order.
+
+Checkpoint 2026-09-03: Node browser runtime tests passed 10/10; bundle
+contract tests passed 5/5; the full Python parity trace passed 8/8; and the
+full Python regression suite passed 376 tests with one pre-existing,
+unrelated employee-metadata generation/hash drift failure. No canonical asset,
+registry or reference-hash file was changed.
 
 ```text
 git add WEB/runtime_simulation_speech.js WEB/runtime_simulation_effects.js WEB/runtime_simulation_core.js TESTS/browser_runtime_test.mjs TESTS/test_browser_parity_trace.py

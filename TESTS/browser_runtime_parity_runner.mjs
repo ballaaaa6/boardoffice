@@ -16,6 +16,15 @@ const core = await BrowserRuntimeCore.create({
   floorId: trace.floor_id,
   seed: trace.seed,
 });
+if (trace.initial_snapshot) {
+  core.load({
+    floor_id: trace.floor_id,
+    bundle_revision: bundle.bundle_revision,
+    snapshot: trace.initial_snapshot,
+    sequence: 0,
+    command_history: [],
+  });
+}
 const result = {
   schema: "gds.browser_runtime_parity_result.v1",
   version: "1.0.0",

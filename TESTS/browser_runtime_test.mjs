@@ -222,3 +222,45 @@ test("request_home leaves the owned workseat through the authored gate route", a
   assert.equal(row.route_elapsed_ms, 60);
   core.destroy();
 });
+
+test("browser effects expose metadata channels without image payloads", async () => {
+  const bundle = await checkedInBundle();
+  const core = await BrowserRuntimeCore.create({
+    bundle,
+    floorId: "floor02",
+    seed: "browser-test-seed",
+  });
+  const snapshot = core.snapshot();
+  const employeeId = "EMP_W1_0031";
+  const actor = snapshot.actor_snapshot.actors[employeeId];
+  actor.activity = "popup_event";
+  actor.behavior.event_counter = 1;
+  actor.behavior.active_event = "popup";
+  actor.behavior.activity_started_ms = 0;
+  actor.behavior.activity_until_ms = 600;
+  actor.behavior.next_event_due_ms = null;
+  for (const speechActor of Object.values(snapshot.speech_snapshot.actors)) {
+    speechActor.greeting_due_ms = 999999;
+    speechActor.greeting_emitted = true;
+    speechActor.work_start_due_ms = 999999;
+    speechActor.work_start_emitted = true;
+    speechActor.solo_next_due_ms = 999999;
+    speechActor.pair_next_due_ms = 999999;
+    speechActor.solo_pending = false;
+    speechActor.pair_pending = false;
+  }
+  core.load({
+    floor_id: "floor02",
+    bundle_revision: bundle.bundle_revision,
+    snapshot,
+    sequence: 0,
+    command_history: [],
+  });
+  const result = core.step(60);
+  const row = result.renderState.actors.find((item) => item.employee_id === employeeId);
+  assert.equal(row.channels.humanball.asset_id, "purple_bot");
+  assert.equal(row.channels.humanball.humanball_frame_index, 0);
+  assert.equal("image_data_url" in result.renderState, false);
+  assert.equal(JSON.stringify(result.renderState).includes("data:image"), false);
+  core.destroy();
+});

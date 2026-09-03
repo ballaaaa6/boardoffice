@@ -85,8 +85,8 @@ deployment work begins.
 This branch explores the next optimization: after one bootstrap load, a
 single-user browser advances the runtime locally and uses the existing Canvas
 component renderer. The Python runtime remains the canonical oracle and local
-fallback. This is a design/planning gate; no browser simulation code is marked
-complete yet.
+fallback. Task 4 is now engineering-complete; persistence/replay hardening,
+UI source-mode integration and endurance/Cloudflare gates remain open.
 
 - [x] Create isolated branch `codex/browser-simulation` from the verified lean renderer branch.
 - [x] Write `docs/superpowers/specs/2026-09-03-browser-owned-simulation-design.md` with the browser authority boundary, alternatives, parity contract, persistence, timing and 24-hour gates.
@@ -94,8 +94,9 @@ complete yet.
 - [ ] Author review and approval of the browser-owned simulation design/plan.
 - [x] Export and validate the deterministic `floor02` browser bootstrap bundle and Python parity traces.
 - [x] Add deterministic browser PRNG/state/clock primitives, a no-DOM core shell and a stdin parity checkpoint; Node and focused Python tests pass.
-- [x] Port bundle-backed navigation, actor movement/action clocks and WorkSeat ownership with exact `spawn_work` and home-route boundary parity; Task 4 remains for speech/dialogue/effects/lifecycle.
-- [ ] Port speech, dialogue, effects, HumanBall, stamina/lifecycle, save/load and replay behavior with exact trace parity.
+- [x] Port bundle-backed navigation, actor movement/action clocks and WorkSeat ownership with exact `spawn_work` and home-route boundary parity.
+- [x] Port speech/dialogue, standing-pair conversation, effects, HumanBall, stamina/lifecycle and critical-home boundaries with focused exact parity traces.
+- [ ] Harden browser save/load/replay behavior with an explicit versioned package and exact replay parity.
 - [ ] Integrate Browser source mode with zero periodic `/api/tick` calls while preserving Python Canvas/Raster fallback.
 - [ ] Pass simulated 24-hour, real browser soak, author visual/gameplay and release-clean gates.
 - [ ] Decide the separate Cloudflare static deployment/persistence or shared Durable Object/WebSocket slice.

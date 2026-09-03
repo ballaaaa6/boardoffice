@@ -51,6 +51,16 @@ def _json_copy(value: Any) -> Any:
         raise BrowserBundleBuildError(f"runtime input is not JSON-safe: {exc}") from exc
 
 
+def _browser_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
+    """Encode persisted uint64 PRNG state without lossy JSON Numbers."""
+    result = _json_copy(snapshot)
+    determinism = result.get("speech_snapshot", {}).get("determinism", {})
+    state = determinism.get("emotion_rng_state")
+    if isinstance(state, int) and not isinstance(state, bool):
+        determinism["emotion_rng_state"] = str(state)
+    return result
+
+
 def _world_inputs(core: CentralGameCore, floor_id: str) -> dict[str, Any]:
     layout = core.world.floor_layout(floor_id)
     return _json_copy({
@@ -155,8 +165,25 @@ def _asset_inputs(core: CentralGameCore, characters: dict[str, Any]) -> dict[str
 
 def _dialogue_inputs(core: CentralGameCore) -> dict[str, Any]:
     bubble_data = core.characters.dialogue_bubbles.data
+    lines = core.characters.list_dialogue_lines(enabled_only=True)
+    bubble_by_line: dict[str, str] = {}
+    for line in lines:
+        try:
+            selected = core.characters.dialogue_bubbles.select_bubble(
+                str(line.get("text", "")),
+                locale=str(line.get("locale") or "en"),
+            )
+        except Exception:
+            continue
+        key = "|".join((
+            str(line.get("locale") or "en").casefold().split("-", 1)[0],
+            str(line.get("dialogue_id")),
+            str(int(line.get("line_index", 0))),
+        ))
+        bubble_by_line[key] = str(selected.bubble_id)
     return _json_copy({
-        "lines": core.characters.list_dialogue_lines(enabled_only=True),
+        "lines": lines,
+        "bubble_by_line": bubble_by_line,
         "bubble_policy": {
             "allowed_bubble_ids": bubble_data.get("allowed_bubble_ids", []),
             "excluded_bubble_ids": bubble_data.get("excluded_bubble_ids", []),
@@ -171,6 +198,155 @@ def _effect_inputs(core: CentralGameCore) -> dict[str, Any]:
     return _json_copy({
         "effects": core.characters.effects.data,
         "humanballs": core.characters.humanballs.data,
+    })
+
+
+def _conversation_inputs(
+    core: CentralGameCore,
+    floor_id: str,
+) -> dict[str, Any]:
+    """Export compact geometry/timing metadata for browser-owned talk plans.
+
+    The browser already owns A* and route sampling.  Keeping only the
+    authored spot/facing decisions here avoids embedding Python's large
+    presentation timelines and all route cells in the bootstrap bundle.
+    """
+    rows = [core.employee_metadata.get(row["employee_id"]) for row in core.employee_metadata.initial_roster(floor_id)]
+    rows.sort(key=lambda row: (int(row["assignment"].get("assignment_order", 0)), row["employee_id"]))
+    by_id = {row["employee_id"]: row for row in rows}
+    gates = {
+        row["employee_id"]: core.navigation_occupancy.workstation_access(
+            floor_id, row["assignment"]["workstation_id"]
+        )["transition_gate_uv"]
+        for row in rows
+    }
+    employees = [
+        row for row in rows if row["assignment"]["workstation_id"] != "ceo"
+    ]
+    ceo = next(
+        (row for row in rows if row["assignment"]["workstation_id"] == "ceo"),
+        None,
+    )
+    plans: dict[str, dict[str, Any]] = {}
+
+    def add_plan(
+        initiator: dict[str, Any],
+        partner: dict[str, Any],
+        mode: str,
+        spot: dict[str, Any],
+    ) -> None:
+        if not spot.get("ready"):
+            return
+        initiator_id = initiator["employee_id"]
+        partner_id = partner["employee_id"]
+        endpoint_by_actor: dict[str, list[int]] = {}
+        facing_by_actor: dict[str, str] = {}
+        if mode == "standing_pair":
+            ordered = sorted(
+                (initiator, partner),
+                key=lambda row: (
+                    int(row["assignment"].get("assignment_order", 0)),
+                    row["employee_id"],
+                ),
+            )
+            for index, row in enumerate(ordered):
+                endpoint_by_actor[row["employee_id"]] = list(spot["endpoint_uv"][index])
+                facing_by_actor[row["employee_id"]] = str(spot["endpoint_facings"][index]).upper()
+            opener = initiator_id
+            bubble_offsets = {
+                employee_id: ([0, -20] if employee_id == opener else [0, 0])
+                for employee_id in endpoint_by_actor
+            }
+            host_id = None
+            visitor_ids = [initiator_id, partner_id]
+        elif mode == "ceo_front":
+            endpoint_by_actor[initiator_id] = list(spot["endpoint_uv"][0])
+            facing_by_actor[initiator_id] = str(spot["endpoint_facing"]).upper()
+            bubble_offsets = {initiator_id: [0, 0]}
+            host_id = partner_id
+            visitor_ids = [initiator_id]
+        else:
+            selected = spot.get("selected_side") or {}
+            endpoint_by_actor[initiator_id] = list(selected["candidate_uv"])
+            facing_by_actor[initiator_id] = str(spot["visitor_idle_direction"]).upper()
+            bubble_offsets = {initiator_id: [0, 0]}
+            host_id = partner_id
+            visitor_ids = [initiator_id]
+        plans[f"{initiator_id}|{partner_id}|{mode}"] = {
+            "ready": True,
+            "schema": "gds.browser_conversation_plan.v1",
+            "conversation_id": f"conversation:{mode}:{initiator_id}:{partner_id}:{spot['slot_id']}",
+            "mode": mode,
+            "floor_id": floor_id,
+            "initiator_id": initiator_id,
+            "partner_id": partner_id,
+            "visitor_ids": visitor_ids,
+            "host_id": host_id,
+            "participants": [initiator_id, partner_id],
+            "endpoint_by_actor": endpoint_by_actor,
+            "facing_by_actor": facing_by_actor,
+            "bubble_offset_by_actor": bubble_offsets,
+            "talk_duration_ms": 4300,
+            "bubble_visible_ms": 4000,
+            "bubble_fade_ms": 300,
+            "speaker_gap_ms": 500,
+            "emotion_hold_ms": 1200 if mode == "standing_pair" else 0,
+            "endpoint_inverse": bool(spot.get("endpoint_inverse", True)),
+            "spot": {
+                key: value
+                for key, value in spot.items()
+                if key in {
+                    "mode", "floor_id", "workstation_id", "axis", "gap_cells",
+                    "endpoint_uv", "endpoint_facings", "endpoint_facing",
+                    "selected_side", "visitor_idle_direction", "slot_id",
+                    "endpoint_inverse",
+                }
+            },
+        }
+
+    # The same authored spot resolver is used for each potential pair.  The
+    # small cache removes the duplicate reverse-direction work while keeping
+    # the browser lookup key directional (initiator|partner|mode).
+    standing_cache: dict[tuple[tuple[int, int], tuple[int, int]], dict[str, Any]] = {}
+    for initiator in employees:
+        for partner in employees:
+            if initiator["employee_id"] == partner["employee_id"]:
+                continue
+            origin_key = tuple(sorted((tuple(gates[initiator["employee_id"]]), tuple(gates[partner["employee_id"]]))))
+            spot = standing_cache.get(origin_key)
+            if spot is None:
+                spot = core.conversation_spots.resolve_standing_pair(
+                    floor_id,
+                    origin_uvs=[gates[initiator["employee_id"]], gates[partner["employee_id"]]],
+                )
+                standing_cache[origin_key] = spot
+            add_plan(initiator, partner, "standing_pair", spot)
+            add_plan(
+                initiator,
+                partner,
+                "seated_host",
+                core.conversation_spots.resolve_seated_host_side(
+                    floor_id, partner["assignment"]["workstation_id"]
+                ),
+            )
+        if ceo is not None:
+            add_plan(
+                initiator,
+                ceo,
+                "ceo_front",
+                core.conversation_spots.resolve_ceo_front(floor_id),
+            )
+
+    return _json_copy({
+        "schema": "gds.browser_conversation_catalog.v1",
+        "version": VERSION,
+        "floor_id": floor_id,
+        "tick_ms": 60,
+        "bubble_visible_ms": 4000,
+        "bubble_fade_ms": 300,
+        "emotion_hold_ms": 1200,
+        "speaker_gap_ms": 500,
+        "plans": dict(sorted(plans.items())),
     })
 
 
@@ -217,10 +393,11 @@ def build_bundle(root: str | Path, floor_id: str = DEFAULT_FLOOR_ID) -> dict[str
         "frame_rules": _json_copy(frame_registry["frames"]),
         "dialogue": _dialogue_inputs(core),
         "effects": _effect_inputs(core),
-        "initial_snapshot": core.resolve_runtime_snapshot(
+        "conversation": _conversation_inputs(core, floor_id),
+        "initial_snapshot": _browser_snapshot(core.resolve_runtime_snapshot(
             floor_id,
             simulation_seed=SEED_NAMESPACE,
-        ),
+        )),
     }
     bundle["bundle_revision"] = bundle_revision(bundle)
     return validate_bundle(bundle, root=project_root, expected_floor_id=floor_id)

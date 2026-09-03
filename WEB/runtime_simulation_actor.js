@@ -7,6 +7,19 @@ const MAX_STAMINA_MILLI = 100000;
 const LOW_THRESHOLD_MILLI = 30000;
 const CRITICAL_THRESHOLD_MILLI = 10000;
 const PORTAL_FADE_STEPS = 4;
+const EVENT_ACTIVITY = Object.freeze({
+  talk: "talking",
+  background_effect: "popup_event",
+  popup: "popup_event",
+  wander: "wandering",
+});
+const EVENT_LAST_EVENT = Object.freeze({
+  talk: "talk_recovery",
+  background_effect: "background_effect_recovery",
+  popup: "popup_recovery",
+  wander: "wander_recovery",
+});
+const WEIGHTED_EVENTS = Object.freeze(["talk", "background_effect", "popup", "wander"]);
 const ROUTE_PHASES = new Set([
   "to_portal",
   "portal_exit",
@@ -41,6 +54,10 @@ function round4(value) {
   return Math.round(Number(value) * 10000) / 10000;
 }
 
+function integer(value, fallback = 0) {
+  return Number.isFinite(Number(value)) ? Math.trunc(Number(value)) : fallback;
+}
+
 function thresholdBand(current) {
   if (current <= CRITICAL_THRESHOLD_MILLI) return "critical";
   if (current <= LOW_THRESHOLD_MILLI) return "low";
@@ -48,7 +65,16 @@ function thresholdBand(current) {
 }
 
 function quantizeMs(milliseconds) {
-  return Math.max(TICK_MS, Math.round(Number(milliseconds) / TICK_MS) * TICK_MS);
+  const value = Math.max(TICK_MS, Number(milliseconds));
+  const quotient = value / TICK_MS;
+  const lower = Math.floor(quotient);
+  const fraction = quotient - lower;
+  const rounded = fraction < 0.5
+    ? lower
+    : fraction > 0.5 || lower % 2 === 1
+      ? lower + 1
+      : lower;
+  return Math.max(TICK_MS, rounded * TICK_MS);
 }
 
 export class BrowserActorReducer {
@@ -227,6 +253,11 @@ export class BrowserActorReducer {
   }
 
   finishSeatEntry(context, actor, employee, timestampMs, events) {
+    const completion = actor.position.seat_transition?.completion;
+    if (completion === "talk_return") {
+      this.finishTalkActor(context, actor, employee, timestampMs, events);
+      return;
+    }
     actor.position = {
       floor_id: actor.assignment.floor_id,
       uv: null,
@@ -265,8 +296,11 @@ export class BrowserActorReducer {
       if (remaining <= 0) {
         if (transition.phase === "seat_entry") {
           const completion = transition.completion;
-          delete actor.position.seat_transition;
-          if (completion === "to_workseat") this.finishSeatEntry(context, actor, employee, nowMs, events);
+          if (completion === "to_workseat" || completion === "talk_return") {
+            this.finishSeatEntry(context, actor, employee, nowMs, events);
+          } else {
+            delete actor.position.seat_transition;
+          }
         } else delete actor.position.seat_transition;
         continue;
       }
@@ -281,14 +315,18 @@ export class BrowserActorReducer {
         round4(Number(from[0]) + (Number(to[0]) - Number(from[0])) * progress),
         round4(Number(from[1]) + (Number(to[1]) - Number(from[1])) * progress),
       ];
-      actor.position.uv = transition.phase === "seat_entry"
-        ? actor.position.uv
-        : null;
+      // The WorkSeat entry transition owns the visual interpolation; the
+      // navigation UV is no longer a walk pose once the actor reaches the
+      // gate, matching Central's seat-entry boundary.
+      actor.position.uv = null;
       if (transition.elapsed_ms >= duration) {
         if (transition.phase === "seat_entry") {
           const completion = transition.completion;
-          delete actor.position.seat_transition;
-          if (completion === "to_workseat") this.finishSeatEntry(context, actor, employee, nowMs, events);
+          if (completion === "to_workseat" || completion === "talk_return") {
+            this.finishSeatEntry(context, actor, employee, nowMs, events);
+          } else {
+            delete actor.position.seat_transition;
+          }
         } else delete actor.position.seat_transition;
       }
     }
@@ -299,6 +337,45 @@ export class BrowserActorReducer {
     const route = actor.position.route;
     if (!isObject(route)) throw new TypeError(`${actor.employee_id}: route segment is missing`);
     const floorId = actor.assignment.floor_id;
+    if (route.phase === "talk_outbound") {
+      const talk = actor.behavior.talk;
+      if (!isObject(talk)) throw new TypeError(`${actor.employee_id}: talk outbound metadata is missing`);
+      const endpoint = [...talk.endpoint_uv];
+      actor.position.floor_id = floorId;
+      actor.position.uv = [...endpoint];
+      actor.position.ground_xy = this.navigation.uvCellCenterToPixel(endpoint);
+      actor.position.route = this.routeRecord({
+        phase: "talk_hold",
+        startUv: endpoint,
+        targetUv: endpoint,
+        path: [endpoint],
+        durationMs: Math.max(TICK_MS, integer(talk.return_start_at_ms, timestampMs) - Number(timestampMs)),
+        action: "idle",
+        subaction: "idle",
+        direction: String(talk.endpoint_facing || route.direction || actor.assignment.facing || "SE").toUpperCase(),
+      });
+      actor.conversation_phase = "talk_arrival";
+      actor.behavior.activity_started_ms = Number(timestampMs);
+      actor.behavior.activity_until_ms = integer(talk.return_start_at_ms, timestampMs);
+      this.appendEvent(context, events, actor, timestampMs, "talk_arrived", {
+        session_id: talk.session_id,
+        mode: talk.mode,
+        partner_id: talk.partner_id,
+        endpoint_uv: [...endpoint],
+      });
+      if (integer(talk.return_start_at_ms, timestampMs) <= Number(timestampMs)) {
+        this.beginTalkReturn(context, actor, employee, Number(timestampMs), events);
+      }
+      return;
+    }
+    if (route.phase === "talk_hold") {
+      this.beginTalkReturn(context, actor, employee, Number(timestampMs), events);
+      return;
+    }
+    if (route.phase === "talk_return") {
+      this.beginSeatEntry(actor, employee, route.target_uv, "talk_return", Number(timestampMs));
+      return;
+    }
     if (route.phase === "to_portal") {
       const { inside, outside } = this.navigation.portalPair(floorId);
       actor.behavior.activity_started_ms = Number(timestampMs);
@@ -397,13 +474,45 @@ export class BrowserActorReducer {
       const profile = this.movementProfile(employee);
       const pose = route.phase === "portal_entry" || route.phase === "portal_exit"
         ? this.navigation.portalPose(route, route.elapsed_ms)
-        : this.navigation.pathPose(route.path_cells_uv, route.elapsed_ms, profile.speed_multiplier);
+        : route.phase === "talk_hold"
+          ? {
+            ground_xy: this.navigation.uvCellCenterToPixel(route.target_uv),
+            current_uv: [...route.target_uv],
+            direction: route.direction || actor.assignment.facing || "SE",
+            raw_direction: route.raw_direction || route.direction || actor.assignment.facing || "SE",
+            cumulative_distance_px: 0,
+          }
+          : this.navigation.pathPose(route.path_cells_uv, route.elapsed_ms, profile.speed_multiplier);
       actor.position.floor_id = actor.assignment.floor_id;
       actor.position.ground_xy = [...pose.ground_xy];
       actor.position.uv = pose.current_uv ? [...pose.current_uv] : null;
       route.direction = pose.direction;
       route.raw_direction = pose.raw_direction;
       route.visibility_alpha = pose.visibility_alpha ?? 1;
+      if (route.phase === "talk_outbound") actor.conversation_phase = "walking_to_talk";
+      if (route.phase === "talk_hold") {
+        const talk = actor.behavior.talk || {};
+        const talkStart = integer(talk.talk_start_at_ms, nowMs);
+        const talkEnd = integer(talk.talk_end_at_ms, talkStart);
+        const returnStart = integer(talk.return_start_at_ms, talkEnd);
+        if (nowMs < talkStart) {
+          actor.conversation_phase = "talk_arrival";
+          route.action = "idle";
+          route.subaction = "idle";
+        } else if (nowMs < talkEnd) {
+          actor.conversation_phase = "talking";
+          route.action = "idle";
+          route.subaction = "idle";
+        } else if (["happy", "sad"].includes(talk.emotion) && nowMs < returnStart) {
+          actor.conversation_phase = "talk_complete";
+          route.action = talk.emotion;
+          route.subaction = talk.emotion;
+        } else {
+          actor.conversation_phase = "talk_complete";
+          route.action = "idle";
+          route.subaction = "idle";
+        }
+      }
       if (actor.position.seat_transition?.phase === "seat_exit") {
         const transition = actor.position.seat_transition;
         transition.elapsed_ms = Math.min(
@@ -422,6 +531,328 @@ export class BrowserActorReducer {
     return nowMs;
   }
 
+  advanceWorkLoop(actor, elapsedMs) {
+    if (elapsedMs <= 0) return 0;
+    const behavior = actor.behavior;
+    const total = integer(behavior.work_loop_elapsed_ms, 0) + Number(elapsedMs);
+    const completed = Math.floor(total / WORK_LOOP_MS);
+    behavior.work_loop_elapsed_ms = total % WORK_LOOP_MS;
+    behavior.work_loop_count = integer(behavior.work_loop_count, 0) + completed;
+    return completed;
+  }
+
+  talkPath(value, label) {
+    if (!Array.isArray(value) || value.length === 0) throw new TypeError(`${label} must be a non-empty path`);
+    return value.map((item, index) => {
+      if (!Array.isArray(item) || item.length !== 2 || !Number.isInteger(item[0]) || !Number.isInteger(item[1])) {
+        throw new TypeError(`${label}[${index}] must contain integer coordinates`);
+      }
+      return [item[0], item[1]];
+    });
+  }
+
+  startTalkSession(context, actor, employee, command, timestampMs, events) {
+    const sessionId = command.session_id;
+    if (typeof sessionId !== "string" || !sessionId) throw new TypeError("start_talk_session.session_id is required");
+    const mode = String(command.mode || "standing_pair");
+    const role = String(command.role || "initiator");
+    if (!["self_talk", "ceo_front", "seated_host", "standing_pair"].includes(mode)) {
+      throw new TypeError(`Unknown talk mode: ${mode}`);
+    }
+    if (!["initiator", "participant", "visitor"].includes(role)) {
+      throw new TypeError(`Unknown talk role: ${role}`);
+    }
+    if (actor.presence !== "present") throw new TypeError(`${actor.employee_id}: talk session requires a present actor`);
+    if (actor.activity === "talking" && !["talk_pending", "self_talk"].includes(actor.conversation_phase)) {
+      throw new TypeError(`${actor.employee_id}: actor is already in a talk session`);
+    }
+    if (actor.activity === "working" && actor.behavior.active_event !== null) {
+      throw new TypeError(`${actor.employee_id}: working actor has another active event`);
+    }
+    if (actor.activity === "working" && (actor.behavior.pending_home || actor.stamina.threshold_band === "critical")) {
+      throw new TypeError(`${actor.employee_id}: critical actor cannot enter a talk session`);
+    }
+    const effectiveAt = integer(command.effective_at_ms, timestampMs);
+    const talkStart = integer(command.talk_start_at_ms, timestampMs);
+    const talkEnd = integer(command.talk_end_at_ms, talkStart);
+    const returnStart = integer(command.return_start_at_ms, talkEnd);
+    if (!(effectiveAt <= talkStart && talkStart <= talkEnd && talkEnd <= returnStart)) {
+      throw new TypeError(`${actor.employee_id}: talk session timing is not monotonic`);
+    }
+    const routeInfo = command.route_info || null;
+    let outbound = null;
+    let inbound = null;
+    let gate = null;
+    let endpoint = null;
+    let outboundDuration = 0;
+    let returnDuration = 0;
+    if (routeInfo) {
+      if (!isObject(routeInfo)) throw new TypeError("start_talk_session.route_info must be an object");
+      outbound = this.talkPath(routeInfo.outbound_path_cells_uv, "route_info.outbound_path_cells_uv");
+      inbound = this.talkPath(routeInfo.inbound_path_cells_uv, "route_info.inbound_path_cells_uv");
+      gate = routeInfo.gate_uv;
+      endpoint = command.endpoint_uv;
+      if (!Array.isArray(gate) || gate.length !== 2 || !Array.isArray(endpoint) || endpoint.length !== 2) {
+        throw new TypeError(`${actor.employee_id}: talk route endpoints are invalid`);
+      }
+      if (outbound[0][0] !== gate[0] || outbound[0][1] !== gate[1] || outbound.at(-1)[0] !== endpoint[0] || outbound.at(-1)[1] !== endpoint[1]) {
+        throw new TypeError(`${actor.employee_id}: talk outbound path endpoints are invalid`);
+      }
+      if (inbound[0][0] !== endpoint[0] || inbound[0][1] !== endpoint[1] || inbound.at(-1)[0] !== gate[0] || inbound.at(-1)[1] !== gate[1]) {
+        throw new TypeError(`${actor.employee_id}: talk inbound path endpoints are invalid`);
+      }
+      outboundDuration = integer(routeInfo.arrival_ms, this.navigation.routeDurationMs(outbound, this.movementProfile(employee).speed_multiplier));
+      returnDuration = integer(routeInfo.return_ms, 0) - integer(routeInfo.return_start_ms, talkEnd);
+      if (returnDuration <= 0) returnDuration = this.navigation.routeDurationMs(inbound, this.movementProfile(employee).speed_multiplier);
+      if (talkStart < effectiveAt + outboundDuration) throw new TypeError(`${actor.employee_id}: talk starts before route arrival`);
+    }
+    const routeCommitted = Boolean(outbound);
+    if (command.route_committed !== undefined && Boolean(command.route_committed) !== routeCommitted) {
+      throw new TypeError(`${actor.employee_id}: talk route marker does not match route_info`);
+    }
+    const recoveryOwner = command.recovery_owner === undefined ? role === "initiator" : Boolean(command.recovery_owner);
+    if (actor.activity === "working" && recoveryOwner) {
+      actor.behavior.event_counter = integer(actor.behavior.event_counter, 0) + 1;
+      actor.behavior.active_event = "talk";
+      actor.behavior.cooldowns = actor.behavior.cooldowns || {};
+      actor.behavior.cooldowns.talk = Number(timestampMs) + this.nextIntervalMs(employee, {
+        counter: actor.behavior.event_counter,
+        nowMs: Number(timestampMs),
+        event: "talk",
+      });
+    }
+    actor.presence = "present";
+    actor.activity = "talking";
+    actor.behavior.next_event_due_ms = null;
+    actor.behavior.activity_started_ms = effectiveAt;
+    actor.behavior.activity_until_ms = returnStart + returnDuration;
+    actor.behavior.talk = {
+      session_id: sessionId,
+      mode,
+      role,
+      partner_id: command.partner_id ?? null,
+      recovery_owner: recoveryOwner,
+      route_committed: routeCommitted,
+      effective_at_ms: effectiveAt,
+      talk_start_at_ms: talkStart,
+      talk_end_at_ms: talkEnd,
+      return_start_at_ms: returnStart,
+      emotion: command.emotion ?? null,
+      emotion_until_at_ms: command.emotion_until_at_ms ?? null,
+      endpoint_uv: endpoint ? [...endpoint] : null,
+      endpoint_facing: command.endpoint_facing || null,
+      gate_uv: gate ? [...gate] : null,
+      outbound_path_cells_uv: outbound ? outbound.map((cell) => [...cell]) : [],
+      inbound_path_cells_uv: inbound ? inbound.map((cell) => [...cell]) : [],
+      outbound_duration_ms: outboundDuration,
+      return_duration_ms: returnDuration,
+    };
+    if (!routeCommitted) {
+      actor.activity = "working";
+      actor.conversation_phase = null;
+      actor.behavior.activity_until_ms = null;
+      actor.position.route = null;
+    } else {
+      actor.conversation_phase = "walking_to_talk";
+      this.startRoute(actor, employee, {
+        phase: "talk_outbound",
+        startUv: gate,
+        targetUv: endpoint,
+        path: outbound,
+        durationMs: outboundDuration,
+        updateWindow: false,
+      });
+      this.beginSeatExit(actor, employee);
+    }
+    this.appendEvent(context, events, actor, effectiveAt, "talk_session_accepted", {
+      session_id: sessionId,
+      mode,
+      role,
+      partner_id: command.partner_id ?? null,
+      route_committed: routeCommitted,
+      talk_start_at_ms: talkStart,
+      talk_end_at_ms: talkEnd,
+      return_start_at_ms: returnStart,
+    });
+    const elapsedSinceAccept = Math.max(0, Number(timestampMs) - effectiveAt);
+    if (routeCommitted && elapsedSinceAccept > 0) {
+      const route = actor.position.route;
+      if (route) {
+        route.elapsed_ms = Math.min(route.duration_ms, elapsedSinceAccept);
+        const pose = this.navigation.pathPose(route.path_cells_uv, route.elapsed_ms, this.movementProfile(employee).speed_multiplier);
+        actor.position.floor_id = actor.assignment.floor_id;
+        actor.position.ground_xy = [...pose.ground_xy];
+        actor.position.uv = pose.current_uv ? [...pose.current_uv] : null;
+        route.direction = pose.direction;
+        route.raw_direction = pose.raw_direction;
+        const transition = actor.position.seat_transition;
+        if (transition?.phase === "seat_exit") {
+          transition.elapsed_ms = Math.min(transition.duration_ms, elapsedSinceAccept);
+          transition.to_ground_xy = pose.ground_xy.map(round4);
+          actor.position.ground_xy = [...pose.ground_xy];
+          if (transition.elapsed_ms >= transition.duration_ms) delete actor.position.seat_transition;
+        }
+        if (route.elapsed_ms >= route.duration_ms) this.finishRoute(context, actor, employee, Number(timestampMs), events);
+      }
+    }
+  }
+
+  beginTalkReturn(context, actor, employee, timestampMs, events) {
+    const talk = actor.behavior.talk;
+    if (!isObject(talk)) throw new TypeError(`${actor.employee_id}: talk return metadata is missing`);
+    const inbound = this.talkPath(talk.inbound_path_cells_uv, "talk.inbound_path_cells_uv");
+    const endpoint = talk.endpoint_uv;
+    const gate = talk.gate_uv;
+    const duration = Math.max(TICK_MS, integer(talk.return_duration_ms, this.navigation.routeDurationMs(inbound, this.movementProfile(employee).speed_multiplier)));
+    actor.conversation_phase = "returning_to_work";
+    actor.behavior.activity_started_ms = Number(timestampMs);
+    actor.behavior.activity_until_ms = Number(timestampMs) + duration;
+    this.startRoute(actor, employee, {
+      phase: "talk_return",
+      startUv: endpoint,
+      targetUv: gate,
+      path: inbound,
+      durationMs: duration,
+      updateWindow: false,
+    });
+    this.appendEvent(context, events, actor, timestampMs, "talk_return_started", {
+      session_id: talk.session_id,
+      mode: talk.mode,
+      partner_id: talk.partner_id,
+      return_duration_ms: duration,
+    });
+  }
+
+  finishTalkActor(context, actor, employee, timestampMs, events) {
+    const talk = actor.behavior.talk;
+    if (!isObject(talk)) throw new TypeError(`${actor.employee_id}: talk completion metadata is missing`);
+    actor.position = { floor_id: actor.assignment.floor_id, uv: null, ground_xy: null, route: null };
+    actor.presence = "present";
+    actor.conversation_phase = null;
+    this.appendEvent(context, events, actor, timestampMs, "talk_returned", {
+      session_id: talk.session_id,
+      mode: talk.mode,
+      partner_id: talk.partner_id,
+      gate_uv: talk.gate_uv ? [...talk.gate_uv] : null,
+      assignment_retained: true,
+      route_committed: Boolean(talk.route_committed),
+    });
+    const recoveryOwner = Boolean(talk.recovery_owner);
+    actor.behavior.talk = null;
+    if (recoveryOwner && actor.behavior.active_event === "talk") {
+      this.completeEvent(context, actor, employee, timestampMs, events);
+      return;
+    }
+    actor.activity = "working";
+    actor.behavior.active_event = null;
+    actor.behavior.activity_started_ms = Number(timestampMs);
+    actor.behavior.activity_until_ms = null;
+    actor.behavior.next_event_due_ms = this.scheduleNextEvent(actor, employee, Number(timestampMs));
+  }
+
+  completeEvent(context, actor, employee, timestampMs, events) {
+    const event = actor.behavior.active_event;
+    if (!WEIGHTED_EVENTS.includes(event)) throw new TypeError(`${actor.employee_id}: missing active recovery event`);
+    const policy = this.staminaPolicy(employee).recovery_events?.[event] || {};
+    const range = policy.recovery_amount_range || [0, 0];
+    const counter = integer(actor.behavior.event_counter, 0);
+    const ticket = stableHash64(
+      employee.employee_id,
+      this.staminaProfile(employee).profile_seed,
+      "recovery",
+      event,
+      counter,
+    );
+    const amount = (Number(range[0]) + Number(ticket % BigInt(Number(range[1]) - Number(range[0]) + 1))) * 1000;
+    const before = integer(actor.stamina.current_milli, 0);
+    actor.stamina.current_milli = Math.min(MAX_STAMINA_MILLI, before + amount);
+    actor.stamina.threshold_band = thresholdBand(actor.stamina.current_milli);
+    actor.last_event = EVENT_LAST_EVENT[event];
+    actor.activity = "working";
+    actor.presence = "present";
+    actor.conversation_phase = null;
+    actor.behavior.active_event = null;
+    const preserveDeskLoop = ["talk", "popup", "background_effect"].includes(event) && actor.position.route === null;
+    if (!preserveDeskLoop) {
+      actor.behavior.work_loop_elapsed_ms = 0;
+      actor.behavior.work_loop_count = 0;
+    }
+    actor.behavior.activity_started_ms = Number(timestampMs);
+    actor.behavior.activity_until_ms = null;
+    actor.behavior.next_event_due_ms = this.scheduleNextEvent(actor, employee, Number(timestampMs));
+    this.appendEvent(context, events, actor, timestampMs, "stamina_recovery", {
+      behavior: event,
+      recovery_milli: amount,
+      stamina_before_milli: before,
+      stamina_after_milli: actor.stamina.current_milli,
+      presentation_ended: true,
+    });
+  }
+
+  applyEmotionEffect(context, actor, employee, emotion, timestampMs, events, sourceSessionId = null) {
+    if (!isObject(actor) || !isObject(employee)) {
+      throw new TypeError("emotion effect requires an actor and employee");
+    }
+    if (emotion !== "sad" && emotion !== "happy") {
+      throw new TypeError(`Unknown emotion stamina effect: ${emotion}`);
+    }
+    const delta = emotion === "happy" ? 2000 : -1000;
+    const stamina = actor.stamina;
+    const before = integer(stamina.current_milli, 0);
+    const after = Math.max(0, Math.min(MAX_STAMINA_MILLI, before + delta));
+    stamina.current_milli = after;
+    stamina.threshold_band = thresholdBand(after);
+    actor.last_event = `emotion_${emotion}_${delta > 0 ? "bonus" : "penalty"}`;
+    const payload = {
+      emotion,
+      effect_milli: delta,
+      effect_display: delta / 1000,
+      stamina_before_milli: before,
+      stamina_after_milli: after,
+      source: "speech_scheduler",
+    };
+    if (sourceSessionId !== null && sourceSessionId !== undefined) {
+      payload.session_id = String(sourceSessionId);
+    }
+    this.appendEvent(context, events, actor, timestampMs, "stamina_emotion_effect", payload);
+
+    const rank = { normal: 2, low: 1, critical: 0 };
+    const previousBand = thresholdBand(before);
+    const currentBand = thresholdBand(after);
+    if (rank[currentBand] < rank[previousBand]) {
+      for (const [band, threshold] of [["low", 30000], ["critical", 10000]]) {
+        if (rank[previousBand] > rank[band] && rank[band] >= rank[currentBand]) {
+          this.appendEvent(context, events, actor, timestampMs, "threshold_crossed", {
+            threshold_band: band,
+            stamina_milli: threshold,
+            source: "emotion_effect",
+          });
+        }
+      }
+    }
+    if (
+      currentBand === "critical"
+      && actor.activity === "working"
+      && !actor.behavior.pending_home
+    ) {
+      const queueTimestamp = Math.max(
+        Number(timestampMs),
+        Number(context.snapshot.clock?.simulation_time_ms || 0),
+      );
+      const loopElapsed = integer(actor.behavior.work_loop_elapsed_ms, 0);
+      const offset = WORK_LOOP_MS - loopElapsed;
+      const due = queueTimestamp + (offset === WORK_LOOP_MS ? 0 : offset);
+      actor.behavior.pending_home = true;
+      actor.behavior.pending_home_due_ms = due;
+      this.appendEvent(context, events, actor, queueTimestamp, "home_queued", {
+        reason: "stamina_critical",
+        stamina_milli: after,
+        finish_work_loop_at_ms: due,
+        work_loop_ms: WORK_LOOP_MS,
+      });
+    }
+  }
+
   drainWork(actor, employee, elapsedMs) {
     if (elapsedMs <= 0) return;
     const profile = this.staminaProfile(employee);
@@ -432,15 +863,15 @@ export class BrowserActorReducer {
     stamina.current_milli = Math.max(0, Number(stamina.current_milli) - drain);
     stamina.drain_remainder = numerator % 1000;
     const behavior = actor.behavior;
-    const total = Number(behavior.work_loop_elapsed_ms || 0) + Number(elapsedMs);
-    const completed = Math.floor(total / WORK_LOOP_MS);
-    behavior.work_loop_elapsed_ms = total % WORK_LOOP_MS;
-    behavior.work_loop_count = Number(behavior.work_loop_count || 0) + completed;
+    this.advanceWorkLoop(actor, elapsedMs);
     stamina.threshold_band = thresholdBand(stamina.current_milli);
     actor.last_event = "work_tick";
   }
 
-  requestHome(context, actor, employee, timestampMs, events) {
+  requestHome(context, actor, employee, timestampMs, events, {
+    reason = "explicit",
+    workLoopCompleted = false,
+  } = {}) {
     if (actor.presence !== "present" || actor.activity === "talking") {
       throw new TypeError(`${actor.employee_id}: actor cannot begin home route in current state`);
     }
@@ -462,7 +893,7 @@ export class BrowserActorReducer {
     actor.behavior.work_loop_count = 0;
     actor.behavior.activity_started_ms = Number(timestampMs);
     actor.behavior.activity_until_ms = null;
-    actor.last_event = "home_requested";
+    actor.last_event = reason === "stamina_critical" ? "critical_home_requested" : "home_requested";
     this.startRoute(actor, employee, {
       phase: "to_portal",
       startUv: gate,
@@ -470,9 +901,12 @@ export class BrowserActorReducer {
       path,
     });
     this.beginSeatExit(actor, employee);
-    this.appendEvent(context, events, actor, timestampMs, "home_requested", {
-      assignment_retained: true,
-    });
+    const payload = { assignment_retained: true };
+    if (reason !== "explicit" || workLoopCompleted) {
+      payload.reason = reason;
+      payload.work_loop_completed = Boolean(workLoopCompleted);
+    }
+    this.appendEvent(context, events, actor, timestampMs, "home_requested", payload);
   }
 
   requestReturn(context, actor, employee, timestampMs, events) {
@@ -506,6 +940,10 @@ export class BrowserActorReducer {
   applyCommand(context, actor, employee, command, timestampMs, events) {
     if (!isObject(command)) throw new TypeError("actor commands must contain objects");
     if (command.employee_id !== actor.employee_id) return;
+    if (command.type === "start_talk_session") {
+      this.startTalkSession(context, actor, employee, command, timestampMs, events);
+      return;
+    }
     if (command.type === "request_home") {
       this.requestHome(context, actor, employee, timestampMs, events);
       return;
@@ -529,7 +967,7 @@ export class BrowserActorReducer {
       const route = actor.position.route;
       const routeActive = isObject(route) && (
         ROUTE_ACTIVITIES.has(actor.activity)
-        || (actor.activity === "talking" && route.phase === "talk_outbound")
+        || (actor.activity === "talking" && ["talk_outbound", "talk_hold", "talk_return"].includes(route.phase))
       );
       if (routeActive) {
         const advanced = this.advanceRoute(context, actor, employee, nowMs, targetMs, events);
@@ -538,8 +976,55 @@ export class BrowserActorReducer {
         continue;
       }
       if (actor.activity === "working") {
+        const behavior = actor.behavior;
+        if (actor.stamina.threshold_band === "critical" && !behavior.pending_home) {
+          const loopElapsed = integer(behavior.work_loop_elapsed_ms, 0);
+          const offset = WORK_LOOP_MS - loopElapsed;
+          behavior.pending_home = true;
+          behavior.pending_home_due_ms = nowMs + (offset === WORK_LOOP_MS ? 0 : offset);
+          this.appendEvent(context, events, actor, nowMs, "home_queued", {
+            reason: "stamina_critical",
+            stamina_milli: actor.stamina.current_milli,
+            finish_work_loop_at_ms: behavior.pending_home_due_ms,
+            work_loop_ms: WORK_LOOP_MS,
+          });
+        }
+        if (behavior.pending_home) {
+          const due = integer(behavior.pending_home_due_ms, nowMs);
+          if (due <= nowMs) {
+            this.requestHome(context, actor, employee, nowMs, events, {
+              reason: "stamina_critical",
+              workLoopCompleted: true,
+            });
+            continue;
+          }
+          const stepTarget = Math.min(targetMs, due);
+          this.advanceWorkLoop(actor, stepTarget - nowMs);
+          nowMs = stepTarget;
+          if (nowMs >= due) {
+            this.requestHome(context, actor, employee, nowMs, events, {
+              reason: "stamina_critical",
+              workLoopCompleted: true,
+            });
+            continue;
+          }
+          break;
+        }
         this.drainWork(actor, employee, targetMs - nowMs);
         nowMs = targetMs;
+        continue;
+      }
+      if (actor.activity === "popup_event") {
+        const until = actor.behavior.activity_until_ms;
+        if (until === null || until === undefined) break;
+        if (Number(until) > targetMs) {
+          this.advanceWorkLoop(actor, targetMs - nowMs);
+          nowMs = targetMs;
+          break;
+        }
+        this.advanceWorkLoop(actor, Number(until) - nowMs);
+        nowMs = Number(until);
+        this.completeEvent(context, actor, employee, nowMs, events);
         continue;
       }
       break;

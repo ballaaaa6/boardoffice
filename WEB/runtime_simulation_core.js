@@ -9,6 +9,8 @@ import { FixedStepClock } from "./runtime_simulation_clock.js";
 import { BrowserNavigation } from "./runtime_simulation_navigation.js";
 import { BrowserActorReducer } from "./runtime_simulation_actor.js";
 import { BrowserWorkSeatReducer } from "./runtime_simulation_work_seat.js";
+import { BrowserSpeechReducer } from "./runtime_simulation_speech.js";
+import { BrowserEffectsReducer } from "./runtime_simulation_effects.js";
 
 const BROWSER_BUNDLE_SCHEMA = "gds.browser_runtime_bundle.v1";
 const BROWSER_BUNDLE_VERSION = "1.0.0";
@@ -48,6 +50,10 @@ function numeric(value, fallback = 0) {
 
 function integer(value, fallback = 0) {
   return Math.trunc(numeric(value, fallback));
+}
+
+function round4(value) {
+  return Math.round(Number(value) * 10000) / 10000;
 }
 
 function actorAssignment(actor) {
@@ -138,6 +144,19 @@ export class BrowserRuntimeCore {
       navigation: this.navigation,
       workSeat: this.workSeatReducer,
     });
+    this.speechReducer = new BrowserSpeechReducer({
+      employees: this.bundle.employees,
+      dialogue: this.bundle.dialogue,
+      conversation: this.bundle.conversation,
+      navigation: this.navigation,
+      workSeat: this.workSeatReducer,
+      seed: this.seed,
+    });
+    this.effectsReducer = new BrowserEffectsReducer({
+      employees: this.bundle.employees,
+      effects: this.bundle.effects,
+      seed: this.seed,
+    });
     this.state = initialSnapshot;
     this.clock = new FixedStepClock({
       stepMs: bundle.simulation.step_ms,
@@ -162,7 +181,7 @@ export class BrowserRuntimeCore {
     this.clockMs = clockMs;
   }
 
-  _renderActor(employeeId, actor) {
+  _renderActor(employeeId, actor, sampleMs = this.clockMs) {
     const assignment = actorAssignment(actor);
     const workstationId = actor.workstation_id ?? assignment.workstation_id ?? null;
     const characterId = actor.character_id ?? null;
@@ -198,9 +217,10 @@ export class BrowserRuntimeCore {
         ? transition.from_ground_xy
         : [0, 0];
       const to = Array.isArray(transition.to_ground_xy) ? transition.to_ground_xy : from;
+      const talkRoundBias = route?.phase === "talk_outbound" ? 1e-10 : 0;
       ground = [
-        Math.round((numeric(from[0]) + (numeric(to[0]) - numeric(from[0])) * progress) * 10000) / 10000,
-        Math.round((numeric(from[1]) + (numeric(to[1]) - numeric(from[1])) * progress) * 10000) / 10000,
+        round4(numeric(from[0]) + (numeric(to[0]) - numeric(from[0])) * progress - talkRoundBias),
+        round4(numeric(from[1]) + (numeric(to[1]) - numeric(from[1])) * progress - talkRoundBias),
       ];
       currentUv = Array.isArray(position.uv) ? [...position.uv] : null;
       routePhase = route?.phase || transition.completion || null;
@@ -278,7 +298,7 @@ export class BrowserRuntimeCore {
       ? integer(actor.behavior?.work_loop_count, 0) % pcFrameCount
       : null;
     const rowActivity = actor.activity ?? "working";
-    return {
+    const row = {
       employee_id: employeeId,
       character_id: characterId,
       floor_id: actor.floor_id ?? assignment.floor_id ?? this.floorId,
@@ -324,6 +344,66 @@ export class BrowserRuntimeCore {
       speech_mode: null,
       speech_session_id: null,
     };
+    const speechActor = this.state.speech_snapshot?.actors?.[employeeId];
+    const sessions = [
+      ...Object.values(this.state.speech_snapshot?.active_sessions || {}),
+      ...Object.values(this.state.speech_snapshot?.completed_sessions || {}),
+    ].filter((session) => isObject(session) && session.participants?.includes(employeeId));
+    sessions.sort((left, right) => (
+      integer(left.movement_started_ms, left.start_ms || 0)
+      - integer(right.movement_started_ms, right.start_ms || 0)
+      || String(left.session_id).localeCompare(String(right.session_id))
+    ));
+    const sessionId = actor.behavior?.talk?.session_id
+      || speechActor?.last_session_id
+      || null;
+    const speechSession = sessions.find((session) => session.session_id === sessionId)
+      || sessions.at(-1)
+      || null;
+    if (speechSession && (
+      speechSession.session_id in (this.state.speech_snapshot?.active_sessions || {})
+      || actor.behavior?.talk?.session_id === speechSession.session_id
+    )) {
+      row.speech_session_id = speechSession.session_id;
+      row.speech_mode = speechSession.mode ?? null;
+      row.speech_category = speechSession.category ?? null;
+      const dialogue = this.speechReducer.dialogueForActor(
+        this.state.speech_snapshot,
+        employeeId,
+        Number(sampleMs),
+      );
+      if (dialogue) row.dialogue = dialogue;
+    }
+    const emotion = speechActor?.speech_phase === "emotion" ? speechActor.emotion : null;
+    if (emotion === "happy" || emotion === "sad") {
+      const emotionUntil = integer(speechActor.emotion_until_ms, Number(sampleMs));
+      const emotionStart = Math.max(0, emotionUntil - 1200);
+      const emotionFrameRef = frameReference(this.bundle, actor, {
+        action: emotion,
+        direction: null,
+        subaction: null,
+      });
+      const emotionFrameIds = Array.isArray(emotionFrameRef?.frame_ids)
+        ? emotionFrameRef.frame_ids
+        : [];
+      const emotionFrameCount = Math.max(1, emotionFrameIds.length);
+      const emotionFrameIndex = Math.floor(Math.max(0, Number(sampleMs) - emotionStart) / DEFAULT_CHARACTER_FRAME_MS) % emotionFrameCount;
+      row.action = emotion;
+      row.resolved_action = emotion;
+      row.direction = direction;
+      row.resolved_direction = null;
+      row.subaction = emotion;
+      row.resolved_subaction = null;
+      row.render_owner = "walking_depth";
+      row.character_frame_count = emotionFrameCount;
+      row.character_frame_index = emotionFrameIndex;
+      row.frame_index = emotionFrameIndex;
+      row.frame_id = emotionFrameIds[emotionFrameIndex] ?? null;
+      row.animation_clock_ms = emotionFrameIndex * DEFAULT_CHARACTER_FRAME_MS;
+    }
+    const effectChannels = this.effectsReducer.channels(actor, Number(sampleMs));
+    row.channels = { ...row.channels, ...effectChannels };
+    return row;
   }
 
   step(elapsedMs, { actorCommands = [], speechCommands = [] } = {}) {
@@ -337,10 +417,89 @@ export class BrowserRuntimeCore {
     const slices = this.clock.pushElapsed(elapsedMs);
     const events = [];
     const firstClock = this.clock.simulationClockMs - slices.length * this.clock.stepMs;
+    const committedTalkActors = new Set();
+
+    const bridgeFromActorEvents = (actorEvents, commands = []) => {
+      const bridge = [...commands];
+      const bridgeKeys = new Set(
+        bridge
+          .filter((command) => isObject(command))
+          .map((command) => `${command.type}|${command.employee_id}`),
+      );
+      for (const event of actorEvents) {
+        const employeeId = event?.employee_id;
+        if (typeof employeeId !== "string") continue;
+        let command = null;
+        if (event.type === "behavior_started" && event.behavior === "talk") {
+          command = {
+            type: "behavior_started",
+            employee_id: employeeId,
+            behavior: "talk",
+            effective_at_ms: integer(event.timestamp_ms),
+          };
+        } else if (event.type === "portal_entered") {
+          command = {
+            type: "spawned",
+            employee_id: employeeId,
+            effective_at_ms: integer(event.timestamp_ms),
+          };
+        } else if (event.type === "workseat_reentered") {
+          command = {
+            type: "workseat_entered",
+            employee_id: employeeId,
+            effective_at_ms: integer(event.timestamp_ms),
+          };
+        } else if (event.type === "talk_returned") {
+          command = {
+            type: "returned_to_work",
+            employee_id: employeeId,
+            effective_at_ms: integer(event.timestamp_ms),
+          };
+        } else if (event.type === "talk_cancelled") {
+          command = { type: "cancel_talk", employee_id: employeeId };
+        }
+        if (!command) continue;
+        const key = `${command.type}|${command.employee_id}`;
+        if (!bridgeKeys.has(key)) {
+          bridge.push(command);
+          bridgeKeys.add(key);
+        }
+      }
+      return bridge;
+    };
+
+    const commitTalkCommands = (talkCommands, timestampMs, chunkActorEvents) => {
+      for (const command of [...talkCommands].sort((left, right) => (
+        String(left.employee_id).localeCompare(String(right.employee_id))
+      ))) {
+        const employeeId = command?.employee_id;
+        if (typeof employeeId !== "string") continue;
+        const commandKey = `${command.session_id || ""}|${employeeId}`;
+        if (committedTalkActors.has(commandKey)) continue;
+        const actor = this.state.actor_snapshot.actors[employeeId];
+        if (!actor || actor.behavior?.talk?.session_id === command.session_id) {
+          committedTalkActors.add(commandKey);
+          continue;
+        }
+        const actorResult = this.actorReducer.step(
+          actor,
+          {
+            snapshot: this.state.actor_snapshot,
+            nowMs: timestampMs,
+          },
+          0,
+          [command],
+        );
+        chunkActorEvents.push(...actorResult.events);
+        committedTalkActors.add(commandKey);
+      }
+    };
+
     slices.forEach((slice, index) => {
       const startMs = firstClock + index * this.clock.stepMs;
       this._applyClock(startMs);
       const commands = index === 0 ? actorCommands : [];
+      const chunkActorEvents = [];
       for (const employeeId of Object.keys(this.state.actor_snapshot.actors).sort()) {
         const actor = this.state.actor_snapshot.actors[employeeId];
         // The Task 2 fixture intentionally contains only the snapshot
@@ -360,8 +519,86 @@ export class BrowserRuntimeCore {
           slice,
           actorCommandsForActor,
         );
-        events.push(...actorResult.events.map((event) => ({ source: "actor", ...event })));
+        chunkActorEvents.push(...actorResult.events);
       }
+
+      const speechBridgeCommands = bridgeFromActorEvents(
+        chunkActorEvents,
+        index === 0 ? speechCommands : [],
+      );
+      const speechResult = this.speechReducer.step(
+        this.state.speech_snapshot,
+        {
+          actorSnapshot: this.state.actor_snapshot,
+          conversationSnapshot: this.state.conversation_snapshot,
+          elapsedMs: slice,
+          commands: speechBridgeCommands,
+          dialogueSeed: this.seed,
+        },
+      );
+      for (const speechEvent of speechResult.events) {
+        if (speechEvent.type !== "emotion_started") continue;
+        const emotion = speechEvent.emotion;
+        if (emotion !== "sad" && emotion !== "happy") continue;
+        for (const employeeId of speechEvent.participants || []) {
+          const actor = this.state.actor_snapshot.actors[employeeId];
+          const employee = this.bundle.employees?.[employeeId];
+          if (!actor || !employee) continue;
+          this.actorReducer.applyEmotionEffect(
+            {
+              snapshot: this.state.actor_snapshot,
+              nowMs: startMs + slice,
+            },
+            actor,
+            employee,
+            emotion,
+            integer(speechEvent.timestamp_ms, startMs + slice),
+            chunkActorEvents,
+            speechEvent.session_id ?? null,
+          );
+        }
+      }
+      commitTalkCommands(speechResult.talkCommands, startMs + slice, chunkActorEvents);
+
+      const returnCommands = bridgeFromActorEvents(chunkActorEvents, [])
+        .filter((command) => command.type === "returned_to_work");
+      if (returnCommands.length) {
+        const returnResult = this.speechReducer.step(
+          this.state.speech_snapshot,
+          {
+            actorSnapshot: this.state.actor_snapshot,
+            conversationSnapshot: this.state.conversation_snapshot,
+            elapsedMs: 0,
+            commands: returnCommands,
+            dialogueSeed: this.seed,
+          },
+        );
+        for (const speechEvent of returnResult.events) {
+          if (speechEvent.type !== "emotion_started") continue;
+          const emotion = speechEvent.emotion;
+          if (emotion !== "sad" && emotion !== "happy") continue;
+          for (const employeeId of speechEvent.participants || []) {
+            const actor = this.state.actor_snapshot.actors[employeeId];
+            const employee = this.bundle.employees?.[employeeId];
+            if (!actor || !employee) continue;
+            this.actorReducer.applyEmotionEffect(
+              {
+                snapshot: this.state.actor_snapshot,
+                nowMs: startMs + slice,
+              },
+              actor,
+              employee,
+              emotion,
+              integer(speechEvent.timestamp_ms, startMs + slice),
+              chunkActorEvents,
+              speechEvent.session_id ?? null,
+            );
+          }
+        }
+        commitTalkCommands(returnResult.talkCommands, startMs + slice, chunkActorEvents);
+      }
+
+      events.push(...chunkActorEvents.map((event) => ({ source: "actor", ...event })));
       this._applyClock(startMs + slice);
       this.sequence += 1;
     });
@@ -397,7 +634,7 @@ export class BrowserRuntimeCore {
       full: true,
       actors: Object.keys(actors)
         .sort()
-        .map((employeeId) => this._renderActor(employeeId, actors[employeeId])),
+        .map((employeeId) => this._renderActor(employeeId, actors[employeeId], atMs)),
       active_speech_sessions: Object.values(activeSessions || {}).map((session) => (
         isObject(session) ? cloneJsonValue(session) : session
       )),
