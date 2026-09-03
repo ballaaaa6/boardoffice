@@ -3,7 +3,7 @@
 **Updated:** 2026-09-03 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
 **Branch:** `codex/browser-simulation`
-**Status:** The browser-owned simulation exploration branch is isolated and has a reviewed design plus implementation plan. Tasks 1–2 are implemented and checkpointed; navigation/actor/WorkSeat behavior remains to be ported. The parent lean renderer remains the engineering-verified baseline, and author/design acceptance is **acceptance-pending**.
+**Status:** The browser-owned simulation exploration branch is isolated and has a reviewed design plus implementation plan. Tasks 1–3 are implemented and checkpointed; speech/effects/persistence/UI integration remain to be ported. The parent lean renderer remains the engineering-verified baseline, and author/design acceptance is **acceptance-pending**.
 
 ## Current state
 
@@ -40,6 +40,7 @@
 - No canonical world/character asset, starting-point file or reference hash has been changed. No Cloudflare deployment has started.
 - Task 1 exports and validates `WEB/runtime_simulation_bootstrap.json` plus the Python `spawn_work` oracle trace. The bundle is metadata-only and contains no image bytes.
 - Task 2 adds deterministic SHA-256-seeded SplitMix64 helpers, synchronized snapshot validation, a bounded 60ms fixed-step clock, a no-DOM `BrowserRuntimeCore` shell and a stdin parity runner. The shell loads a bundle once, advances its clocks locally and emits image-free render-state metadata.
+- Task 3 adds bundle-backed A* navigation, route/portal pose progression, actor work/stamina/frame clocks, WorkSeat visual anchors/PC channels and seat exit/entry boundaries. The `spawn_work` trace matches Python across 20 fixed slices; the home-route boundary matches at 60ms.
 
 ## Verification
 
@@ -51,7 +52,7 @@
 - Room Navigation, Navigation Occupancy, WorkSeat, WorkSeat lifecycle, Phase 6 Spatial, Central integrity, F2/gameplay-metadata family and conversation audits passed. Runtime presentation QA passed.
 - Fresh branch API/static smoke: manifest, static PNG and JS assets returned HTTP 200; Canvas state returned 9 actors with `gds.runtime_render_state.v1` and no `image_data_url`; raw encoded traversal returned HTTP 404. Browser smoke showed Canvas/Raster, Full, Talk, Effects, Critical, Save/Load and Replay with no browser console errors.
 - `git diff --check` passed. No release archive was created. The central audit's semantic checks pass; its `release_clean` flag is separate and currently reflects test-generated local Python cache files, not committed package content.
-- Browser branch checkpoint: Node browser tests → **5 passed**; focused Python bundle/trace plus Node parity checkpoint → **8 passed**; `git diff --check` passed.
+- Browser branch checkpoint: Node browser tests → **9 passed**; focused Python bundle/trace plus Node parity checkpoints → **all passed** (including actor/workseat and home-route parity); `git diff --check` passed. The full Python suite reached **373 passed, 1 unrelated pre-existing failure** in `test_employee_metadata_matches_schema_and_is_deterministic` because generated floor/layout/direction source hashes differ from the checked-in metadata generation block; no metadata or registry files were changed on this branch.
 
 ## Acceptance gate
 
@@ -59,4 +60,4 @@ Engineering verification for the parent lean renderer is complete. For this bran
 
 **Active handoff:** this file only. `ROADMAP.md` is the single active milestone plan.
 
-**Next concrete task:** execute Task 3: port bundle-backed navigation, actor movement/action clocks and WorkSeat ownership, starting with failing `spawn_work` parity assertions.
+**Next concrete task:** execute Task 4: add failing `talk_pair`, `effects_humanball` and `critical_home` parity assertions, then port speech/dialogue/effects/lifecycle reducers.

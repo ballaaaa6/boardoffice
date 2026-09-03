@@ -331,7 +331,7 @@ git commit -m "feat: add deterministic browser runtime shell"
 - `BrowserWorkSeatReducer.step(actor, seatState, context, elapsedMs) -> { actor, seatState, events }`
 - `BrowserRuntimeCore.step()` returns snapshots with movement/WorkSeat parity
 
-- [ ] **Step 1: Add failing movement and WorkSeat trace assertions.**
+- [x] **Step 1: Add failing movement and WorkSeat trace assertions.**
 
   Extend the Python-generated `spawn_work` trace and Node runner comparison to
   assert actor ids, position coordinates, route phase, action, resolved action,
@@ -345,14 +345,14 @@ assert.deepEqual(actual.events.map(eventKey), expected.events.map(eventKey));
 assertPointClose(actual.actors[0].ground_xy, expected.actors[0].ground_xy, 1e-6);
 ```
 
-- [ ] **Step 2: Run the movement trace to verify it fails.**
+- [x] **Step 2: Run the movement trace to verify it fails.**
 
   Run: `python -m pytest -q TESTS/test_browser_parity_trace.py -k spawn_work`
 
   Expected: FAIL on movement/action/WorkSeat fields because the shell still
   returns the initial state.
 
-- [ ] **Step 3: Implement bundle-backed navigation.**
+- [x] **Step 3: Implement bundle-backed navigation.**
 
   Port the data-backed queries needed by the existing pathfinder: walkability,
   room/portal membership, clearance, workstation access and authored movement
@@ -360,7 +360,7 @@ assertPointClose(actual.actors[0].ground_xy, expected.actors[0].ground_xy, 1e-6)
   Python files or images from browser code. Return stable path arrays and the
   same no-path/error decisions as Python.
 
-- [ ] **Step 4: Implement actor fixed-slice reduction.**
+- [x] **Step 4: Implement actor fixed-slice reduction.**
 
   Port the existing route timeline and boundary order from
   `ActorSimulationCore`: apply explicit commands, reserve/advance movement,
@@ -369,7 +369,7 @@ assertPointClose(actual.actors[0].ground_xy, expected.actors[0].ground_xy, 1e-6)
   authored speed profiles, portal entry/exit events and frame-zero/normal-work
   boundaries. Emit event timestamps in the same order as Python.
 
-- [ ] **Step 5: Implement WorkSeat ownership and workstation channels.**
+- [x] **Step 5: Implement WorkSeat ownership and workstation channels.**
 
   Port `WorkSeatCore` state transitions without image composition. Preserve
   owned seat identity through talk cancellation, critical/home exit, seat entry
@@ -377,7 +377,7 @@ assertPointClose(actual.actors[0].ground_xy, expected.actors[0].ground_xy, 1e-6)
   workstation ownership from the bundle. Keep the state reducer independent of
   `RuntimeCanvasRenderer`.
 
-- [ ] **Step 6: Wire actor and WorkSeat reducers into `BrowserRuntimeCore.step()`.**
+- [x] **Step 6: Wire actor and WorkSeat reducers into `BrowserRuntimeCore.step()`.**
 
   Apply commands in the same order as the Python snapshot boundary, advance
   the actor clock once per fixed slice, update the speech/conversation channels
@@ -385,7 +385,7 @@ assertPointClose(actual.actors[0].ground_xy, expected.actors[0].ground_xy, 1e-6)
   project the render state after all reducers finish. Preserve stable employee
   order and sequence increments.
 
-- [ ] **Step 7: Run focused parity and commit.**
+- [x] **Step 7: Run focused parity and commit.**
 
   Run: `node --test TESTS/browser_runtime_test.mjs`
 

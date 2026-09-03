@@ -94,7 +94,8 @@ complete yet.
 - [ ] Author review and approval of the browser-owned simulation design/plan.
 - [x] Export and validate the deterministic `floor02` browser bootstrap bundle and Python parity traces.
 - [x] Add deterministic browser PRNG/state/clock primitives, a no-DOM core shell and a stdin parity checkpoint; Node and focused Python tests pass.
-- [ ] Port navigation, actor, WorkSeat, speech, dialogue, effects, stamina, save/load and replay behavior with exact trace parity.
+- [x] Port bundle-backed navigation, actor movement/action clocks and WorkSeat ownership with exact `spawn_work` and home-route boundary parity; Task 4 remains for speech/dialogue/effects/lifecycle.
+- [ ] Port speech, dialogue, effects, HumanBall, stamina/lifecycle, save/load and replay behavior with exact trace parity.
 - [ ] Integrate Browser source mode with zero periodic `/api/tick` calls while preserving Python Canvas/Raster fallback.
 - [ ] Pass simulated 24-hour, real browser soak, author visual/gameplay and release-clean gates.
 - [ ] Decide the separate Cloudflare static deployment/persistence or shared Durable Object/WebSocket slice.

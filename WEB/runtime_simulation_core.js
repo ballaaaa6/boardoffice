@@ -6,6 +6,9 @@ import {
   validateRuntimeSnapshot,
 } from "./runtime_simulation_state.js";
 import { FixedStepClock } from "./runtime_simulation_clock.js";
+import { BrowserNavigation } from "./runtime_simulation_navigation.js";
+import { BrowserActorReducer } from "./runtime_simulation_actor.js";
+import { BrowserWorkSeatReducer } from "./runtime_simulation_work_seat.js";
 
 const BROWSER_BUNDLE_SCHEMA = "gds.browser_runtime_bundle.v1";
 const BROWSER_BUNDLE_VERSION = "1.0.0";
@@ -51,22 +54,28 @@ function actorAssignment(actor) {
   return isObject(actor.assignment) ? actor.assignment : {};
 }
 
-function frameReference(bundle, actor) {
+function frameReference(bundle, actor, {
+  action = null,
+  direction = null,
+  subaction = null,
+} = {}) {
   const characterId = actor.character_id;
   const character = bundle.characters?.[characterId];
   const refs = Array.isArray(character?.frame_refs) ? character.frame_refs : [];
   const assignment = actorAssignment(actor);
-  const action = actor.action || (actor.activity === "working" ? "work" : "idle");
-  const direction = actor.direction || assignment.facing || "SE";
-  const subaction = actor.subaction || (action === "work" ? "normal_work" : null);
+  const resolvedAction = action || actor.action || (actor.activity === "working" ? "work" : "idle");
+  const resolvedDirection = direction || actor.direction || assignment.facing || "SE";
+  const resolvedSubaction = subaction
+    ?? actor.subaction
+    ?? (resolvedAction === "work" ? "normal_work" : null);
   return refs.find((ref) => (
-    ref.action === action
-    && (ref.direction === direction || ref.direction === null || ref.direction === undefined)
-    && (ref.subaction || null) === subaction
-  )) || refs.find((ref) => ref.action === action) || refs[0] || null;
+    ref.action === resolvedAction
+    && (ref.direction === resolvedDirection || ref.direction === null || ref.direction === undefined)
+    && (ref.subaction || null) === resolvedSubaction
+  )) || refs.find((ref) => ref.action === resolvedAction) || refs[0] || null;
 }
 
-function hiddenDialogue(speakerId) {
+function hiddenDialogue(speakerId = null) {
   return {
     bubble_id: null,
     dialogue_id: null,
@@ -114,6 +123,21 @@ export class BrowserRuntimeCore {
     if (typeof this.seed !== "string" || this.seed.length === 0) {
       throw new TypeError("seed must be a non-empty string");
     }
+    this.navigation = new BrowserNavigation({
+      world: this.bundle.world,
+      workSeats: this.bundle.work_seats,
+    });
+    this.workSeatReducer = new BrowserWorkSeatReducer({
+      workSeats: this.bundle.work_seats,
+      employees: this.bundle.employees,
+      assets: this.bundle.assets,
+      characters: this.bundle.characters,
+    });
+    this.actorReducer = new BrowserActorReducer({
+      employees: this.bundle.employees,
+      navigation: this.navigation,
+      workSeat: this.workSeatReducer,
+    });
     this.state = initialSnapshot;
     this.clock = new FixedStepClock({
       stepMs: bundle.simulation.step_ms,
@@ -140,63 +164,165 @@ export class BrowserRuntimeCore {
 
   _renderActor(employeeId, actor) {
     const assignment = actorAssignment(actor);
-    const frameRef = frameReference(this.bundle, actor);
-    const frameIds = Array.isArray(frameRef?.frame_ids) ? frameRef.frame_ids : [];
-    const frameId = frameIds[0] ?? null;
     const workstationId = actor.workstation_id ?? assignment.workstation_id ?? null;
-    const action = actor.action || (actor.activity === "working" ? "work" : "idle");
-    const direction = actor.direction || assignment.facing || "SE";
-    const subaction = actor.subaction || (action === "work" ? "normal_work" : null);
-    const position = isObject(actor.position) ? actor.position.ground_xy : null;
     const characterId = actor.character_id ?? null;
-    const frameRule = frameId ? this.bundle.frame_rules?.[frameId] : null;
-    const workstation = workstationId ? this.bundle.work_seats?.[workstationId] : null;
-    const pcFrameCount = integer(
-      workstation?.seat?.pc_frame_count ?? workstation?.pc?.frame_count,
-      1,
-    );
+    const position = isObject(actor.position) ? actor.position : {};
+    const route = isObject(position.route) ? position.route : null;
+    const transition = isObject(position.seat_transition) ? position.seat_transition : null;
+    const assignmentDirection = String(assignment.facing || "SE").toUpperCase();
+    const visible = actor.presence !== "home";
+    let renderOwner = visible ? "work_seat" : "none";
+    let action = visible ? "work" : null;
+    let direction = assignmentDirection;
+    let subaction = visible ? "normal_work" : null;
+    let currentUv = null;
+    let ground = null;
+    let routePhase = null;
+    let routeElapsed = null;
+    let routeDuration = null;
+    let cumulativeDistance = 0;
+    let frameClock = 0;
+    let visibilityAlpha = visible ? 1 : 0;
+
+    const employee = this.bundle.employees?.[employeeId] || {};
+    const movementProfile = employee.movement_profile || {};
+    if (transition) {
+      renderOwner = transition.render_owner || "walking_depth";
+      action = transition.action || "move";
+      direction = String(transition.direction || assignmentDirection).toUpperCase();
+      subaction = transition.subaction || "idle";
+      const duration = Math.max(DEFAULT_STEP_MS, integer(transition.duration_ms, 240));
+      const elapsed = Math.min(duration, Math.max(0, integer(transition.elapsed_ms, 0)));
+      const progress = duration > 0 ? elapsed / duration : 1;
+      const from = Array.isArray(transition.from_ground_xy)
+        ? transition.from_ground_xy
+        : [0, 0];
+      const to = Array.isArray(transition.to_ground_xy) ? transition.to_ground_xy : from;
+      ground = [
+        Math.round((numeric(from[0]) + (numeric(to[0]) - numeric(from[0])) * progress) * 10000) / 10000,
+        Math.round((numeric(from[1]) + (numeric(to[1]) - numeric(from[1])) * progress) * 10000) / 10000,
+      ];
+      currentUv = Array.isArray(position.uv) ? [...position.uv] : null;
+      routePhase = route?.phase || transition.completion || null;
+      routeElapsed = route?.elapsed_ms ?? elapsed;
+      routeDuration = route?.duration_ms ?? duration;
+      cumulativeDistance = route
+        ? this.navigation.routeDistancePx(
+          { movement_speed_multiplier: movementProfile.speed_multiplier || 1 },
+          route,
+        )
+        : Math.hypot(ground[0] - numeric(from[0]), ground[1] - numeric(from[1]));
+      frameClock = elapsed;
+      visibilityAlpha = numeric(transition.visibility_alpha, 1);
+    } else if (route) {
+      renderOwner = route.render_owner || "walking_depth";
+      action = route.action || "move";
+      direction = String(route.direction || route.raw_direction || assignmentDirection).toUpperCase();
+      subaction = route.subaction || "idle";
+      currentUv = Array.isArray(position.uv) ? [...position.uv] : null;
+      ground = Array.isArray(position.ground_xy) ? [...position.ground_xy] : null;
+      routePhase = route.phase || null;
+      routeElapsed = integer(route.elapsed_ms, 0);
+      routeDuration = integer(route.duration_ms, 0);
+      cumulativeDistance = this.navigation.routeDistancePx(
+        { movement_speed_multiplier: movementProfile.speed_multiplier || 1 },
+        route,
+      );
+      frameClock = routeElapsed;
+      visibilityAlpha = numeric(route.visibility_alpha, 1);
+    } else if (visible) {
+      frameClock = integer(actor.behavior?.work_loop_elapsed_ms, 0);
+    }
+
+    const normalizedAction = action === "happy" || action === "sad" ? action : action;
+    const normalizedDirection = action === "happy" || action === "sad" ? null : direction;
+    const normalizedSubaction = action === "happy" || action === "sad" || action === "move" || action === "idle"
+      ? null
+      : subaction;
+    const frameRef = action
+      ? frameReference(this.bundle, actor, {
+        action,
+        direction: normalizedDirection || direction,
+        subaction: normalizedSubaction,
+      })
+      : null;
+    const frameIds = Array.isArray(frameRef?.frame_ids) ? frameRef.frame_ids : [];
+    const frameCount = Math.max(1, frameIds.length);
+    let frameIndex = 0;
+    if (action) {
+      if (action === "move" && [
+        "to_portal",
+        "to_workseat",
+        "wander_out",
+        "wander_back",
+        "talk_outbound",
+        "talk_return",
+      ].includes(routePhase)) {
+        const walkFrameDistanceCells = Math.round(
+          0.65 * Number(movementProfile.speed_multiplier || 1) * 10000,
+        ) / 10000;
+        frameIndex = this.navigation.walkCycleFrameIndex(
+          cumulativeDistance,
+          frameCount,
+          walkFrameDistanceCells,
+        );
+      } else {
+        frameIndex = Math.floor(frameClock / DEFAULT_CHARACTER_FRAME_MS) % frameCount;
+      }
+    }
+    const frameId = frameIds[frameIndex % frameIds.length] ?? null;
+    const pcFrameCount = renderOwner === "work_seat" && workstationId
+      ? this.workSeatReducer.pcFrameCount(workstationId)
+      : null;
+    const pcFrameIndex = pcFrameCount
+      ? integer(actor.behavior?.work_loop_count, 0) % pcFrameCount
+      : null;
+    const rowActivity = actor.activity ?? "working";
     return {
       employee_id: employeeId,
       character_id: characterId,
       floor_id: actor.floor_id ?? assignment.floor_id ?? this.floorId,
-      activity: actor.activity ?? "working",
+      activity: rowActivity,
       presence: actor.presence ?? "present",
-      action,
-      resolved_action: action,
-      direction,
-      resolved_direction: direction,
-      subaction,
-      resolved_subaction: subaction,
+      anchor_xy: [...DEFAULT_ANCHOR],
       assignment_order: assignment.assignment_order ?? null,
-      workstation_id: workstationId,
-      render_owner: actor.render_owner ?? "work_seat",
-      anchor_xy: Array.isArray(position) ? position : [...DEFAULT_ANCHOR],
-      ground_xy: Array.isArray(position) ? position : null,
-      route_phase: actor.route?.phase ?? null,
-      route_elapsed_ms: actor.route?.elapsed_ms ?? null,
-      route_duration_ms: actor.route?.duration_ms ?? null,
-      cumulative_distance_px: numeric(actor.route?.distance_px, 0),
-      animation_clock_ms: integer(actor.animation_clock_ms, 0),
-      frame_id: frameId,
-      frame_index: integer(actor.frame_index, 0),
-      character_frame_index: integer(actor.character_frame_index, 0),
-      character_frame_count: frameIds.length || 1,
-      character_frame_ms: integer(actor.character_frame_ms, DEFAULT_CHARACTER_FRAME_MS),
-      pc_frame_index: integer(actor.pc_frame_index, 0),
-      pc_frame_count: pcFrameCount,
-      pc_frame_ms: integer(actor.pc_frame_ms, DEFAULT_PC_FRAME_MS),
       channels: {
         pc: {
           frame_count: pcFrameCount,
-          frame_index: integer(actor.pc_frame_index, 0),
-          frame_ms: integer(actor.pc_frame_ms, DEFAULT_PC_FRAME_MS),
+          frame_index: pcFrameIndex,
+          frame_ms: DEFAULT_PC_FRAME_MS,
         },
       },
+      character_frame_count: frameCount,
+      character_frame_index: frameIndex,
+      character_frame_ms: DEFAULT_CHARACTER_FRAME_MS,
+      cumulative_distance_px: cumulativeDistance,
+      dialogue: hiddenDialogue(),
+      action,
+      resolved_action: normalizedAction,
+      direction: normalizedDirection,
+      resolved_direction: normalizedDirection,
+      subaction,
+      resolved_subaction: normalizedSubaction,
+      workstation_id: workstationId,
+      render_owner: renderOwner,
+      ground_xy: ground,
+      route_phase: routePhase,
+      route_elapsed_ms: routeElapsed,
+      route_duration_ms: routeDuration,
+      animation_clock_ms: action ? frameIndex * DEFAULT_CHARACTER_FRAME_MS : 0,
+      frame_id: frameId,
+      frame_index: frameIndex,
+      pc_frame_index: pcFrameIndex,
+      pc_frame_count: pcFrameCount,
+      pc_frame_ms: DEFAULT_PC_FRAME_MS,
       stamina: actor.stamina ? cloneJsonValue(actor.stamina) : null,
-      dialogue: hiddenDialogue(employeeId),
       occluder_placement_ids: [],
-      visibility_alpha: numeric(actor.visibility_alpha, 1),
-      visible: actor.presence !== "home",
+      visibility_alpha: visibilityAlpha,
+      visible: Boolean(visible && visibilityAlpha > 0 && renderOwner !== "none"),
+      speech_category: null,
+      speech_mode: null,
+      speech_session_id: null,
     };
   }
 
@@ -209,10 +335,34 @@ export class BrowserRuntimeCore {
     for (const command of speechCommands) this.command(command);
 
     const slices = this.clock.pushElapsed(elapsedMs);
-    const firstClock = this.clock.simulationClockMs - slices.length * this.clock.stepMs;
     const events = [];
-    slices.forEach((_slice, index) => {
-      this._applyClock(firstClock + (index + 1) * this.clock.stepMs);
+    const firstClock = this.clock.simulationClockMs - slices.length * this.clock.stepMs;
+    slices.forEach((slice, index) => {
+      const startMs = firstClock + index * this.clock.stepMs;
+      this._applyClock(startMs);
+      const commands = index === 0 ? actorCommands : [];
+      for (const employeeId of Object.keys(this.state.actor_snapshot.actors).sort()) {
+        const actor = this.state.actor_snapshot.actors[employeeId];
+        // The Task 2 fixture intentionally contains only the snapshot
+        // channels.  A production bundle includes employee metadata, which
+        // is required before the behavior reducers are allowed to mutate an
+        // actor.
+        if (!this.bundle.employees?.[employeeId]) continue;
+        const actorCommandsForActor = commands.filter(
+          (command) => command.employee_id === employeeId,
+        );
+        const actorResult = this.actorReducer.step(
+          actor,
+          {
+            snapshot: this.state.actor_snapshot,
+            nowMs: startMs,
+          },
+          slice,
+          actorCommandsForActor,
+        );
+        events.push(...actorResult.events.map((event) => ({ source: "actor", ...event })));
+      }
+      this._applyClock(startMs + slice);
       this.sequence += 1;
     });
     this.lastEvents = events;

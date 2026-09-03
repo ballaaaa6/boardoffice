@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 
 import { DeterministicRng } from "../WEB/runtime_simulation_prng.js";
 import {
@@ -7,6 +8,8 @@ import {
   validateRuntimeSnapshot,
 } from "../WEB/runtime_simulation_state.js";
 import { FixedStepClock } from "../WEB/runtime_simulation_clock.js";
+import { BrowserNavigation } from "../WEB/runtime_simulation_navigation.js";
+import { BrowserWorkSeatReducer } from "../WEB/runtime_simulation_work_seat.js";
 import { BrowserRuntimeCore } from "../WEB/runtime_simulation_core.js";
 
 function fixtureSnapshot() {
@@ -57,6 +60,11 @@ function fixtureBundle() {
     world: { floor: { floor_id: "floor02" }, navigation: {} },
     initial_snapshot: fixtureSnapshot(),
   };
+}
+
+async function checkedInBundle() {
+  const path = new URL("../WEB/runtime_simulation_bootstrap.json", import.meta.url);
+  return JSON.parse(await readFile(path, "utf8"));
 }
 
 test("seeded random sequence is deterministic and never uses Math.random", () => {
@@ -135,5 +143,82 @@ test("browser core fetches the bootstrap exactly once and never polls while step
   core.step(600);
   core.step(60);
   assert.equal(calls, 1);
+  core.destroy();
+});
+
+test("bundle-backed navigation matches the authored floor02 A* path", async () => {
+  const bundle = await checkedInBundle();
+  const navigation = new BrowserNavigation({ world: bundle.world });
+  assert.equal(navigation.isWalkable(189, 103), true);
+  assert.equal(navigation.isWalkable(202, 47), false);
+  assert.deepEqual(navigation.portal("floor02").inside_cells_uv[0], [240, 182]);
+
+  const path = navigation.findPath([189, 103], [253, 182]);
+  assert.equal(path.path_cell_count, 144);
+  assert.deepEqual(path.path_cells_uv.slice(0, 3), [
+    [189, 103],
+    [189, 104],
+    [189, 105],
+  ]);
+  assert.deepEqual(path.path_cells_uv.at(-1), [253, 182]);
+});
+
+test("workseat reducer exposes a non-image visual anchor", async () => {
+  const bundle = await checkedInBundle();
+  const workSeat = new BrowserWorkSeatReducer({
+    workSeats: bundle.work_seats,
+    employees: bundle.employees,
+  });
+  assert.deepEqual(workSeat.visualCharacterAnchor("floor02", "ws2", "TP_009"), [213, 304]);
+  assert.equal(workSeat.pcFrameCount("ws2"), 1);
+});
+
+test("browser actor slice advances work stamina and frame clocks", async () => {
+  const bundle = await checkedInBundle();
+  const core = await BrowserRuntimeCore.create({
+    bundle,
+    floorId: "floor02",
+    seed: "browser-test-seed",
+  });
+  const result = core.step(60);
+  const actor = result.snapshot.actor_snapshot.actors.EMP_W1_0010;
+  const row = result.renderState.actors.find((item) => item.employee_id === "EMP_W1_0010");
+  assert.equal(actor.behavior.work_loop_elapsed_ms, 60);
+  assert.equal(actor.stamina.current_milli, 99957);
+  assert.equal(actor.stamina.drain_remainder, 440);
+  assert.equal(row.workstation_id, "ws2");
+  assert.equal(row.render_owner, "work_seat");
+  assert.equal(row.action, "work");
+  assert.equal(row.character_frame_count, 2);
+  assert.equal(row.character_frame_index, 0);
+  assert.equal(row.pc_frame_count, 1);
+  core.destroy();
+});
+
+test("request_home leaves the owned workseat through the authored gate route", async () => {
+  const bundle = await checkedInBundle();
+  const core = await BrowserRuntimeCore.create({
+    bundle,
+    floorId: "floor02",
+    seed: "browser-test-seed",
+  });
+  const result = core.step(60, {
+    actorCommands: [{ type: "request_home", employee_id: "EMP_W1_0010" }],
+  });
+  const actor = result.snapshot.actor_snapshot.actors.EMP_W1_0010;
+  const row = result.renderState.actors.find((item) => item.employee_id === "EMP_W1_0010");
+  assert.equal(actor.presence, "leaving");
+  assert.equal(actor.activity, "going_home");
+  assert.equal(actor.position.route.phase, "to_portal");
+  assert.deepEqual(actor.position.route.start_uv, [189, 103]);
+  assert.deepEqual(actor.position.route.target_uv, [253, 182]);
+  assert.equal(actor.position.route.elapsed_ms, 60);
+  assert.equal(actor.position.route.duration_ms, 14220);
+  assert.equal(actor.position.seat_transition.phase, "seat_exit");
+  assert.deepEqual(actor.position.seat_transition.from_ground_xy, [213, 304]);
+  assert.equal(row.render_owner, "walking_depth");
+  assert.equal(row.action, "move");
+  assert.equal(row.route_phase, "to_portal");
+  assert.equal(row.route_elapsed_ms, 60);
   core.destroy();
 });
