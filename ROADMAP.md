@@ -115,6 +115,23 @@ Before starting the production TypeScript/JavaScript migration, the current runt
 
 The standing-pair visual/gameplay acceptance, Canvas/Raster acceptance, browser persistence/replay, endurance and Cloudflare gates remain separate and must not be marked closed by the lean audit alone.
 
+## TypeScript/JavaScript runtime migration design — 2026-09-03
+
+The author approved the staged Browser-owned runtime direction. The detailed
+design is recorded in `docs/superpowers/specs/2026-09-03-tsjs-runtime-migration-design.md`.
+This is a design checkpoint only; no production runtime migration has started.
+
+- [x] Survey the current Python/browser/data boundaries and migration-tool options.
+- [x] Select contract-first TypeScript porting with Python retained as oracle,
+  builder, QA and fallback.
+- [x] Define the target module boundaries, bundle rules, parity strategy,
+  browser zero-request behavior, Cloudflare packaging and rollback gates.
+- [ ] Author review of the migration specification.
+- [ ] Complete lean-first source-profile, neutral-frame, facade-boundary,
+  legacy-caller and contract-freeze prerequisites before implementation.
+- [ ] Add the TypeScript toolchain and begin the production runtime port only
+  after the design and prerequisite gates are accepted.
+
 Track A engineering checkpoint (2026-09-03): the audit/hygiene gate is green, proven preview/POC debris and generated workspace output were removed, and the canonical duplicate manifest was collapsed to `CHARACTER/FINAL_MANIFEST.json`. Remaining duplicate function-body groups are retained as domain/test candidates until a semantics-preserving boundary is approved; source-hash profiles and the later runtime tracks remain open.
 
 ## Combined visual selection and per-actor bubble correction — 2026-09-03 (engineering complete)

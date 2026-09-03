@@ -2,13 +2,15 @@
 
 **Updated:** 2026-09-03 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Track A lean cleanup, the combined VFX/Popup + per-actor BB correction, and the approved startup stamina/CEO bubble-offset correction are engineering-complete. The production TypeScript/JavaScript migration has not started. Author visual/gameplay acceptance is still separate and pending.
+**Status:** Track A lean cleanup, the combined VFX/Popup + per-actor BB correction, and the approved startup stamina/CEO bubble-offset correction are engineering-complete. The production TypeScript/JavaScript migration has not started; the staged deployment direction is Browser-owned JS/TS plus Cloudflare static assets for the single-user path, with Python retained as oracle/fallback until the open gates close. Author visual/gameplay acceptance is still separate and pending.
 
 ## Current state
 
 - `main` remains the active checkout. Static world/character assets, authored geometry, WorkSeat placement, navigation occupancy and reference pixels were preserved.
 - Push checkpoint: commit `cefa4bd` (`fix: normalize startup stamina and CEO bubbles`) is pushed to `origin/main` on 2026-09-03. The immutable `00_STARTING_POINT/` archive and scratch image remain untracked and untouched.
 - Python remains the gameplay oracle and local raster fallback. The browser-owned `floor02` slice is deterministic and metadata-only after its bootstrap load; its core does not poll `/api/tick` while stepping. The review page still intentionally exposes the existing raster/API fallback.
+- Canonical data remains in the authored `WORLD/`, `CHARACTER/` and `CONTRACTS/` trees, with `CENTRAL_MANIFEST.json` and `CHARACTER/FINAL_MANIFEST.json` serving as indexes/integrity maps. `WEB/runtime_simulation_bootstrap.json`, `WEB/runtime_render_manifest.json` and `WEB/runtime_assets/` are generated browser/deployment outputs, not a replacement source of truth; `00_STARTING_POINT/` remains immutable archive data.
+- Migration-tool spike: no safe one-click converter covers the full runtime. An AST Python-to-TypeScript tool can scaffold pure logic, while schema-generated TS types, runtime JSON validation, Python/Browser differential traces and Workers/browser integration tests remain required. The approved staged migration design is now recorded in `docs/superpowers/specs/2026-09-03-tsjs-runtime-migration-design.md`; implementation has not started and the design still needs author review.
 - The project review server was restarted from the updated source for live verification and then stopped after the check; port `8765` has no listener and no duplicate project server remains. Static assets and the user's untracked starting-point files were untouched.
 - Startup stamina correction: the canonical actor snapshot, browser bootstrap bundle and `/api/reset` start every actor at `100000` milli-stamina (`100`, `normal`), and the browser boot/reset path now gets the same normal default from `/api/live-start`. The explicit Critical demo still sets its selected actor to `5000` (`5`, `critical`).
 - `RUNTIME/visual_selection_core.py` is the canonical selector for both channels. It derives the catalog from the registries, persists only profile/generation/cursor/active binding, and selects at event admission with a per-actor/per-channel deterministic shuffle bag.
@@ -37,9 +39,9 @@
 
 ## Next task and open gates
 
-1. Author reviews and accepts the updated startup stamina and CEO bubble behavior at `http://127.0.0.1:8765/`, including Canvas/Raster parity and the unchanged seated/standing modes.
-2. Close the remaining browser persistence/replay, zero-request UI source-mode, endurance and Cloudflare/deployment gates.
-3. Only after those contracts are frozen, begin the planned TS/JS production migration from the canonical Python contracts and browser parity tests.
+1. Author reviews the approved TS/JS migration design in `docs/superpowers/specs/2026-09-03-tsjs-runtime-migration-design.md`; implementation remains paused until that design review is accepted.
+2. Close the existing author visual/gameplay, browser persistence/replay, zero-request UI source-mode, endurance and Cloudflare/deployment gates.
+3. Complete the lean-first contract/source-profile and boundary tracks, then begin the typed production migration from the canonical Python contracts and browser parity tests.
 
 No release archive was rebuilt in this session. There is no blocker for the current engineering slice; author acceptance is the remaining approval gate.
 
