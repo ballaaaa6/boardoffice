@@ -2,15 +2,17 @@
 
 **Updated:** 2026-09-03 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Track A lean cleanup, the combined VFX/Popup + per-actor BB correction, and the approved startup stamina/CEO bubble-offset correction are engineering-complete. The production TypeScript/JavaScript migration has not started; the staged deployment direction is Browser-owned JS/TS plus Cloudflare static assets for the single-user path, with Python retained as oracle/fallback until the open gates close. Author visual/gameplay acceptance is still separate and pending.
+**Status:** The pre-migration survey is complete. Track A lean cleanup, the combined VFX/Popup + per-actor BB correction, and the approved startup stamina/CEO bubble-offset correction are engineering-complete. The production TypeScript/JavaScript migration has not started; the staged deployment direction is Browser-owned JS/TS plus Cloudflare static assets for the single-user path, with Python retained as oracle/fallback until the open gates close. Author visual/gameplay acceptance is still separate and pending.
 
 ## Current state
 
-- `main` remains the active checkout. Static world/character assets, authored geometry, WorkSeat placement, navigation occupancy and reference pixels were preserved.
+- `main` remains the active checkout at `06ad812`; static world/character assets, authored geometry, WorkSeat placement, navigation occupancy and reference pixels were preserved. The latest source-hash profile checkpoint is isolated in worktree branch `codex/tsjs-runtime-migration` at `6520c38` and is not merged into `main`.
 - Push checkpoint: commit `cefa4bd` (`fix: normalize startup stamina and CEO bubbles`) is pushed to `origin/main` on 2026-09-03. The immutable `00_STARTING_POINT/` archive and scratch image remain untracked and untouched.
 - Python remains the gameplay oracle and local raster fallback. The browser-owned `floor02` slice is deterministic and metadata-only after its bootstrap load; its core does not poll `/api/tick` while stepping. The review page still intentionally exposes the existing raster/API fallback.
 - Canonical data remains in the authored `WORLD/`, `CHARACTER/` and `CONTRACTS/` trees, with `CENTRAL_MANIFEST.json` and `CHARACTER/FINAL_MANIFEST.json` serving as indexes/integrity maps. `WEB/runtime_simulation_bootstrap.json`, `WEB/runtime_render_manifest.json` and `WEB/runtime_assets/` are generated browser/deployment outputs, not a replacement source of truth; `00_STARTING_POINT/` remains immutable archive data.
 - Migration-tool spike: no safe one-click converter covers the full runtime. An AST Python-to-TypeScript tool can scaffold pure logic, while schema-generated TS types, runtime JSON validation, Python/Browser differential traces and Workers/browser integration tests remain required. The approved staged migration design is recorded in docs/superpowers/specs/2026-09-03-tsjs-runtime-migration-design.md, and the execution plan is recorded in docs/superpowers/plans/2026-09-03-tsjs-runtime-migration.md; implementation has not started.
+- Survey checkpoint: the repository has 25 floors, 219 resolved workstations, 429 world PNG blobs, 163 canonical character assets, 11 VFX IDs, 6 HumanBall IDs, 42 JSON Schemas and 9 contract documents. The selected `floor02` browser bundle has 9 actors and is generated output, not a replacement for canonical `WORLD/`, `CHARACTER/` or `CONTRACTS/` data.
+- Operational preflight finding: because the migration worktree currently sits under the project root, an unfiltered root `pytest` invocation discovers duplicate test modules and fails collection with import-mismatch errors. Before implementation, relocate the worktree outside the root or enforce an equivalent test-discovery boundary; the clean survey collection command is `python -m pytest --collect-only -q --ignore=.worktrees` (404 items).
 - The project review server was restarted from the updated source for live verification and then stopped after the check; port `8765` has no listener and no duplicate project server remains. Static assets and the user's untracked starting-point files were untouched.
 - Startup stamina correction: the canonical actor snapshot, browser bootstrap bundle and `/api/reset` start every actor at `100000` milli-stamina (`100`, `normal`), and the browser boot/reset path now gets the same normal default from `/api/live-start`. The explicit Critical demo still sets its selected actor to `5000` (`5`, `critical`).
 - `RUNTIME/visual_selection_core.py` is the canonical selector for both channels. It derives the catalog from the registries, persists only profile/generation/cursor/active binding, and selects at event admission with a per-actor/per-channel deterministic shuffle bag.
@@ -22,7 +24,7 @@
 
 ## Verification
 
-- `python -m pytest -q` → **404 passed**.
+- Recorded baseline before the nested worktree was present: `python -m pytest -q` → **404 passed**. Current root-level pytest must first use the worktree/test-discovery boundary described above.
 - `node --test TESTS/browser_runtime_test.mjs` → **14 passed**.
 - Final focused conversation/speech/contract/parity/renderer regressions → **48 passed**.
 - `python -B -m compileall -q RUNTIME WORLD CHARACTER TOOLS VALIDATION TESTS` → **PASS**.
@@ -39,10 +41,10 @@
 
 ## Next task and open gates
 
-1. Select the execution mode for docs/superpowers/plans/2026-09-03-tsjs-runtime-migration.md, then begin its Task 1 toolchain checkpoint.
-2. Close the existing author visual/gameplay, browser persistence/replay, zero-request UI source-mode, endurance and Cloudflare/deployment gates.
-3. Complete the lean-first contract/source-profile and boundary tracks, then begin the typed production migration from the canonical Python contracts and browser parity tests.
+1. Resolve the nested-worktree test-discovery preflight and continue from `codex/tsjs-runtime-migration` so the source-hash profile checkpoint is included.
+2. Begin Task 1 of docs/superpowers/plans/2026-09-03-tsjs-runtime-migration.md: strict TypeScript toolchain and frozen contract boundary.
+3. Close browser persistence/replay, zero-request UI source-mode, endurance, Cloudflare/deployment and author-acceptance gates before cutover.
 
-No release archive was rebuilt in this session. There is no blocker for the current engineering slice; author acceptance is the remaining approval gate.
+No release archive was rebuilt in this survey session. There is no gameplay blocker; the nested-worktree test-discovery issue is the immediate migration preflight item, and author acceptance remains a separate approval gate.
 
 **Active handoff:** this file only. `ROADMAP.md` is the single active milestone plan.
