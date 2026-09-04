@@ -1,14 +1,13 @@
 # GDS Central Game Core — Handoff
 
-**Updated:** 2026-09-04 17:09 +07:00 (Asia/Bangkok)
+**Updated:** 2026-09-04 18:00 +07:00 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** The pre-migration survey and scope clarification are recorded. The
-accepted production default on `main` remains Python + Raster. At the author's
-request on 2026-09-04, the non-accepted `codex/tsjs-runtime-migration` branch,
-its isolated worktree and its uncommitted TypeScript candidate were discarded.
-Only `main` remains as an active local worktree; the migration design and plan
-were removed during the author's cleanup and are not active implementation.
-Python remains the oracle and fallback.
+**Status:** The Cloudflare browser-runtime migration has been explicitly
+reopened for planning on `main`. Scope is limited to the existing single-user
+`floor02` browser path: static Cloudflare packaging plus a browser-owned
+fixed-step loop with no recurring `/api/tick` requests. No source/runtime code
+has been changed in this planning pass. Python remains the oracle, bundle/
+manifest builder and local raster fallback.
 
 ## Current state
 
@@ -17,6 +16,7 @@ Python remains the oracle and fallback.
 - Python remains the gameplay oracle and local raster fallback. The browser-owned `floor02` slice is deterministic and metadata-only after its bootstrap load; its core does not poll `/api/tick` while stepping. The review page still intentionally exposes the existing raster/API fallback.
 - Canonical data remains in the authored `WORLD/`, `CHARACTER/` and `CONTRACTS/` trees, with `CENTRAL_MANIFEST.json` and `CHARACTER/FINAL_MANIFEST.json` serving as indexes/integrity maps. `WEB/runtime_simulation_bootstrap.json`, `WEB/runtime_render_manifest.json` and `WEB/runtime_assets/` are generated browser/deployment outputs, not a replacement source of truth; the deleted starting-point archive is outside the active source scope.
 - Migration-tool spike: no safe one-click converter covers the full runtime. An AST Python-to-TypeScript tool can scaffold pure logic, while schema-generated TS types, runtime JSON validation, complete Python/TypeScript differential traces, authored pixel checks and Workers/browser integration tests remain required. The non-accepted migration design and plans were removed during cleanup; reopening that direction requires explicit approval.
+- Active migration plan: `docs/superpowers/specs/2026-09-04-cloudflare-browser-runtime-design.md` and `docs/superpowers/plans/2026-09-04-cloudflare-browser-runtime-zero-api.md`. The plan deliberately ports/packages only the browser runtime path; it does not translate the full Python repository.
 - Survey checkpoint: the repository has 25 floors, 219 resolved workstations, 429 world PNG blobs, 163 canonical character assets, 11 VFX IDs, 6 HumanBall IDs, 42 JSON Schemas and 9 contract documents. The selected `floor02` browser bundle has 9 actors and is generated output, not a replacement for canonical `WORLD/`, `CHARACTER/` or `CONTRACTS/` data.
 - Cleanup audit: no active canonical/runtime file was confirmed dead. The author-approved cleanup removed generated caches, the untracked scratch image, historical migration documents and the selected historical reports. The superseded `v1.8.4` release archive and QA-only scripts remain for separate review.
 - Operational preflight finding: the former migration worktree could cause duplicate test-module discovery and import-mismatch errors during an unfiltered root `pytest` run. That worktree is now removed; the clean survey collection command remains `python -m pytest --collect-only -q --ignore=.worktrees` (404 items).
@@ -64,11 +64,12 @@ Python remains the oracle and fallback.
 
 ## Next task and open gates
 
-1. Continue only on `main` and select the next explicitly approved task.
-2. The TypeScript/JavaScript migration design and plan were removed; reopening
-   that direction requires explicit approval and a new isolated branch/worktree.
+1. Implement Task 1 of the active Cloudflare browser-runtime plan in a new
+   isolated branch/worktree: static build boundary and Wrangler dry-run.
+2. Then implement the browser controller and page cutover only after the
+   static boundary and current parity tests remain green.
 3. Keep Python as the gameplay oracle and fallback; no production cutover or
-   Python deletion is approved.
+   Python deletion is approved yet.
 
 No release archive was rebuilt in this cleanup session. No active canonical
 data or asset was changed. The author removed the out-of-scope starting-point

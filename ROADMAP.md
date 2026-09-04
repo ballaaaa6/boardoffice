@@ -4,6 +4,34 @@
 **Source of truth:** unpacked project root
 **Updated:** 2026-09-04 (Asia/Bangkok)
 
+## Active milestone — Cloudflare browser runtime / zero simulation API
+
+Planning is approved and implementation is not started. The first slice is
+the existing `floor02` nine-actor browser bundle. The target is a static
+Cloudflare deployment where the browser advances `BrowserRuntimeCore` locally
+after bootstrap; Python remains the offline oracle, generated-bundle builder
+and local raster fallback.
+
+- [x] Survey the current Python-hosted page, existing browser JS core,
+  generated bundle/manifest boundary and missing Cloudflare configuration.
+- [x] Record the scoped design and implementation plan in
+  `docs/superpowers/specs/2026-09-04-cloudflare-browser-runtime-design.md` and
+  `docs/superpowers/plans/2026-09-04-cloudflare-browser-runtime-zero-api.md`.
+- [ ] Add a reproducible `WEB/dist` static build and Wrangler Static Assets
+  configuration with no Python in the deploy artifact.
+- [ ] Add a browser fixed-step controller and prove zero recurring
+  `/api/*`/`/api/tick` requests after bootstrap.
+- [ ] Make browser mode the default page path while retaining explicit Python
+  review/raster fallback.
+- [ ] Pass parity, full regression, required audits, fresh static extraction,
+  browser network/soak and Wrangler dry-run gates.
+- [ ] Record separate author visual/gameplay acceptance before any production
+  cutover; do not remove Python or raster fallback in this milestone.
+
+The deferred all-floor expansion needs a static per-floor bundle/manifest
+strategy for the current 25-floor catalog and is not included in this first
+cutover.
+
 ## Completed milestone — Phase 8E runtime review
 
 The implementation slice, required verification and original browser review were completed, and the baseline author acceptance remains recorded. Static floor geometry, workstation ownership, character artwork and reference assets remain unchanged. Phase 8E baseline is closed; a later live multi-actor follow-up blocker is recorded below. The rejected host-first realtime experiment was deleted and is not part of this milestone.
