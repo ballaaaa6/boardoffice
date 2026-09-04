@@ -2,7 +2,7 @@
 
 **Project root:** `D:\antigravity\board office`
 **Source of truth:** unpacked project root
-**Updated:** 2026-09-03 (Asia/Bangkok)
+**Updated:** 2026-09-04 (Asia/Bangkok)
 
 ## Completed milestone — Phase 8E runtime review
 
@@ -104,7 +104,7 @@ The latest browser-owned simulation work is now merged into `main` at `18f0436`.
 
 ## Lean-first cleanup prerequisite — 2026-09-03
 
-Before starting the production TypeScript/JavaScript migration, the current runtime must be made lean and contract-stable. The detailed execution plan is `docs/superpowers/plans/2026-09-03-lean-first-tsjs-migration.md`. This prerequisite does not change the current Python oracle, canonical assets or raster fallback.
+Before starting the production TypeScript/JavaScript migration, the current runtime must be made lean and contract-stable. The detailed migration plan was removed during the author's cleanup after the non-accepted migration direction was discarded. This prerequisite does not change the current Python oracle, canonical assets or raster fallback.
 
 - [x] Establish a reproducible lean audit and clear the reviewed Ruff unused-import/unused-local findings.
 - [ ] Consolidate repeated QA/build/validation helpers and centralize source-hash profiles without changing output hashes.
@@ -117,11 +117,10 @@ The standing-pair visual/gameplay acceptance, Canvas/Raster acceptance, browser 
 
 ## TypeScript/JavaScript runtime migration design — 2026-09-03
 
-The author approved the staged Browser-owned runtime direction. The detailed
-design is recorded in docs/superpowers/specs/2026-09-03-tsjs-runtime-migration-design.md
-and the task-by-task execution plan is recorded in
-docs/superpowers/plans/2026-09-03-tsjs-runtime-migration.md. No production
-runtime migration has started.
+The staged Browser-owned runtime direction is historical only; its design and
+task-by-task migration plan were removed during the author's cleanup. The
+accepted production default on `main` remains Python + Raster. No migration
+worktree or non-accepted TypeScript candidate is currently active.
 
 - [x] Survey the current Python/browser/data boundaries and migration-tool options.
 - [x] Select contract-first TypeScript porting with Python retained as oracle,
@@ -136,6 +135,44 @@ runtime migration has started.
   after the design and prerequisite gates are accepted.
 
 Track A engineering checkpoint (2026-09-03): the audit/hygiene gate is green, proven preview/POC debris and generated workspace output were removed, and the canonical duplicate manifest was collapsed to `CHARACTER/FINAL_MANIFEST.json`. Remaining duplicate function-body groups are retained as domain/test candidates until a semantics-preserving boundary is approved; source-hash profiles and the later runtime tracks remain open.
+
+## Full TypeScript/JavaScript scope clarification — 2026-09-04
+
+The requested end state was broader than the first Browser-owned production
+slice: every active Python runtime, renderer, ReviewRuntime/server adapter,
+builder/export/QA tool, validator and pytest family would have required a
+behavior-preserving TypeScript/JavaScript replacement. The full-cutover plan
+was removed during the author's cleanup; no production cutover is active.
+
+- [x] Record the explicit rule that this is a port, not new gameplay or a
+  feature expansion.
+- [x] Map the remaining responsibilities to authoritative Python sources and
+  typed boundaries: occupancy, clearance, pathfinding, actor lifecycle,
+  speech/conversation, renderer/pixel parity, ReviewRuntime, tools and
+  Python removal.
+- [x] Establish strict browser/Node TypeScript checks and deterministic contract
+  generation in the former migration worktree: root, browser and node typechecks pass;
+  46 generated contract files are deterministic; Vitest is 32 files / 84 tests.
+- [x] Freeze the reviewed Python oracle as annotated tag
+  `oracle/python-runtime-2026-09-04` at `fde8279`; run the clean Python suite
+  twice with **404 passed** on both runs; and freeze the 169-file / 46,039-line
+  inventory with exact path, line-count and SHA-256 fixture coverage.
+- [ ] Port complete World/Character domains and runtime behavior against full
+  snapshots/events/plans, not compact browser projections.
+- [ ] Port authored presentation, ReviewRuntime, persistence/replay, all tools,
+  validators and all pytest coverage; keep Python as oracle/fallback meanwhile.
+- [ ] Pass all-floor differential, pixel/hash, browser zero-request, endurance,
+  Cloudflare, release-clean and explicit author-acceptance gates.
+- [ ] Remove Python only as the final mechanical commit after every replacement
+  and gate is green; preserve accurate history.
+
+The former `codex/tsjs-runtime-migration` worktree had typed foundations and a
+Browser source candidate, but direct full comparison reported known
+differences in long lifecycle conversation state, dynamic depth/occluders,
+effect clocks, Talk/Wander metadata and cross-runtime persistence. At the
+author's request on 2026-09-04, that branch, worktree, uncommitted candidate,
+design and plan documents were discarded. Reopening requires explicit approval
+and a new isolated branch/worktree.
 
 ## Combined visual selection and per-actor bubble correction — 2026-09-03 (engineering complete)
 
