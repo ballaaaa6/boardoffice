@@ -442,7 +442,7 @@ class WalkingDepthCore:
             # and is absent in current supported releases.  ``getdata`` gives
             # us the same RGBA pixel stream without changing the source image.
             for r, g, b, a in image.getdata():
-                if 0 < a < 255 and max(r, g, b) <= 64:
+                if a > 0 and max(r, g, b) <= 64:
                     cleaned.append((r, g, b, 0))
                 else:
                     cleaned.append((r, g, b, a))

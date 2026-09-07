@@ -6664,7 +6664,7 @@
       "file": "occluders/floor21/ceo_chair.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "b06c790cfc6468aebf76d7dca7f011dc7b5ee231acf3c3bdaca8afcf3105e38d",
+      "sha256": "63ea4c3e58a5f34b1489848bfa30c2fead63758a6c6e019093215e5372fe75ab",
       "url": "/runtime_assets/occluders/floor21/ceo_chair.png",
       "width": 21
     },
@@ -6672,7 +6672,7 @@
       "file": "occluders/floor21/ceo_desk_cell2.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "0935745ea126974a6e13e4f49f86afa04d65e7ade129c92aa8012317fdb4832d",
+      "sha256": "0e4620ed42ffffc67493e86bc66d0df2ec94c83fd39c913d1fcc95fde1c4f466",
       "url": "/runtime_assets/occluders/floor21/ceo_desk_cell2.png",
       "width": 50
     },
@@ -6680,7 +6680,7 @@
       "file": "occluders/floor21/ceo_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "583555e54171fdbe1e9c1905cb6df490cfd15d63ad27b8c2661626640293f2a4",
+      "sha256": "5ad8ef8575d262526aee606bf534b8dba7cae12712737d6d8bb45942807735dc",
       "url": "/runtime_assets/occluders/floor21/ceo_pc.png",
       "width": 50
     },
@@ -6704,7 +6704,7 @@
       "file": "occluders/floor21/reception.png",
       "height": 80,
       "kind": "occluder_mask",
-      "sha256": "6842df592f1a4726b6be4c376f64efd1d8b2d9165cfb3a7647b818cf90c8a08d",
+      "sha256": "3f0ad157289acf549b2f51a2a9cc869a3ae3208e9fb63f57dd612095904acffe",
       "url": "/runtime_assets/occluders/floor21/reception.png",
       "width": 78
     },
@@ -6712,7 +6712,7 @@
       "file": "occluders/floor21/ws1_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "a5ab6a18f60c9016158236aab454b08795fc5e185323a13ae11864c645f1587c",
+      "sha256": "f63d774cdb842e4e893a13e69c6037e2757c9edab468308eb493fcd68fc7dc41",
       "url": "/runtime_assets/occluders/floor21/ws1_chair_main.png",
       "width": 21
     },
@@ -6720,7 +6720,7 @@
       "file": "occluders/floor21/ws1_desk.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "1159654b8fdf48ec131ab8826cfa58eeed505e365161d7069898fbf3afdd05ff",
+      "sha256": "82af426b6db5bc54b33e8f96fd2d78d83cfb1543585c9d57e99af7a936ca0201",
       "url": "/runtime_assets/occluders/floor21/ws1_desk.png",
       "width": 50
     },
@@ -6728,7 +6728,7 @@
       "file": "occluders/floor21/ws1_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "92be319c756f4c01fee40a4e81a005019aeb13d2ee9eefa55ac300e1f9d7e8a4",
+      "sha256": "738df91f95063e8dd41bcd67eb0edb2f2248cb953891fa530ca89d778e846748",
       "url": "/runtime_assets/occluders/floor21/ws1_pc.png",
       "width": 50
     },
@@ -6736,7 +6736,7 @@
       "file": "occluders/floor21/ws2_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "a5ab6a18f60c9016158236aab454b08795fc5e185323a13ae11864c645f1587c",
+      "sha256": "f63d774cdb842e4e893a13e69c6037e2757c9edab468308eb493fcd68fc7dc41",
       "url": "/runtime_assets/occluders/floor21/ws2_chair_main.png",
       "width": 21
     },
@@ -6744,7 +6744,7 @@
       "file": "occluders/floor21/ws2_desk.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "1159654b8fdf48ec131ab8826cfa58eeed505e365161d7069898fbf3afdd05ff",
+      "sha256": "82af426b6db5bc54b33e8f96fd2d78d83cfb1543585c9d57e99af7a936ca0201",
       "url": "/runtime_assets/occluders/floor21/ws2_desk.png",
       "width": 50
     },
@@ -6752,7 +6752,7 @@
       "file": "occluders/floor21/ws2_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "92be319c756f4c01fee40a4e81a005019aeb13d2ee9eefa55ac300e1f9d7e8a4",
+      "sha256": "738df91f95063e8dd41bcd67eb0edb2f2248cb953891fa530ca89d778e846748",
       "url": "/runtime_assets/occluders/floor21/ws2_pc.png",
       "width": 50
     },
@@ -6760,7 +6760,7 @@
       "file": "occluders/floor21/ws3_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "fd313ef9e8cf0201a0ce436844e65c18404a00f37bdeaf42e9df623da6f574e4",
+      "sha256": "abc510caf93ea5fc533adf6283802fc79ba29e5d27a6547aa8ab09a4a240f7e4",
       "url": "/runtime_assets/occluders/floor21/ws3_chair_main.png",
       "width": 21
     },
@@ -6768,7 +6768,7 @@
       "file": "occluders/floor21/ws3_desk.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "0382816c81d93d6060928b43c3ac044f00793195bd48d0639292059181c3d6de",
+      "sha256": "6bc9259059fbc38249911a114baf13d2605d1156b7986b184ea5d722f8aecdef",
       "url": "/runtime_assets/occluders/floor21/ws3_desk.png",
       "width": 50
     },
@@ -6776,7 +6776,7 @@
       "file": "occluders/floor21/ws3_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "b4186ea5411d98c8787ffe26e03f7a6aa8a38e0ef8cd8b5e6a70e94f2c65b80d",
+      "sha256": "0fd77b859c02b21e2c1f081f0447470e2cf808e5725c82b0eb542f17526564d8",
       "url": "/runtime_assets/occluders/floor21/ws3_pc.png",
       "width": 50
     },
@@ -6784,7 +6784,7 @@
       "file": "occluders/floor21/ws4_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "fd313ef9e8cf0201a0ce436844e65c18404a00f37bdeaf42e9df623da6f574e4",
+      "sha256": "abc510caf93ea5fc533adf6283802fc79ba29e5d27a6547aa8ab09a4a240f7e4",
       "url": "/runtime_assets/occluders/floor21/ws4_chair_main.png",
       "width": 21
     },
@@ -6792,7 +6792,7 @@
       "file": "occluders/floor21/ws4_desk.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "0382816c81d93d6060928b43c3ac044f00793195bd48d0639292059181c3d6de",
+      "sha256": "6bc9259059fbc38249911a114baf13d2605d1156b7986b184ea5d722f8aecdef",
       "url": "/runtime_assets/occluders/floor21/ws4_desk.png",
       "width": 50
     },
@@ -6800,7 +6800,7 @@
       "file": "occluders/floor21/ws4_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "b4186ea5411d98c8787ffe26e03f7a6aa8a38e0ef8cd8b5e6a70e94f2c65b80d",
+      "sha256": "0fd77b859c02b21e2c1f081f0447470e2cf808e5725c82b0eb542f17526564d8",
       "url": "/runtime_assets/occluders/floor21/ws4_pc.png",
       "width": 50
     },
@@ -6808,7 +6808,7 @@
       "file": "occluders/floor21/ws5_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "a5ab6a18f60c9016158236aab454b08795fc5e185323a13ae11864c645f1587c",
+      "sha256": "f63d774cdb842e4e893a13e69c6037e2757c9edab468308eb493fcd68fc7dc41",
       "url": "/runtime_assets/occluders/floor21/ws5_chair_main.png",
       "width": 21
     },
@@ -6816,7 +6816,7 @@
       "file": "occluders/floor21/ws5_desk.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "1159654b8fdf48ec131ab8826cfa58eeed505e365161d7069898fbf3afdd05ff",
+      "sha256": "82af426b6db5bc54b33e8f96fd2d78d83cfb1543585c9d57e99af7a936ca0201",
       "url": "/runtime_assets/occluders/floor21/ws5_desk.png",
       "width": 50
     },
@@ -6824,7 +6824,7 @@
       "file": "occluders/floor21/ws5_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "92be319c756f4c01fee40a4e81a005019aeb13d2ee9eefa55ac300e1f9d7e8a4",
+      "sha256": "738df91f95063e8dd41bcd67eb0edb2f2248cb953891fa530ca89d778e846748",
       "url": "/runtime_assets/occluders/floor21/ws5_pc.png",
       "width": 50
     },
@@ -6832,7 +6832,7 @@
       "file": "occluders/floor21/ws6_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "a5ab6a18f60c9016158236aab454b08795fc5e185323a13ae11864c645f1587c",
+      "sha256": "f63d774cdb842e4e893a13e69c6037e2757c9edab468308eb493fcd68fc7dc41",
       "url": "/runtime_assets/occluders/floor21/ws6_chair_main.png",
       "width": 21
     },
@@ -6840,7 +6840,7 @@
       "file": "occluders/floor21/ws6_desk.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "1159654b8fdf48ec131ab8826cfa58eeed505e365161d7069898fbf3afdd05ff",
+      "sha256": "82af426b6db5bc54b33e8f96fd2d78d83cfb1543585c9d57e99af7a936ca0201",
       "url": "/runtime_assets/occluders/floor21/ws6_desk.png",
       "width": 50
     },
@@ -6848,7 +6848,7 @@
       "file": "occluders/floor21/ws6_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "92be319c756f4c01fee40a4e81a005019aeb13d2ee9eefa55ac300e1f9d7e8a4",
+      "sha256": "738df91f95063e8dd41bcd67eb0edb2f2248cb953891fa530ca89d778e846748",
       "url": "/runtime_assets/occluders/floor21/ws6_pc.png",
       "width": 50
     },
@@ -6856,7 +6856,7 @@
       "file": "occluders/floor21/ws7_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "fd313ef9e8cf0201a0ce436844e65c18404a00f37bdeaf42e9df623da6f574e4",
+      "sha256": "abc510caf93ea5fc533adf6283802fc79ba29e5d27a6547aa8ab09a4a240f7e4",
       "url": "/runtime_assets/occluders/floor21/ws7_chair_main.png",
       "width": 21
     },
@@ -6864,7 +6864,7 @@
       "file": "occluders/floor21/ws7_desk.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "0382816c81d93d6060928b43c3ac044f00793195bd48d0639292059181c3d6de",
+      "sha256": "6bc9259059fbc38249911a114baf13d2605d1156b7986b184ea5d722f8aecdef",
       "url": "/runtime_assets/occluders/floor21/ws7_desk.png",
       "width": 50
     },
@@ -6872,7 +6872,7 @@
       "file": "occluders/floor21/ws7_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "b4186ea5411d98c8787ffe26e03f7a6aa8a38e0ef8cd8b5e6a70e94f2c65b80d",
+      "sha256": "0fd77b859c02b21e2c1f081f0447470e2cf808e5725c82b0eb542f17526564d8",
       "url": "/runtime_assets/occluders/floor21/ws7_pc.png",
       "width": 50
     },
@@ -6880,7 +6880,7 @@
       "file": "occluders/floor21/ws8_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "fd313ef9e8cf0201a0ce436844e65c18404a00f37bdeaf42e9df623da6f574e4",
+      "sha256": "abc510caf93ea5fc533adf6283802fc79ba29e5d27a6547aa8ab09a4a240f7e4",
       "url": "/runtime_assets/occluders/floor21/ws8_chair_main.png",
       "width": 21
     },
@@ -6888,7 +6888,7 @@
       "file": "occluders/floor21/ws8_desk.png",
       "height": 64,
       "kind": "occluder_mask",
-      "sha256": "0382816c81d93d6060928b43c3ac044f00793195bd48d0639292059181c3d6de",
+      "sha256": "6bc9259059fbc38249911a114baf13d2605d1156b7986b184ea5d722f8aecdef",
       "url": "/runtime_assets/occluders/floor21/ws8_desk.png",
       "width": 50
     },
@@ -6896,7 +6896,7 @@
       "file": "occluders/floor21/ws8_pc.png",
       "height": 32,
       "kind": "occluder_mask",
-      "sha256": "b4186ea5411d98c8787ffe26e03f7a6aa8a38e0ef8cd8b5e6a70e94f2c65b80d",
+      "sha256": "0fd77b859c02b21e2c1f081f0447470e2cf808e5725c82b0eb542f17526564d8",
       "url": "/runtime_assets/occluders/floor21/ws8_pc.png",
       "width": 50
     },
