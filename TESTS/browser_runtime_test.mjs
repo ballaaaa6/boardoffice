@@ -471,3 +471,79 @@ test("multi-floor browser index loads and advances all 25 floor bundles cleanly"
     core.destroy();
   }
 });
+
+test("canvas renderer occludes walking actors behind seated characters and workstations", async () => {
+  const { RuntimeCanvasRenderer } = await import("../WEB/runtime_canvas_renderer.js");
+  const fakeContext = {
+    clearRect: () => {},
+    drawImage: () => {},
+    save: () => {},
+    restore: () => {},
+  };
+  const fakeCanvas = {
+    width: 600,
+    height: 600,
+    getContext: () => fakeContext,
+    ownerDocument: {
+      createElement: () => ({
+        width: 32,
+        height: 42,
+        getContext: () => ({
+          imageSmoothingEnabled: false,
+          clearRect: () => {},
+          save: () => {},
+          restore: () => {},
+          drawImage: () => {},
+        }),
+      }),
+    },
+  };
+  const renderer = new RuntimeCanvasRenderer({
+    canvas: fakeCanvas,
+    manifestUrl: "data:application/json,{}",
+  });
+
+  const maskedSeated = [];
+  renderer._readyImage = () => ({ width: 32, height: 42 });
+  renderer._drawRecord = () => {};
+  renderer._drawEffect = () => {};
+  renderer._drawHumanballs = () => {};
+  renderer._drawDialogue = () => {};
+  renderer._drawCharacter = (ctx, row) => {
+    if (ctx === renderer.actorCtx && row.render_owner === "work_seat") {
+      maskedSeated.push(row.employee_id);
+    }
+    return true;
+  };
+
+  renderer.manifest = {
+    canvas: { width: 600, height: 600 },
+    static_scene: { url: "static.png" },
+    overlays: [],
+    workstations: {
+      ws_front: {
+        character_layer: 400,
+        character_top_left: [100, 300],
+        components: [
+          { role: "chair_main", layer: 399, x_px: 100, y_px: 300 },
+          { role: "chair_foreground", layer: 500, x_px: 100, y_px: 300 },
+        ],
+      },
+    },
+  };
+  renderer.state = {
+    schema: "gds.runtime_render_state.v1",
+    floor_id: "floor_test",
+    sequence: 1,
+    clock_ms: 60,
+    actors: [
+      { employee_id: "EMP_SEATED", visible: true, render_owner: "work_seat", workstation_id: "ws_front" },
+      { employee_id: "EMP_WALKER_BEHIND", visible: true, render_owner: "walking_depth", ground_xy: [100, 310] },
+      { employee_id: "EMP_WALKER_IN_FRONT", visible: true, render_owner: "walking_depth", ground_xy: [100, 350] },
+    ],
+    paint_order: { characters: ["EMP_WALKER_BEHIND", "EMP_WALKER_IN_FRONT"] },
+  };
+
+  renderer.render();
+  assert.deepEqual(maskedSeated, ["EMP_SEATED"]);
+});

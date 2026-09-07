@@ -443,7 +443,7 @@ export class RuntimeCanvasRenderer {
     this.actorCtx.imageSmoothingEnabled = false;
   }
 
-  _drawWalkingActor(context, row) {
+  _drawWalkingActor(context, row, seatedRows = []) {
     if (!row?.visible || row.render_owner !== "walking_depth") return false;
     const topLeft = this._characterTopLeft(row);
     if (!topLeft) return false;
@@ -466,6 +466,41 @@ export class RuntimeCanvasRenderer {
         integerOr(occluder.y_px) - topLeft[1],
       );
     }
+
+    // Work-seat characters are part of the static/work-seat pass, so a walker
+    // must be masked by any seated character whose ground depth is closer to
+    // the camera. Do this in the actor buffer instead of mixing groundY with
+    // authored component layers; those are different depth systems.
+    const walkingGroundY = validPoint(row.ground_xy)
+      ? numberOr(row.ground_xy[1])
+      : topLeft[1] + 31;
+    const walkingBox = [topLeft[0], topLeft[1], topLeft[0] + width, topLeft[1] + height];
+    for (const seated of seatedRows) {
+      if (!seated?.visible || seated.render_owner !== "work_seat") continue;
+      const seatedTopLeft = this._characterTopLeft(seated);
+      if (!seatedTopLeft) continue;
+      const seatedGroundY = seatedTopLeft[1] + 31;
+      if (seatedGroundY <= walkingGroundY) continue;
+      const seatedBox = [
+        seatedTopLeft[0], seatedTopLeft[1],
+        seatedTopLeft[0] + width, seatedTopLeft[1] + height,
+      ];
+      const overlaps = !(
+        walkingBox[2] <= seatedBox[0]
+        || walkingBox[0] >= seatedBox[2]
+        || walkingBox[3] <= seatedBox[1]
+        || walkingBox[1] >= seatedBox[3]
+      );
+      if (overlaps) {
+        this._drawCharacter(
+          this.actorCtx,
+          seated,
+          Math.round(seatedTopLeft[0] - topLeft[0]),
+          Math.round(seatedTopLeft[1] - topLeft[1]),
+        );
+      }
+    }
+
     this.actorCtx.restore();
     context.save();
     context.globalAlpha = clamp(numberOr(row.visibility_alpha, 1), 0, 1);
@@ -569,7 +604,15 @@ export class RuntimeCanvasRenderer {
     context.clearRect(0, 0, width, height);
     context.drawImage(staticImage, 0, 0);
     const rows = this._stateRows(nowMs);
-    for (const entry of this._dynamicEntries(rows)) {
+    const dynamicEntries = this._dynamicEntries(rows);
+    const seatedRows = rows.filter((row) => row?.visible && row.render_owner === "work_seat");
+    const byId = new Map(rows.map((row) => [row.employee_id, row]));
+    const orderedIds = [
+      ...(this.state.paint_order?.characters || []),
+      ...rows.map((row) => row.employee_id),
+    ].filter((id, index, source) => source.indexOf(id) === index);
+
+    for (const entry of dynamicEntries) {
       if (entry.kind === "component") this._drawRecord(context, entry.record, entry.x, entry.y);
       else if (entry.kind === "effect") this._drawEffect(context, entry);
       else if (entry.kind === "character") {
@@ -578,12 +621,12 @@ export class RuntimeCanvasRenderer {
       }
     }
     this._drawHumanballs(context, rows);
-    const byId = new Map(rows.map((row) => [row.employee_id, row]));
-    const orderedIds = [
-      ...(this.state.paint_order?.characters || []),
-      ...rows.map((row) => row.employee_id),
-    ].filter((id, index, source) => source.indexOf(id) === index);
-    for (const employeeId of orderedIds) this._drawWalkingActor(context, byId.get(employeeId));
+    // Paint walking actors as a separate depth pass. paint_order.characters is
+    // ground-Y ordered by the browser core, while static entries above retain
+    // their authored manifest layers.
+    for (const employeeId of orderedIds) {
+      this._drawWalkingActor(context, byId.get(employeeId), seatedRows);
+    }
     for (const overlay of this.manifest.overlays || []) {
       this._drawRecord(context, overlay, overlay.x_px, overlay.y_px);
     }

@@ -1,12 +1,12 @@
 # GDS Central Game Core — Handoff
 
-**Updated:** 2026-09-08 05:12 +07:00 (Asia/Bangkok)
+**Updated:** 2026-09-08 09:35 +07:00 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop and shadow occlusion defects resolved on branch `fix_character_crop_shadow` across all 25 office floors (219 workstations and employees). Occluder masks are now floor-isolated (`WEB/runtime_assets/occluders/{floor_id}/`) and correctly strip opaque dark shadows (rgb <= 64). Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow and chair foreground defects are resolved in the live renderer across all 25 office floors (219 workstations and employees). Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
-- Active branch: `fix_character_crop_shadow` based on `main`.
+- Active branch: `main` at `bdba11d`; the related `fix_z_depth_occlusion_sorting` worktree points to the same commit.
 - Visual crop & shadow root cause identified and resolved:
   1. `TOOLS/build_runtime_render_manifest.py` previously exported occluder masks to `WEB/runtime_assets/occluders/{placement_id}.png` without floor isolation. Rebuilding all 25 floors caused each floor to overwrite common placement IDs.
   2. `build_runtime_render_manifest.py` omitted `depth_front_edge_world_px` from occluder records.
@@ -16,6 +16,7 @@
   2. Updated `WEB/viewer_app.js` (`resolveActorOccluderIds`) to prioritize `occ.depth_front_edge_world_px`.
   3. Updated `WORLD/RUNTIME/walking_depth_core.py` to strip all dark pixels (`max(r, g, b) <= 64` and `a > 0`) from occluder masks, preventing opaque shadows from cropping actors.
   4. Rebuilt all 25 office floor manifests and simulation bundles using `TOOLS/build_all_floors.py`.
+  5. Updated `WEB/runtime_canvas_renderer.js` to keep authored static/work-seat layers separate from walking `groundY` sorting, and to mask seated actors that are in front of a walking actor. This fixes chair-over-walker and walker-over-seated-character inversions without changing canonical assets or manifests.
 - Canonical data remains untouched: `WORLD/`, `CHARACTER/`, and `CONTRACTS/` trees preserved with original reference hashes.
 
 ## Verification
@@ -45,6 +46,7 @@
 - Browser review page → **PASS**: Canvas renderer loaded the regenerated bundle, Talk mode was set to `seated host`, and the page was paused at the `8400ms` arrival/bubble-start boundary with the visitor BB visible in telemetry while the seated host remained unchanged.
 - Startup API probe → **PASS**: updated `/api/live-start` at `60ms` returned all nine actors at `100.0/normal`; explicit `/api/demo-critical` still returned `EMP_W1_0010` at `5.0/critical`.
 - CEO bubble-offset probe → **PASS**: `seated_host` remains visitor `-40px`/host `-20px`; updated `ceo_front` plan carries `[0, 0]` for both and renders visitor/CEO at `-20px` each.
+- Walking depth renderer correction → **PASS**: `node --check WEB/runtime_canvas_renderer.js`, browser runtime **15/15**, focused Python renderer/presentation/manifest suite **25 passed**, and live Talk smoke on `http://127.0.0.1:8000/viewer.html?` after reload. Static authored layers are no longer compared directly with walking `groundY`; seated-character front masking is active.
 - Focused conversation/review/bundle tests → **51 passed**: `python -B -m pytest -q TESTS/test_conversation_behavior.py TESTS/test_browser_bundle_contract.py TESTS/test_runtime_review_server.py TESTS/test_runtime_review_web.py`.
 - Planning-session inspection → **PASS** before cleanup: the scope-corrected plan mapped each user-listed responsibility to an authoritative Python source, TypeScript boundary, parity evidence and an explicit exit gate. The plan was subsequently removed at the author's request; no source/runtime implementation files were changed.
 - Claude Code plugin verification → **PASS**: `claude plugin list` reports both `fable-orchestrator@fable-orchestrator` v1.4.1 and the existing `fable-orchestrator@fables` v0.1.0 enabled. Fable execution remains **blocked pending `/login`**; the project Git worktree remains limited to the pre-existing user changes plus this handoff refresh.
