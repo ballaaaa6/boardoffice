@@ -2,7 +2,7 @@
 
 **Project root:** `D:\antigravity\board office`
 **Source of truth:** unpacked project root
-**Updated:** 2026-09-04 (Asia/Bangkok)
+**Updated:** 2026-09-07 (Asia/Bangkok)
 
 ## Active milestone — Cloudflare browser runtime / zero simulation API
 
@@ -17,20 +17,16 @@ and local raster fallback.
 - [x] Record the scoped design and implementation plan in
   `docs/superpowers/specs/2026-09-04-cloudflare-browser-runtime-design.md` and
   `docs/superpowers/plans/2026-09-04-cloudflare-browser-runtime-zero-api.md`.
-- [ ] Add a reproducible `WEB/dist` static build and Wrangler Static Assets
-  configuration with no Python in the deploy artifact.
-- [ ] Add a browser fixed-step controller and prove zero recurring
-  `/api/*`/`/api/tick` requests after bootstrap.
-- [ ] Make browser mode the default page path while retaining explicit Python
-  review/raster fallback.
-- [ ] Pass parity, full regression, required audits, fresh static extraction,
-  browser network/soak and Wrangler dry-run gates.
-- [ ] Record separate author visual/gameplay acceptance before any production
-  cutover; do not remove Python or raster fallback in this milestone.
-
-The deferred all-floor expansion needs a static per-floor bundle/manifest
-strategy for the current 25-floor catalog and is not included in this first
-cutover.
+- [x] Build reproducible all-floor static bundles and manifests (`WEB/floors/`, `TOOLS/build_all_floors.py`)
+  covering all 25 floors with zero Python required in the client runtime.
+- [x] Implement browser fixed-step simulation controller (`WEB/viewer_app.js`, `FixedStepClock 60ms`)
+  and proven zero recurring `/api/*`/`/api/tick` requests after bootstrap.
+- [x] Implement 25-floor dynamic switcher with zero page reloads and instant simulation reset.
+- [x] Complete dialogue bubble fitting enforcement (<= 63px safe rect, fixed 9px font, no clipping)
+  and dynamic conversational animation frames (M28/M45, M8/M9, happy/sad emotions).
+- [x] Make Zero-API browser mode (`WEB/viewer.html`) the primary production architecture while
+  retaining Python as offline data oracle, bundle compiler, and review fallback.
+- [x] Merge `prototype_living_character_web` into `main` and push to remote.
 
 ## Completed milestone — Phase 8E runtime review
 

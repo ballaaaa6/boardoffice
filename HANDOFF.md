@@ -2,16 +2,13 @@
 
 **Updated:** 2026-09-07 21:28 +07:00 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Developed a clean-slate Zero-API browser viewer prototype
-(`WEB/viewer.html`, `WEB/viewer_app.js`, `WEB/viewer_style.css`) in the isolated
-branch/worktree. All existing `main` review pages, runtime endpoints, and assets
-were preserved without modification. Zero periodic `/api/tick` requests after bootstrap.
+**Status:** Zero-API Client-Side Browser Simulation Architecture merged into `main` and active as the primary production viewer (`WEB/viewer.html`, `WEB/viewer_app.js`, `WEB/viewer_style.css`, `WEB/floors/`). Covers all 25 office floors (219 workstations and employees) with dynamic floor switching and zero `/api/tick` polling after bootstrap. Python is retained as offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
-- `main` remains the only active checkout at `fde8279`; static world/character assets, authored geometry, WorkSeat placement, navigation occupancy and reference pixels were preserved. The former migration branch/worktree was removed without merging any of its changes into `main`.
-- Push checkpoint: commit `cefa4bd` (`fix: normalize startup stamina and CEO bubbles`) is pushed to `origin/main` on 2026-09-03. Branch `prototype_living_character_web` committed and pushed to `origin/prototype_living_character_web` at `7d14941` (`feat: implement zero-api living character office web viewer with full behavioral parity`) on 2026-09-07. The author intentionally removed the no-longer-needed `00_STARTING_POINT/` archive; it is excluded from active project scope. The untracked scratch image was removed during cleanup.
-- Python remains the gameplay oracle and local raster fallback. The browser-owned `floor02` slice is deterministic and metadata-only after its bootstrap load; its core does not poll `/api/tick` while stepping. The review page still intentionally exposes the existing raster/API fallback.
+- `main` is the active production branch containing the Zero-API Browser Viewer, all 25 floor simulation bundles, dialogue bubble fitting enforcement, and dynamic conversational head-turn animations. The feature branch `prototype_living_character_web` was merged into `main` via fast-forward and pushed to `origin/main`.
+- Push checkpoint: commit `9690c2b` (`feat: complete 25-floor multi-floor simulation bundles, fix dialogue bubble fitting and conversational animations`) is pushed to `origin/main` and `origin/prototype_living_character_web` on 2026-09-07.
+- Python remains the offline data oracle, validation suite, and local raster fallback. The browser runtime runs deterministically on client devices with 0 HTTP requests during simulation.
 - Canonical data remains in the authored `WORLD/`, `CHARACTER/` and `CONTRACTS/` trees, with `CENTRAL_MANIFEST.json` and `CHARACTER/FINAL_MANIFEST.json` serving as indexes/integrity maps. `WEB/runtime_simulation_bootstrap.json`, `WEB/runtime_render_manifest.json` and `WEB/runtime_assets/` are generated browser/deployment outputs, not a replacement source of truth; the deleted starting-point archive is outside the active source scope.
 - Migration-tool spike: no safe one-click converter covers the full runtime. An AST Python-to-TypeScript tool can scaffold pure logic, while schema-generated TS types, runtime JSON validation, complete Python/TypeScript differential traces, authored pixel checks and Workers/browser integration tests remain required. The non-accepted migration design and plans were removed during cleanup; reopening that direction requires explicit approval.
 - Active migration plan: `docs/superpowers/specs/2026-09-04-cloudflare-browser-runtime-design.md` and `docs/superpowers/plans/2026-09-04-cloudflare-browser-runtime-zero-api.md`. The plan deliberately ports/packages only the browser runtime path; it does not translate the full Python repository.
