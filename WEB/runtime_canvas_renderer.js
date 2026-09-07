@@ -149,6 +149,9 @@ export class RuntimeCanvasRenderer {
         this.manifest = manifest;
         this._setCanvasSize(manifest.canvas.width, manifest.canvas.height);
         this._loadImage(manifest.static_scene.url);
+        for (const overlay of manifest.overlays || []) {
+          if (overlay?.url) this._loadImage(overlay.url);
+        }
         return manifest;
       })
       .catch((error) => {
@@ -581,6 +584,9 @@ export class RuntimeCanvasRenderer {
       ...rows.map((row) => row.employee_id),
     ].filter((id, index, source) => source.indexOf(id) === index);
     for (const employeeId of orderedIds) this._drawWalkingActor(context, byId.get(employeeId));
+    for (const overlay of this.manifest.overlays || []) {
+      this._drawRecord(context, overlay, overlay.x_px, overlay.y_px);
+    }
     this._drawDialogue(context, rows);
     return true;
   }

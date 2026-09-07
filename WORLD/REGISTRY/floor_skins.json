@@ -204,6 +204,7 @@
         "work.family_a.desk": "desk_003.part_00",
         "work.family_a.pc": "pc_003.slot_00",
         "work.family_b.chair": "chair_003.part_00",
+        "work.family_b.chair_sub": "chair_003.part_03",
         "work.family_b.desk": "desk_003.part_01",
         "work.family_b.pc": "pc_003.slot_01"
       },
@@ -654,6 +655,7 @@
         "work.family_a.desk": "desk_006.part_00",
         "work.family_a.pc": "pc_006.slot_00",
         "work.family_b.chair": "chair_006.part_00",
+        "work.family_b.chair_sub": "chair_006.part_03",
         "work.family_b.desk": "desk_006.part_01",
         "work.family_b.pc": "pc_006.slot_01"
       },
@@ -791,6 +793,7 @@
         "work.family_a.desk": "desk_007.part_00",
         "work.family_a.pc": "pc_007.slot_00",
         "work.family_b.chair": "chair_007.part_00",
+        "work.family_b.chair_sub": "chair_007.part_03",
         "work.family_b.desk": "desk_007.part_01",
         "work.family_b.pc": "pc_007.slot_01"
       },
@@ -928,6 +931,7 @@
         "work.family_a.desk": "desk_008.part_00",
         "work.family_a.pc": "pc_008.slot_00",
         "work.family_b.chair": "chair_008.part_00",
+        "work.family_b.chair_sub": "chair_008.part_03",
         "work.family_b.desk": "desk_008.part_01",
         "work.family_b.pc": "pc_008.slot_01"
       },
@@ -1065,6 +1069,7 @@
         "work.family_a.desk": "desk_009.part_00",
         "work.family_a.pc": "pc_009.slot_00",
         "work.family_b.chair": "chair_009.part_00",
+        "work.family_b.chair_sub": "chair_009.part_03",
         "work.family_b.desk": "desk_009.part_01",
         "work.family_b.pc": "pc_009.slot_01"
       },
@@ -1202,6 +1207,7 @@
         "work.family_a.desk": "desk_011.part_00",
         "work.family_a.pc": "pc_011.slot_00",
         "work.family_b.chair": "chair_011.part_00",
+        "work.family_b.chair_sub": "chair_011.part_03",
         "work.family_b.desk": "desk_011.part_01",
         "work.family_b.pc": "pc_011.slot_01"
       },
@@ -1378,6 +1384,7 @@
         "work.family_a.desk": "desk_012.part_00",
         "work.family_a.pc": "pc_012.slot_00",
         "work.family_b.chair": "chair_012.part_00",
+        "work.family_b.chair_sub": "chair_012.part_03",
         "work.family_b.desk": "desk_012.part_01",
         "work.family_b.pc": "pc_012.slot_01"
       },
@@ -1528,6 +1535,7 @@
         "work.family_a.desk": "desk_013.part_00",
         "work.family_a.pc": "pc_013.slot_00",
         "work.family_b.chair": "chair_013.part_00",
+        "work.family_b.chair_sub": "chair_013.part_03",
         "work.family_b.desk": "desk_013.part_01",
         "work.family_b.pc": "pc_013.slot_01"
       },
@@ -1665,6 +1673,7 @@
         "work.family_a.desk": "desk_014.part_00",
         "work.family_a.pc": "pc_014.slot_00",
         "work.family_b.chair": "chair_014.part_00",
+        "work.family_b.chair_sub": "chair_014.part_03",
         "work.family_b.desk": "desk_014.part_01",
         "work.family_b.pc": "pc_014.slot_01"
       },
@@ -1815,6 +1824,7 @@
         "work.family_a.desk": "desk_015.part_00",
         "work.family_a.pc": "pc_015.slot_00",
         "work.family_b.chair": "chair_015.part_00",
+        "work.family_b.chair_sub": "chair_015.part_03",
         "work.family_b.desk": "desk_015.part_01",
         "work.family_b.pc": "pc_015.slot_01"
       },
@@ -1978,6 +1988,7 @@
         "work.family_a.desk": "desk_016.part_00",
         "work.family_a.pc": "pc_016.slot_00",
         "work.family_b.chair": "chair_016.part_00",
+        "work.family_b.chair_sub": "chair_016.part_03",
         "work.family_b.desk": "desk_016.part_01",
         "work.family_b.pc": "pc_016.slot_01"
       },
@@ -2141,6 +2152,7 @@
         "work.family_a.desk": "desk_017.part_00",
         "work.family_a.pc": "pc_017.slot_00",
         "work.family_b.chair": "chair_017.part_00",
+        "work.family_b.chair_sub": "chair_017.part_03",
         "work.family_b.desk": "desk_017.part_01",
         "work.family_b.pc": "pc_017.slot_01"
       },
@@ -2278,6 +2290,7 @@
         "work.family_a.desk": "desk_018.part_00",
         "work.family_a.pc": "pc_018.slot_00",
         "work.family_b.chair": "chair_018.part_00",
+        "work.family_b.chair_sub": "chair_018.part_03",
         "work.family_b.desk": "desk_018.part_01",
         "work.family_b.pc": "pc_018.slot_01"
       },
@@ -2493,6 +2506,7 @@
         "work.family_a.desk": "desk_019.part_00",
         "work.family_a.pc": "pc_019.slot_00",
         "work.family_b.chair": "chair_019.part_00",
+        "work.family_b.chair_sub": "chair_019.part_03",
         "work.family_b.desk": "desk_019.part_01",
         "work.family_b.pc": "pc_019.slot_01"
       },
@@ -2682,6 +2696,7 @@
         "work.family_a.desk": "desk_021.part_00",
         "work.family_a.pc": "pc_021.slot_00",
         "work.family_b.chair": "chair_021.part_00",
+        "work.family_b.chair_sub": "chair_021.part_03",
         "work.family_b.desk": "desk_021.part_01",
         "work.family_b.pc": "pc_021.slot_01"
       },
@@ -2819,6 +2834,7 @@
         "work.family_a.desk": "desk_017.part_00",
         "work.family_a.pc": "pc_031.slot_00",
         "work.family_b.chair": "chair_015.part_00",
+        "work.family_b.chair_sub": "chair_015.part_03",
         "work.family_b.desk": "desk_017.part_01",
         "work.family_b.pc": "pc_031.slot_01"
       },
@@ -2969,6 +2985,7 @@
         "work.family_a.desk": "desk_005.part_00",
         "work.family_a.pc": "pc_033.slot_00",
         "work.family_b.chair": "chair_013.part_00",
+        "work.family_b.chair_sub": "chair_013.part_03",
         "work.family_b.desk": "desk_005.part_01",
         "work.family_b.pc": "pc_033.slot_01"
       },
@@ -3119,6 +3136,7 @@
         "work.family_a.desk": "desk_021.part_00",
         "work.family_a.pc": "pc_034.slot_00",
         "work.family_b.chair": "chair_003.part_00",
+        "work.family_b.chair_sub": "chair_003.part_03",
         "work.family_b.desk": "desk_021.part_01",
         "work.family_b.pc": "pc_034.slot_01"
       },
@@ -3256,6 +3274,7 @@
         "work.family_a.desk": "desk_027.part_00",
         "work.family_a.pc": "pc_035.slot_00",
         "work.family_b.chair": "chair_023.part_00",
+        "work.family_b.chair_sub": "chair_023.part_03",
         "work.family_b.desk": "desk_027.part_01",
         "work.family_b.pc": "pc_035.slot_01"
       },
@@ -3432,6 +3451,7 @@
         "work.family_a.desk": "desk_016.part_00",
         "work.family_a.pc": "pc_025.slot_00",
         "work.family_b.chair": "chair_012.part_00",
+        "work.family_b.chair_sub": "chair_012.part_03",
         "work.family_b.desk": "desk_016.part_01",
         "work.family_b.pc": "pc_025.slot_01"
       },

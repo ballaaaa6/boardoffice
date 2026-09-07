@@ -6801,6 +6801,14 @@
       "width": 21
     },
     {
+      "file": "occluders/floor14/ws3_chair_sub.png",
+      "height": 32,
+      "kind": "occluder_mask",
+      "sha256": "aa1c8ff8123c214b3501589d67b7e5c87604d76cf13e37d0fb9805bab9f29230",
+      "url": "/runtime_assets/occluders/floor14/ws3_chair_sub.png",
+      "width": 21
+    },
+    {
       "file": "occluders/floor14/ws3_desk.png",
       "height": 64,
       "kind": "occluder_mask",
@@ -6822,6 +6830,14 @@
       "kind": "occluder_mask",
       "sha256": "9768923c42966f62e62a5fc0929b0201028a6380f3e456263c031d569f1dd7a4",
       "url": "/runtime_assets/occluders/floor14/ws4_chair_main.png",
+      "width": 21
+    },
+    {
+      "file": "occluders/floor14/ws4_chair_sub.png",
+      "height": 32,
+      "kind": "occluder_mask",
+      "sha256": "aa1c8ff8123c214b3501589d67b7e5c87604d76cf13e37d0fb9805bab9f29230",
+      "url": "/runtime_assets/occluders/floor14/ws4_chair_sub.png",
       "width": 21
     },
     {
@@ -6897,6 +6913,14 @@
       "width": 21
     },
     {
+      "file": "occluders/floor14/ws7_chair_sub.png",
+      "height": 32,
+      "kind": "occluder_mask",
+      "sha256": "aa1c8ff8123c214b3501589d67b7e5c87604d76cf13e37d0fb9805bab9f29230",
+      "url": "/runtime_assets/occluders/floor14/ws7_chair_sub.png",
+      "width": 21
+    },
+    {
       "file": "occluders/floor14/ws7_desk.png",
       "height": 64,
       "kind": "occluder_mask",
@@ -6918,6 +6942,14 @@
       "kind": "occluder_mask",
       "sha256": "9768923c42966f62e62a5fc0929b0201028a6380f3e456263c031d569f1dd7a4",
       "url": "/runtime_assets/occluders/floor14/ws8_chair_main.png",
+      "width": 21
+    },
+    {
+      "file": "occluders/floor14/ws8_chair_sub.png",
+      "height": 32,
+      "kind": "occluder_mask",
+      "sha256": "aa1c8ff8123c214b3501589d67b7e5c87604d76cf13e37d0fb9805bab9f29230",
+      "url": "/runtime_assets/occluders/floor14/ws8_chair_sub.png",
       "width": 21
     },
     {
@@ -6967,6 +6999,17 @@
       "transform": "NORMAL",
       "url": "/runtime_assets/world/chair_014.part_02_normal.png",
       "variant_id": "chair_014.part_02@normal",
+      "width": 21
+    },
+    {
+      "asset_id": "chair_014.part_03",
+      "file": "world/chair_014.part_03_normal.png",
+      "height": 32,
+      "kind": "world_variant",
+      "sha256": "df1768509a2a6c008396c382aa1bca447960157ac8de8561cd6186fe21313e5e",
+      "transform": "NORMAL",
+      "url": "/runtime_assets/world/chair_014.part_03_normal.png",
+      "variant_id": "chair_014.part_03@normal",
       "width": 21
     },
     {
@@ -9236,6 +9279,66 @@
       "y_px": 346
     },
     {
+      "always_foreground": false,
+      "depth_anchor_y_px": 314,
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor14/ws3_chair_sub.png",
+      "foreground_fragment": true,
+      "height": 32,
+      "layer": 570,
+      "object_type": "chair_sub",
+      "placement_id": "ws3_chair_sub",
+      "url": "/runtime_assets/occluders/floor14/ws3_chair_sub.png",
+      "width": 21,
+      "x_px": 278,
+      "y_px": 282
+    },
+    {
+      "always_foreground": false,
+      "depth_anchor_y_px": 332,
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor14/ws4_chair_sub.png",
+      "foreground_fragment": true,
+      "height": 32,
+      "layer": 588,
+      "object_type": "chair_sub",
+      "placement_id": "ws4_chair_sub",
+      "url": "/runtime_assets/occluders/floor14/ws4_chair_sub.png",
+      "width": 21,
+      "x_px": 242,
+      "y_px": 300
+    },
+    {
+      "always_foreground": false,
+      "depth_anchor_y_px": 360,
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor14/ws7_chair_sub.png",
+      "foreground_fragment": true,
+      "height": 32,
+      "layer": 616,
+      "object_type": "chair_sub",
+      "placement_id": "ws7_chair_sub",
+      "url": "/runtime_assets/occluders/floor14/ws7_chair_sub.png",
+      "width": 21,
+      "x_px": 370,
+      "y_px": 328
+    },
+    {
+      "always_foreground": false,
+      "depth_anchor_y_px": 378,
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor14/ws8_chair_sub.png",
+      "foreground_fragment": true,
+      "height": 32,
+      "layer": 634,
+      "object_type": "chair_sub",
+      "placement_id": "ws8_chair_sub",
+      "url": "/runtime_assets/occluders/floor14/ws8_chair_sub.png",
+      "width": 21,
+      "x_px": 334,
+      "y_px": 346
+    },
+    {
       "always_foreground": true,
       "depth_anchor_y_px": null,
       "depth_front_edge_world_px": null,
@@ -9281,35 +9384,7 @@
       "y_px": 253
     }
   ],
-  "revision": "8930f7354775a8e25460e48199855c75bc3678d67a84b0729b2f54ccd38a36a2",
-  "schema": "gds.runtime_render_manifest.v1",
-  "source_registry_sha256": {
-    "CHARACTER/ACTIONS/gds_standard_v1.json": "3a8316c62549895cce66cf96c7d4c1b13b491ed2aa4aed041ea17dcb7ff94c51",
-    "CHARACTER/ASSETS/asset_registry.json": "2f70e64586812a1a52258ef57781f11a16bf13e15a68dccea2c6b81e21c156e6",
-    "CHARACTER/CHARACTERS/characters.json": "a97fce3ddfb7978e9a4b09fd147f74470f3df99625ce149c47f731deb19e420c",
-    "CHARACTER/EFFECTS/gds_effects_v1.json": "83ecdb4aed4777e8ea1bff28897675636f2c15c808e94f1c7180ddde999eea31",
-    "CHARACTER/EFFECTS/humanball_v1.json": "f25abceae637501fe2f20abc7fa0739b54a4eeac783ebe4892623eac3d8443a5",
-    "CHARACTER/FRAME_RULES/frame_registry.json": "fb1490de9f8cc9d9babca0b1616dee5797bdcaa74bb6a3d874aa4400811a2f68",
-    "WORLD/REGISTRY/floor_skins.json": "ff5a8c914411790b6f6ea610338e1e5fed635b6f312153d9cf54450373ebc498",
-    "WORLD/REGISTRY/floors.json": "8916cbc61c8b5bf468fa3e4f169f0fff66d78e26427e742af07538275100ee53",
-    "WORLD/REGISTRY/layouts.json": "f88f137a06e05c95e8a40b138109db9576ccd067edf841e72d80c803e5578fc8",
-    "WORLD/REGISTRY/pc_animation.json": "d76ede66ca29fb93901869d60b23b715015510a4d0e8be545bbd796f77e76a30",
-    "WORLD/REGISTRY/visual_variants.json": "6bf881c2a7aff64876cfa0ef2bfd7d445ebc5e96677854408bd5db5cc96f7b6e",
-    "WORLD/REGISTRY/walking_depth_profiles.json": "89c4a209d014e5613a318b01e05a674849a966b7c321de60084e7702a2d51a66",
-    "WORLD/REGISTRY/world_assets.json": "78f4cb78fa3c6bb3b7734e86494e5f68b89ff1f90f3b7101f092e4935a972a3b"
-  },
-  "static_placements": [
-    {
-      "asset_id": "reception_014",
-      "file": "world/reception_014_normal.png",
-      "layer": 430,
-      "object_type": "reception",
-      "placement_id": "reception",
-      "url": "/runtime_assets/world/reception_014_normal.png",
-      "variant_id": "reception_014@normal",
-      "x_px": 221,
-      "y_px": 330
-    },
+  "overlays": [
     {
       "asset_id": "floor14.overlay.00",
       "file": "world/floor14.overlay.00_crop.png",
@@ -9342,6 +9417,36 @@
       "variant_id": "floor14.overlay.02@crop",
       "x_px": 358,
       "y_px": 253
+    }
+  ],
+  "revision": "73466a995b4a2e0622ed8decd21f08764ac6818280077b28d04a0594d97f5b99",
+  "schema": "gds.runtime_render_manifest.v1",
+  "source_registry_sha256": {
+    "CHARACTER/ACTIONS/gds_standard_v1.json": "3a8316c62549895cce66cf96c7d4c1b13b491ed2aa4aed041ea17dcb7ff94c51",
+    "CHARACTER/ASSETS/asset_registry.json": "2f70e64586812a1a52258ef57781f11a16bf13e15a68dccea2c6b81e21c156e6",
+    "CHARACTER/CHARACTERS/characters.json": "a97fce3ddfb7978e9a4b09fd147f74470f3df99625ce149c47f731deb19e420c",
+    "CHARACTER/EFFECTS/gds_effects_v1.json": "83ecdb4aed4777e8ea1bff28897675636f2c15c808e94f1c7180ddde999eea31",
+    "CHARACTER/EFFECTS/humanball_v1.json": "f25abceae637501fe2f20abc7fa0739b54a4eeac783ebe4892623eac3d8443a5",
+    "CHARACTER/FRAME_RULES/frame_registry.json": "fb1490de9f8cc9d9babca0b1616dee5797bdcaa74bb6a3d874aa4400811a2f68",
+    "WORLD/REGISTRY/floor_skins.json": "d9c0c5f73e4ea3da28fb0b8af3e1b461aced5e6cc3cf1f84f4716902928f819f",
+    "WORLD/REGISTRY/floors.json": "8916cbc61c8b5bf468fa3e4f169f0fff66d78e26427e742af07538275100ee53",
+    "WORLD/REGISTRY/layouts.json": "f88f137a06e05c95e8a40b138109db9576ccd067edf841e72d80c803e5578fc8",
+    "WORLD/REGISTRY/pc_animation.json": "d76ede66ca29fb93901869d60b23b715015510a4d0e8be545bbd796f77e76a30",
+    "WORLD/REGISTRY/visual_variants.json": "9b998ab923bbab11e2a94d780c4a02f813863f53f05c6a402409af0ea562a0d8",
+    "WORLD/REGISTRY/walking_depth_profiles.json": "89c4a209d014e5613a318b01e05a674849a966b7c321de60084e7702a2d51a66",
+    "WORLD/REGISTRY/world_assets.json": "78f4cb78fa3c6bb3b7734e86494e5f68b89ff1f90f3b7101f092e4935a972a3b"
+  },
+  "static_placements": [
+    {
+      "asset_id": "reception_014",
+      "file": "world/reception_014_normal.png",
+      "layer": 430,
+      "object_type": "reception",
+      "placement_id": "reception",
+      "url": "/runtime_assets/world/reception_014_normal.png",
+      "variant_id": "reception_014@normal",
+      "x_px": 221,
+      "y_px": 330
     }
   ],
   "static_scene": {
@@ -9383,6 +9488,17 @@
       "transform": "NORMAL",
       "url": "/runtime_assets/world/chair_014.part_02_normal.png",
       "variant_id": "chair_014.part_02@normal",
+      "width": 21
+    },
+    "chair_014.part_03@normal": {
+      "asset_id": "chair_014.part_03",
+      "file": "world/chair_014.part_03_normal.png",
+      "height": 32,
+      "kind": "world_variant",
+      "sha256": "df1768509a2a6c008396c382aa1bca447960157ac8de8561cd6186fe21313e5e",
+      "transform": "NORMAL",
+      "url": "/runtime_assets/world/chair_014.part_03_normal.png",
+      "variant_id": "chair_014.part_03@normal",
       "width": 21
     },
     "desk_014.part_00@normal": {
@@ -10315,6 +10431,17 @@
           "variant_id": "chair_014.part_00@normal",
           "x_px": 278,
           "y_px": 282
+        },
+        {
+          "asset_id": "chair_014.part_03",
+          "file": "world/chair_014.part_03_normal.png",
+          "layer": 570,
+          "placement_id": "ws3_chair_sub",
+          "role": "chair_foreground",
+          "url": "/runtime_assets/world/chair_014.part_03_normal.png",
+          "variant_id": "chair_014.part_03@normal",
+          "x_px": 278,
+          "y_px": 282
         }
       ],
       "direction": "NW",
@@ -10598,6 +10725,17 @@
           "role": "chair_main",
           "url": "/runtime_assets/world/chair_014.part_00_normal.png",
           "variant_id": "chair_014.part_00@normal",
+          "x_px": 242,
+          "y_px": 300
+        },
+        {
+          "asset_id": "chair_014.part_03",
+          "file": "world/chair_014.part_03_normal.png",
+          "layer": 588,
+          "placement_id": "ws4_chair_sub",
+          "role": "chair_foreground",
+          "url": "/runtime_assets/world/chair_014.part_03_normal.png",
+          "variant_id": "chair_014.part_03@normal",
           "x_px": 242,
           "y_px": 300
         }
@@ -11367,6 +11505,17 @@
           "variant_id": "chair_014.part_00@normal",
           "x_px": 370,
           "y_px": 328
+        },
+        {
+          "asset_id": "chair_014.part_03",
+          "file": "world/chair_014.part_03_normal.png",
+          "layer": 616,
+          "placement_id": "ws7_chair_sub",
+          "role": "chair_foreground",
+          "url": "/runtime_assets/world/chair_014.part_03_normal.png",
+          "variant_id": "chair_014.part_03@normal",
+          "x_px": 370,
+          "y_px": 328
         }
       ],
       "direction": "NW",
@@ -11650,6 +11799,17 @@
           "role": "chair_main",
           "url": "/runtime_assets/world/chair_014.part_00_normal.png",
           "variant_id": "chair_014.part_00@normal",
+          "x_px": 334,
+          "y_px": 346
+        },
+        {
+          "asset_id": "chair_014.part_03",
+          "file": "world/chair_014.part_03_normal.png",
+          "layer": 634,
+          "placement_id": "ws8_chair_sub",
+          "role": "chair_foreground",
+          "url": "/runtime_assets/world/chair_014.part_03_normal.png",
+          "variant_id": "chair_014.part_03@normal",
           "x_px": 334,
           "y_px": 346
         }

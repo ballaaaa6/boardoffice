@@ -79,6 +79,12 @@
       "transform": "NORMAL",
       "variant_id": "chair_003.part_02@normal"
     },
+    "chair_003.part_03@normal": {
+      "asset_id": "chair_003.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_003.part_03@normal"
+    },
     "chair_004.part_00@normal": {
       "asset_id": "chair_004.part_00",
       "semantic_type": "chair",
@@ -133,6 +139,12 @@
       "transform": "NORMAL",
       "variant_id": "chair_006.part_02@normal"
     },
+    "chair_006.part_03@normal": {
+      "asset_id": "chair_006.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_006.part_03@normal"
+    },
     "chair_007.part_00@normal": {
       "asset_id": "chair_007.part_00",
       "semantic_type": "chair",
@@ -150,6 +162,12 @@
       "semantic_type": "chair",
       "transform": "NORMAL",
       "variant_id": "chair_007.part_02@normal"
+    },
+    "chair_007.part_03@normal": {
+      "asset_id": "chair_007.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_007.part_03@normal"
     },
     "chair_008.part_00@normal": {
       "asset_id": "chair_008.part_00",
@@ -169,6 +187,12 @@
       "transform": "NORMAL",
       "variant_id": "chair_008.part_02@normal"
     },
+    "chair_008.part_03@normal": {
+      "asset_id": "chair_008.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_008.part_03@normal"
+    },
     "chair_009.part_00@normal": {
       "asset_id": "chair_009.part_00",
       "semantic_type": "chair",
@@ -186,6 +210,18 @@
       "semantic_type": "chair",
       "transform": "NORMAL",
       "variant_id": "chair_009.part_02@normal"
+    },
+    "chair_009.part_03@normal": {
+      "asset_id": "chair_009.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_009.part_03@normal"
+    },
+    "chair_010.part_03@normal": {
+      "asset_id": "chair_010.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_010.part_03@normal"
     },
     "chair_011.part_00@normal": {
       "asset_id": "chair_011.part_00",
@@ -205,6 +241,12 @@
       "transform": "NORMAL",
       "variant_id": "chair_011.part_02@normal"
     },
+    "chair_011.part_03@normal": {
+      "asset_id": "chair_011.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_011.part_03@normal"
+    },
     "chair_012.part_00@normal": {
       "asset_id": "chair_012.part_00",
       "semantic_type": "chair",
@@ -222,6 +264,12 @@
       "semantic_type": "chair",
       "transform": "NORMAL",
       "variant_id": "chair_012.part_02@normal"
+    },
+    "chair_012.part_03@normal": {
+      "asset_id": "chair_012.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_012.part_03@normal"
     },
     "chair_013.part_00@normal": {
       "asset_id": "chair_013.part_00",
@@ -241,6 +289,12 @@
       "transform": "NORMAL",
       "variant_id": "chair_013.part_02@normal"
     },
+    "chair_013.part_03@normal": {
+      "asset_id": "chair_013.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_013.part_03@normal"
+    },
     "chair_014.part_00@normal": {
       "asset_id": "chair_014.part_00",
       "semantic_type": "chair",
@@ -258,6 +312,12 @@
       "semantic_type": "chair",
       "transform": "NORMAL",
       "variant_id": "chair_014.part_02@normal"
+    },
+    "chair_014.part_03@normal": {
+      "asset_id": "chair_014.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_014.part_03@normal"
     },
     "chair_015.part_00@normal": {
       "asset_id": "chair_015.part_00",
@@ -277,6 +337,12 @@
       "transform": "NORMAL",
       "variant_id": "chair_015.part_02@normal"
     },
+    "chair_015.part_03@normal": {
+      "asset_id": "chair_015.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_015.part_03@normal"
+    },
     "chair_016.part_00@normal": {
       "asset_id": "chair_016.part_00",
       "semantic_type": "chair",
@@ -294,6 +360,12 @@
       "semantic_type": "chair",
       "transform": "NORMAL",
       "variant_id": "chair_016.part_02@normal"
+    },
+    "chair_016.part_03@normal": {
+      "asset_id": "chair_016.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_016.part_03@normal"
     },
     "chair_017.part_00@normal": {
       "asset_id": "chair_017.part_00",
@@ -313,6 +385,12 @@
       "transform": "NORMAL",
       "variant_id": "chair_017.part_02@normal"
     },
+    "chair_017.part_03@normal": {
+      "asset_id": "chair_017.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_017.part_03@normal"
+    },
     "chair_018.part_00@normal": {
       "asset_id": "chair_018.part_00",
       "semantic_type": "chair",
@@ -330,6 +408,12 @@
       "semantic_type": "chair",
       "transform": "NORMAL",
       "variant_id": "chair_018.part_02@normal"
+    },
+    "chair_018.part_03@normal": {
+      "asset_id": "chair_018.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_018.part_03@normal"
     },
     "chair_019.part_00@normal": {
       "asset_id": "chair_019.part_00",
@@ -349,6 +433,18 @@
       "transform": "NORMAL",
       "variant_id": "chair_019.part_02@normal"
     },
+    "chair_019.part_03@normal": {
+      "asset_id": "chair_019.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_019.part_03@normal"
+    },
+    "chair_020.part_03@normal": {
+      "asset_id": "chair_020.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_020.part_03@normal"
+    },
     "chair_021.part_00@normal": {
       "asset_id": "chair_021.part_00",
       "semantic_type": "chair",
@@ -367,6 +463,18 @@
       "transform": "NORMAL",
       "variant_id": "chair_021.part_02@normal"
     },
+    "chair_021.part_03@normal": {
+      "asset_id": "chair_021.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_021.part_03@normal"
+    },
+    "chair_022.part_03@normal": {
+      "asset_id": "chair_022.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_022.part_03@normal"
+    },
     "chair_023.part_00@normal": {
       "asset_id": "chair_023.part_00",
       "semantic_type": "chair",
@@ -384,6 +492,30 @@
       "semantic_type": "chair",
       "transform": "NORMAL",
       "variant_id": "chair_023.part_02@normal"
+    },
+    "chair_023.part_03@normal": {
+      "asset_id": "chair_023.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_023.part_03@normal"
+    },
+    "chair_024.part_03@normal": {
+      "asset_id": "chair_024.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_024.part_03@normal"
+    },
+    "chair_028.part_03@normal": {
+      "asset_id": "chair_028.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_028.part_03@normal"
+    },
+    "chair_029.part_03@normal": {
+      "asset_id": "chair_029.part_03",
+      "semantic_type": "chair_sub",
+      "transform": "NORMAL",
+      "variant_id": "chair_029.part_03@normal"
     },
     "desk_000.part_00@normal": {
       "asset_id": "desk_000.part_00",

@@ -351,14 +351,18 @@ def build_manifest(
     # authored chair/human/desk ordering can change without a full-frame image.
     static_image = layout.load_variant(base_variant_id).convert("RGBA")
     static_placements = []
+    overlay_placements = []
     for placement in placements:
         placement_id = str(placement["placement_id"])
         if placement_id in workstation_placement_ids:
             continue
         variant = ensure_variant(str(placement["variant_id"]))
-        sprite = layout.load_variant(str(placement["variant_id"]))
-        static_image.alpha_composite(sprite, (int(placement["x_px"]), int(placement["y_px"])))
-        static_placements.append({
+        layer = int(placement["layer"])
+        is_overlay = layer >= 900 or placement.get("object_type") == "foreground_overlay"
+        if not is_overlay:
+            sprite = layout.load_variant(str(placement["variant_id"]))
+            static_image.alpha_composite(sprite, (int(placement["x_px"]), int(placement["y_px"])))
+        record = {
             "placement_id": placement_id,
             "object_type": str(placement["object_type"]),
             "asset_id": str(placement["asset_id"]),
@@ -367,8 +371,12 @@ def build_manifest(
             "url": variant["url"],
             "x_px": int(placement["x_px"]),
             "y_px": int(placement["y_px"]),
-            "layer": int(placement["layer"]),
-        })
+            "layer": layer,
+        }
+        if is_overlay:
+            overlay_placements.append(record)
+        else:
+            static_placements.append(record)
     static_record = _write_image(
         static_image,
         output,
@@ -520,6 +528,10 @@ def build_manifest(
         },
         "static_placements": sorted(
             static_placements,
+            key=lambda row: (row["layer"], row["placement_id"]),
+        ),
+        "overlays": sorted(
+            overlay_placements,
             key=lambda row: (row["layer"], row["placement_id"]),
         ),
         "workstations": workstation_records,

@@ -8660,7 +8660,8 @@
       "y_px": 330
     }
   ],
-  "revision": "8930f7354775a8e25460e48199855c75bc3678d67a84b0729b2f54ccd38a36a2",
+  "overlays": [],
+  "revision": "73466a995b4a2e0622ed8decd21f08764ac6818280077b28d04a0594d97f5b99",
   "schema": "gds.runtime_render_manifest.v1",
   "source_registry_sha256": {
     "CHARACTER/ACTIONS/gds_standard_v1.json": "3a8316c62549895cce66cf96c7d4c1b13b491ed2aa4aed041ea17dcb7ff94c51",
@@ -8669,11 +8670,11 @@
     "CHARACTER/EFFECTS/gds_effects_v1.json": "83ecdb4aed4777e8ea1bff28897675636f2c15c808e94f1c7180ddde999eea31",
     "CHARACTER/EFFECTS/humanball_v1.json": "f25abceae637501fe2f20abc7fa0739b54a4eeac783ebe4892623eac3d8443a5",
     "CHARACTER/FRAME_RULES/frame_registry.json": "fb1490de9f8cc9d9babca0b1616dee5797bdcaa74bb6a3d874aa4400811a2f68",
-    "WORLD/REGISTRY/floor_skins.json": "ff5a8c914411790b6f6ea610338e1e5fed635b6f312153d9cf54450373ebc498",
+    "WORLD/REGISTRY/floor_skins.json": "d9c0c5f73e4ea3da28fb0b8af3e1b461aced5e6cc3cf1f84f4716902928f819f",
     "WORLD/REGISTRY/floors.json": "8916cbc61c8b5bf468fa3e4f169f0fff66d78e26427e742af07538275100ee53",
     "WORLD/REGISTRY/layouts.json": "f88f137a06e05c95e8a40b138109db9576ccd067edf841e72d80c803e5578fc8",
     "WORLD/REGISTRY/pc_animation.json": "d76ede66ca29fb93901869d60b23b715015510a4d0e8be545bbd796f77e76a30",
-    "WORLD/REGISTRY/visual_variants.json": "6bf881c2a7aff64876cfa0ef2bfd7d445ebc5e96677854408bd5db5cc96f7b6e",
+    "WORLD/REGISTRY/visual_variants.json": "9b998ab923bbab11e2a94d780c4a02f813863f53f05c6a402409af0ea562a0d8",
     "WORLD/REGISTRY/walking_depth_profiles.json": "89c4a209d014e5613a318b01e05a674849a966b7c321de60084e7702a2d51a66",
     "WORLD/REGISTRY/world_assets.json": "78f4cb78fa3c6bb3b7734e86494e5f68b89ff1f90f3b7101f092e4935a972a3b"
   },
