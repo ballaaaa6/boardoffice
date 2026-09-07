@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GDS Living Office — Zero-API Browser Viewer</title>
+  <link rel="stylesheet" href="./viewer_style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Top Navigation & Live HUD -->
+    <header class="top-nav">
+      <div class="brand-section">
+        <div class="brand-title">
+          🏢 <span>GDS Living Office</span>
+          <span class="brand-badge">Floor 02</span>
+        </div>
+        <div class="pills-group">
+          <div class="pill live">
+            <span class="pulse-dot"></span>
+            <strong>LIVE</strong> 60 FPS
+          </div>
+          <div class="pill">
+            🕒 <strong id="virtualClock">09:00:00 AM</strong>
+          </div>
+          <div class="pill">
+            👥 In Office: <strong id="activeWorkersCount">0 / 9</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-group">
+        <select id="localeSelect" class="custom-select" aria-label="Dialogue Language">
+          <option value="th">🇹🇭 ภาษาไทย</option>
+          <option value="en">🇬🇧 English</option>
+        </select>
+
+        <button id="playPauseBtn" class="btn" title="Play or Pause Simulation (Spacebar)">
+          <span id="playPauseIcon">⏸</span>
+          <span id="playPauseText">Pause</span>
+        </button>
+
+        <div class="btn-group" aria-label="Simulation Speed">
+          <button class="btn active" data-speed="1">1×</button>
+          <button class="btn" data-speed="2">2×</button>
+          <button class="btn" data-speed="4">4×</button>
+        </div>
+
+        <div class="btn-group">
+          <button id="btnDemoTalk" class="btn" title="Trigger conversation between colleagues">💬 Talk</button>
+          <button id="btnDemoEffects" class="btn" title="Trigger visual effects (VFX) and popups (HumanBall)">✨ Effects</button>
+          <button id="btnDemoCritical" class="btn" title="Simulate fatigue and watch employee finish work and walk home">💤 Exhaustion</button>
+          <button id="btnReset" class="btn" title="Restart Office Simulation">🔄 Restart</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- World Viewport -->
+    <main id="viewport" class="viewport-container">
+      <div id="stageWrapper" class="stage-wrapper">
+        <canvas id="livingCanvas" width="600" height="600" aria-label="Living Office Canvas"></canvas>
+      </div>
+
+      <!-- Zoom and Camera Tools -->
+      <nav class="stage-tools" aria-label="Camera Controls">
+        <button id="zoomInBtn" class="tool-btn" title="Zoom In">+</button>
+        <button id="zoomOutBtn" class="tool-btn" title="Zoom Out">−</button>
+        <button id="zoomResetBtn" class="tool-btn" title="Reset View">⛶</button>
+      </nav>
+
+      <!-- Floating Character Inspector Card -->
+      <aside id="inspectorPanel" class="inspector-panel" aria-label="Character Inspector">
+        <div class="inspector-header">
+          <div class="actor-identity">
+            <div class="actor-avatar-preview">
+              <canvas id="avatarCanvas" width="36" height="44"></canvas>
+            </div>
+            <div>
+              <div id="inspectorActorName" class="actor-name">Employee</div>
+              <div id="inspectorActorRole" class="actor-role">Role</div>
+            </div>
+          </div>
+          <button id="inspectorCloseBtn" class="close-btn" aria-label="Close Inspector">&times;</button>
+        </div>
+
+        <div class="inspector-body">
+          <div class="stat-row">
+            <span class="stat-label">Workstation</span>
+            <span id="inspectorWorkstation" class="stat-value">Desk</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Status</span>
+            <span id="inspectorActivity" class="stat-value">Coming from home...</span>
+          </div>
+
+          <div class="stamina-container">
+            <div class="stamina-header">
+              <span>Energy (Stamina)</span>
+              <strong id="inspectorStaminaVal">100%</strong>
+            </div>
+            <div class="stamina-bar">
+              <div id="inspectorStaminaFill" class="stamina-fill"></div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <span class="stat-label">Current Thought / Speech:</span>
+          </div>
+          <div id="inspectorThought" class="thought-box">
+            "กำลังเดินเข้าออฟฟิศ..."
+          </div>
+        </div>
+
+        <div class="inspector-footer">
+          <button id="followActorBtn" class="btn">🎥 Follow Camera</button>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Loading Screen -->
+    <div id="loadingOverlay" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading Living Office World in Browser...</div>
+    </div>
+  </div>
+
+  <script type="module" src="./viewer_app.js"></script>
+</body>
+</html>

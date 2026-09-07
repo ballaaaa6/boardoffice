@@ -1,13 +1,11 @@
 # GDS Central Game Core — Handoff
 
-**Updated:** 2026-09-04 18:00 +07:00 (Asia/Bangkok)
+**Updated:** 2026-09-07 12:55 +07:00 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** The Cloudflare browser-runtime migration has been explicitly
-reopened for planning on `main`. Scope is limited to the existing single-user
-`floor02` browser path: static Cloudflare packaging plus a browser-owned
-fixed-step loop with no recurring `/api/tick` requests. No source/runtime code
-has been changed in this planning pass. Python remains the oracle, bundle/
-manifest builder and local raster fallback.
+**Status:** Developed a clean-slate Zero-API browser viewer prototype
+(`WEB/viewer.html`, `WEB/viewer_app.js`, `WEB/viewer_style.css`) in the isolated
+branch/worktree. All existing `main` review pages, runtime endpoints, and assets
+were preserved without modification. Zero periodic `/api/tick` requests after bootstrap.
 
 ## Current state
 
@@ -61,6 +59,14 @@ manifest builder and local raster fallback.
 - Focused conversation/review/bundle tests → **51 passed**: `python -B -m pytest -q TESTS/test_conversation_behavior.py TESTS/test_browser_bundle_contract.py TESTS/test_runtime_review_server.py TESTS/test_runtime_review_web.py`.
 - Planning-session inspection → **PASS** before cleanup: the scope-corrected plan mapped each user-listed responsibility to an authoritative Python source, TypeScript boundary, parity evidence and an explicit exit gate. The plan was subsequently removed at the author's request; no source/runtime implementation files were changed.
 - Claude Code plugin verification → **PASS**: `claude plugin list` reports both `fable-orchestrator@fable-orchestrator` v1.4.1 and the existing `fable-orchestrator@fables` v0.1.0 enabled. Fable execution remains **blocked pending `/login`**; the project Git worktree remains limited to the pre-existing user changes plus this handoff refresh.
+- Zero-API Living Office Viewer verification → **PASS**: `WEB/viewer.html`, `WEB/viewer_app.js`, and `WEB/viewer_style.css` created from scratch with complete fidelity to Python gameplay oracle:
+  1. **Conversational Facing & Head-Turn Poses**: Fixed seated host and visitor facing in `core.renderState()`. Seated hosts resolve `subaction = turn_side_*` (e.g., `turn_side_ne`, frame `M28`) to turn and face visiting colleagues during conversations. Visitors at talk spots turn to face the host (`SW`). Standing pair participants turn to face each other according to `facing_by_actor`. `btnDemoTalk` triggers authentic pair sessions with full routing and presentation.
+  2. **Authentic Dialogue Bubble (BB) Sprites & Fixed 9px Font**: Rendered authentic `CHARACTER/ASSETS/dialogue/fukidashi_base.png` sprite crops based on canonical `CHARACTER/DIALOGUE/bubble_presets.json` (BB1, BB2, BB3, BB4, BB6) with text rendered in canonical `#0c45fb` (`rgb(12, 69, 251)`). Removed font shrinking loop; font size is strictly fixed at `9px system-ui, -apple-system, 'Segoe UI', sans-serif` without downsizing. Text is clipped to the preset `safe_rect`.
+  3. **Autonomous Pair Talks & Character Movement**: Corrected `core.speechReducer.startSession` wrapper to target only `kind === "solo"`, preventing lifecycle speech (`greeting`, `work_start`) from emitting spurious `start_talk_session` commands and getting trapped in an infinite `returned_to_work` loop. Actors now autonomously leave their desks, walk along `talk_outbound` to meet partners (in both `seated_host` and `standing_pair` configurations), converse with dialogue bubbles, walk back along `talk_return`, sit back down, and resume normal work.
+  4. **Visual Effects & Popups (VFX & HumanBall)**: With speech lifecycle normalized, actors naturally roll and trigger `background_effect` (VFX like sunshine bloom, coffee energy) and `popup` (HumanBall). Added `✨ Effects` toolbar button for on-demand inspection alongside `💬 Talk` and `💤 Exhaustion`.
+  5. **Walking Depth & Occlusion Parity**: Preserved dynamic walking depth front-edge profiles for reception and executive desks, ensuring characters are never clipped when walking on the visitor side. Fixed Inspector mini-avatar preview by compositing character body and face via `renderer._drawCharacter`.
+  6. **Validation**: `node --check WEB/viewer_app.js` passed; `node --test TESTS/browser_runtime_test.mjs` passed (14/14); focused conversation/review/bundle suite passed (51/51 in 154s); static server running cleanly on port 8000. 64 unique dynamic states verified across 72,000ms stress test. No canonical files modified.
+
 
 ## Next task and open gates
 
