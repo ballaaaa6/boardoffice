@@ -1,20 +1,21 @@
 # GDS Central Game Core — Handoff
 
-**Updated:** 2026-09-07 22:38 +07:00 (Asia/Bangkok)
+**Updated:** 2026-09-08 05:12 +07:00 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop and shadow occlusion defects resolved on branch `fix_character_crop_shadow` across all 25 office floors (219 workstations and employees). Occluder masks are now floor-isolated (`WEB/runtime_assets/occluders/{floor_id}/`) and runtime manifests export exact `depth_front_edge_world_px` polygons. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop and shadow occlusion defects resolved on branch `fix_character_crop_shadow` across all 25 office floors (219 workstations and employees). Occluder masks are now floor-isolated (`WEB/runtime_assets/occluders/{floor_id}/`) and correctly strip opaque dark shadows (rgb <= 64). Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
 - Active branch: `fix_character_crop_shadow` based on `main`.
 - Visual crop & shadow root cause identified and resolved:
-  1. `TOOLS/build_runtime_render_manifest.py` previously exported occluder masks to `WEB/runtime_assets/occluders/{placement_id}.png` without floor isolation. Rebuilding all 25 floors caused each floor to overwrite common placement IDs, leaving `floor02`'s furniture shapes active for all floors. On other floors (such as `floor08`), `destination-out` compositing masked out actors walking in empty space / carpet, resulting in sliced clothing (e.g. Caitlin Mitchell at `(288, 329)`) and floating torso/hair fragments.
-  2. `build_runtime_render_manifest.py` omitted `depth_front_edge_world_px` from occluder records, forcing `viewer_app.js` to rely on hardcoded `floor00`/`floor01` tables and fall back to `floor02` defaults.
+  1. `TOOLS/build_runtime_render_manifest.py` previously exported occluder masks to `WEB/runtime_assets/occluders/{placement_id}.png` without floor isolation. Rebuilding all 25 floors caused each floor to overwrite common placement IDs.
+  2. `build_runtime_render_manifest.py` omitted `depth_front_edge_world_px` from occluder records.
+  3. `walking_depth_core.py` failed to strip opaque shadows (`a=255` but dark), causing desks and reception shadows to generate invisible vertical bounding boxes that clipped characters.
 - Fixes applied:
-  1. Updated `TOOLS/build_runtime_render_manifest.py` to write masks to `occluders/{floor_id}/{placement_id}.png` and export `"depth_front_edge_world_px": row.get("depth_front_edge_world_px")`.
-  2. Updated `WEB/viewer_app.js` (`resolveActorOccluderIds`) to prioritize `occ.depth_front_edge_world_px` from manifest over hardcoded fallback tables.
-  3. Added contract test `test_occluders_isolated_by_floor_and_export_front_edge` in `TESTS/test_runtime_render_manifest.py`.
-  4. Rebuilt all 25 office floor manifests and simulation bundles using `TOOLS/build_all_floors.py`; deleted obsolete flat occluder images in `WEB/runtime_assets/occluders/*.png`.
+  1. Updated `TOOLS/build_runtime_render_manifest.py` to write masks to `occluders/{floor_id}/{placement_id}.png` and export `"depth_front_edge_world_px"`.
+  2. Updated `WEB/viewer_app.js` (`resolveActorOccluderIds`) to prioritize `occ.depth_front_edge_world_px`.
+  3. Updated `WORLD/RUNTIME/walking_depth_core.py` to strip all dark pixels (`max(r, g, b) <= 64` and `a > 0`) from occluder masks, preventing opaque shadows from cropping actors.
+  4. Rebuilt all 25 office floor manifests and simulation bundles using `TOOLS/build_all_floors.py`.
 - Canonical data remains untouched: `WORLD/`, `CHARACTER/`, and `CONTRACTS/` trees preserved with original reference hashes.
 
 ## Verification
