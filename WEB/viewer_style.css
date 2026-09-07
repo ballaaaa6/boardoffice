@@ -195,6 +195,17 @@ select.custom-select:hover, select.custom-select:focus {
   border-color: var(--accent);
 }
 
+select.floor-select {
+  font-weight: 600;
+  min-width: 155px;
+  background: rgba(22, 33, 48, 0.9);
+  border-color: rgba(67, 102, 226, 0.45);
+}
+
+select.floor-select:hover {
+  border-color: var(--accent);
+}
+
 /* Main Viewport Container */
 .viewport-container {
   flex: 1;

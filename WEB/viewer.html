@@ -13,7 +13,7 @@
       <div class="brand-section">
         <div class="brand-title">
           🏢 <span>GDS Living Office</span>
-          <span class="brand-badge">Floor 02</span>
+          <span class="brand-badge" id="brandFloorBadge">Floor 02</span>
         </div>
         <div class="pills-group">
           <div class="pill live">
@@ -24,12 +24,19 @@
             🕒 <strong id="virtualClock">09:00:00 AM</strong>
           </div>
           <div class="pill">
+            🏢 <strong id="currentFloorLabel">Floor 02</strong>
+          </div>
+          <div class="pill">
             👥 In Office: <strong id="activeWorkersCount">0 / 9</strong>
           </div>
         </div>
       </div>
 
       <div class="controls-group">
+        <select id="floorSelect" class="custom-select floor-select" aria-label="Select Office Floor" title="Switch between 25 Office Floors">
+          <option value="floor02">🏢 Floor 02 (Executive)</option>
+        </select>
+
         <select id="localeSelect" class="custom-select" aria-label="Dialogue Language">
           <option value="th">🇹🇭 ภาษาไทย</option>
           <option value="en">🇬🇧 English</option>

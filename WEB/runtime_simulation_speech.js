@@ -469,6 +469,7 @@ export class BrowserSpeechReducer {
       && line.enabled !== false
       && localeKey(line.locale) === normalizedLocale
       && String(line.category || "") === String(category)
+      && Boolean(this.bubbleId(line))
     ));
     if (!pool.length) return { line: null, state: snapshot.dialogue_bags || {} };
     const byKey = new Map(pool.map((line) => [lineKey(line), line]));
@@ -507,7 +508,7 @@ export class BrowserSpeechReducer {
   bubbleId(line) {
     if (!line) return null;
     const key = bubbleKey(line);
-    return this.dialogue.bubble_by_line?.[key] || "BB1";
+    return this.dialogue.bubble_by_line?.[key] || null;
   }
 
   buildRouteInfo(actorSnapshot, plan) {

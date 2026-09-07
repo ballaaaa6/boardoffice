@@ -434,3 +434,40 @@ test("browser speech admits independent actor bubbles on the same floor", async 
   );
   core.destroy();
 });
+
+test("multi-floor browser index loads and advances all 25 floor bundles cleanly", async () => {
+  const indexPath = new URL("../WEB/floors/index.json", import.meta.url);
+  const rawIndex = await readFile(indexPath, "utf8");
+  const floorList = JSON.parse(rawIndex);
+
+  assert.equal(floorList.length, 25, "Expected 25 floors in index.json");
+
+  // Verify key milestone floors
+  const f00 = floorList.find((f) => f.floor_id === "floor00");
+  const f01 = floorList.find((f) => f.floor_id === "floor01");
+  const f02 = floorList.find((f) => f.floor_id === "floor02");
+  const f36 = floorList.find((f) => f.floor_id === "floor36");
+
+  assert.ok(f00 && f01 && f02 && f36);
+  assert.equal(f00.employee_count, 5);
+  assert.equal(f01.employee_count, 7);
+  assert.equal(f02.employee_count, 9);
+  assert.equal(f36.employee_count, 9);
+
+  // Spot-check simulation execution on floor00 (Lobby), floor01, and floor36
+  for (const floorId of ["floor00", "floor01", "floor36"]) {
+    const bundleUrl = new URL(`../WEB/floors/${floorId}/bootstrap.json`, import.meta.url);
+    const bundle = JSON.parse(await readFile(bundleUrl, "utf8"));
+    const core = await BrowserRuntimeCore.create({
+      bundle,
+      floorId,
+      seed: `test_floor_${floorId}`,
+    });
+
+    core.step(60);
+    const state = core.renderState();
+    assert.equal(state.floor_id, floorId);
+    assert.equal(state.actors.length, Object.keys(bundle.employees).length);
+    core.destroy();
+  }
+});

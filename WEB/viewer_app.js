@@ -8,6 +8,9 @@ const viewport = document.getElementById("viewport");
 const loadingOverlay = document.getElementById("loadingOverlay");
 
 // HUD Elements
+const floorSelect = document.getElementById("floorSelect");
+const currentFloorLabel = document.getElementById("currentFloorLabel");
+const brandFloorBadge = document.getElementById("brandFloorBadge");
 const virtualClockEl = document.getElementById("virtualClock");
 const activeWorkersCountEl = document.getElementById("activeWorkersCount");
 const playPauseBtn = document.getElementById("playPauseBtn");
@@ -46,6 +49,8 @@ let core = null;
 let renderer = null;
 let bootstrapData = null;
 let manifestData = null;
+let currentFloorId = "floor02";
+let isSwitchingFloor = false;
 let isPaused = false;
 let speedMultiplier = 1;
 let currentLocale = "th"; // default to Thai
@@ -154,7 +159,7 @@ function startLiveSimulation() {
 
   core = new BrowserRuntimeCore({
     bundle,
-    floorId: "floor02",
+    floorId: currentFloorId,
     seed: `viewer_seed_${Date.now()}`,
   });
 
@@ -196,8 +201,40 @@ function startLiveSimulation() {
     return result;
   };
 
-  // Canonical walking-depth front-edge profiles for Floor02 (from walking_depth_profiles.json)
-  const DEPTH_FRONT_EDGES = {
+  // Canonical walking-depth front-edge profiles across floors (from walking_depth_profiles.json)
+  const DEPTH_PROFILES_BY_FLOOR = {
+    floor00: {
+      ceo_desk_cell2: [
+        [226, 306],
+        [240, 313],
+        [276, 295],
+      ],
+      ceo_pc: [
+        [226, 306],
+        [240, 313],
+        [276, 295],
+      ],
+    },
+    floor01: {
+      reception: [
+        [215, 382],
+        [241, 395],
+        [269, 381],
+      ],
+      ceo_desk_cell2: [
+        [261, 282],
+        [275, 289],
+        [311, 271],
+      ],
+      ceo_pc: [
+        [261, 282],
+        [275, 289],
+        [311, 271],
+      ],
+    },
+  };
+
+  const DEPTH_PROFILES_DEFAULT = {
     reception: [
       [209, 381],
       [267, 410],
@@ -239,6 +276,8 @@ function startLiveSimulation() {
     const ax1 = ax0 + 32;
     const ay1 = ay0 + 42;
 
+    const depthFrontEdges = DEPTH_PROFILES_BY_FLOOR[currentFloorId] || DEPTH_PROFILES_DEFAULT;
+
     const ids = [];
     for (const occ of occluders) {
       // 1. Exact depth test matching Python WalkingDepthCore.occluders_in_front
@@ -246,7 +285,7 @@ function startLiveSimulation() {
       if (occ.always_foreground) {
         inFront = true;
       } else {
-        const edge = DEPTH_FRONT_EDGES[occ.placement_id];
+        const edge = depthFrontEdges[occ.placement_id];
         const anchorY = edge ? frontEdgeYAtX(edge, gx) : occ.depth_anchor_y_px;
         if (anchorY != null && anchorY > gy) {
           inFront = true;
@@ -334,8 +373,14 @@ function startLiveSimulation() {
             && r.subaction === hostTurn
           ));
           if (ref && ref.frame_ids?.length) {
+            const sourceActor = core.state.actor_snapshot?.actors?.[hostId];
+            const workLoopElapsed = Number(sourceActor?.behavior?.work_loop_elapsed_ms ?? (atMs % 720));
+            const frameIndex = Math.floor(workLoopElapsed / 360) % ref.frame_ids.length;
             hostActor.character_frame_count = ref.frame_ids.length;
-            hostActor.frame_id = ref.frame_ids[0];
+            hostActor.character_frame_index = frameIndex;
+            hostActor.frame_index = frameIndex;
+            hostActor.frame_id = ref.frame_ids[frameIndex];
+            hostActor.animation_clock_ms = frameIndex * 360;
           }
         }
 
@@ -350,17 +395,25 @@ function startLiveSimulation() {
         if (visitorActor && visitorFacing && visitorActor.route_phase === "talk_hold") {
           visitorActor.direction = visitorFacing;
           visitorActor.resolved_direction = visitorFacing;
-          const char = core.bundle.characters?.[visitorActor.character_id];
-          const ref = char?.frame_refs?.find((r) => (
-            r.action === "idle"
-            && r.direction === visitorFacing
-          )) || char?.frame_refs?.find((r) => (
-            r.action === visitorActor.action
-            && r.direction === visitorFacing
-          ));
-          if (ref && ref.frame_ids?.length) {
-            visitorActor.character_frame_count = ref.frame_ids.length;
-            visitorActor.frame_id = ref.frame_ids[0];
+          if (visitorActor.action !== "happy" && visitorActor.action !== "sad") {
+            const char = core.bundle.characters?.[visitorActor.character_id];
+            const ref = char?.frame_refs?.find((r) => (
+              r.action === "idle"
+              && r.direction === visitorFacing
+            )) || char?.frame_refs?.find((r) => (
+              r.action === visitorActor.action
+              && r.direction === visitorFacing
+            ));
+            if (ref && ref.frame_ids?.length) {
+              const visitorRoute = core.state.actor_snapshot?.actors?.[visitorId]?.position?.route;
+              const routeElapsed = Number(visitorRoute?.elapsed_ms ?? Math.max(0, atMs - bubbleStart));
+              const frameIndex = Math.floor(Math.max(0, routeElapsed) / 360) % ref.frame_ids.length;
+              visitorActor.character_frame_count = ref.frame_ids.length;
+              visitorActor.character_frame_index = frameIndex;
+              visitorActor.frame_index = frameIndex;
+              visitorActor.frame_id = ref.frame_ids[frameIndex];
+              visitorActor.animation_clock_ms = frameIndex * 360;
+            }
           }
         }
       } else if (session.mode === "standing_pair") {
@@ -371,17 +424,53 @@ function startLiveSimulation() {
           if (actor && facing && actor.route_phase === "talk_hold") {
             actor.direction = facing;
             actor.resolved_direction = facing;
-            const char = core.bundle.characters?.[actor.character_id];
+            if (actor.action !== "happy" && actor.action !== "sad") {
+              const char = core.bundle.characters?.[actor.character_id];
+              const ref = char?.frame_refs?.find((r) => (
+                r.action === "idle"
+                && r.direction === facing
+              )) || char?.frame_refs?.find((r) => (
+                r.action === actor.action
+                && r.direction === facing
+              ));
+              if (ref && ref.frame_ids?.length) {
+                const actorRoute = core.state.actor_snapshot?.actors?.[empId]?.position?.route;
+                const routeElapsed = Number(actorRoute?.elapsed_ms ?? Math.max(0, atMs - bubbleStart));
+                const frameIndex = Math.floor(Math.max(0, routeElapsed) / 360) % ref.frame_ids.length;
+                actor.character_frame_count = ref.frame_ids.length;
+                actor.character_frame_index = frameIndex;
+                actor.frame_index = frameIndex;
+                actor.frame_id = ref.frame_ids[frameIndex];
+                actor.animation_clock_ms = frameIndex * 360;
+              }
+            }
+          }
+        }
+      } else if (session.mode === "ceo_front") {
+        // Visitor stands in front of CEO desk and faces CEO
+        const visitorId = session.initiator_id || session.participants?.[0];
+        const visitorActor = state.actors.find((a) => a.employee_id === visitorId);
+        const visitorFacing = session.conversation_plan?.facing_by_actor?.[visitorId]
+          || session.spot?.endpoint_facing
+          || "NW";
+        if (visitorActor && visitorFacing && visitorActor.route_phase === "talk_hold") {
+          visitorActor.direction = visitorFacing;
+          visitorActor.resolved_direction = visitorFacing;
+          if (visitorActor.action !== "happy" && visitorActor.action !== "sad") {
+            const char = core.bundle.characters?.[visitorActor.character_id];
             const ref = char?.frame_refs?.find((r) => (
               r.action === "idle"
-              && r.direction === facing
-            )) || char?.frame_refs?.find((r) => (
-              r.action === actor.action
-              && r.direction === facing
+              && r.direction === visitorFacing
             ));
             if (ref && ref.frame_ids?.length) {
-              actor.character_frame_count = ref.frame_ids.length;
-              actor.frame_id = ref.frame_ids[0];
+              const visitorRoute = core.state.actor_snapshot?.actors?.[visitorId]?.position?.route;
+              const routeElapsed = Number(visitorRoute?.elapsed_ms ?? Math.max(0, atMs - bubbleStart));
+              const frameIndex = Math.floor(Math.max(0, routeElapsed) / 360) % ref.frame_ids.length;
+              visitorActor.character_frame_count = ref.frame_ids.length;
+              visitorActor.character_frame_index = frameIndex;
+              visitorActor.frame_index = frameIndex;
+              visitorActor.frame_id = ref.frame_ids[frameIndex];
+              visitorActor.animation_clock_ms = frameIndex * 360;
             }
           }
         }
@@ -395,15 +484,144 @@ function startLiveSimulation() {
   lastWallTime = performance.now();
 }
 
-async function init() {
+async function switchFloor(floorId) {
+  if (!floorId || (floorId === currentFloorId && core && !isSwitchingFloor)) return;
+  isSwitchingFloor = true;
+  currentFloorId = floorId;
+
+  // Update UI indicators
+  if (floorSelect && floorSelect.value !== floorId) {
+    floorSelect.value = floorId;
+  }
+  if (currentFloorLabel) {
+    const opt = floorSelect?.selectedOptions?.[0];
+    const labelText = opt ? opt.textContent.replace(/ \(.*\)/, '') : `Floor ${floorId.replace('floor', '')}`;
+    currentFloorLabel.textContent = labelText;
+    if (brandFloorBadge) brandFloorBadge.textContent = labelText;
+  }
+
+  // Show loading overlay
+  loadingOverlay.classList.remove("hidden");
+  const loadingText = document.querySelector(".loading-text");
+  if (loadingText) loadingText.textContent = `Loading ${floorId.toUpperCase()}...`;
+
   try {
+    deselectActor();
+
+    const bootstrapUrl = `./floors/${floorId}/bootstrap.json`;
+    const manifestUrl = `./floors/${floorId}/manifest.json`;
+
     const [bootstrap, manifest] = await Promise.all([
-      fetch("./runtime_simulation_bootstrap.json").then((r) => {
-        if (!r.ok) throw new Error(`Bootstrap HTTP ${r.status}`);
+      fetch(bootstrapUrl).then((r) => {
+        if (!r.ok) {
+          if (floorId === "floor02") return fetch("./runtime_simulation_bootstrap.json").then((res) => res.json());
+          throw new Error(`Bootstrap HTTP ${r.status}`);
+        }
         return r.json();
       }),
-      fetch("./runtime_render_manifest.json").then((r) => {
-        if (!r.ok) throw new Error(`Manifest HTTP ${r.status}`);
+      fetch(manifestUrl).then((r) => {
+        if (!r.ok) {
+          if (floorId === "floor02") return fetch("./runtime_render_manifest.json").then((res) => res.json());
+          throw new Error(`Manifest HTTP ${r.status}`);
+        }
+        return r.json();
+      }),
+    ]);
+
+    bootstrapData = bootstrap;
+    manifestData = manifest;
+
+    // Reload renderer manifest
+    renderer.manifest = null;
+    renderer.manifestPromise = null;
+    renderer.manifestUrl = manifestUrl;
+    renderer.previousState = null;
+    renderer.state = null;
+    await renderer.loadManifest();
+
+    // Update URL query parameter
+    const url = new URL(window.location.href);
+    url.searchParams.set("floor", floorId);
+    window.history.replaceState({}, "", url.toString());
+
+    // Restart simulation on new floor
+    startLiveSimulation();
+
+    // Initial frame
+    const initialResult = core.step(STEP_MS);
+    lastRenderState = core.renderState();
+    renderer.setState(lastRenderState);
+    renderer.render(performance.now());
+
+    // Reset pan/zoom and update HUD
+    panX = 0;
+    panY = 0;
+    scale = 1.35;
+    updateTransform();
+    updateHUD();
+
+    loadingOverlay.classList.add("hidden");
+    isSwitchingFloor = false;
+  } catch (err) {
+    isSwitchingFloor = false;
+    console.error(`Failed to switch to ${floorId}:`, err);
+    if (loadingText) loadingText.textContent = `Error loading ${floorId}: ${err.message}`;
+  }
+}
+
+async function init() {
+  try {
+    // Populate floor select from ./floors/index.json
+    try {
+      const floorsIndexRes = await fetch("./floors/index.json");
+      if (floorsIndexRes.ok) {
+        const floorsList = await floorsIndexRes.json();
+        if (floorSelect && Array.isArray(floorsList) && floorsList.length > 0) {
+          floorSelect.innerHTML = "";
+          for (const f of floorsList) {
+            const opt = document.createElement("option");
+            opt.value = f.floor_id;
+            opt.textContent = `${f.name} (${f.employee_count} workers)`;
+            floorSelect.appendChild(opt);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load floors/index.json:", e);
+    }
+
+    // Check URL param ?floor=floorXX
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedFloor = urlParams.get("floor");
+    if (requestedFloor) {
+      currentFloorId = requestedFloor;
+    }
+    if (floorSelect) {
+      floorSelect.value = currentFloorId;
+    }
+    if (currentFloorLabel) {
+      const selectedOpt = floorSelect?.selectedOptions?.[0];
+      const labelText = selectedOpt ? selectedOpt.textContent.replace(/ \(.*\)/, '') : `Floor ${currentFloorId.replace('floor', '')}`;
+      currentFloorLabel.textContent = labelText;
+      if (brandFloorBadge) brandFloorBadge.textContent = labelText;
+    }
+
+    const bootstrapUrl = `./floors/${currentFloorId}/bootstrap.json`;
+    const manifestUrl = `./floors/${currentFloorId}/manifest.json`;
+
+    const [bootstrap, manifest] = await Promise.all([
+      fetch(bootstrapUrl).then((r) => {
+        if (!r.ok) {
+          if (currentFloorId === "floor02") return fetch("./runtime_simulation_bootstrap.json").then((res) => res.json());
+          throw new Error(`Bootstrap HTTP ${r.status}`);
+        }
+        return r.json();
+      }),
+      fetch(manifestUrl).then((r) => {
+        if (!r.ok) {
+          if (currentFloorId === "floor02") return fetch("./runtime_render_manifest.json").then((res) => res.json());
+          throw new Error(`Manifest HTTP ${r.status}`);
+        }
         return r.json();
       }),
     ]);
@@ -422,9 +640,16 @@ async function init() {
     // Instantiate Renderer
     renderer = new RuntimeCanvasRenderer({
       canvas,
-      manifestUrl: "./runtime_render_manifest.json",
+      manifestUrl,
     });
     await renderer.loadManifest();
+
+    // Attach floor selection listener
+    if (floorSelect) {
+      floorSelect.addEventListener("change", (e) => {
+        switchFloor(e.target.value);
+      });
+    }
 
     // Override _drawDialogue to render authentic fukidashi_base pixel sprites and #0c45fb text
     renderer._drawDialogue = function (context, rows) {
@@ -435,11 +660,45 @@ async function init() {
         .map((id) => byId.get(id))
         .filter((row) => row?.dialogue?.visible && row.dialogue.text);
 
+      const BUBBLE_ORDER = ["BB4", "BB3", "BB6", "BB2", "BB1"];
+
       for (const row of ordered) {
         const topLeft = this._characterTopLeft(row);
         if (!topLeft) continue;
         const dialogue = row.dialogue;
-        const preset = BUBBLE_PRESETS[dialogue.bubble_id] || BUBBLE_PRESETS.BB1;
+        const text = String(dialogue.text || "").trim();
+        if (!text) continue;
+
+        context.font = '9px system-ui, -apple-system, "Segoe UI", sans-serif';
+        const textMetrics = context.measureText(text);
+        const textW = Math.ceil(textMetrics.width);
+
+        // Find the smallest allowed bubble that fits the actual measured width
+        let assignedBubbleId = dialogue.bubble_id;
+        let preset = BUBBLE_PRESETS[assignedBubbleId] || BUBBLE_PRESETS.BB1;
+        let safeW = preset.safe[2] - preset.safe[0];
+
+        // If text exceeds currently assigned bubble, upgrade to the smallest allowed bubble that fits
+        if (textW > safeW) {
+          assignedBubbleId = null;
+          for (const bid of BUBBLE_ORDER) {
+            const p = BUBBLE_PRESETS[bid];
+            const sw = p.safe[2] - p.safe[0];
+            if (textW <= sw) {
+              assignedBubbleId = bid;
+              preset = p;
+              safeW = sw;
+              break;
+            }
+          }
+        }
+
+        // If text exceeds all allowed bubbles (maximum safe width is 63px in BB1),
+        // reject it: never draw clipped/overflowing text!
+        if (!assignedBubbleId || textW > safeW) {
+          continue;
+        }
+
         const [cropX, cropY, width, height] = preset.crop;
         const [tailX, tailY] = preset.tail;
         const [safeX0, safeY0, safeX1, safeY1] = preset.safe;
@@ -463,17 +722,14 @@ async function init() {
           context.strokeRect(bubbleX, bubbleY, width, height);
         }
 
-        const safeW = Math.max(8, safeX1 - safeX0);
-        const safeH = Math.max(8, safeY1 - safeY0);
+        const safeBoxW = Math.max(8, safeX1 - safeX0);
+        const safeBoxH = Math.max(8, safeY1 - safeY0);
         const centerX = bubbleX + (safeX0 + safeX1) / 2;
         const centerY = bubbleY + (safeY0 + safeY1) / 2;
-        const text = String(dialogue.text || "");
-
-        context.font = '9px system-ui, -apple-system, "Segoe UI", sans-serif';
 
         context.save();
         context.beginPath();
-        context.rect(bubbleX + safeX0, bubbleY + safeY0, safeW, safeH);
+        context.rect(bubbleX + safeX0, bubbleY + safeY0, safeBoxW, safeBoxH);
         context.clip();
         context.fillStyle = "#0c45fb";
         context.textAlign = "center";
@@ -512,7 +768,7 @@ function simulationLoop(now) {
   const deltaWallMs = (now - lastWallTime) * speedMultiplier;
   lastWallTime = now;
 
-  if (!isPaused && core) {
+  if (!isPaused && core && !isSwitchingFloor) {
     accumulatorMs = Math.min(accumulatorMs + deltaWallMs, MAX_ACCUMULATOR_MS);
     while (accumulatorMs >= STEP_MS) {
       const nowMs = core.clockMs;

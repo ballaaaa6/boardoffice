@@ -169,22 +169,26 @@ def _dialogue_inputs(core: CentralGameCore) -> dict[str, Any]:
     bubble_data = core.characters.dialogue_bubbles.data
     lines = core.characters.list_dialogue_lines(enabled_only=True)
     bubble_by_line: dict[str, str] = {}
+    valid_lines: list[dict[str, Any]] = []
     for line in lines:
+        locale = str(line.get("locale") or "en")
         try:
             selected = core.characters.dialogue_bubbles.select_bubble(
                 str(line.get("text", "")),
-                locale=str(line.get("locale") or "en"),
+                locale=locale,
+                font_size_px=9,
             )
         except Exception:
             continue
         key = "|".join((
-            str(line.get("locale") or "en").casefold().split("-", 1)[0],
+            locale.casefold().split("-", 1)[0],
             str(line.get("dialogue_id")),
             str(int(line.get("line_index", 0))),
         ))
         bubble_by_line[key] = str(selected.bubble_id)
+        valid_lines.append(line)
     return _json_copy({
-        "lines": lines,
+        "lines": valid_lines,
         "bubble_by_line": bubble_by_line,
         "bubble_policy": {
             "allowed_bubble_ids": bubble_data.get("allowed_bubble_ids", []),
