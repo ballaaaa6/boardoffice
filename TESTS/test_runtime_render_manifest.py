@@ -74,3 +74,29 @@ def test_manifest_references_only_existing_derived_files_and_canonical_hashes():
             assert workstation["character_top_left"]
             assert len(workstation["humanball_offsets"]["SE"]) == 12
         assert manifest["frame_rules"]["M0"]["body"]["src"] == [0, 0, 16, 16]
+
+
+def test_occluders_isolated_by_floor_and_export_front_edge():
+    build_manifest = _builder()
+    with TemporaryDirectory() as output_dir:
+        output = Path(output_dir)
+        manifest_f02 = build_manifest(ROOT, floor_id="floor02", output_dir=output)
+        manifest_f08 = build_manifest(ROOT, floor_id="floor08", output_dir=output)
+
+        reception_02 = next(o for o in manifest_f02["occluders"] if o["placement_id"] == "reception")
+        reception_08 = next(o for o in manifest_f08["occluders"] if o["placement_id"] == "reception")
+
+        assert reception_02["file"] == "occluders/floor02/reception.png"
+        assert reception_08["file"] == "occluders/floor08/reception.png"
+        assert (output / reception_02["file"]).is_file()
+        assert (output / reception_08["file"]).is_file()
+
+        # Check front edge is exported for objects with depth profiles
+        assert reception_02.get("depth_front_edge_world_px") is not None
+        assert reception_08.get("depth_front_edge_world_px") is not None
+        assert len(reception_08["depth_front_edge_world_px"]) >= 2
+
+        # Verify floor08 reception height is 80 and floor02 reception height is 55 (no collision)
+        assert reception_08["height"] == 80
+        assert reception_02["height"] == 55
+

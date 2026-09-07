@@ -6689,283 +6689,283 @@
       "width": 600
     },
     {
-      "file": "occluders/ceo_chair.png",
+      "file": "occluders/floor02/ceo_chair.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "f66fa56c76ab341827bb5c7370fd7eab11d44bf14c9d31661be20b6edd7afee9",
-      "url": "/runtime_assets/occluders/ceo_chair.png",
+      "url": "/runtime_assets/occluders/floor02/ceo_chair.png",
       "width": 21
     },
     {
-      "file": "occluders/ceo_desk_cell2.png",
+      "file": "occluders/floor02/ceo_desk_cell2.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "abd20cce57556065a39062d910e7a652b4efb0baac2cce82e34429f7f4c4d2e2",
-      "url": "/runtime_assets/occluders/ceo_desk_cell2.png",
+      "url": "/runtime_assets/occluders/floor02/ceo_desk_cell2.png",
       "width": 50
     },
     {
-      "file": "occluders/ceo_pc.png",
+      "file": "occluders/floor02/ceo_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "ca1b44c39041045ee1a1f6e869d467bb1e9a81dc7b82988937f87b4c173c7af3",
-      "url": "/runtime_assets/occluders/ceo_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ceo_pc.png",
       "width": 50
     },
     {
-      "file": "occluders/foreground_overlay_00.png",
+      "file": "occluders/floor02/foreground_overlay_00.png",
       "height": 106,
       "kind": "occluder_mask",
       "sha256": "4a20c246c1f5ca1dc8670534ef441b9ce0d0b6937b07049e7d2dc6cf2f471f9f",
-      "url": "/runtime_assets/occluders/foreground_overlay_00.png",
+      "url": "/runtime_assets/occluders/floor02/foreground_overlay_00.png",
       "width": 206
     },
     {
-      "file": "occluders/foreground_overlay_01.png",
+      "file": "occluders/floor02/foreground_overlay_01.png",
       "height": 18,
       "kind": "occluder_mask",
       "sha256": "7f5c0fc02e36c511720a3012d3889618cbed00e4c90b12f128a9fe2df32f5639",
-      "url": "/runtime_assets/occluders/foreground_overlay_01.png",
+      "url": "/runtime_assets/occluders/floor02/foreground_overlay_01.png",
       "width": 25
     },
     {
-      "file": "occluders/foreground_overlay_02.png",
+      "file": "occluders/floor02/foreground_overlay_02.png",
       "height": 30,
       "kind": "occluder_mask",
       "sha256": "7746eef835d65652c92dc47010fa9a1886b5fc05e5c27c19d6f7a7ba8940c0c6",
-      "url": "/runtime_assets/occluders/foreground_overlay_02.png",
+      "url": "/runtime_assets/occluders/floor02/foreground_overlay_02.png",
       "width": 41
     },
     {
-      "file": "occluders/reception.png",
+      "file": "occluders/floor02/reception.png",
       "height": 55,
       "kind": "occluder_mask",
       "sha256": "dc3bf0865196163a25bd1f8cc014932e97d2c33bab6a4a3f5aba87f8b720766e",
-      "url": "/runtime_assets/occluders/reception.png",
+      "url": "/runtime_assets/occluders/floor02/reception.png",
       "width": 78
     },
     {
-      "file": "occluders/ws1_chair_main.png",
+      "file": "occluders/floor02/ws1_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "eed9776ceb22a8e862226a648043263c4e27bb40e4bda49621caebfb7aed383f",
-      "url": "/runtime_assets/occluders/ws1_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws1_chair_main.png",
       "width": 21
     },
     {
-      "file": "occluders/ws1_desk.png",
+      "file": "occluders/floor02/ws1_desk.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "6f8a7df8d636dfdc62d1532ae000c704e89e81866a8c4b5a8b88d01a63c441d0",
-      "url": "/runtime_assets/occluders/ws1_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws1_desk.png",
       "width": 50
     },
     {
-      "file": "occluders/ws1_pc.png",
+      "file": "occluders/floor02/ws1_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "3d531dc66b5d40170efed509ee58e0abbcc885dce901cc92a752c15beaaefd44",
-      "url": "/runtime_assets/occluders/ws1_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws1_pc.png",
       "width": 50
     },
     {
-      "file": "occluders/ws2_chair_main.png",
+      "file": "occluders/floor02/ws2_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "eed9776ceb22a8e862226a648043263c4e27bb40e4bda49621caebfb7aed383f",
-      "url": "/runtime_assets/occluders/ws2_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws2_chair_main.png",
       "width": 21
     },
     {
-      "file": "occluders/ws2_desk.png",
+      "file": "occluders/floor02/ws2_desk.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "6f8a7df8d636dfdc62d1532ae000c704e89e81866a8c4b5a8b88d01a63c441d0",
-      "url": "/runtime_assets/occluders/ws2_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws2_desk.png",
       "width": 50
     },
     {
-      "file": "occluders/ws2_pc.png",
+      "file": "occluders/floor02/ws2_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "3d531dc66b5d40170efed509ee58e0abbcc885dce901cc92a752c15beaaefd44",
-      "url": "/runtime_assets/occluders/ws2_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws2_pc.png",
       "width": 50
     },
     {
-      "file": "occluders/ws3_chair_main.png",
+      "file": "occluders/floor02/ws3_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "37906f0c2fdab63d9606f45e511635723f4de716fa84f8e11fe21758ffe5cbc9",
-      "url": "/runtime_assets/occluders/ws3_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws3_chair_main.png",
       "width": 21
     },
     {
-      "file": "occluders/ws3_chair_sub.png",
+      "file": "occluders/floor02/ws3_chair_sub.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "eb4092b007f8e5b7c9eb7f0f31a899f3b08183f1d2dc033708237f6fdf2d5bf2",
-      "url": "/runtime_assets/occluders/ws3_chair_sub.png",
+      "url": "/runtime_assets/occluders/floor02/ws3_chair_sub.png",
       "width": 21
     },
     {
-      "file": "occluders/ws3_desk.png",
+      "file": "occluders/floor02/ws3_desk.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "d49812097839d86f6817ceb9b0b4a80c14842843740d03ea5010233be766033a",
-      "url": "/runtime_assets/occluders/ws3_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws3_desk.png",
       "width": 50
     },
     {
-      "file": "occluders/ws3_pc.png",
+      "file": "occluders/floor02/ws3_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "5f3f2a474813f1ae1ba3a3df1ea36137f46312c599b014429da9cc0edd086c2b",
-      "url": "/runtime_assets/occluders/ws3_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws3_pc.png",
       "width": 50
     },
     {
-      "file": "occluders/ws4_chair_main.png",
+      "file": "occluders/floor02/ws4_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "37906f0c2fdab63d9606f45e511635723f4de716fa84f8e11fe21758ffe5cbc9",
-      "url": "/runtime_assets/occluders/ws4_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws4_chair_main.png",
       "width": 21
     },
     {
-      "file": "occluders/ws4_chair_sub.png",
+      "file": "occluders/floor02/ws4_chair_sub.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "eb4092b007f8e5b7c9eb7f0f31a899f3b08183f1d2dc033708237f6fdf2d5bf2",
-      "url": "/runtime_assets/occluders/ws4_chair_sub.png",
+      "url": "/runtime_assets/occluders/floor02/ws4_chair_sub.png",
       "width": 21
     },
     {
-      "file": "occluders/ws4_desk.png",
+      "file": "occluders/floor02/ws4_desk.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "d49812097839d86f6817ceb9b0b4a80c14842843740d03ea5010233be766033a",
-      "url": "/runtime_assets/occluders/ws4_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws4_desk.png",
       "width": 50
     },
     {
-      "file": "occluders/ws4_pc.png",
+      "file": "occluders/floor02/ws4_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "5f3f2a474813f1ae1ba3a3df1ea36137f46312c599b014429da9cc0edd086c2b",
-      "url": "/runtime_assets/occluders/ws4_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws4_pc.png",
       "width": 50
     },
     {
-      "file": "occluders/ws5_chair_main.png",
+      "file": "occluders/floor02/ws5_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "eed9776ceb22a8e862226a648043263c4e27bb40e4bda49621caebfb7aed383f",
-      "url": "/runtime_assets/occluders/ws5_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws5_chair_main.png",
       "width": 21
     },
     {
-      "file": "occluders/ws5_desk.png",
+      "file": "occluders/floor02/ws5_desk.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "6f8a7df8d636dfdc62d1532ae000c704e89e81866a8c4b5a8b88d01a63c441d0",
-      "url": "/runtime_assets/occluders/ws5_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws5_desk.png",
       "width": 50
     },
     {
-      "file": "occluders/ws5_pc.png",
+      "file": "occluders/floor02/ws5_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "3d531dc66b5d40170efed509ee58e0abbcc885dce901cc92a752c15beaaefd44",
-      "url": "/runtime_assets/occluders/ws5_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws5_pc.png",
       "width": 50
     },
     {
-      "file": "occluders/ws6_chair_main.png",
+      "file": "occluders/floor02/ws6_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "eed9776ceb22a8e862226a648043263c4e27bb40e4bda49621caebfb7aed383f",
-      "url": "/runtime_assets/occluders/ws6_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws6_chair_main.png",
       "width": 21
     },
     {
-      "file": "occluders/ws6_desk.png",
+      "file": "occluders/floor02/ws6_desk.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "6f8a7df8d636dfdc62d1532ae000c704e89e81866a8c4b5a8b88d01a63c441d0",
-      "url": "/runtime_assets/occluders/ws6_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws6_desk.png",
       "width": 50
     },
     {
-      "file": "occluders/ws6_pc.png",
+      "file": "occluders/floor02/ws6_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "3d531dc66b5d40170efed509ee58e0abbcc885dce901cc92a752c15beaaefd44",
-      "url": "/runtime_assets/occluders/ws6_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws6_pc.png",
       "width": 50
     },
     {
-      "file": "occluders/ws7_chair_main.png",
+      "file": "occluders/floor02/ws7_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "37906f0c2fdab63d9606f45e511635723f4de716fa84f8e11fe21758ffe5cbc9",
-      "url": "/runtime_assets/occluders/ws7_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws7_chair_main.png",
       "width": 21
     },
     {
-      "file": "occluders/ws7_chair_sub.png",
+      "file": "occluders/floor02/ws7_chair_sub.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "eb4092b007f8e5b7c9eb7f0f31a899f3b08183f1d2dc033708237f6fdf2d5bf2",
-      "url": "/runtime_assets/occluders/ws7_chair_sub.png",
+      "url": "/runtime_assets/occluders/floor02/ws7_chair_sub.png",
       "width": 21
     },
     {
-      "file": "occluders/ws7_desk.png",
+      "file": "occluders/floor02/ws7_desk.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "d49812097839d86f6817ceb9b0b4a80c14842843740d03ea5010233be766033a",
-      "url": "/runtime_assets/occluders/ws7_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws7_desk.png",
       "width": 50
     },
     {
-      "file": "occluders/ws7_pc.png",
+      "file": "occluders/floor02/ws7_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "5f3f2a474813f1ae1ba3a3df1ea36137f46312c599b014429da9cc0edd086c2b",
-      "url": "/runtime_assets/occluders/ws7_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws7_pc.png",
       "width": 50
     },
     {
-      "file": "occluders/ws8_chair_main.png",
+      "file": "occluders/floor02/ws8_chair_main.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "37906f0c2fdab63d9606f45e511635723f4de716fa84f8e11fe21758ffe5cbc9",
-      "url": "/runtime_assets/occluders/ws8_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws8_chair_main.png",
       "width": 21
     },
     {
-      "file": "occluders/ws8_chair_sub.png",
+      "file": "occluders/floor02/ws8_chair_sub.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "eb4092b007f8e5b7c9eb7f0f31a899f3b08183f1d2dc033708237f6fdf2d5bf2",
-      "url": "/runtime_assets/occluders/ws8_chair_sub.png",
+      "url": "/runtime_assets/occluders/floor02/ws8_chair_sub.png",
       "width": 21
     },
     {
-      "file": "occluders/ws8_desk.png",
+      "file": "occluders/floor02/ws8_desk.png",
       "height": 64,
       "kind": "occluder_mask",
       "sha256": "d49812097839d86f6817ceb9b0b4a80c14842843740d03ea5010233be766033a",
-      "url": "/runtime_assets/occluders/ws8_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws8_desk.png",
       "width": 50
     },
     {
-      "file": "occluders/ws8_pc.png",
+      "file": "occluders/floor02/ws8_pc.png",
       "height": 32,
       "kind": "occluder_mask",
       "sha256": "5f3f2a474813f1ae1ba3a3df1ea36137f46312c599b014429da9cc0edd086c2b",
-      "url": "/runtime_assets/occluders/ws8_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws8_pc.png",
       "width": 50
     },
     {
@@ -8822,13 +8822,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 263,
-      "file": "occluders/ceo_chair.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ceo_chair.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 79,
       "object_type": "chair",
       "placement_id": "ceo_chair",
-      "url": "/runtime_assets/occluders/ceo_chair.png",
+      "url": "/runtime_assets/occluders/floor02/ceo_chair.png",
       "width": 21,
       "x_px": 328,
       "y_px": 231
@@ -8836,13 +8837,27 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 281,
-      "file": "occluders/ceo_desk_cell2.png",
+      "depth_front_edge_world_px": [
+        [
+          293,
+          263
+        ],
+        [
+          329,
+          281
+        ],
+        [
+          343,
+          274
+        ]
+      ],
+      "file": "occluders/floor02/ceo_desk_cell2.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 80,
       "object_type": "desk",
       "placement_id": "ceo_desk_cell2",
-      "url": "/runtime_assets/occluders/ceo_desk_cell2.png",
+      "url": "/runtime_assets/occluders/floor02/ceo_desk_cell2.png",
       "width": 50,
       "x_px": 293,
       "y_px": 219
@@ -8850,13 +8865,27 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 281,
-      "file": "occluders/ceo_pc.png",
+      "depth_front_edge_world_px": [
+        [
+          293,
+          263
+        ],
+        [
+          329,
+          281
+        ],
+        [
+          343,
+          274
+        ]
+      ],
+      "file": "occluders/floor02/ceo_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 90,
       "object_type": "pc",
       "placement_id": "ceo_pc",
-      "url": "/runtime_assets/occluders/ceo_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ceo_pc.png",
       "width": 50,
       "x_px": 293,
       "y_px": 230
@@ -8864,13 +8893,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 285,
-      "file": "occluders/ws1_chair_main.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws1_chair_main.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 92,
       "object_type": "chair",
       "placement_id": "ws1_chair_main",
-      "url": "/runtime_assets/occluders/ws1_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws1_chair_main.png",
       "width": 21,
       "x_px": 231,
       "y_px": 253
@@ -8878,13 +8908,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 303,
-      "file": "occluders/ws2_chair_main.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws2_chair_main.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 110,
       "object_type": "chair",
       "placement_id": "ws2_chair_main",
-      "url": "/runtime_assets/occluders/ws2_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws2_chair_main.png",
       "width": 21,
       "x_px": 195,
       "y_px": 271
@@ -8892,13 +8923,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 331,
-      "file": "occluders/ws5_chair_main.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws5_chair_main.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 138,
       "object_type": "chair",
       "placement_id": "ws5_chair_main",
-      "url": "/runtime_assets/occluders/ws5_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws5_chair_main.png",
       "width": 21,
       "x_px": 323,
       "y_px": 299
@@ -8906,13 +8938,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 349,
-      "file": "occluders/ws6_chair_main.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws6_chair_main.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 156,
       "object_type": "chair",
       "placement_id": "ws6_chair_main",
-      "url": "/runtime_assets/occluders/ws6_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws6_chair_main.png",
       "width": 21,
       "x_px": 287,
       "y_px": 317
@@ -8920,13 +8953,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 307,
-      "file": "occluders/ws1_desk.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws1_desk.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 162,
       "object_type": "desk",
       "placement_id": "ws1_desk",
-      "url": "/runtime_assets/occluders/ws1_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws1_desk.png",
       "width": 50,
       "x_px": 233,
       "y_px": 245
@@ -8934,13 +8968,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 315,
-      "file": "occluders/ws3_desk.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws3_desk.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 170,
       "object_type": "desk",
       "placement_id": "ws3_desk",
-      "url": "/runtime_assets/occluders/ws3_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws3_desk.png",
       "width": 50,
       "x_px": 249,
       "y_px": 253
@@ -8948,13 +8983,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 307,
-      "file": "occluders/ws1_pc.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws1_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 172,
       "object_type": "pc",
       "placement_id": "ws1_pc",
-      "url": "/runtime_assets/occluders/ws1_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws1_pc.png",
       "width": 50,
       "x_px": 233,
       "y_px": 256
@@ -8962,13 +8998,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 325,
-      "file": "occluders/ws2_desk.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws2_desk.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 180,
       "object_type": "desk",
       "placement_id": "ws2_desk",
-      "url": "/runtime_assets/occluders/ws2_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws2_desk.png",
       "width": 50,
       "x_px": 197,
       "y_px": 263
@@ -8976,13 +9013,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 315,
-      "file": "occluders/ws3_pc.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws3_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 180,
       "object_type": "pc",
       "placement_id": "ws3_pc",
-      "url": "/runtime_assets/occluders/ws3_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws3_pc.png",
       "width": 50,
       "x_px": 249,
       "y_px": 264
@@ -8990,13 +9028,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 333,
-      "file": "occluders/ws4_desk.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws4_desk.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 188,
       "object_type": "desk",
       "placement_id": "ws4_desk",
-      "url": "/runtime_assets/occluders/ws4_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws4_desk.png",
       "width": 50,
       "x_px": 213,
       "y_px": 271
@@ -9004,13 +9043,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 325,
-      "file": "occluders/ws2_pc.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws2_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 190,
       "object_type": "pc",
       "placement_id": "ws2_pc",
-      "url": "/runtime_assets/occluders/ws2_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws2_pc.png",
       "width": 50,
       "x_px": 197,
       "y_px": 274
@@ -9018,13 +9058,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 333,
-      "file": "occluders/ws4_pc.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws4_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 198,
       "object_type": "pc",
       "placement_id": "ws4_pc",
-      "url": "/runtime_assets/occluders/ws4_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws4_pc.png",
       "width": 50,
       "x_px": 213,
       "y_px": 282
@@ -9032,13 +9073,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 353,
-      "file": "occluders/ws5_desk.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws5_desk.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 208,
       "object_type": "desk",
       "placement_id": "ws5_desk",
-      "url": "/runtime_assets/occluders/ws5_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws5_desk.png",
       "width": 50,
       "x_px": 325,
       "y_px": 291
@@ -9046,13 +9088,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 361,
-      "file": "occluders/ws7_desk.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws7_desk.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 216,
       "object_type": "desk",
       "placement_id": "ws7_desk",
-      "url": "/runtime_assets/occluders/ws7_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws7_desk.png",
       "width": 50,
       "x_px": 341,
       "y_px": 299
@@ -9060,13 +9103,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 353,
-      "file": "occluders/ws5_pc.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws5_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 218,
       "object_type": "pc",
       "placement_id": "ws5_pc",
-      "url": "/runtime_assets/occluders/ws5_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws5_pc.png",
       "width": 50,
       "x_px": 325,
       "y_px": 302
@@ -9074,13 +9118,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 371,
-      "file": "occluders/ws6_desk.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws6_desk.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 226,
       "object_type": "desk",
       "placement_id": "ws6_desk",
-      "url": "/runtime_assets/occluders/ws6_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws6_desk.png",
       "width": 50,
       "x_px": 289,
       "y_px": 309
@@ -9088,13 +9133,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 361,
-      "file": "occluders/ws7_pc.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws7_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 226,
       "object_type": "pc",
       "placement_id": "ws7_pc",
-      "url": "/runtime_assets/occluders/ws7_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws7_pc.png",
       "width": 50,
       "x_px": 341,
       "y_px": 310
@@ -9102,13 +9148,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 379,
-      "file": "occluders/ws8_desk.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws8_desk.png",
       "foreground_fragment": false,
       "height": 64,
       "layer": 234,
       "object_type": "desk",
       "placement_id": "ws8_desk",
-      "url": "/runtime_assets/occluders/ws8_desk.png",
+      "url": "/runtime_assets/occluders/floor02/ws8_desk.png",
       "width": 50,
       "x_px": 305,
       "y_px": 317
@@ -9116,13 +9163,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 371,
-      "file": "occluders/ws6_pc.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws6_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 236,
       "object_type": "pc",
       "placement_id": "ws6_pc",
-      "url": "/runtime_assets/occluders/ws6_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws6_pc.png",
       "width": 50,
       "x_px": 289,
       "y_px": 320
@@ -9130,13 +9178,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 379,
-      "file": "occluders/ws8_pc.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws8_pc.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 244,
       "object_type": "pc",
       "placement_id": "ws8_pc",
-      "url": "/runtime_assets/occluders/ws8_pc.png",
+      "url": "/runtime_assets/occluders/floor02/ws8_pc.png",
       "width": 50,
       "x_px": 305,
       "y_px": 328
@@ -9144,13 +9193,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 314,
-      "file": "occluders/ws3_chair_main.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws3_chair_main.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 370,
       "object_type": "chair",
       "placement_id": "ws3_chair_main",
-      "url": "/runtime_assets/occluders/ws3_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws3_chair_main.png",
       "width": 21,
       "x_px": 278,
       "y_px": 282
@@ -9158,13 +9208,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 332,
-      "file": "occluders/ws4_chair_main.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws4_chair_main.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 388,
       "object_type": "chair",
       "placement_id": "ws4_chair_main",
-      "url": "/runtime_assets/occluders/ws4_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws4_chair_main.png",
       "width": 21,
       "x_px": 242,
       "y_px": 300
@@ -9172,13 +9223,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 360,
-      "file": "occluders/ws7_chair_main.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws7_chair_main.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 416,
       "object_type": "chair",
       "placement_id": "ws7_chair_main",
-      "url": "/runtime_assets/occluders/ws7_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws7_chair_main.png",
       "width": 21,
       "x_px": 370,
       "y_px": 328
@@ -9186,13 +9238,27 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 410,
-      "file": "occluders/reception.png",
+      "depth_front_edge_world_px": [
+        [
+          209,
+          381
+        ],
+        [
+          267,
+          410
+        ],
+        [
+          297,
+          395
+        ]
+      ],
+      "file": "occluders/floor02/reception.png",
       "foreground_fragment": false,
       "height": 55,
       "layer": 430,
       "object_type": "reception",
       "placement_id": "reception",
-      "url": "/runtime_assets/occluders/reception.png",
+      "url": "/runtime_assets/occluders/floor02/reception.png",
       "width": 78,
       "x_px": 221,
       "y_px": 355
@@ -9200,13 +9266,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 378,
-      "file": "occluders/ws8_chair_main.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws8_chair_main.png",
       "foreground_fragment": false,
       "height": 32,
       "layer": 434,
       "object_type": "chair",
       "placement_id": "ws8_chair_main",
-      "url": "/runtime_assets/occluders/ws8_chair_main.png",
+      "url": "/runtime_assets/occluders/floor02/ws8_chair_main.png",
       "width": 21,
       "x_px": 334,
       "y_px": 346
@@ -9214,13 +9281,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 314,
-      "file": "occluders/ws3_chair_sub.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws3_chair_sub.png",
       "foreground_fragment": true,
       "height": 32,
       "layer": 570,
       "object_type": "chair_sub",
       "placement_id": "ws3_chair_sub",
-      "url": "/runtime_assets/occluders/ws3_chair_sub.png",
+      "url": "/runtime_assets/occluders/floor02/ws3_chair_sub.png",
       "width": 21,
       "x_px": 278,
       "y_px": 282
@@ -9228,13 +9296,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 332,
-      "file": "occluders/ws4_chair_sub.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws4_chair_sub.png",
       "foreground_fragment": true,
       "height": 32,
       "layer": 588,
       "object_type": "chair_sub",
       "placement_id": "ws4_chair_sub",
-      "url": "/runtime_assets/occluders/ws4_chair_sub.png",
+      "url": "/runtime_assets/occluders/floor02/ws4_chair_sub.png",
       "width": 21,
       "x_px": 242,
       "y_px": 300
@@ -9242,13 +9311,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 360,
-      "file": "occluders/ws7_chair_sub.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws7_chair_sub.png",
       "foreground_fragment": true,
       "height": 32,
       "layer": 616,
       "object_type": "chair_sub",
       "placement_id": "ws7_chair_sub",
-      "url": "/runtime_assets/occluders/ws7_chair_sub.png",
+      "url": "/runtime_assets/occluders/floor02/ws7_chair_sub.png",
       "width": 21,
       "x_px": 370,
       "y_px": 328
@@ -9256,13 +9326,14 @@
     {
       "always_foreground": false,
       "depth_anchor_y_px": 378,
-      "file": "occluders/ws8_chair_sub.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/ws8_chair_sub.png",
       "foreground_fragment": true,
       "height": 32,
       "layer": 634,
       "object_type": "chair_sub",
       "placement_id": "ws8_chair_sub",
-      "url": "/runtime_assets/occluders/ws8_chair_sub.png",
+      "url": "/runtime_assets/occluders/floor02/ws8_chair_sub.png",
       "width": 21,
       "x_px": 334,
       "y_px": 346
@@ -9270,13 +9341,14 @@
     {
       "always_foreground": true,
       "depth_anchor_y_px": null,
-      "file": "occluders/foreground_overlay_00.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/foreground_overlay_00.png",
       "foreground_fragment": true,
       "height": 106,
       "layer": 900,
       "object_type": "foreground_overlay",
       "placement_id": "foreground_overlay_00",
-      "url": "/runtime_assets/occluders/foreground_overlay_00.png",
+      "url": "/runtime_assets/occluders/floor02/foreground_overlay_00.png",
       "width": 206,
       "x_px": 70,
       "y_px": 344
@@ -9284,13 +9356,14 @@
     {
       "always_foreground": true,
       "depth_anchor_y_px": null,
-      "file": "occluders/foreground_overlay_01.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/foreground_overlay_01.png",
       "foreground_fragment": true,
       "height": 18,
       "layer": 901,
       "object_type": "foreground_overlay",
       "placement_id": "foreground_overlay_01",
-      "url": "/runtime_assets/occluders/foreground_overlay_01.png",
+      "url": "/runtime_assets/occluders/floor02/foreground_overlay_01.png",
       "width": 25,
       "x_px": 153,
       "y_px": 311
@@ -9298,13 +9371,14 @@
     {
       "always_foreground": true,
       "depth_anchor_y_px": null,
-      "file": "occluders/foreground_overlay_02.png",
+      "depth_front_edge_world_px": null,
+      "file": "occluders/floor02/foreground_overlay_02.png",
       "foreground_fragment": true,
       "height": 30,
       "layer": 902,
       "object_type": "foreground_overlay",
       "placement_id": "foreground_overlay_02",
-      "url": "/runtime_assets/occluders/foreground_overlay_02.png",
+      "url": "/runtime_assets/occluders/floor02/foreground_overlay_02.png",
       "width": 41,
       "x_px": 345,
       "y_px": 265

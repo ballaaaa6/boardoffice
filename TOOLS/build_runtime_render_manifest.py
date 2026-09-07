@@ -385,7 +385,7 @@ def build_manifest(
         mask_record = _write_image(
             mask,
             output,
-            f"occluders/{_safe_name(placement_id)}.png",
+            f"occluders/{floor_id}/{_safe_name(placement_id)}.png",
             kind="occluder_mask",
         )
         files[mask_record["file"]] = mask_record
@@ -398,6 +398,7 @@ def build_manifest(
             "always_foreground": bool(row["always_foreground"]),
             "foreground_fragment": bool(row["foreground_fragment"]),
             "depth_anchor_y_px": row.get("depth_anchor_y_px"),
+            "depth_front_edge_world_px": row.get("depth_front_edge_world_px"),
             "file": mask_record["file"],
             "url": mask_record["url"],
             "width": mask_record["width"],

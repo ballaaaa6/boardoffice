@@ -285,7 +285,7 @@ function startLiveSimulation() {
       if (occ.always_foreground) {
         inFront = true;
       } else {
-        const edge = depthFrontEdges[occ.placement_id];
+        const edge = occ.depth_front_edge_world_px || depthFrontEdges[occ.placement_id];
         const anchorY = edge ? frontEdgeYAtX(edge, gx) : occ.depth_anchor_y_px;
         if (anchorY != null && anchorY > gy) {
           inFront = true;
