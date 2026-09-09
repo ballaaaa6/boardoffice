@@ -49,6 +49,7 @@ CANONICAL_SOURCE_FILES = (
     "CHARACTER/ASSETS/asset_registry.json",
     "CHARACTER/EFFECTS/gds_effects_v1.json",
     "CHARACTER/EFFECTS/humanball_v1.json",
+    "CHARACTER/EFFECTS/office_humanball_v1.json",
     "CHARACTER/DIALOGUE/dialogue.csv",
     "CHARACTER/DIALOGUE/bubble_presets.json",
 )
@@ -225,14 +226,18 @@ def validate_bundle(
     effects = _require_mapping(data.get("effects"), "effects")
     _require_mapping(effects.get("effects"), "effects.effects")
     _require_mapping(effects.get("humanballs"), "effects.humanballs")
+    office_humanballs = effects.get("office_humanballs")
+    if office_humanballs is not None:
+        _require_mapping(office_humanballs, "effects.office_humanballs")
     visual_catalog = _require_mapping(data.get("visual_catalog"), "visual_catalog")
     if visual_catalog.get("profile_id") != "gds.visual_catalog.v1":
         raise BundleContractError("visual_catalog has unsupported profile")
     if not isinstance(visual_catalog.get("catalog_profile"), str) or not visual_catalog["catalog_profile"]:
         raise BundleContractError("visual_catalog.catalog_profile must be non-empty text")
+    catalog_ids: dict[str, list[Any]] = {}
     for channel, schema, minimum in (
         ("vfx", "gds_effect_registry_v1", 11),
-        ("humanball", "gds_humanball_registry_v1", 6),
+        ("humanball", "gds_humanball_registry_v1", 44),
     ):
         record = _require_mapping(visual_catalog.get(channel), f"visual_catalog.{channel}")
         if record.get("registry_schema") != schema:
@@ -242,6 +247,23 @@ def validate_bundle(
             raise BundleContractError(f"visual_catalog.{channel}.ids is invalid")
         if len(set(ids)) != len(ids):
             raise BundleContractError(f"visual_catalog.{channel}.ids must be unique")
+        catalog_ids[channel] = ids
+    office_catalog = visual_catalog.get("office_humanball")
+    if office_catalog is not None:
+        record = _require_mapping(office_catalog, "visual_catalog.office_humanball")
+        if record.get("registry_schema") != "gds_office_humanball_registry_v1":
+            raise BundleContractError(
+                "visual_catalog.office_humanball registry schema is unsupported"
+            )
+        ids = _require_non_empty_list(
+            record.get("ids"), "visual_catalog.office_humanball.ids"
+        )
+        if len(ids) < 38 or len(set(ids)) != len(ids):
+            raise BundleContractError("visual_catalog.office_humanball.ids is invalid")
+        if not set(ids).issubset(set(catalog_ids["humanball"])):
+            raise BundleContractError(
+                "visual_catalog.humanball must include every office HumanBall"
+            )
     _validate_snapshot_shape(data.get("initial_snapshot"), "initial_snapshot")
 
     revision = data.get("bundle_revision")

@@ -187,6 +187,8 @@ export class RuntimeCanvasRenderer {
       if (workstation && effect?.asset_id) this._primeEffect(workstation, effect, actor);
       const humanball = actor?.channels?.humanball;
       if (workstation && humanball?.asset_id) this._primeHumanball(humanball);
+      const officeHumanball = actor?.channels?.office_humanball;
+      if (workstation && officeHumanball?.asset_id) this._primeOfficeHumanball(officeHumanball);
       for (const placementId of actor.occluder_placement_ids || []) {
         const occluder = this._occluder(placementId);
         if (occluder) this._loadImage(occluder.url);
@@ -332,7 +334,13 @@ export class RuntimeCanvasRenderer {
   }
 
   _primeHumanball(channel) {
-    const humanball = this.manifest?.humanballs?.[channel.asset_id];
+    const humanball = this.manifest?.humanballs?.[channel.asset_id]
+      || this.manifest?.office_humanballs?.[channel.asset_id];
+    if (humanball) this._loadImage(humanball.url);
+  }
+
+  _primeOfficeHumanball(channel) {
+    const humanball = this.manifest?.office_humanballs?.[channel.asset_id];
     if (humanball) this._loadImage(humanball.url);
   }
 
@@ -510,11 +518,22 @@ export class RuntimeCanvasRenderer {
   }
 
   _drawHumanballs(context, rows) {
+    this._drawHumanballChannel(context, rows, "humanball", "humanballs");
+  }
+
+  _drawOfficeHumanballs(context, rows) {
+    this._drawHumanballChannel(context, rows, "office_humanball", "office_humanballs");
+  }
+
+  _drawHumanballChannel(context, rows, channelName, manifestKey) {
     for (const row of rows) {
       if (!row?.visible || row.render_owner !== "work_seat") continue;
-      const channel = row.channels?.humanball;
+      const channel = row.channels?.[channelName];
       const workstation = this.manifest?.workstations?.[row.workstation_id];
-      const humanball = this.manifest?.humanballs?.[channel?.asset_id];
+      const humanball = this.manifest?.[manifestKey]?.[channel?.asset_id]
+        || (channelName === "humanball"
+          ? this.manifest?.office_humanballs?.[channel?.asset_id]
+          : null);
       if (!channel || !workstation || !humanball) continue;
       const frameIndex = integerOr(channel.humanball_frame_index, 0);
       const offsets = workstation.humanball_offsets?.[workstation.direction] || [];
@@ -621,6 +640,7 @@ export class RuntimeCanvasRenderer {
       }
     }
     this._drawHumanballs(context, rows);
+    this._drawOfficeHumanballs(context, rows);
     // Paint walking actors as a separate depth pass. paint_order.characters is
     // ground-Y ordered by the browser core, while static entries above retain
     // their authored manifest layers.

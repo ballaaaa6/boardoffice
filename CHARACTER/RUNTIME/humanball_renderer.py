@@ -28,9 +28,15 @@ class HumanBallRenderResult:
 
 
 class HumanBallRenderer:
-    def __init__(self, core_root: str | Path, *, verify_asset_hashes: bool = False):
+    def __init__(
+        self,
+        core_root: str | Path,
+        *,
+        verify_asset_hashes: bool = False,
+        registry: HumanBallRegistry | None = None,
+    ):
         self.core_root = Path(core_root)
-        self.registry = HumanBallRegistry(self.core_root)
+        self.registry = registry or HumanBallRegistry(self.core_root)
         self.assets = AssetRegistry(self.core_root)
         self.verify_asset_hashes = verify_asset_hashes
         self._image_cache: dict[str, Image.Image] = {}

@@ -19,6 +19,7 @@ class VisualSelectionCore:
     """Own the canonical visual catalog and per-actor shuffle-bag algorithm."""
 
     PROFILE_ID = "gds.visual_catalog.v1"
+    DEFAULT_HUMANBALL_POOL_SIZE = 44
     CHANNEL_TO_REGISTRY = {
         "vfx": ("CHARACTER/EFFECTS/gds_effects_v1.json", "effect_order", "gds_effect_registry_v1"),
         "humanball": (
@@ -26,6 +27,16 @@ class VisualSelectionCore:
             "humanball_order",
             "gds_humanball_registry_v1",
         ),
+        "office_humanball": (
+            "CHARACTER/EFFECTS/office_humanball_v1.json",
+            "office_humanball_order",
+            "gds_office_humanball_registry_v1",
+        ),
+    }
+    CHANNEL_RECORD_KEYS = {
+        "vfx": "effects",
+        "humanball": "humanballs",
+        "office_humanball": "office_humanballs",
     }
 
     def __init__(self, root: str | Path):
@@ -48,20 +59,42 @@ class VisualSelectionCore:
                 raise VisualSelectionError(f"{channel} registry IDs must be non-empty strings")
             if len(set(ids)) != len(ids):
                 raise VisualSelectionError(f"{channel} registry must contain unique IDs")
-            records_key = "effects" if channel == "vfx" else "humanballs"
+            records_key = self.CHANNEL_RECORD_KEYS[channel]
             records = payload.get(records_key)
             if not isinstance(records, dict) or any(asset_id not in records for asset_id in ids):
                 raise VisualSelectionError(f"{channel} registry order contains an unknown ID")
             self._registries[channel] = payload
             self._ids[channel] = tuple(ids)
             self._registry_hashes[channel] = file_sha256(path)
+
+        # The automatic popup event keeps its existing ``humanball`` channel,
+        # but its bag now contains the six locked canonical HumanBalls plus
+        # the 38 approved office items.  Keep the office channel as a separate
+        # explicit catalog as well so callers can still target that subset.
+        canonical_ids = self._ids["humanball"]
+        office_ids = self._ids["office_humanball"]
+        self._ids["humanball"] = tuple((*canonical_ids, *office_ids))
+        self._registry_hashes["humanball"] = hashlib.sha256(
+            "\x1f".join(
+                (
+                    "mixed_default_popup_pool_v1",
+                    self._registry_hashes["humanball"],
+                    self._registry_hashes["office_humanball"],
+                    ",".join(self._ids["humanball"]),
+                )
+            ).encode("utf-8")
+        ).hexdigest()
+        if len(self._ids["humanball"]) != self.DEFAULT_HUMANBALL_POOL_SIZE:
+            raise VisualSelectionError(
+                "default HumanBall popup pool must contain 44 unique IDs"
+            )
         self._profile_hash = hashlib.sha256(
             "\x1f".join(
                 [
                     self.PROFILE_ID,
                     *(
                         f"{channel}:{self._registry_hashes[channel]}:{','.join(self._ids[channel])}"
-                        for channel in ("vfx", "humanball")
+                        for channel in self.CHANNEL_TO_REGISTRY
                     ),
                 ]
             ).encode("utf-8")
@@ -84,12 +117,17 @@ class VisualSelectionCore:
             "profile_hash": self._profile_hash,
             "catalog_profile": self._catalog_profile,
         }
-        for channel in ("vfx", "humanball"):
+        for channel in self.CHANNEL_TO_REGISTRY:
             result[channel] = {
                 "ids": list(self._ids[channel]),
                 "registry_schema": self.CHANNEL_TO_REGISTRY[channel][2],
                 "registry_hash": self._registry_hashes[channel],
             }
+        result["humanball"].update({
+            "pool_mode": "canonical_plus_office",
+            "pool_size": len(self._ids["humanball"]),
+            "source_channels": ["humanball", "office_humanball"],
+        })
         return result
 
     def _require_channel(self, channel: str) -> str:

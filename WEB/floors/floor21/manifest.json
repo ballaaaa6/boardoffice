@@ -1988,6 +1988,538 @@
       "url": "/runtime_assets/components/humanball.horse.png",
       "width": 18
     },
+    "humanball.office.communication.bell": {
+      "asset_id": "humanball.office.communication.bell",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.communication.bell.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "61e0cb4c4128778db681b2c2c1c7ae4a537321342db71c596827b976b81a41cb",
+      "url": "/runtime_assets/components/humanball.office.communication.bell.png",
+      "width": 18
+    },
+    "humanball.office.communication.question": {
+      "asset_id": "humanball.office.communication.question",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.communication.question.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "1d3f1788e963c4f3aef7868600ee8123dad5e86a18714d9db4d7df8b7171bc71",
+      "url": "/runtime_assets/components/humanball.office.communication.question.png",
+      "width": 18
+    },
+    "humanball.office.communication.send": {
+      "asset_id": "humanball.office.communication.send",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.communication.send.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "cbab7cd9897ff894af51bcdea47001ae63a0f943d52afdfd3970b514954455bb",
+      "url": "/runtime_assets/components/humanball.office.communication.send.png",
+      "width": 18
+    },
+    "humanball.office.documents.calendar": {
+      "asset_id": "humanball.office.documents.calendar",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.documents.calendar.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "8d2d5599de028426a767b6fbcc3ec63a04aebd6285e5a3fcd377b67d649e44d6",
+      "url": "/runtime_assets/components/humanball.office.documents.calendar.png",
+      "width": 18
+    },
+    "humanball.office.documents.folder": {
+      "asset_id": "humanball.office.documents.folder",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.documents.folder.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "244b40e9ca6de21cd0944de82513a796de0ce24154d2927d2ca94a59b60b4b9b",
+      "url": "/runtime_assets/components/humanball.office.documents.folder.png",
+      "width": 18
+    },
+    "humanball.office.documents.invoice": {
+      "asset_id": "humanball.office.documents.invoice",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.documents.invoice.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "ce22549c95f95e569dea59ee7c36e6296fe6d896f8f5ac766d3de791237c1d87",
+      "url": "/runtime_assets/components/humanball.office.documents.invoice.png",
+      "width": 18
+    },
+    "humanball.office.equipment.printer": {
+      "asset_id": "humanball.office.equipment.printer",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.equipment.printer.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "9919970723a1fb00a1673d83dcc00c648c573148e6c0cab8aaea55059a83e0ae",
+      "url": "/runtime_assets/components/humanball.office.equipment.printer.png",
+      "width": 18
+    },
+    "humanball.office.facilities.plant": {
+      "asset_id": "humanball.office.facilities.plant",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.facilities.plant.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "154edb8a115cc8b7caec39b7eb080675fe8c36f01ed7fa0200f9d7721d6b2ff8",
+      "url": "/runtime_assets/components/humanball.office.facilities.plant.png",
+      "width": 18
+    },
+    "humanball.office.facilities.wall_clock": {
+      "asset_id": "humanball.office.facilities.wall_clock",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.facilities.wall_clock.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "74a35e74411db08cf5fbe46d3f7d83514807a7e796bbee169900652ee5002915",
+      "url": "/runtime_assets/components/humanball.office.facilities.wall_clock.png",
+      "width": 18
+    },
+    "humanball.office.finance.bank": {
+      "asset_id": "humanball.office.finance.bank",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.finance.bank.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "eedae7e58d2257fafe42aa796d680c3e9c924dff94d92961c6da5955f3737121",
+      "url": "/runtime_assets/components/humanball.office.finance.bank.png",
+      "width": 18
+    },
+    "humanball.office.finance.banknote": {
+      "asset_id": "humanball.office.finance.banknote",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.finance.banknote.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "b261eed9dc3ece9d6a9131f60b012ee2e9ec264699188032a604dd70245489f9",
+      "url": "/runtime_assets/components/humanball.office.finance.banknote.png",
+      "width": 18
+    },
+    "humanball.office.finance.sales_target": {
+      "asset_id": "humanball.office.finance.sales_target",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.finance.sales_target.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "ffa1fd512682e574cb2e22f1f8a90c59a12c33c8ac5575458c23716678ddf634",
+      "url": "/runtime_assets/components/humanball.office.finance.sales_target.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.burger": {
+      "asset_id": "humanball.office.food_drinks.burger",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.burger.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "ed7ffaf2b309903c1e891fab3eb26de106bf6af5c7147d3c973c1091659d71a0",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.burger.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.cake": {
+      "asset_id": "humanball.office.food_drinks.cake",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.cake.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "9ad3d02cee09008784d075a663985ecb65f29c08d771279d4994055857b61931",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.cake.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.cookie": {
+      "asset_id": "humanball.office.food_drinks.cookie",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.cookie.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "752f21d516b990f2d16b56a8132f1b83959e871c8c0b1936ed7befd838f030dd",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.cookie.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.donut": {
+      "asset_id": "humanball.office.food_drinks.donut",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.donut.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "fc2da3f8428d6ef62c30cfc7e353b0df22c946ce3e193be16c1e165f99298681",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.donut.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.orange": {
+      "asset_id": "humanball.office.food_drinks.orange",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.orange.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "6cd61d57a1c78ffc49651995b40aa5bd9321b7ad54149d14155f32c27a7bc762",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.orange.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.pizza": {
+      "asset_id": "humanball.office.food_drinks.pizza",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.pizza.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "52071b54d89b96bc9505fe5fa26f2708c61931fb82802f904dd99f9c53152041",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.pizza.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.sandwich": {
+      "asset_id": "humanball.office.food_drinks.sandwich",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.sandwich.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "689afc1c3a360391d91509fecd6f17cdce20e04b2389329eadcf8c5148009e5f",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.sandwich.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.soda": {
+      "asset_id": "humanball.office.food_drinks.soda",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.soda.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "a8477209896f63316958484b7aa2ba0127a2fbaf8c105f444609c8e54cb10951",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.soda.png",
+      "width": 18
+    },
+    "humanball.office.food_drinks.tea": {
+      "asset_id": "humanball.office.food_drinks.tea",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.tea.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "044563a906c7d2beba5f402d11e34cb96787a830104bd4237636ae4dae1b87cf",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.tea.png",
+      "width": 18
+    },
+    "humanball.office.it_security.code": {
+      "asset_id": "humanball.office.it_security.code",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.it_security.code.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "f8777141f38651b5f19c2fc8a60f7668f3d0100d56d19d34ba2a9d92bf50ab23",
+      "url": "/runtime_assets/components/humanball.office.it_security.code.png",
+      "width": 18
+    },
+    "humanball.office.it_security.padlock": {
+      "asset_id": "humanball.office.it_security.padlock",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.it_security.padlock.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "3a5750e4db5721692db438be10cc7d7271849a7f4174c40f34ef82a5f2560611",
+      "url": "/runtime_assets/components/humanball.office.it_security.padlock.png",
+      "width": 18
+    },
+    "humanball.office.it_security.virus": {
+      "asset_id": "humanball.office.it_security.virus",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.it_security.virus.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "18348650af4c0febcae8103679de4a0a7422b0e991f7263c0a0933899618089f",
+      "url": "/runtime_assets/components/humanball.office.it_security.virus.png",
+      "width": 18
+    },
+    "humanball.office.rewards.birthday": {
+      "asset_id": "humanball.office.rewards.birthday",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.birthday.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "86ab4de4a97dd5139a80bdb88d54fcf51b3266227147c4bb01b4698474bdb6f9",
+      "url": "/runtime_assets/components/humanball.office.rewards.birthday.png",
+      "width": 18
+    },
+    "humanball.office.rewards.confetti": {
+      "asset_id": "humanball.office.rewards.confetti",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.confetti.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "fd9c115d8e10e28c077ffc0a577d44736aaf456b1414496194050203cd7382c5",
+      "url": "/runtime_assets/components/humanball.office.rewards.confetti.png",
+      "width": 18
+    },
+    "humanball.office.rewards.crown": {
+      "asset_id": "humanball.office.rewards.crown",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.crown.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "b78d10f7535b706cd70019d20553b04b3039532f3ce42296e0a62d9aaa0448e7",
+      "url": "/runtime_assets/components/humanball.office.rewards.crown.png",
+      "width": 18
+    },
+    "humanball.office.rewards.gift": {
+      "asset_id": "humanball.office.rewards.gift",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.gift.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "2aa6bf327c024e97975d213516a4e47778cce16e2bfdcc9dbe0e26e11f6ff2fd",
+      "url": "/runtime_assets/components/humanball.office.rewards.gift.png",
+      "width": 18
+    },
+    "humanball.office.rewards.leaderboard": {
+      "asset_id": "humanball.office.rewards.leaderboard",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.leaderboard.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "98620217de2d2daaca9a30ae9ef7c22f54127261d52f47f1268df5958ac17d80",
+      "url": "/runtime_assets/components/humanball.office.rewards.leaderboard.png",
+      "width": 18
+    },
+    "humanball.office.rewards.medal": {
+      "asset_id": "humanball.office.rewards.medal",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.medal.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "4d96bb911b3e244e78642a2a6d5a5dfdc87d02ad22a845a10c7aafdb2a2a56df",
+      "url": "/runtime_assets/components/humanball.office.rewards.medal.png",
+      "width": 18
+    },
+    "humanball.office.rewards.star": {
+      "asset_id": "humanball.office.rewards.star",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.star.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "892c5ec8ebb183d29dea88a0a2be9d3feaeb85ec3b1cda6c0056f65f44ba2540",
+      "url": "/runtime_assets/components/humanball.office.rewards.star.png",
+      "width": 18
+    },
+    "humanball.office.rewards.trophy": {
+      "asset_id": "humanball.office.rewards.trophy",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.trophy.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "b0f5880b91e0e7c5e2c1ea08d7352c40f786346f96766f3a6ecfa38033b8b297",
+      "url": "/runtime_assets/components/humanball.office.rewards.trophy.png",
+      "width": 18
+    },
+    "humanball.office.stationery.clipboard": {
+      "asset_id": "humanball.office.stationery.clipboard",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.stationery.clipboard.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "158800c0e65600cf2f38b8cca1c216c51087107a45e632bf72c28fccd049db98",
+      "url": "/runtime_assets/components/humanball.office.stationery.clipboard.png",
+      "width": 18
+    },
+    "humanball.office.stationery.notebook": {
+      "asset_id": "humanball.office.stationery.notebook",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.stationery.notebook.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "6c98e5b953bff9e159670a47d4978e3d7df608c7b06cfc44556ad19588609d77",
+      "url": "/runtime_assets/components/humanball.office.stationery.notebook.png",
+      "width": 18
+    },
+    "humanball.office.stationery.scissors": {
+      "asset_id": "humanball.office.stationery.scissors",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.stationery.scissors.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "d81a19aeccd8712e6ad21ba1a97fd1545d060d074fdbe946ea3f5bbc1ef80a13",
+      "url": "/runtime_assets/components/humanball.office.stationery.scissors.png",
+      "width": 18
+    },
+    "humanball.office.workflow.bug": {
+      "asset_id": "humanball.office.workflow.bug",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.workflow.bug.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "2af053c3720c7173674b371d79ae886681454ba8aaddd7fe9e19ec5ebb51258a",
+      "url": "/runtime_assets/components/humanball.office.workflow.bug.png",
+      "width": 18
+    },
+    "humanball.office.workflow.focus": {
+      "asset_id": "humanball.office.workflow.focus",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.workflow.focus.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "2f3bc2c08b2d02a7c2816474281d9a9808b1c8b210d2c8d4b767e0f344679cd6",
+      "url": "/runtime_assets/components/humanball.office.workflow.focus.png",
+      "width": 18
+    },
+    "humanball.office.workflow.urgent": {
+      "asset_id": "humanball.office.workflow.urgent",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.workflow.urgent.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "bc65f2934fcfad0fcd72c8a8c2345f7972aa8d537c1377d0e833d29a526301a7",
+      "url": "/runtime_assets/components/humanball.office.workflow.urgent.png",
+      "width": 18
+    },
     "humanball.purple_bot": {
       "asset_id": "humanball.purple_bot",
       "dimensions": [
@@ -6625,6 +7157,538 @@
       "width": 18
     },
     {
+      "asset_id": "humanball.office.communication.bell",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.communication.bell.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "61e0cb4c4128778db681b2c2c1c7ae4a537321342db71c596827b976b81a41cb",
+      "url": "/runtime_assets/components/humanball.office.communication.bell.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.communication.question",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.communication.question.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "1d3f1788e963c4f3aef7868600ee8123dad5e86a18714d9db4d7df8b7171bc71",
+      "url": "/runtime_assets/components/humanball.office.communication.question.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.communication.send",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.communication.send.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "cbab7cd9897ff894af51bcdea47001ae63a0f943d52afdfd3970b514954455bb",
+      "url": "/runtime_assets/components/humanball.office.communication.send.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.documents.calendar",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.documents.calendar.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "8d2d5599de028426a767b6fbcc3ec63a04aebd6285e5a3fcd377b67d649e44d6",
+      "url": "/runtime_assets/components/humanball.office.documents.calendar.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.documents.folder",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.documents.folder.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "244b40e9ca6de21cd0944de82513a796de0ce24154d2927d2ca94a59b60b4b9b",
+      "url": "/runtime_assets/components/humanball.office.documents.folder.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.documents.invoice",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.documents.invoice.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "ce22549c95f95e569dea59ee7c36e6296fe6d896f8f5ac766d3de791237c1d87",
+      "url": "/runtime_assets/components/humanball.office.documents.invoice.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.equipment.printer",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.equipment.printer.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "9919970723a1fb00a1673d83dcc00c648c573148e6c0cab8aaea55059a83e0ae",
+      "url": "/runtime_assets/components/humanball.office.equipment.printer.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.facilities.plant",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.facilities.plant.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "154edb8a115cc8b7caec39b7eb080675fe8c36f01ed7fa0200f9d7721d6b2ff8",
+      "url": "/runtime_assets/components/humanball.office.facilities.plant.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.facilities.wall_clock",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.facilities.wall_clock.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "74a35e74411db08cf5fbe46d3f7d83514807a7e796bbee169900652ee5002915",
+      "url": "/runtime_assets/components/humanball.office.facilities.wall_clock.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.finance.bank",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.finance.bank.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "eedae7e58d2257fafe42aa796d680c3e9c924dff94d92961c6da5955f3737121",
+      "url": "/runtime_assets/components/humanball.office.finance.bank.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.finance.banknote",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.finance.banknote.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "b261eed9dc3ece9d6a9131f60b012ee2e9ec264699188032a604dd70245489f9",
+      "url": "/runtime_assets/components/humanball.office.finance.banknote.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.finance.sales_target",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.finance.sales_target.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "ffa1fd512682e574cb2e22f1f8a90c59a12c33c8ac5575458c23716678ddf634",
+      "url": "/runtime_assets/components/humanball.office.finance.sales_target.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.burger",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.burger.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "ed7ffaf2b309903c1e891fab3eb26de106bf6af5c7147d3c973c1091659d71a0",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.burger.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.cake",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.cake.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "9ad3d02cee09008784d075a663985ecb65f29c08d771279d4994055857b61931",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.cake.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.cookie",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.cookie.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "752f21d516b990f2d16b56a8132f1b83959e871c8c0b1936ed7befd838f030dd",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.cookie.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.donut",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.donut.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "fc2da3f8428d6ef62c30cfc7e353b0df22c946ce3e193be16c1e165f99298681",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.donut.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.orange",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.orange.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "6cd61d57a1c78ffc49651995b40aa5bd9321b7ad54149d14155f32c27a7bc762",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.orange.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.pizza",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.pizza.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "52071b54d89b96bc9505fe5fa26f2708c61931fb82802f904dd99f9c53152041",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.pizza.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.sandwich",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.sandwich.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "689afc1c3a360391d91509fecd6f17cdce20e04b2389329eadcf8c5148009e5f",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.sandwich.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.soda",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.soda.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "a8477209896f63316958484b7aa2ba0127a2fbaf8c105f444609c8e54cb10951",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.soda.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.food_drinks.tea",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.food_drinks.tea.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "044563a906c7d2beba5f402d11e34cb96787a830104bd4237636ae4dae1b87cf",
+      "url": "/runtime_assets/components/humanball.office.food_drinks.tea.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.it_security.code",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.it_security.code.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "f8777141f38651b5f19c2fc8a60f7668f3d0100d56d19d34ba2a9d92bf50ab23",
+      "url": "/runtime_assets/components/humanball.office.it_security.code.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.it_security.padlock",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.it_security.padlock.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "3a5750e4db5721692db438be10cc7d7271849a7f4174c40f34ef82a5f2560611",
+      "url": "/runtime_assets/components/humanball.office.it_security.padlock.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.it_security.virus",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.it_security.virus.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "18348650af4c0febcae8103679de4a0a7422b0e991f7263c0a0933899618089f",
+      "url": "/runtime_assets/components/humanball.office.it_security.virus.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.rewards.birthday",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.birthday.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "86ab4de4a97dd5139a80bdb88d54fcf51b3266227147c4bb01b4698474bdb6f9",
+      "url": "/runtime_assets/components/humanball.office.rewards.birthday.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.rewards.confetti",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.confetti.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "fd9c115d8e10e28c077ffc0a577d44736aaf456b1414496194050203cd7382c5",
+      "url": "/runtime_assets/components/humanball.office.rewards.confetti.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.rewards.crown",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.crown.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "b78d10f7535b706cd70019d20553b04b3039532f3ce42296e0a62d9aaa0448e7",
+      "url": "/runtime_assets/components/humanball.office.rewards.crown.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.rewards.gift",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.gift.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "2aa6bf327c024e97975d213516a4e47778cce16e2bfdcc9dbe0e26e11f6ff2fd",
+      "url": "/runtime_assets/components/humanball.office.rewards.gift.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.rewards.leaderboard",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.leaderboard.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "98620217de2d2daaca9a30ae9ef7c22f54127261d52f47f1268df5958ac17d80",
+      "url": "/runtime_assets/components/humanball.office.rewards.leaderboard.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.rewards.medal",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.medal.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "4d96bb911b3e244e78642a2a6d5a5dfdc87d02ad22a845a10c7aafdb2a2a56df",
+      "url": "/runtime_assets/components/humanball.office.rewards.medal.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.rewards.star",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.star.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "892c5ec8ebb183d29dea88a0a2be9d3feaeb85ec3b1cda6c0056f65f44ba2540",
+      "url": "/runtime_assets/components/humanball.office.rewards.star.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.rewards.trophy",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.rewards.trophy.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "b0f5880b91e0e7c5e2c1ea08d7352c40f786346f96766f3a6ecfa38033b8b297",
+      "url": "/runtime_assets/components/humanball.office.rewards.trophy.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.stationery.clipboard",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.stationery.clipboard.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "158800c0e65600cf2f38b8cca1c216c51087107a45e632bf72c28fccd049db98",
+      "url": "/runtime_assets/components/humanball.office.stationery.clipboard.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.stationery.notebook",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.stationery.notebook.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "6c98e5b953bff9e159670a47d4978e3d7df608c7b06cfc44556ad19588609d77",
+      "url": "/runtime_assets/components/humanball.office.stationery.notebook.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.stationery.scissors",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.stationery.scissors.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "d81a19aeccd8712e6ad21ba1a97fd1545d060d074fdbe946ea3f5bbc1ef80a13",
+      "url": "/runtime_assets/components/humanball.office.stationery.scissors.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.workflow.bug",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.workflow.bug.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "2af053c3720c7173674b371d79ae886681454ba8aaddd7fe9e19ec5ebb51258a",
+      "url": "/runtime_assets/components/humanball.office.workflow.bug.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.workflow.focus",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.workflow.focus.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "2f3bc2c08b2d02a7c2816474281d9a9808b1c8b210d2c8d4b767e0f344679cd6",
+      "url": "/runtime_assets/components/humanball.office.workflow.focus.png",
+      "width": 18
+    },
+    {
+      "asset_id": "humanball.office.workflow.urgent",
+      "dimensions": [
+        18,
+        18
+      ],
+      "domain": "effect",
+      "file": "components/humanball.office.workflow.urgent.png",
+      "height": 18,
+      "kind": "office_humanball",
+      "sha256": "bc65f2934fcfad0fcd72c8a8c2345f7972aa8d537c1377d0e833d29a526301a7",
+      "url": "/runtime_assets/components/humanball.office.workflow.urgent.png",
+      "width": 18
+    },
+    {
       "asset_id": "humanball.purple_bot",
       "dimensions": [
         18,
@@ -9322,6 +10386,350 @@
       "y_px": 374
     }
   ],
+  "office_humanballs": {
+    "office.communication.bell": {
+      "asset_id": "humanball.office.communication.bell",
+      "file": "components/humanball.office.communication.bell.png",
+      "frame_ms": 240,
+      "humanball_id": "office.communication.bell",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.communication.bell.png",
+      "visible_frame_count": 10
+    },
+    "office.communication.question": {
+      "asset_id": "humanball.office.communication.question",
+      "file": "components/humanball.office.communication.question.png",
+      "frame_ms": 240,
+      "humanball_id": "office.communication.question",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.communication.question.png",
+      "visible_frame_count": 10
+    },
+    "office.communication.send": {
+      "asset_id": "humanball.office.communication.send",
+      "file": "components/humanball.office.communication.send.png",
+      "frame_ms": 240,
+      "humanball_id": "office.communication.send",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.communication.send.png",
+      "visible_frame_count": 10
+    },
+    "office.documents.calendar": {
+      "asset_id": "humanball.office.documents.calendar",
+      "file": "components/humanball.office.documents.calendar.png",
+      "frame_ms": 240,
+      "humanball_id": "office.documents.calendar",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.documents.calendar.png",
+      "visible_frame_count": 10
+    },
+    "office.documents.folder": {
+      "asset_id": "humanball.office.documents.folder",
+      "file": "components/humanball.office.documents.folder.png",
+      "frame_ms": 240,
+      "humanball_id": "office.documents.folder",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.documents.folder.png",
+      "visible_frame_count": 10
+    },
+    "office.documents.invoice": {
+      "asset_id": "humanball.office.documents.invoice",
+      "file": "components/humanball.office.documents.invoice.png",
+      "frame_ms": 240,
+      "humanball_id": "office.documents.invoice",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.documents.invoice.png",
+      "visible_frame_count": 10
+    },
+    "office.equipment.printer": {
+      "asset_id": "humanball.office.equipment.printer",
+      "file": "components/humanball.office.equipment.printer.png",
+      "frame_ms": 240,
+      "humanball_id": "office.equipment.printer",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.equipment.printer.png",
+      "visible_frame_count": 10
+    },
+    "office.facilities.plant": {
+      "asset_id": "humanball.office.facilities.plant",
+      "file": "components/humanball.office.facilities.plant.png",
+      "frame_ms": 240,
+      "humanball_id": "office.facilities.plant",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.facilities.plant.png",
+      "visible_frame_count": 10
+    },
+    "office.facilities.wall_clock": {
+      "asset_id": "humanball.office.facilities.wall_clock",
+      "file": "components/humanball.office.facilities.wall_clock.png",
+      "frame_ms": 240,
+      "humanball_id": "office.facilities.wall_clock",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.facilities.wall_clock.png",
+      "visible_frame_count": 10
+    },
+    "office.finance.bank": {
+      "asset_id": "humanball.office.finance.bank",
+      "file": "components/humanball.office.finance.bank.png",
+      "frame_ms": 240,
+      "humanball_id": "office.finance.bank",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.finance.bank.png",
+      "visible_frame_count": 10
+    },
+    "office.finance.banknote": {
+      "asset_id": "humanball.office.finance.banknote",
+      "file": "components/humanball.office.finance.banknote.png",
+      "frame_ms": 240,
+      "humanball_id": "office.finance.banknote",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.finance.banknote.png",
+      "visible_frame_count": 10
+    },
+    "office.finance.sales_target": {
+      "asset_id": "humanball.office.finance.sales_target",
+      "file": "components/humanball.office.finance.sales_target.png",
+      "frame_ms": 240,
+      "humanball_id": "office.finance.sales_target",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.finance.sales_target.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.burger": {
+      "asset_id": "humanball.office.food_drinks.burger",
+      "file": "components/humanball.office.food_drinks.burger.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.burger",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.burger.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.cake": {
+      "asset_id": "humanball.office.food_drinks.cake",
+      "file": "components/humanball.office.food_drinks.cake.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.cake",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.cake.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.cookie": {
+      "asset_id": "humanball.office.food_drinks.cookie",
+      "file": "components/humanball.office.food_drinks.cookie.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.cookie",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.cookie.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.donut": {
+      "asset_id": "humanball.office.food_drinks.donut",
+      "file": "components/humanball.office.food_drinks.donut.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.donut",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.donut.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.orange": {
+      "asset_id": "humanball.office.food_drinks.orange",
+      "file": "components/humanball.office.food_drinks.orange.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.orange",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.orange.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.pizza": {
+      "asset_id": "humanball.office.food_drinks.pizza",
+      "file": "components/humanball.office.food_drinks.pizza.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.pizza",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.pizza.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.sandwich": {
+      "asset_id": "humanball.office.food_drinks.sandwich",
+      "file": "components/humanball.office.food_drinks.sandwich.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.sandwich",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.sandwich.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.soda": {
+      "asset_id": "humanball.office.food_drinks.soda",
+      "file": "components/humanball.office.food_drinks.soda.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.soda",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.soda.png",
+      "visible_frame_count": 10
+    },
+    "office.food_drinks.tea": {
+      "asset_id": "humanball.office.food_drinks.tea",
+      "file": "components/humanball.office.food_drinks.tea.png",
+      "frame_ms": 240,
+      "humanball_id": "office.food_drinks.tea",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.food_drinks.tea.png",
+      "visible_frame_count": 10
+    },
+    "office.it_security.code": {
+      "asset_id": "humanball.office.it_security.code",
+      "file": "components/humanball.office.it_security.code.png",
+      "frame_ms": 240,
+      "humanball_id": "office.it_security.code",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.it_security.code.png",
+      "visible_frame_count": 10
+    },
+    "office.it_security.padlock": {
+      "asset_id": "humanball.office.it_security.padlock",
+      "file": "components/humanball.office.it_security.padlock.png",
+      "frame_ms": 240,
+      "humanball_id": "office.it_security.padlock",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.it_security.padlock.png",
+      "visible_frame_count": 10
+    },
+    "office.it_security.virus": {
+      "asset_id": "humanball.office.it_security.virus",
+      "file": "components/humanball.office.it_security.virus.png",
+      "frame_ms": 240,
+      "humanball_id": "office.it_security.virus",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.it_security.virus.png",
+      "visible_frame_count": 10
+    },
+    "office.rewards.birthday": {
+      "asset_id": "humanball.office.rewards.birthday",
+      "file": "components/humanball.office.rewards.birthday.png",
+      "frame_ms": 240,
+      "humanball_id": "office.rewards.birthday",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.rewards.birthday.png",
+      "visible_frame_count": 10
+    },
+    "office.rewards.confetti": {
+      "asset_id": "humanball.office.rewards.confetti",
+      "file": "components/humanball.office.rewards.confetti.png",
+      "frame_ms": 240,
+      "humanball_id": "office.rewards.confetti",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.rewards.confetti.png",
+      "visible_frame_count": 10
+    },
+    "office.rewards.crown": {
+      "asset_id": "humanball.office.rewards.crown",
+      "file": "components/humanball.office.rewards.crown.png",
+      "frame_ms": 240,
+      "humanball_id": "office.rewards.crown",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.rewards.crown.png",
+      "visible_frame_count": 10
+    },
+    "office.rewards.gift": {
+      "asset_id": "humanball.office.rewards.gift",
+      "file": "components/humanball.office.rewards.gift.png",
+      "frame_ms": 240,
+      "humanball_id": "office.rewards.gift",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.rewards.gift.png",
+      "visible_frame_count": 10
+    },
+    "office.rewards.leaderboard": {
+      "asset_id": "humanball.office.rewards.leaderboard",
+      "file": "components/humanball.office.rewards.leaderboard.png",
+      "frame_ms": 240,
+      "humanball_id": "office.rewards.leaderboard",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.rewards.leaderboard.png",
+      "visible_frame_count": 10
+    },
+    "office.rewards.medal": {
+      "asset_id": "humanball.office.rewards.medal",
+      "file": "components/humanball.office.rewards.medal.png",
+      "frame_ms": 240,
+      "humanball_id": "office.rewards.medal",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.rewards.medal.png",
+      "visible_frame_count": 10
+    },
+    "office.rewards.star": {
+      "asset_id": "humanball.office.rewards.star",
+      "file": "components/humanball.office.rewards.star.png",
+      "frame_ms": 240,
+      "humanball_id": "office.rewards.star",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.rewards.star.png",
+      "visible_frame_count": 10
+    },
+    "office.rewards.trophy": {
+      "asset_id": "humanball.office.rewards.trophy",
+      "file": "components/humanball.office.rewards.trophy.png",
+      "frame_ms": 240,
+      "humanball_id": "office.rewards.trophy",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.rewards.trophy.png",
+      "visible_frame_count": 10
+    },
+    "office.stationery.clipboard": {
+      "asset_id": "humanball.office.stationery.clipboard",
+      "file": "components/humanball.office.stationery.clipboard.png",
+      "frame_ms": 240,
+      "humanball_id": "office.stationery.clipboard",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.stationery.clipboard.png",
+      "visible_frame_count": 10
+    },
+    "office.stationery.notebook": {
+      "asset_id": "humanball.office.stationery.notebook",
+      "file": "components/humanball.office.stationery.notebook.png",
+      "frame_ms": 240,
+      "humanball_id": "office.stationery.notebook",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.stationery.notebook.png",
+      "visible_frame_count": 10
+    },
+    "office.stationery.scissors": {
+      "asset_id": "humanball.office.stationery.scissors",
+      "file": "components/humanball.office.stationery.scissors.png",
+      "frame_ms": 240,
+      "humanball_id": "office.stationery.scissors",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.stationery.scissors.png",
+      "visible_frame_count": 10
+    },
+    "office.workflow.bug": {
+      "asset_id": "humanball.office.workflow.bug",
+      "file": "components/humanball.office.workflow.bug.png",
+      "frame_ms": 240,
+      "humanball_id": "office.workflow.bug",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.workflow.bug.png",
+      "visible_frame_count": 10
+    },
+    "office.workflow.focus": {
+      "asset_id": "humanball.office.workflow.focus",
+      "file": "components/humanball.office.workflow.focus.png",
+      "frame_ms": 240,
+      "humanball_id": "office.workflow.focus",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.workflow.focus.png",
+      "visible_frame_count": 10
+    },
+    "office.workflow.urgent": {
+      "asset_id": "humanball.office.workflow.urgent",
+      "file": "components/humanball.office.workflow.urgent.png",
+      "frame_ms": 240,
+      "humanball_id": "office.workflow.urgent",
+      "total_frame_count": 12,
+      "url": "/runtime_assets/components/humanball.office.workflow.urgent.png",
+      "visible_frame_count": 10
+    }
+  },
   "overlays": [
     {
       "asset_id": "floor21.overlay.00",
@@ -9346,22 +10754,23 @@
       "y_px": 374
     }
   ],
-  "revision": "73466a995b4a2e0622ed8decd21f08764ac6818280077b28d04a0594d97f5b99",
+  "revision": "0371e9ef53e368f02995cf3bc9cfbd76b97d60e7f5acae43f01dee8e9f237715",
   "schema": "gds.runtime_render_manifest.v1",
   "source_registry_sha256": {
     "CHARACTER/ACTIONS/gds_standard_v1.json": "3a8316c62549895cce66cf96c7d4c1b13b491ed2aa4aed041ea17dcb7ff94c51",
-    "CHARACTER/ASSETS/asset_registry.json": "2f70e64586812a1a52258ef57781f11a16bf13e15a68dccea2c6b81e21c156e6",
-    "CHARACTER/CHARACTERS/characters.json": "a97fce3ddfb7978e9a4b09fd147f74470f3df99625ce149c47f731deb19e420c",
+    "CHARACTER/ASSETS/asset_registry.json": "b77c1d18654d5c8497040dbc6ebad4f0b1d5d40a6623a7c2c5120d234f34c035",
+    "CHARACTER/CHARACTERS/characters.json": "1788998d92d320b4917df33dc4664a4d249bb13b49cc3b9592c9d6d5cd443b3c",
     "CHARACTER/EFFECTS/gds_effects_v1.json": "83ecdb4aed4777e8ea1bff28897675636f2c15c808e94f1c7180ddde999eea31",
     "CHARACTER/EFFECTS/humanball_v1.json": "f25abceae637501fe2f20abc7fa0739b54a4eeac783ebe4892623eac3d8443a5",
+    "CHARACTER/EFFECTS/office_humanball_v1.json": "ecbd939cd9432efe087cac332736f18ed252bdc2b1a6be460440d0315d8ccd99",
     "CHARACTER/FRAME_RULES/frame_registry.json": "fb1490de9f8cc9d9babca0b1616dee5797bdcaa74bb6a3d874aa4400811a2f68",
     "WORLD/REGISTRY/floor_skins.json": "d9c0c5f73e4ea3da28fb0b8af3e1b461aced5e6cc3cf1f84f4716902928f819f",
     "WORLD/REGISTRY/floors.json": "8916cbc61c8b5bf468fa3e4f169f0fff66d78e26427e742af07538275100ee53",
     "WORLD/REGISTRY/layouts.json": "f88f137a06e05c95e8a40b138109db9576ccd067edf841e72d80c803e5578fc8",
-    "WORLD/REGISTRY/pc_animation.json": "d76ede66ca29fb93901869d60b23b715015510a4d0e8be545bbd796f77e76a30",
+    "WORLD/REGISTRY/pc_animation.json": "583039ab99a2e1451edbce014ec518f3864f8117f5e9a3b44752e751670f1e85",
     "WORLD/REGISTRY/visual_variants.json": "9b998ab923bbab11e2a94d780c4a02f813863f53f05c6a402409af0ea562a0d8",
     "WORLD/REGISTRY/walking_depth_profiles.json": "89c4a209d014e5613a318b01e05a674849a966b7c321de60084e7702a2d51a66",
-    "WORLD/REGISTRY/world_assets.json": "78f4cb78fa3c6bb3b7734e86494e5f68b89ff1f90f3b7101f092e4935a972a3b"
+    "WORLD/REGISTRY/world_assets.json": "4f54651aa54706e664fe0b1e21bfbfe6c2ae44805f4c166b0723ac473bb1cdde"
   },
   "static_placements": [
     {

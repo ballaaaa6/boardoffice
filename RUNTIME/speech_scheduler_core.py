@@ -16,6 +16,7 @@ from typing import Any, Iterable
 
 from jsonschema import Draft202012Validator
 
+from CHARACTER.RUNTIME.dialogue_bubble import DialogueBubbleError, DialogueBubbleRenderer
 from RUNTIME.employee_registry import EmployeeMetadataError, EmployeeMetadataRegistry
 
 
@@ -87,6 +88,13 @@ class SpeechSchedulerCore:
         self.root = Path(root).resolve()
         self.employee_registry = employee_registry or EmployeeMetadataRegistry(self.root)
         self.conversation = conversation
+        character_root = self.root / "CHARACTER"
+        if not (character_root / "DIALOGUE" / "bubble_presets.json").is_file():
+            character_root = self.root
+        try:
+            self.dialogue_bubbles = DialogueBubbleRenderer(character_root)
+        except DialogueBubbleError as exc:
+            raise SpeechSchedulerError(str(exc)) from exc
         self.contract_path = self.root / "CONTRACTS" / "speech_scheduler.json"
         self.schema_path = self.root / "SCHEMA" / "speech_scheduler_snapshot.schema.json"
         try:
@@ -975,7 +983,20 @@ class SpeechSchedulerCore:
             rows = self.conversation._dialogue_lines(locale=locale, category=category)
         except Exception:
             return []
-        return [dict(row) for row in rows if isinstance(row, dict)]
+        valid_rows: list[dict[str, Any]] = []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            try:
+                self.dialogue_bubbles.select_bubble(
+                    str(row.get("text", "")),
+                    locale=str(row.get("locale") or locale_key),
+                    font_size_px=9,
+                )
+            except (DialogueBubbleError, KeyError, TypeError, ValueError):
+                continue
+            valid_rows.append(dict(row))
+        return valid_rows
 
     def _take_dialogue_from_bag(
         self,

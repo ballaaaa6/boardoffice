@@ -64,6 +64,7 @@ def _source_hashes(root: Path) -> dict[str, str]:
         "CHARACTER/ASSETS/asset_registry.json",
         "CHARACTER/EFFECTS/gds_effects_v1.json",
         "CHARACTER/EFFECTS/humanball_v1.json",
+        "CHARACTER/EFFECTS/office_humanball_v1.json",
     )
     result: dict[str, str] = {}
     for relative in paths:
@@ -266,6 +267,7 @@ def build_manifest(
     workstation_records: dict[str, dict[str, Any]] = {}
     workstation_placement_ids: set[str] = set()
     humanball_data = core.characters.humanballs.data
+    office_humanball_data = core.characters.office_humanballs.data
     humanball_offsets = _humanball_offsets(humanball_data)
 
     for workstation_id in sorted(layout.floor_layout(floor_id)["workstation_groups"]):
@@ -478,30 +480,55 @@ def build_manifest(
     for record in asset_records.values():
         files[record["file"]] = record
 
-    humanballs: dict[str, dict[str, Any]] = {}
-    for humanball_id in humanball_data["humanball_order"]:
-        meta = humanball_data["humanballs"][humanball_id]
-        asset_id = str(meta["asset_id"])
-        record = asset_records.get(asset_id)
-        if record is None:
-            record = _copy_asset(
-                character_assets.resolve(asset_id),
-                output,
-                f"components/{_safe_name(asset_id)}.png",
-                kind="humanball",
-            )
-            record.update({"asset_id": asset_id, "domain": "effect", "dimensions": list(HUMANBALL_SIZE)})
-            asset_records[asset_id] = record
-            files[record["file"]] = record
-        humanballs[str(humanball_id)] = {
-            "humanball_id": str(humanball_id),
-            "asset_id": asset_id,
-            "file": record["file"],
-            "url": record["url"],
-            "frame_ms": int(humanball_data["animation"]["frame_ms"]),
-            "visible_frame_count": int(humanball_data["animation"]["visible_frames"]),
-            "total_frame_count": int(humanball_data["animation"]["total_frames"]),
-        }
+    def _humanball_records(
+        data: dict[str, Any],
+        *,
+        order_key: str,
+        records_key: str,
+        kind: str,
+    ) -> dict[str, dict[str, Any]]:
+        result: dict[str, dict[str, Any]] = {}
+        for humanball_id in data[order_key]:
+            meta = data[records_key][humanball_id]
+            asset_id = str(meta["asset_id"])
+            record = asset_records.get(asset_id)
+            if record is None:
+                record = _copy_asset(
+                    character_assets.resolve(asset_id),
+                    output,
+                    f"components/{_safe_name(asset_id)}.png",
+                    kind=kind,
+                )
+                record.update({
+                    "asset_id": asset_id,
+                    "domain": "effect",
+                    "dimensions": list(HUMANBALL_SIZE),
+                })
+                asset_records[asset_id] = record
+                files[record["file"]] = record
+            result[str(humanball_id)] = {
+                "humanball_id": str(humanball_id),
+                "asset_id": asset_id,
+                "file": record["file"],
+                "url": record["url"],
+                "frame_ms": int(data["animation"]["frame_ms"]),
+                "visible_frame_count": int(data["animation"]["visible_frames"]),
+                "total_frame_count": int(data["animation"]["total_frames"]),
+            }
+        return result
+
+    humanballs = _humanball_records(
+        humanball_data,
+        order_key="humanball_order",
+        records_key="humanballs",
+        kind="humanball",
+    )
+    office_humanballs = _humanball_records(
+        office_humanball_data,
+        order_key="office_humanball_order",
+        records_key="office_humanballs",
+        kind="office_humanball",
+    )
 
     revision_payload = {
         "builder": BUILDER_VERSION,
@@ -544,6 +571,7 @@ def build_manifest(
         "actions": action_set["actions"],
         "effects": effects,
         "humanballs": humanballs,
+        "office_humanballs": office_humanballs,
         "files": [files[key] for key in sorted(files)],
         "source_registry_sha256": source_hashes,
     }

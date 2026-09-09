@@ -45,11 +45,19 @@ def test_visual_catalog_exposes_all_canonical_ids():
     humanball_registry = json.loads(
         (ROOT / "CHARACTER/EFFECTS/humanball_v1.json").read_text(encoding="utf-8")
     )
+    office_humanball_registry = json.loads(
+        (ROOT / "CHARACTER/EFFECTS/office_humanball_v1.json").read_text(encoding="utf-8")
+    )
 
     assert catalog["vfx"]["ids"] == effect_registry["effect_order"]
-    assert catalog["humanball"]["ids"] == humanball_registry["humanball_order"]
+    expected_popup_ids = [
+        *humanball_registry["humanball_order"],
+        *office_humanball_registry["office_humanball_order"],
+    ]
+    assert catalog["humanball"]["ids"] == expected_popup_ids
     assert len(catalog["vfx"]["ids"]) == 11
-    assert len(catalog["humanball"]["ids"]) == 6
+    assert len(catalog["humanball"]["ids"]) == 44
+    assert catalog["humanball"]["pool_mode"] == "canonical_plus_office"
     assert catalog["profile_id"] == "gds.visual_catalog.v1"
 
 
@@ -66,13 +74,14 @@ def test_vfx_bag_has_no_repeat_then_refills_deterministically():
     assert selected == visual_sequence(visual, "vfx", "bag-seed", "EMP_W1_0010", 23)
 
 
-def test_popup_bag_covers_all_six_assets_before_repeat():
+def test_popup_bag_covers_all_44_assets_before_repeat():
     visual = VisualSelectionCore(ROOT)
-    selected = visual_sequence(visual, "humanball", "popup-seed", "EMP_W1_0010", 13)
+    selected = visual_sequence(visual, "humanball", "popup-seed", "EMP_W1_0010", 89)
 
-    assert len(set(selected[:6])) == 6
-    assert set(selected[:6]) == set(visual.catalog()["humanball"]["ids"])
-    assert len(set(selected[6:12])) == 6
+    assert len(set(selected[:44])) == 44
+    assert set(selected[:44]) == set(visual.catalog()["humanball"]["ids"])
+    assert len(set(selected[44:88])) == 44
+    assert selected[88] in visual.catalog()["humanball"]["ids"]
 
 
 def test_visual_bags_are_independent_by_actor_and_channel():

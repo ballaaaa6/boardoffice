@@ -204,6 +204,7 @@ def _effect_inputs(core: CentralGameCore) -> dict[str, Any]:
     return _json_copy({
         "effects": core.characters.effects.data,
         "humanballs": core.characters.humanballs.data,
+        "office_humanballs": core.characters.office_humanballs.data,
     })
 
 

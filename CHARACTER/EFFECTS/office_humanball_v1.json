@@ -1,0 +1,187 @@
+{
+  "schema": "gds_office_humanball_registry_v1",
+  "office_humanball_count": 38,
+  "office_humanball_order": [
+    "office.food_drinks.tea",
+    "office.food_drinks.soda",
+    "office.food_drinks.donut",
+    "office.food_drinks.sandwich",
+    "office.food_drinks.pizza",
+    "office.food_drinks.burger",
+    "office.food_drinks.orange",
+    "office.food_drinks.cake",
+    "office.food_drinks.cookie",
+    "office.stationery.scissors",
+    "office.stationery.notebook",
+    "office.stationery.clipboard",
+    "office.equipment.printer",
+    "office.documents.folder",
+    "office.documents.invoice",
+    "office.documents.calendar",
+    "office.communication.question",
+    "office.communication.bell",
+    "office.communication.send",
+    "office.workflow.focus",
+    "office.workflow.urgent",
+    "office.workflow.bug",
+    "office.it_security.padlock",
+    "office.it_security.code",
+    "office.it_security.virus",
+    "office.facilities.plant",
+    "office.facilities.wall_clock",
+    "office.finance.banknote",
+    "office.finance.bank",
+    "office.finance.sales_target",
+    "office.rewards.trophy",
+    "office.rewards.medal",
+    "office.rewards.star",
+    "office.rewards.gift",
+    "office.rewards.crown",
+    "office.rewards.confetti",
+    "office.rewards.birthday",
+    "office.rewards.leaderboard"
+  ],
+  "supported_action": {
+    "action": "work",
+    "subaction": "normal_work"
+  },
+  "cell": [18, 18],
+  "animation": {
+    "mode": "loop",
+    "total_frames": 12,
+    "visible_frames": 10,
+    "hidden_frames": 2,
+    "frame_ms": 240
+  },
+  "direction_rules": {
+    "NW": {"source": "native_verified"},
+    "SE": {"source": "native_verified"},
+    "SW": {
+      "source": "derived_relation",
+      "derived_from": "SE",
+      "transform": "mirror_relation_x",
+      "mirror_artwork": false
+    },
+    "NE": {
+      "source": "derived_relation",
+      "derived_from": "NW",
+      "transform": "mirror_relation_x",
+      "mirror_artwork": false
+    }
+  },
+  "motion_offsets_from_character_top_left_px": {
+    "NW": [[7,-21],[8,-23],[7,-25],[6,-26],[7,-28],[8,-29],[7,-31],[6,-32],[7,-34],[7,-35]],
+    "SE": [[5,-13],[6,-15],[5,-17],[4,-18],[5,-20],[6,-21],[5,-23],[4,-24],[5,-26],[5,-27]]
+  },
+  "render": {
+    "anchor": "character_work_origin",
+    "layer_mode": "work_popup_overlay"
+  },
+  "style_contract": {
+    "outer_border_color": "#FFFBF0",
+    "inner_contour_color": "#000000",
+    "border_width_px": 1,
+    "alpha_mode": "binary_0_or_255",
+    "cell_size_px": [18, 18]
+  },
+  "categories": {
+    "01_food_drinks": {
+      "slug": "food_drinks",
+      "title": "อาหารและเครื่องดื่ม",
+      "item_ids": ["tea", "soda", "donut", "sandwich", "pizza", "burger", "orange", "cake", "cookie"]
+    },
+    "02_stationery": {
+      "slug": "stationery",
+      "title": "เครื่องเขียนและของบนโต๊ะ",
+      "item_ids": ["scissors", "notebook", "clipboard"]
+    },
+    "03_equipment": {
+      "slug": "equipment",
+      "title": "อุปกรณ์สำนักงานและเทคโนโลยี",
+      "item_ids": ["printer"]
+    },
+    "04_documents": {
+      "slug": "documents",
+      "title": "เอกสารและงานธุรกิจ",
+      "item_ids": ["folder", "invoice", "calendar"]
+    },
+    "05_communication": {
+      "slug": "communication",
+      "title": "การประชุมและการสื่อสาร",
+      "item_ids": ["question", "bell", "send"]
+    },
+    "06_workflow": {
+      "slug": "workflow",
+      "title": "สถานะงานและเวิร์กโฟลว์",
+      "item_ids": ["focus", "urgent", "bug"]
+    },
+    "07_it_security": {
+      "slug": "it_security",
+      "title": "ระบบไอทีและความปลอดภัย",
+      "item_ids": ["padlock", "code", "virus"]
+    },
+    "08_facilities": {
+      "slug": "facilities",
+      "title": "พื้นที่สำนักงานและสวัสดิการ",
+      "item_ids": ["plant", "wall_clock"]
+    },
+    "09_finance": {
+      "slug": "finance",
+      "title": "การเงินและธุรกิจองค์กร",
+      "item_ids": ["banknote", "bank", "sales_target"]
+    },
+    "10_rewards": {
+      "slug": "rewards",
+      "title": "รางวัล กิจกรรม และความสำเร็จ",
+      "item_ids": ["trophy", "medal", "star", "gift", "crown", "confetti", "birthday", "leaderboard"]
+    }
+  },
+  "provenance": {
+    "source_package": "humanball_office_200_cinematic_v3",
+    "source_status": "author_approved_cinematic_v3_review_selection",
+    "source_overview": "LOCAL_REVIEW/humanball_office_200_cinematic_v3/overview_200.png",
+    "source_selection": "LOCAL_REVIEW/humanball_office_200_cinematic_v3/green_selected_38_gif/selection.json",
+    "selection_rule": "only the 38 cells marked by the green review marks",
+    "review_gif": "LOCAL_REVIEW/humanball_office_200_cinematic_v3/green_selected_38_gif/green_selected_38_humanball_sheet.gif"
+  },
+  "office_humanballs": {
+    "office.food_drinks.tea": {"humanball_id":"office.food_drinks.tea","asset_id":"humanball.office.food_drinks.tea","category_id":"01_food_drinks","item_id":"tea","label":"ชา","source_index":0},
+    "office.food_drinks.soda": {"humanball_id":"office.food_drinks.soda","asset_id":"humanball.office.food_drinks.soda","category_id":"01_food_drinks","item_id":"soda","label":"กระป๋องน้ำอัดลม","source_index":1},
+    "office.food_drinks.donut": {"humanball_id":"office.food_drinks.donut","asset_id":"humanball.office.food_drinks.donut","category_id":"01_food_drinks","item_id":"donut","label":"โดนัท","source_index":2},
+    "office.food_drinks.sandwich": {"humanball_id":"office.food_drinks.sandwich","asset_id":"humanball.office.food_drinks.sandwich","category_id":"01_food_drinks","item_id":"sandwich","label":"แซนด์วิช","source_index":3},
+    "office.food_drinks.pizza": {"humanball_id":"office.food_drinks.pizza","asset_id":"humanball.office.food_drinks.pizza","category_id":"01_food_drinks","item_id":"pizza","label":"พิซซ่า","source_index":4},
+    "office.food_drinks.burger": {"humanball_id":"office.food_drinks.burger","asset_id":"humanball.office.food_drinks.burger","category_id":"01_food_drinks","item_id":"burger","label":"เบอร์เกอร์","source_index":5},
+    "office.food_drinks.orange": {"humanball_id":"office.food_drinks.orange","asset_id":"humanball.office.food_drinks.orange","category_id":"01_food_drinks","item_id":"orange","label":"ส้ม","source_index":6},
+    "office.food_drinks.cake": {"humanball_id":"office.food_drinks.cake","asset_id":"humanball.office.food_drinks.cake","category_id":"01_food_drinks","item_id":"cake","label":"เค้ก","source_index":7},
+    "office.food_drinks.cookie": {"humanball_id":"office.food_drinks.cookie","asset_id":"humanball.office.food_drinks.cookie","category_id":"01_food_drinks","item_id":"cookie","label":"คุกกี้","source_index":8},
+    "office.stationery.scissors": {"humanball_id":"office.stationery.scissors","asset_id":"humanball.office.stationery.scissors","category_id":"02_stationery","item_id":"scissors","label":"กรรไกร","source_index":9},
+    "office.stationery.notebook": {"humanball_id":"office.stationery.notebook","asset_id":"humanball.office.stationery.notebook","category_id":"02_stationery","item_id":"notebook","label":"สมุดโน้ต","source_index":10},
+    "office.stationery.clipboard": {"humanball_id":"office.stationery.clipboard","asset_id":"humanball.office.stationery.clipboard","category_id":"02_stationery","item_id":"clipboard","label":"คลิปบอร์ด","source_index":11},
+    "office.equipment.printer": {"humanball_id":"office.equipment.printer","asset_id":"humanball.office.equipment.printer","category_id":"03_equipment","item_id":"printer","label":"เครื่องพิมพ์","source_index":12},
+    "office.documents.folder": {"humanball_id":"office.documents.folder","asset_id":"humanball.office.documents.folder","category_id":"04_documents","item_id":"folder","label":"แฟ้มเอกสาร","source_index":13},
+    "office.documents.invoice": {"humanball_id":"office.documents.invoice","asset_id":"humanball.office.documents.invoice","category_id":"04_documents","item_id":"invoice","label":"ใบแจ้งหนี้","source_index":14},
+    "office.documents.calendar": {"humanball_id":"office.documents.calendar","asset_id":"humanball.office.documents.calendar","category_id":"04_documents","item_id":"calendar","label":"ปฏิทินงาน","source_index":15},
+    "office.communication.question": {"humanball_id":"office.communication.question","asset_id":"humanball.office.communication.question","category_id":"05_communication","item_id":"question","label":"เครื่องหมายคำถาม","source_index":16},
+    "office.communication.bell": {"humanball_id":"office.communication.bell","asset_id":"humanball.office.communication.bell","category_id":"05_communication","item_id":"bell","label":"กระดิ่งแจ้งเตือน","source_index":17},
+    "office.communication.send": {"humanball_id":"office.communication.send","asset_id":"humanball.office.communication.send","category_id":"05_communication","item_id":"send","label":"ส่งข้อความ","source_index":18},
+    "office.workflow.focus": {"humanball_id":"office.workflow.focus","asset_id":"humanball.office.workflow.focus","category_id":"06_workflow","item_id":"focus","label":"เป้าหมายโฟกัส","source_index":19},
+    "office.workflow.urgent": {"humanball_id":"office.workflow.urgent","asset_id":"humanball.office.workflow.urgent","category_id":"06_workflow","item_id":"urgent","label":"งานเร่งด่วน","source_index":20},
+    "office.workflow.bug": {"humanball_id":"office.workflow.bug","asset_id":"humanball.office.workflow.bug","category_id":"06_workflow","item_id":"bug","label":"บั๊ก","source_index":21},
+    "office.it_security.padlock": {"humanball_id":"office.it_security.padlock","asset_id":"humanball.office.it_security.padlock","category_id":"07_it_security","item_id":"padlock","label":"แม่กุญแจ","source_index":22},
+    "office.it_security.code": {"humanball_id":"office.it_security.code","asset_id":"humanball.office.it_security.code","category_id":"07_it_security","item_id":"code","label":"หน้าต่างโค้ด","source_index":23},
+    "office.it_security.virus": {"humanball_id":"office.it_security.virus","asset_id":"humanball.office.it_security.virus","category_id":"07_it_security","item_id":"virus","label":"ไวรัส","source_index":24},
+    "office.facilities.plant": {"humanball_id":"office.facilities.plant","asset_id":"humanball.office.facilities.plant","category_id":"08_facilities","item_id":"plant","label":"ต้นไม้กระถาง","source_index":25},
+    "office.facilities.wall_clock": {"humanball_id":"office.facilities.wall_clock","asset_id":"humanball.office.facilities.wall_clock","category_id":"08_facilities","item_id":"wall_clock","label":"นาฬิกาติดผนัง","source_index":26},
+    "office.finance.banknote": {"humanball_id":"office.finance.banknote","asset_id":"humanball.office.finance.banknote","category_id":"09_finance","item_id":"banknote","label":"ธนบัตร","source_index":27},
+    "office.finance.bank": {"humanball_id":"office.finance.bank","asset_id":"humanball.office.finance.bank","category_id":"09_finance","item_id":"bank","label":"ธนาคาร","source_index":28},
+    "office.finance.sales_target": {"humanball_id":"office.finance.sales_target","asset_id":"humanball.office.finance.sales_target","category_id":"09_finance","item_id":"sales_target","label":"เป้ายอดขาย","source_index":29},
+    "office.rewards.trophy": {"humanball_id":"office.rewards.trophy","asset_id":"humanball.office.rewards.trophy","category_id":"10_rewards","item_id":"trophy","label":"ถ้วยรางวัล","source_index":30},
+    "office.rewards.medal": {"humanball_id":"office.rewards.medal","asset_id":"humanball.office.rewards.medal","category_id":"10_rewards","item_id":"medal","label":"เหรียญรางวัล","source_index":31},
+    "office.rewards.star": {"humanball_id":"office.rewards.star","asset_id":"humanball.office.rewards.star","category_id":"10_rewards","item_id":"star","label":"ดาว","source_index":32},
+    "office.rewards.gift": {"humanball_id":"office.rewards.gift","asset_id":"humanball.office.rewards.gift","category_id":"10_rewards","item_id":"gift","label":"กล่องของขวัญ","source_index":33},
+    "office.rewards.crown": {"humanball_id":"office.rewards.crown","asset_id":"humanball.office.rewards.crown","category_id":"10_rewards","item_id":"crown","label":"มงกุฎ","source_index":34},
+    "office.rewards.confetti": {"humanball_id":"office.rewards.confetti","asset_id":"humanball.office.rewards.confetti","category_id":"10_rewards","item_id":"confetti","label":"กระดาษโปรย","source_index":35},
+    "office.rewards.birthday": {"humanball_id":"office.rewards.birthday","asset_id":"humanball.office.rewards.birthday","category_id":"10_rewards","item_id":"birthday","label":"เค้กวันเกิด","source_index":36},
+    "office.rewards.leaderboard": {"humanball_id":"office.rewards.leaderboard","asset_id":"humanball.office.rewards.leaderboard","category_id":"10_rewards","item_id":"leaderboard","label":"แท่นอันดับ","source_index":37}
+  }
+}

@@ -134,7 +134,8 @@
         "workstation_directions",
         "effects",
         "event_presets",
-        "humanballs"
+        "humanballs",
+        "office_humanballs"
       ],
       "properties": {
         "technical_characters": {
@@ -166,6 +167,10 @@
           "minLength": 1
         },
         "humanballs": {
+          "type": "string",
+          "minLength": 1
+        },
+        "office_humanballs": {
           "type": "string",
           "minLength": 1
         }
@@ -458,7 +463,8 @@
           "additionalProperties": false,
           "required": [
             "path",
-            "popup_humanball_ids"
+            "popup_humanball_ids",
+            "office_path"
           ],
           "properties": {
             "path": {
@@ -467,6 +473,10 @@
             },
             "popup_humanball_ids": {
               "$ref": "#/$defs/string_list"
+            },
+            "office_path": {
+              "type": "string",
+              "minLength": 1
             }
           }
         },

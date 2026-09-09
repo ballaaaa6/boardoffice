@@ -2,7 +2,7 @@
 
 **Project root:** `D:\antigravity\board office`
 **Source of truth:** unpacked project root
-**Updated:** 2026-09-07 (Asia/Bangkok)
+**Updated:** 2026-09-09 (Asia/Bangkok)
 
 ## Active milestone — Cloudflare browser runtime / zero simulation API
 
@@ -27,6 +27,137 @@ and local raster fallback.
 - [x] Make Zero-API browser mode (`WEB/viewer.html`) the primary production architecture while
   retaining Python as offline data oracle, bundle compiler, and review fallback.
 - [x] Merge `prototype_living_character_web` into `main` and push to remote.
+
+### VFX charging-aura visual review — 2026-09-09
+
+- [x] Produce a fresh curved-volume ten-frame native 33x65 review in
+  `LOCAL_REVIEW/core_charge_flow_v2/` after rejection of the angular v1.
+- [x] Verify native pixels, unique frames, alpha, nearest-neighbor exports
+  and GIF timing (240ms/frame); inspect the enlarged sheet.
+- [x] After author rejected smooth v2 as too simple, inspect all 11 effects
+  (104 frames), emphasizing fire, and draw the fiercer ten-frame candidate
+  `LOCAL_REVIEW/core_charge_inferno_v3/`; verify pixels/timing and unchanged
+  reference hashes. Previous v1/v2 are rejected visual history.
+- [ ] Author visual acceptance of the revised loop and scene placement.
+- [ ] Separate production integration request and runtime verification.
+
+### Current HumanBall popup review gate
+
+- [x] Create a new text-specified 100-item office popup batch: five categories,
+  20 items each, with no reuse of prior popup images.
+- [x] Produce independent native 18x18 Aseprite/PNG sources, ordered 5x4
+  review sheets, nearest-neighbor 10x reviews and a batch manifest under
+  `LOCAL_REVIEW/humanball_popups_new_from_scratch_v1/`.
+- [x] Pass native QA for all 100 sprites: exact dimensions, binary alpha,
+  transparent moat/no edge pixels and no identical hashes with prior review
+  PNGs.
+- [x] Rework the complete 100-item batch into a new shaded review revision
+  under `LOCAL_REVIEW/humanball_popups_new_shaded_v2/`, with hard-edged
+  highlight/midtone/shadow clusters and no legacy image inputs.
+- [x] Pass shaded native QA: 100/100 exact 18x18 RGBA sprites, binary alpha,
+  no edge pixels, at least four opaque object colors per sprite, all changed
+  from the flat v1 batch and no identical hashes with prior review PNGs.
+- [x] Complete the prior fresh redraw for silhouette/readability under
+  `LOCAL_REVIEW/humanball_popups_redraw_v3/`; retain it as rejected legacy
+  review history only because it is not the current Gate A-derived batch.
+- [x] Replace that rejected legacy batch with the active Gate B candidate under
+  `LOCAL_REVIEW/humanball_popups_gateb_from_gatea_v1/`, drawn only from the
+  five latest author-approved Gate A sheets, with 100 independent native
+  18x18 Aseprite/PNG sprites, ordered 5x4 sheets and nearest-neighbor 10x
+  reviews.
+- [x] Pass active Gate B candidate QA: 100/100 exact 18x18 RGBA sprites,
+  binary alpha, transparent moat/no edge pixels, complete dark-inner-contour
+  adjacency, at least four opaque colors per sprite, 100 unique hashes and no
+  hash overlap with prior review PNGs.
+- [x] Author approved the five 180x180 concept sheets (Gate A) and authorized
+  the complete native 18x18 redraw for Gate B review.
+- [ ] Author visual approval of the active Gate A-derived native redraw (Gate B).
+- [ ] Production integration, registry/bundle regeneration and runtime review
+  (Gate C).
+
+### Entertainment 20-item visual follow-up — 2026-09-09
+
+- [x] Re-audit the six canonical HumanBall sprites for silhouette families,
+  object landmarks and hard-edged value-cluster behavior.
+- [x] Create the review-only v3 entertainment redraw under
+  `LOCAL_REVIEW/humanball_entertainment_20_v3/` without reusing v1/v2 pixel
+  maps; technical export dimensions and locked border colors are present.
+- [x] Redraw a representative silhouette pilot first: wide hardware, open
+  negative-space audio, radial media, side-profile object and stepped
+  geometric piece, under
+  `LOCAL_REVIEW/humanball_entertainment_pilot_v4/`; author visual review is
+  rejected the construction, so this pilot is review history only.
+- [x] Rebuild the representative pilot as silhouette and grayscale structural
+  studies in `LOCAL_REVIEW/humanball_construction_v5/` with mirrored controller
+  geometry, upright guitar, standalone record and three-face dice.
+- [x] Author accepted v5 construction language on 2026-09-09, requiring a
+  distinct controller design; the canonical-like v5 controller is not selected.
+- [x] Draw and shade all twenty entertainment items in
+  `LOCAL_REVIEW/humanball_entertainment_v6/`, including the redesigned
+  symmetric twin-stick controller; export PNG/Aseprite and verify pixel QA.
+- [x] Author visual acceptance of the full v6 entertainment sheet, 2026-09-09.
+- [x] Document all twenty approved construction and shading recipes; preserve
+  executable source in `docs/examples/humanball_entertainment_approved.py` and
+  verify pixel-identical reproduction of all sprites and both clean sheets.
+- [x] Add object-specific highlight/midtone/contact-shadow/deep-shadow
+  clusters using a consistent upper-left light direction; avoid decorative
+  full-width color bands.
+- [x] Rebuild all twenty from the approved pilot language, then obtain author
+  visual approval before any production integration.
+
+### Office 200-item batch — 2026-09-09
+
+- [x] Draw ten categories of twenty native sprites using the accepted method;
+  create one 5x4 sheet per category under `LOCAL_REVIEW/humanball_office_200_v1/`.
+- [x] Provide individual PNGs, transparent native/10x sheets, Thai-labeled
+  reviews, overview, manifests and reproducible drawing source.
+- [x] Verify all 200: unique RGBA hashes, binary alpha, complete unclipped
+  1px #000000/#FFFBF0 borders, and pixel-identical sheet cells.
+- [x] Export 200 editable sprites plus ten editable sheets; verify all 210
+  Aseprite round trips and ZIP integrity (457 explicitly selected files).
+- [x] Respond to the author's flat-shading feedback with explicit material
+  highlight/shadow patches on all 200 in `humanball_office_200_shaded_v2/`;
+  retain v1 and verify unchanged silhouettes and exact border pixels.
+- [x] Verify shaded v2's 210 editable-source round trips and 462-entry ZIP.
+- [x] Record author rejection of v2's block-shaped shadows; create cinematic
+  v3 with curved surface-driven tonal transitions and warm/cool lighting.
+  Verify all 200 changed with identical alpha and black/cream border masks.
+- [x] Verify v3's 210 editable-source round trips and 463-entry ZIP integrity.
+- [x] Author visual acceptance of the cinematic v3 ten-category batch —
+  2026-09-09. Accepted reference for curved cinematic office lighting.
+- [x] Roll back the canceled integration attempt; retain all 200 new sprites
+  as review-only artwork and leave the six original HumanBall assets/system
+  records unchanged.
+- [x] Create a review-only floor00 GIF contact sheet with ten random new
+  icons, using the original 12-frame HumanBall timing and no integration.
+- [x] Receive an explicit request to integrate only the 38 green-selected
+  items as an office HumanBall pool.
+
+### Authorized 38-item office pool integration — 2026-09-09
+
+- [x] Resolve the exact 38 green-selected items from
+  `green_selected_38_gif/selection.json` without importing the remaining 162
+  review-only sprites.
+- [x] Copy and hash-register the 38 exact 18x18 RGBA PNGs under the separate
+  `CHARACTER/ASSETS/effects/humanball/office/` namespace.
+- [x] Add the dedicated office registry/schema and CharacterSystem/Central
+  facades while preserving the six canonical HumanBall IDs and hashes.
+- [x] Add the office browser visual channel and render-manifest channel;
+  rebuild all 25 floor bundles with 38 office IDs plus the unchanged six
+  canonical IDs.
+- [x] Merge the 38 office IDs into the existing automatic `humanball` popup
+  shuffle bag, producing one deterministic 44-item pool while preserving the
+  six canonical records and their hashes.
+- [x] Verify the office renderer's 12-frame timing, 10 visible / 2 hidden
+  frames, 240ms frame timing, NW/SE offsets, binary alpha and asset hashes.
+- [x] Keep the review GIFs/sheets out of runtime packaging.
+- [x] Default-merge regression: 32 focused pool/metadata/contract tests and
+  37 parity/render tests passed; browser unit suite: 16 passed; all 25 floor
+  bundle checks passed.
+- [ ] Author visual acceptance of the 38-item artwork remains open; the
+  requested 44-item default gameplay merge is now implemented.
+- [ ] Resolve the pre-existing `floor06/ws3` WorkSeat expectation failure and
+  central-audit `floor_skins`/placement-reference mismatches.
 
 ## Completed milestone — Phase 8E runtime review
 
@@ -218,7 +349,8 @@ The original behavior correction remains implemented and regenerated for `seated
 
 - [x] Add the contract/schema field for the visitor extra `[0, -20]` offset.
 - [x] Apply the extra offset to the walking visitor in `seated_host`, producing actual `-40px` total height while leaving its host at normal `-20px`.
-- [x] Regenerate the `floor02` browser bundle and verify all **11 VFX** and **6 HumanBall** IDs remain present.
+- [x] Regenerate the `floor02` browser bundle and verify all **11 VFX** and
+  the current **44-item HumanBall popup** pool remain present.
 - [x] Add Python/browser bundle regressions; full Python suite **403 passed**, focused conversation/browser suite **48 passed**, browser unit suite **14 passed**.
 - [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/`.
 

@@ -483,6 +483,9 @@ class CentralGameCore:
     def list_humanballs(self) -> list[str]:
         return self.characters.list_humanballs()
 
+    def list_popup_humanballs(self) -> list[str]:
+        return self.characters.list_popup_humanballs()
+
     def get_humanball(self, humanball_id: str) -> dict[str, Any]:
         try:
             return self.characters.get_humanball(humanball_id)
@@ -498,6 +501,29 @@ class CentralGameCore:
     ):
         try:
             return self.characters.render_humanball(
+                humanball_id, direction, human_size=human_size
+            )
+        except CharacterSystemError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def list_office_humanballs(self) -> list[str]:
+        return self.characters.list_office_humanballs()
+
+    def get_office_humanball(self, humanball_id: str) -> dict[str, Any]:
+        try:
+            return self.characters.get_office_humanball(humanball_id)
+        except CharacterSystemError as exc:
+            raise CentralGameCoreError(str(exc)) from exc
+
+    def render_office_humanball(
+        self,
+        humanball_id: str,
+        direction: str,
+        *,
+        human_size: tuple[int, int] = (32, 42),
+    ):
+        try:
+            return self.characters.render_office_humanball(
                 humanball_id, direction, human_size=human_size
             )
         except CharacterSystemError as exc:

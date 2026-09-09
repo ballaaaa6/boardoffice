@@ -27,8 +27,14 @@ export class BrowserVisualSelection {
     }
     this._catalog = clone(catalog);
     this._ids = {};
-    for (const [channel, schema] of [["vfx", "gds_effect_registry_v1"], ["humanball", "gds_humanball_registry_v1"]]) {
+    const channelSchemas = [
+      ["vfx", "gds_effect_registry_v1", true],
+      ["humanball", "gds_humanball_registry_v1", true],
+      ["office_humanball", "gds_office_humanball_registry_v1", false],
+    ];
+    for (const [channel, schema, required] of channelSchemas) {
       const record = catalog[channel];
+      if (!record && !required) continue;
       if (!isObject(record) || record.registry_schema !== schema || !Array.isArray(record.ids) || record.ids.length === 0) {
         throw new TypeError(`${channel} visual catalog is invalid`);
       }

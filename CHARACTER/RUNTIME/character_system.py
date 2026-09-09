@@ -10,6 +10,8 @@ from .effect_registry import EffectRegistry, EffectRegistryError
 from .effect_renderer import EffectRenderer, EffectRenderError
 from .humanball_registry import HumanBallRegistry, HumanBallRegistryError
 from .humanball_renderer import HumanBallRenderer, HumanBallRenderError
+from .office_humanball_registry import OfficeHumanBallRegistry, OfficeHumanBallRegistryError
+from .office_humanball_renderer import OfficeHumanBallRenderer
 from .presentation_renderer import WorkEffectPresentationRenderer, PresentationRenderError
 from .dialogue_bubble import (
     DialogueBubbleError,
@@ -36,6 +38,8 @@ class CharacterSystem:
         self.effect_renderer = EffectRenderer(self.core_root)
         self.humanballs = HumanBallRegistry(self.core_root)
         self.humanball_renderer = HumanBallRenderer(self.core_root)
+        self.office_humanballs = OfficeHumanBallRegistry(self.core_root)
+        self.office_humanball_renderer = OfficeHumanBallRenderer(self.core_root)
         self.presentation = WorkEffectPresentationRenderer(self.core_root, self.core.renderer)
         self.dialogue = DialogueContentRegistry(self.core_root)
         self.dialogue_bubbles = DialogueBubbleRenderer(self.core_root)
@@ -61,10 +65,18 @@ class CharacterSystem:
     def list_humanballs(self) -> list[str]:
         return self.humanballs.list()
 
+    def list_popup_humanballs(self) -> list[str]:
+        """Return the automatic popup pool: six canonical + 38 office items."""
+        return [*self.humanballs.list(), *self.office_humanballs.list()]
+
     def get_humanball(self, humanball_id: str) -> dict:
         try:
+            if humanball_id in self.office_humanballs.items:
+                return self.office_humanballs.get(humanball_id)
             return self.humanballs.get(humanball_id)
         except HumanBallRegistryError as exc:
+            raise CharacterSystemError(str(exc)) from exc
+        except OfficeHumanBallRegistryError as exc:
             raise CharacterSystemError(str(exc)) from exc
 
     def render_humanball(
@@ -75,7 +87,35 @@ class CharacterSystem:
         human_size: tuple[int, int] = (32, 42),
     ):
         try:
-            return self.humanball_renderer.render_humanball(
+            renderer = (
+                self.office_humanball_renderer
+                if humanball_id in self.office_humanballs.items
+                else self.humanball_renderer
+            )
+            return renderer.render_humanball(
+                humanball_id, direction, human_size=human_size
+            )
+        except HumanBallRenderError as exc:
+            raise CharacterSystemError(str(exc)) from exc
+
+    def list_office_humanballs(self) -> list[str]:
+        return self.office_humanballs.list()
+
+    def get_office_humanball(self, humanball_id: str) -> dict:
+        try:
+            return self.office_humanballs.get(humanball_id)
+        except OfficeHumanBallRegistryError as exc:
+            raise CharacterSystemError(str(exc)) from exc
+
+    def render_office_humanball(
+        self,
+        humanball_id: str,
+        direction: str,
+        *,
+        human_size: tuple[int, int] = (32, 42),
+    ):
+        try:
+            return self.office_humanball_renderer.render_humanball(
                 humanball_id, direction, human_size=human_size
             )
         except HumanBallRenderError as exc:

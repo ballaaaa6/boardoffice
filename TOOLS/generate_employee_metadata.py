@@ -435,6 +435,7 @@ def build_metadata(root: str | Path = ROOT) -> dict[str, Any]:
     effects_path = root / "CHARACTER" / "EFFECTS" / "gds_effects_v1.json"
     event_presets_path = root / "CHARACTER" / "EFFECTS" / "event_presets.json"
     humanballs_path = root / "CHARACTER" / "EFFECTS" / "humanball_v1.json"
+    office_humanballs_path = root / "CHARACTER" / "EFFECTS" / "office_humanball_v1.json"
 
     technical = load_json(technical_path)
     cards_data = load_json(cards_path)
@@ -537,13 +538,17 @@ def build_metadata(root: str | Path = ROOT) -> dict[str, Any]:
     effects = load_json(effects_path)
     event_presets = load_json(event_presets_path)
     humanballs = load_json(humanballs_path)
+    office_humanballs = load_json(office_humanballs_path)
     effect_ids = list(effects["effect_order"])
     positive_effect_ids = [
         effect_id
         for effect_id in effect_ids
         if effects["effects"][effect_id].get("mood") == "positive"
     ]
-    humanball_ids = list(humanballs["humanball_order"])
+    humanball_ids = [
+        *humanballs["humanball_order"],
+        *office_humanballs["office_humanball_order"],
+    ]
     positive_preset_keys = [
         key
         for key, effect_id in event_presets["presets"].items()
@@ -595,6 +600,7 @@ def build_metadata(root: str | Path = ROOT) -> dict[str, Any]:
             "effects": "CHARACTER/EFFECTS/gds_effects_v1.json",
             "event_presets": "CHARACTER/EFFECTS/event_presets.json",
             "humanballs": "CHARACTER/EFFECTS/humanball_v1.json",
+            "office_humanballs": "CHARACTER/EFFECTS/office_humanball_v1.json",
         },
         "wave_counts": {
             "wave1": len(wave1),
@@ -629,6 +635,7 @@ def build_metadata(root: str | Path = ROOT) -> dict[str, Any]:
             "humanball_registry": {
                 "path": "CHARACTER/EFFECTS/humanball_v1.json",
                 "popup_humanball_ids": humanball_ids,
+                "office_path": "CHARACTER/EFFECTS/office_humanball_v1.json",
             },
             "binding_policy": "metadata_references_existing_visual_registries_without_copying_assets",
         },

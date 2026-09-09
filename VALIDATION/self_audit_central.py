@@ -145,6 +145,7 @@ def audit(core_root: str | Path, *, write_report: bool = True) -> dict[str, Any]
         ('SCHEMA/CHARACTER/composition_index.schema.json', 'CHARACTER/CHARACTERS/composition_index.json'),
         ('SCHEMA/CHARACTER/effect_registry.schema.json', 'CHARACTER/EFFECTS/gds_effects_v1.json'),
         ('SCHEMA/CHARACTER/humanball_registry.schema.json', 'CHARACTER/EFFECTS/humanball_v1.json'),
+        ('SCHEMA/CHARACTER/office_humanball_registry.schema.json', 'CHARACTER/EFFECTS/office_humanball_v1.json'),
         ('SCHEMA/CHARACTER/employee_metadata.schema.json', 'CHARACTER/EMPLOYEES/employee_metadata.json'),
         ('SCHEMA/CHARACTER/dialogue_bubble_registry.schema.json', 'CHARACTER/DIALOGUE/bubble_presets.json'),
         ('SCHEMA/CHARACTER/dialogue_font_registry.schema.json', 'CHARACTER/DIALOGUE/dialogue_fonts.json'),

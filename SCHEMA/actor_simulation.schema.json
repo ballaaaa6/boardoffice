@@ -569,11 +569,11 @@
         },
         "visual_selection": {
           "const": {
-            "catalog_source": "CHARACTER/EFFECTS/gds_effects_v1.json#effect_order + CHARACTER/EFFECTS/humanball_v1.json#humanball_order",
+            "catalog_source": "CHARACTER/EFFECTS/gds_effects_v1.json#effect_order + CHARACTER/EFFECTS/humanball_v1.json#humanball_order + CHARACTER/EFFECTS/office_humanball_v1.json#office_humanball_order",
             "algorithm": "deterministic_per_actor_per_channel_shuffle_bag",
             "state_fields": ["catalog_profile", "generation", "cursor", "active_binding"],
             "automatic_vfx_pool_size": 11,
-            "automatic_humanball_pool_size": 6,
+            "automatic_humanball_pool_size": 44,
             "render_selection_boundary": "behavior_started_event_admission",
             "network_policy": "no_per_event_request",
             "explicit_event_preset_policy": "fixed_mapping_does_not_advance_automatic_bag"

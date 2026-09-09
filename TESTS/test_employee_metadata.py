@@ -75,6 +75,9 @@ def test_stamina_and_visual_references_are_ready_for_the_next_behavior_slice():
     policy = payload["stamina_policy"]
     effect_registry = _load(ROOT / "CHARACTER" / "EFFECTS" / "gds_effects_v1.json")
     humanball_registry = _load(ROOT / "CHARACTER" / "EFFECTS" / "humanball_v1.json")
+    office_humanball_registry = _load(
+        ROOT / "CHARACTER" / "EFFECTS" / "office_humanball_v1.json"
+    )
 
     assert policy["stamina_max"] == 100
     assert policy["critical_threshold"] == 10
@@ -89,9 +92,10 @@ def test_stamina_and_visual_references_are_ready_for_the_next_behavior_slice():
         if effect_registry["effects"][effect_id].get("mood") == "positive"
     }
     assert set(policy["visual_recovery_references"]["effect_ids"]) == positive_effect_ids
-    assert set(policy["visual_recovery_references"]["humanball_ids"]) == set(
-        humanball_registry["humanball_order"]
-    )
+    assert set(policy["visual_recovery_references"]["humanball_ids"]) == {
+        *humanball_registry["humanball_order"],
+        *office_humanball_registry["office_humanball_order"],
+    }
 
     rows = payload["employees"]
     drains = {

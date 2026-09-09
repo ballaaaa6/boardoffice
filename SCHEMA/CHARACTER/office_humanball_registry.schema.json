@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GDS Office HumanBall Registry v1",
+  "type": "object",
+  "required": [
+    "schema", "office_humanball_count", "office_humanball_order", "supported_action", "cell",
+    "animation", "direction_rules", "motion_offsets_from_character_top_left_px", "render",
+    "style_contract", "categories", "provenance", "office_humanballs"
+  ],
+  "properties": {
+    "schema": {"const": "gds_office_humanball_registry_v1"},
+    "office_humanball_count": {"const": 38},
+    "office_humanball_order": {
+      "type": "array", "minItems": 38, "maxItems": 38, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^office\\.[a-z0-9_]+\\.[a-z0-9_]+$"}
+    },
+    "supported_action": {
+      "type": "object", "required": ["action", "subaction"],
+      "properties": {"action": {"const": "work"}, "subaction": {"const": "normal_work"}},
+      "additionalProperties": false
+    },
+    "cell": {
+      "type": "array", "prefixItems": [{"const": 18}, {"const": 18}, {"not": {}}],
+      "minItems": 2, "maxItems": 2
+    },
+    "animation": {
+      "type": "object", "required": ["mode", "total_frames", "visible_frames", "hidden_frames", "frame_ms"],
+      "properties": {
+        "mode": {"const": "loop"}, "total_frames": {"const": 12},
+        "visible_frames": {"const": 10}, "hidden_frames": {"const": 2}, "frame_ms": {"const": 240}
+      },
+      "additionalProperties": false
+    },
+    "direction_rules": {"type": "object", "required": ["NW", "SE", "SW", "NE"]},
+    "motion_offsets_from_character_top_left_px": {
+      "type": "object", "required": ["NW", "SE"],
+      "properties": {"NW": {"$ref": "#/$defs/motion"}, "SE": {"$ref": "#/$defs/motion"}},
+      "additionalProperties": false
+    },
+    "render": {
+      "type": "object", "required": ["anchor", "layer_mode"],
+      "properties": {"anchor": {"const": "character_work_origin"}, "layer_mode": {"const": "work_popup_overlay"}},
+      "additionalProperties": false
+    },
+    "style_contract": {
+      "type": "object", "required": ["outer_border_color", "inner_contour_color", "border_width_px", "alpha_mode", "cell_size_px"],
+      "properties": {
+        "outer_border_color": {"const": "#FFFBF0"}, "inner_contour_color": {"const": "#000000"},
+        "border_width_px": {"const": 1}, "alpha_mode": {"const": "binary_0_or_255"},
+        "cell_size_px": {"const": [18, 18]}
+      },
+      "additionalProperties": false
+    },
+    "categories": {
+      "type": "object", "minProperties": 10, "maxProperties": 10,
+      "additionalProperties": {
+        "type": "object", "required": ["slug", "title", "item_ids"],
+        "properties": {
+          "slug": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+          "title": {"type": "string", "minLength": 1},
+          "item_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9_]+$"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "provenance": {"type": "object"},
+    "office_humanballs": {
+      "type": "object", "minProperties": 38, "maxProperties": 38,
+      "additionalProperties": {
+        "type": "object", "required": ["humanball_id", "asset_id", "category_id", "item_id", "label", "source_index"],
+        "properties": {
+          "humanball_id": {"type": "string", "pattern": "^office\\."},
+          "asset_id": {"type": "string", "pattern": "^humanball\\.office\\."},
+          "category_id": {"type": "string", "pattern": "^[0-9]{2}_[a-z0-9_]+$"},
+          "item_id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+          "label": {"type": "string", "minLength": 1},
+          "source_index": {"type": "integer", "minimum": 0, "maximum": 37}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "offset": {"type": "array", "minItems": 2, "maxItems": 2, "prefixItems": [{"type": "integer"}, {"type": "integer"}]},
+    "motion": {"type": "array", "minItems": 10, "maxItems": 10, "items": {"$ref": "#/$defs/offset"}}
+  },
+  "additionalProperties": false
+}
