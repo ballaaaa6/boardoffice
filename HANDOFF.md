@@ -106,6 +106,13 @@
   `TESTS/test_work_seat_floor_integration.py::test_floor06_workstation_seat_resolution_uses_directional_chair_roles`
   (`foreground_static_present`).
 
+- 2026-09-10 added the English post-artwork integration guide at
+  `docs/HUMANBALL_POPUP_INTEGRATION_GUIDE.md`. It documents the stable
+  `humanball_id`/`asset_id` cross-reference, canonical asset and registry
+  updates, employee-metadata and browser-bundle regeneration, fixed 12/10/2
+  HumanBall timing, the coordinated count changes required when expanding the
+  locked 38-item office pool, validation commands and static port-8000 review.
+
 - 2026-09-09 current VFX task: author rejected v3's jelly-like shading and
   requested inside-to-outside color plus unpredictable fire-like pixel edges.
   Active review `LOCAL_REVIEW/organic_aura_native_v4/`: 100 native 33x65

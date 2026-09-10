@@ -33,6 +33,10 @@ Generated manifests and reports are evidence for a check; their phase labels do 
 - [`LEAN_RELEASE_POLICY.md`](LEAN_RELEASE_POLICY.md) — package contents and lean-release policy.
 - [`VFX_CREATION_GUIDE.md`](VFX_CREATION_GUIDE.md) — native-pixel VFX creation,
   QA and full-scene review workflow.
+- [`HUMANBALL_POPUP_CREATION_GUIDE.md`](HUMANBALL_POPUP_CREATION_GUIDE.md) —
+  native-pixel HumanBall artwork construction and visual approval workflow.
+- [`HUMANBALL_POPUP_INTEGRATION_GUIDE.md`](HUMANBALL_POPUP_INTEGRATION_GUIDE.md)
+  — post-artwork registry, build, validation and port-8000 integration workflow.
 
 The JSON schemas under `SCHEMA/`, registry files under `WORLD/REGISTRY/` and `CHARACTER/`, and validation scripts under `VALIDATION/` are the machine-readable/runtime companions to these contracts.
 
