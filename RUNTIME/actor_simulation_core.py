@@ -1182,6 +1182,11 @@ class ActorSimulationCore:
             for channel in ("vfx", "humanball"):
                 if channel not in visual_channels:
                     visual_channels[channel] = self.visual_selection.initial_channel_state(channel)
+                else:
+                    visual_channels[channel] = self.visual_selection.migrate_channel_state(
+                        visual_channels[channel],
+                        channel,
+                    )
             talk = behavior.get("talk")
             if isinstance(talk, dict):
                 # ``route_committed`` was added after the first talk-session

@@ -1,10 +1,59 @@
 # GDS Central Game Core — Handoff
 
-**Updated:** 2026-09-10 (Asia/Bangkok)
+**Updated:** 2026-09-11 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow and chair foreground defects are resolved in the live renderer across all 25 office floors (219 workstations and employees). HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow and chair foreground defects are resolved in the live renderer across all 25 office floors (219 workstations and employees). HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is now engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
+
+- 2026-09-11 approved additive VFX integration is complete. The original eleven
+  effect IDs and native files remain unchanged; ten v32 designs were appended
+  as `crimson_inferno`, `tangerine_cyclone`, `lemon_crown`, `acid_bramble`,
+  `emerald_serpent`, `turquoise_glacier`, `cobalt_volt`, `violet_rift`,
+  `fuchsia_shockwave` and `rose_nebula`. The canonical registry now has 21
+  effects and 204 VFX source assets (100 new 33x65 RGBA frames). New frames
+  use binary alpha threshold 32, have no non-transparent edge pixels, and
+  retain the existing `character_work_origin` / `33x65` / 240ms / direction
+  mirror contract. The unified registry is 301 assets (248 effect assets).
+  The existing VFX channel and automatic event flow were retained; no new
+  floor, character, anchor or gameplay channel was introduced.
+
+- 2026-09-11 rebuilt the root and all 25 browser floor bundles/manifests after
+  the canonical source hash update. Bundle contract validation is **25/25**;
+  every floor exposes the 21-item VFX catalog. A real floor00 browser-core
+  smoke trace shows character frames changing on the 360ms clock while VFX
+  frames change independently on the 240ms clock. Old 11-item VFX save state
+  migrates atomically: the in-flight old binding is preserved and only the VFX
+  bag resets to the current catalog profile.
+
+- 2026-09-11 verification: focused Python **28 passed**, browser runtime
+  **21 passed**, canonical VFX loader **21 effects / 204 source frames / 832
+  direction-output frames**, old native VFX byte-preservation **passed**, and
+  `git diff --check` plus checksum ledger verification passed. Full pytest is
+  **381 passed, 1 pre-existing failure** at
+  `TESTS/test_work_seat_floor_integration.py::test_floor06_workstation_seat_resolution_uses_directional_chair_roles`
+  (`foreground_static_present`). Central self-audit still reports only the
+  pre-existing `WORLD/REGISTRY/floor_skins.json` reference mismatch and the
+  existing placement-count mismatch; no new VFX mismatch is reported.
+
+- 2026-09-11 the requested review host is running as project process PID
+  `29040`: `python TOOLS/static_web_server.py --port 8000`. The static viewer
+  is available at `http://127.0.0.1:8000/` and floor00 at
+  `http://127.0.0.1:8000/?floor=floor00`; root/viewer/bundles return HTTP 200
+  and `/api/health` correctly returns 404. Keep this process for the author
+  review; no release archive was rebuilt.
+
+- 2026-09-11 fixed the PC-area blink at PC frame boundaries in
+  `WEB/runtime_canvas_renderer.js`. Manifest loading now preloads workstation
+  components and every `pc_frames` asset before the floor starts, while the
+  renderer retains the last ready PC frame as a slow-load fallback. Added a
+  browser regression for preload coverage and last-ready-frame behavior.
+  Browser suite is **22 passed**; a fresh floor00 browser probe requested all
+  six PC assets together at startup and showed no pixel gap during the NW PC
+  frame changes. Full pytest is **381 passed, 1 pre-existing failure** at
+  `TESTS/test_work_seat_floor_integration.py::test_floor06_workstation_seat_resolution_uses_directional_chair_roles`
+  (`foreground_static_present`). Author visual review remains pending at
+  `http://127.0.0.1:8000/?floor=floor00`.
 
 - 2026-09-10 the local host was switched to the zero-API browser viewer:
   `python TOOLS/static_web_server.py`, with `/` mapped to
@@ -256,13 +305,283 @@
   GIF and render-plane composition QA PASS; >=800 occupied pixels/frame.
   Inspected overview, blue actual floor00 crop and canonical/v14/v15 comparison.
   No runtime/canonical edits/server; batch exited; pytest unnecessary.
-  Next: author visual review of v15 fire body before ten-style expansion.
+  A first Lua-only ten-style expansion was started in
+  `LOCAL_REVIEW/aura_palette_ten_v16/` but is superseded by the author's new
+  request to use an image-generation model; it is review-only and not a
+  production candidate. Next: author approval of the model-generation plan,
+  then a fresh ten-style image-generated candidate with distinct hue families.
+
+- 2026-09-10 the author approved the model-generation direction and requested
+  one combined 100-cell sheet with framed blocks and visibly distinct motion.
+  The first review candidate `LOCAL_REVIEW/aura_model_atlas_v18/` exposed two
+  review defects: its overview rows overlapped, and its nearly full-cell art
+  was too close to neighboring scene content. Current review candidate is
+  `LOCAL_REVIEW/aura_model_atlas_v19/`: a new model-edited 10x10 framed atlas,
+  ten effect rows and ten full-power key poses per row. Extraction uses the
+  fixed template geometry, binary alpha, and a 27x55 safe rectangle inside
+  each exact 33x65 native cell. The overview now uses a 145px row pitch for
+  130px previews, leaving 15px between rows. All 100 frames are unique and
+  ten floor00 compositor scenes/closeups were regenerated. Source, extracted
+  frames and scene previews are review-only; no canonical/runtime integration
+  has been made. Author visual acceptance remains pending.
+
+- 2026-09-10 the author rejected the v19 atlas visual semantics and requested
+  analysis before another edit. The issue is not only cell overflow: v19 used
+  the 10x10 source block as a model-facing poster/panel, thresholded its black
+  interior, then fitted every result into a common 27x55 rectangle. That
+  preserves file bounds but makes the artwork read as clipped rectangular
+  panels. Canonical `fire_original` instead uses a transparent native 33x65
+  canvas with an irregular silhouette that is complete within the canvas; its
+  alpha bbox is allowed to touch the canvas edge (for example x=0 and the
+  bottom edge), while `gds_effects_v1.json` supplies the separate 40x72 work
+  placement profile and `[-11,-36]` render offset. Therefore the source grid
+  block is only an extraction/packing guide, not the visual shape or an extra
+  safety rectangle. No asset, runtime, or generator fix has been made after
+  this analysis; v19 remains rejected and review-only.
+
+- 2026-09-10 the author approved proceeding with a corrected native-canvas
+  attempt, but the resulting `LOCAL_REVIEW/aura_model_atlas_v20/` is rejected
+  before integration. Its model source did not preserve the template row
+  geometry: strong-art row starts measured about 10, 166, 321, 478, 644, 802,
+  960, 1122, 1290 and 1466 source pixels instead of the expected roughly
+  176.6px pitch. Fixed template cropping therefore mixes adjacent rows and
+  leaves the final row mostly empty in the overview. The dark gutter is only a
+  visual separator, not a hard model-side mask. No further asset correction
+  has been made after this finding. Proposed next plan: generate one complete
+  10-frame native-canvas strip per effect type, validate each strip separately,
+  then pack the ten validated strips into the final 10x10 atlas
+  programmatically. This keeps one final 100-cell deliverable while moving
+  hard geometry ownership out of the image model.
+
+- 2026-09-10 the author requested the faster one-sheet route. New review
+  candidate `LOCAL_REVIEW/aura_model_atlas_v22/` uses one combined 10x10 model
+  sheet, then detects the source's actual dark gutters before cropping instead
+  of trusting the model to preserve template coordinates. Nine internal
+  gutters were detected on each axis; 100 native 33x65 RGBA frames were
+  extracted directly with no artificial 27x55 fit rectangle. Per-effect
+  uniqueness is 10/10, all bboxes remain within the native canvas, and the
+  regenerated overview has no adjacent-row fragments. Ten floor00 scenes and
+  closeups were regenerated, and named per-effect floor00 GIFs are available
+  under `LOCAL_REVIEW/aura_model_atlas_v22/floor00_gifs/`. Each GIF has 10
+  frames at 240ms on the 600x600 floor00 canvas. The candidate is review-only;
+  canonical/runtime assets remain untouched and author visual acceptance is
+  pending.
+
+- 2026-09-10 fixed the per-effect floor00 GIF review compositor after the
+  author observed background flicker. The review renderer now freezes the
+  floor, characters, HumanBall and PC channels, advances only the selected VFX
+  frame, and quantizes all GIF frames against one shared palette. Regenerated
+  all ten named GIFs; each remains 10 frames, 240ms, 600x600. A turquoise GIF
+  comparison dropped changed pixels versus frame 0 from about 34k-60k per
+  frame to about 3.2k-3.8k, consistent with VFX-only motion. No canonical or
+  runtime asset was changed.
+
+- 2026-09-10 diagnostic: `10_rose_nebula.gif` is visually rejected because
+  the Rose Nebula art was authored only in the upper portion of its native
+  33x65 cells. Its ten alpha bboxes end at y=45-47, leaving roughly 18-20px
+  of transparent space below; the extracted source sheet already shows this,
+  so the GIF compositor is not shrinking, cropping or causing cross-cell
+  leakage. The file is technically contained within its canvas, but fails the
+  requested full-power, bottom-anchored aura footprint. No corrective asset
+  regeneration has been made yet; next step is to enforce a bottom-anchor /
+  minimum-height gate and regenerate or replace the Rose row before rebuilding
+  its GIF.
+
+- 2026-09-10 v23 Rose replacement is rejected: the model output contained a
+  baked gray checkerboard rather than true transparency, and the post-process
+  color/dilation mask retained neutral gray pixels around the energy edge.
+  This caused the observed soft gray fringe and blur. The v22 rows 1-9 remain
+  the accepted working reference; v23 is review-only and must not be promoted.
+
+- 2026-09-10 the author approved the 20-type start. The first single-call
+  model source is retained at
+  `LOCAL_REVIEW/aura_model_atlas_v24_model_generated_20x10.png`; it is
+  rejected as an artwork source for rows 10-20. Although the image has a
+  regular-looking 22x22 grid, the later rows contain wide effects spanning
+  paired source columns: edge occupancy alternates right/left across each
+  pair, proving that fixed single-column crops split complete effects in half.
+  Review candidate `LOCAL_REVIEW/aura_model_atlas_v24/` is therefore rejected;
+  its 200-cell and 0-out-of-bounds audit only proved packing containment, not
+  visual completeness. Rows 01-09 remain byte identical to v22, but rows
+  10-20 must not be promoted. Twenty review GIFs are retained as diagnostics;
+  canonical/runtime assets remain untouched. Next: rebuild the source layout
+  with complete per-frame blocks and add a paired-column/complete-silhouette
+  gate before extraction.
+  Next plan is superseded by the author's request for a new 20-type combined
+  atlas. Use one accepted v22 cell only as the geometry master, generate a
+  fresh 20-type x 10-frame sheet inside repeated locked blocks, and reject any
+  sheet with non-clean background before extraction. No new generation has
+  started yet.
+
+- 2026-09-10 v25 rebuild completed after the v24 half-effect rejection. The
+  v22 block geometry remains the fixed contract; rows 01-09 are byte identical
+  to v22. For rows 10-20, each adjacent source-column pair is reassembled into
+  one complete pose before fitting into the 31x63 inner area of a 33x65 cell.
+  The candidate is `LOCAL_REVIEW/aura_model_atlas_v25/`: one 20x10 native
+  atlas, fixed framed review, 200 frame PNGs and 20 ten-frame GIFs. The audit
+  passes 200 cells, exact 330x1300 RGBA output, 90/90 frozen frames and zero
+  out-of-bounds cells. Visual acceptance is still pending; no canonical/runtime
+  assets were changed. The v25 source-pair assembly is the current review
+  candidate, not a production integration.
+
+- 2026-09-10 v26 replaces the rejected v25 artwork with a fresh all-new
+  model-generated source. No artwork is copied from v22, v24 or v25; v22 is
+  used only for the accepted 33x65 block contract. The source is a regular
+  20-row x 12-complete-pose sheet; the first ten complete poses per row are
+  cropped using the measured source X/Y frame edges, then fitted into the
+  fixed blocks. Candidate `LOCAL_REVIEW/aura_model_atlas_v26/` contains one
+  20x10 native atlas, framed review, 200 PNGs and 20 ten-frame GIFs. Audit:
+  200 cells, exact 330x1300 RGBA atlas, complete-pose/bottom-anchor gate pass,
+  and zero out-of-bounds cells. Canonical/runtime assets remain untouched;
+  author visual acceptance is pending.
+
+- 2026-09-10 generated the requested floor00 review for v26. The real floor00
+  compositor now has 20 named scene GIFs under
+  `LOCAL_REVIEW/aura_model_atlas_v26/floor00_gifs/`, plus 20 full-scene PNG
+  samples, 20 closeup GIFs and closeup PNGs. Each scene GIF is 600x600 with 10
+  frames at 240ms; floor, characters, HumanBall and PC channels are frozen so
+  only the selected VFX advances. This remains review-only; canonical/runtime
+  assets are untouched.
+
+- 2026-09-10 author visual rejection of v26 floor00: the Rose Nebula sample
+  has a flat clipped top. Root cause is upstream of the compositor: the raw
+  model cell already has artwork touching its top source boundary, then the
+  extractor normalizes its alpha bbox into the full 31x63 safe area. The
+  machine audit checked containment/bottom anchor but did not reject a source
+  silhouette touching the top/side boundary, so v26 and its 20 floor00 GIFs
+  are diagnostic/rejected, not production candidates. Next plan: generate a
+  fresh framed sheet with an explicit inner guard band, pilot-extract all ten
+  frames of one row, reject any edge-touching source before scaling, then
+  replicate the validated geometry across all 20 rows.
+
+- 2026-09-10 v27/v28 were also rejected during visual review. The work was
+  split into two model calls (10 rows x 10 frames each), but each call invented
+  its own cell scale and artwork bounds; the generated framed panels were not
+  the accepted v22 native-canvas template. v28's technical packing audit did
+  produce 200 contained 33x65 cells and 20 floor00 GIFs, but the visual result
+  became undersized/weak and inconsistent across rows because background
+  thresholding and bbox fitting removed parts of the model silhouettes. This
+  confirms that splitting the call is not enough: the model must not own the
+  block geometry. The next attempt must lock the source canvas and anchor
+  outside the model, validate one 10-row batch against the v22 reference, and
+  reject the batch before generating the second one. v27/v28 remain review-only
+  diagnostics; no canonical/runtime assets were changed.
+
+- 2026-09-10 v29 rebuilt only sheet 01-10 after the author requested a
+  ten-type sheet first. The source uses a fixed 10x10 template with an outer
+  cell frame and a separate inner-safe guide. Model artwork was edited into
+  that template, then extracted from one identical safe rectangle per cell;
+  no per-frame alpha-bbox normalization was used. Candidate
+  `LOCAL_REVIEW/aura_model_atlas_v29/sheet_01_10/` contains 100 native 33x65
+  frames, ten 10-frame GIFs and a framed review sheet. The audit passes 100
+  cells, fixed 27x58 artwork envelope and zero out-of-bounds cells. Visual
+  acceptance is pending; sheet 11-20 and floor00 GIFs have not been started.
+
+- 2026-09-10 generated the requested v29 floor00 review for sheet 01-10:
+  ten named 600x600 GIFs under
+  `LOCAL_REVIEW/aura_model_atlas_v29/sheet_01_10/floor00_gifs/`, each with
+  ten 240ms frames, plus ten closeup GIFs. Floor, character, HumanBall and PC
+  channels were frozen while only the selected VFX frame advanced. This is
+  review-only; visual acceptance remains pending and sheet 11-20 has not been
+  generated.
+
+- 2026-09-10 corrected the v29 floor00 border artifact. The first extraction
+  cropped exactly on the visible inner-safe guide, so the blue construction
+  line was thresholded as VFX and appeared in every GIF. The extraction now
+  crops three pixels inside that guide, rebuilds all 100 native frames and
+  regenerates the ten floor00 GIFs. Edge-alpha audit is zero for all frames;
+  visual acceptance remains pending.
+
+- 2026-09-10 started the replacement v30 pipeline as a one-row pilot, per the
+  author's request to test the new plan before building a full sheet. The
+  model was asked to edit a fixed ten-cell Crimson Inferno row; extraction
+  uses one fixed safe rectangle for all ten frames, with no per-frame bbox
+  fitting. `LOCAL_REVIEW/aura_model_atlas_v30/crimson_inferno_pilot/` contains
+  the 10 native frames, native sheet, row GIF and one floor00 pilot GIF. The
+  pilot passes containment/duplicate checks and its closeup has no guide or
+  frame artifact. Sheet 01-10 remains unbuilt pending author review of this
+  pilot; no canonical/runtime assets changed.
+
+- 2026-09-10 v31 replaced the framed-template pilot with a standalone
+  horizontal 10-frame Crimson Inferno strip on a transparent/black source.
+  The source silhouettes have complete rounded bases and a source-edge gate;
+  extraction crops only after confirming the full silhouette is inside the
+  panel, then contain-fits it into 33x65 without forcing the base to the cell
+  edge. `LOCAL_REVIEW/aura_model_atlas_v31_crimson_pilot/` contains the native
+  sheet, GIF and floor00 pilot GIF/closeup. The pilot passed technical checks
+  and shows no rectangular base clipping; author visual review remains pending
+  before scaling the method to more VFX types.
 
 - The author accepted blue-v4's actual floor00 scene preview before requesting
   the creation guide. Accepted reference remains
   `LOCAL_REVIEW/core_charge_blue_v4/`; earlier candidates remain history.
+
+- 2026-09-10 v32 expanded the author-approved standalone-strip method to ten
+  effects in one batch: 100 native 33x65 cells, ten individual 10-frame GIFs,
+  and ten floor00 scene GIFs. Each effect was generated as its own horizontal
+  source strip, then independently edge-gated and contain-fitted; no shared
+  atlas was sent to the image model. The Lemon source arrived as RGB with an
+  opaque black backdrop, so the extractor keys near-black pixels transparent
+  before applying the same source-edge gate. `LOCAL_REVIEW/aura_model_atlas_v32/`
+  contains the source strips, native/framed review atlases, per-effect frames,
+  audit, and `floor00_gifs/`. Technical checks pass; author visual acceptance
+  remains pending and no canonical/runtime assets changed.
+
+- 2026-09-10 updated `docs/VFX_CREATION_GUIDE.md` so the v32 standalone-strip
+  pipeline is now the recommended repeatable method. The guide explicitly
+  separates model artwork from atlas geometry, documents black-backdrop keying,
+  source-edge rejection, contain-fit extraction, batch audit requirements and
+  floor00 rendering. The direct Aseprite workflow remains documented as an
+  alternate path.
+
+- 2026-09-10 performed a read-only production-integration audit for v32. The
+  canonical runtime currently hard-codes an 11-effect contract in
+  `SCHEMA/CHARACTER/effect_registry.schema.json`, `CHARACTER/RUNTIME/effect_registry.py`,
+  visual-selection tests and final-manifest counts, so copying the 100 PNGs
+  alone would make them unresolvable or fail validation. The v32 frames are
+  all 33x65 RGBA, unique and source-edge-safe, but their alpha contains
+  antialiased values from LANCZOS contain-fit; this must be normalized or
+  explicitly accepted before canonical integration. No canonical/runtime
+  files were changed during this audit. Integration remains blocked on the
+  add-vs-replace choice and the alpha policy.
+
+- 2026-09-11 built a test-only replacement candidate at
+  `LOCAL_REVIEW/aura_model_atlas_v32/test_replace10_candidate/`. It keeps the
+  canonical 11-effect contract and `fire_original` untouched, maps the ten
+  latest designs into the ten non-canonical slots, thresholds alpha at 32,
+  verifies 100 frame hashes through the real `EffectRenderer` in all four
+  directions, and renders ten floor00 GIFs with five assigned actors and all
+  non-VFX channels frozen. Candidate technical audit passes; canonical/runtime
+  files remain unchanged and author visual acceptance is pending.
   The English workflow is `docs/VFX_CREATION_GUIDE.md`, linked from
   `docs/INDEX.md`. Blue-v4 production integration has not been requested.
+
+- 2026-09-11 diagnostic clarification: the replace-10 floor00 GIF is an
+  isolated VFX compositor test, not a full live-runtime playback. Its test
+  renderer explicitly passes `character_frame_index=0`, `humanball_frame_index=0`
+  and `pc_frame_index=0`, so the employee/PC/HumanBall channels appear still by
+  design while only the VFX frame advances. The live runtime keeps the
+  character clock at 360ms and VFX clock at 240ms independently. A 21-effect
+  additive catalog is technically possible, but simply appending ten records
+  will fail the current hard-coded 11-effect checks in `EffectRegistry`, the
+  effect/schema/bundle contracts, tests and generated manifests; the selection
+  catalog profile and browser bundle revision will also change, requiring a
+  save/replay migration or explicit reset policy. Additive integration remains
+  unimplemented and requires author approval after a full moving-character
+  candidate review.
+
+- 2026-09-11 additive-21 dependency audit: no new runtime channel, floor/world
+  geometry, workstation anchor, direction system or renderer structure is
+  required. The existing pipeline is count-dynamic after the registry; the
+  required coordinated changes are the effect registry/schema contracts,
+  visual-selection expectations, unified asset registry, final/central
+  manifests, checksums/reference profile and regenerated browser bundles. The
+  ten new IDs should be appended after the existing eleven, while the old IDs
+  and frame files remain byte-identical. New records must remain visual-only
+  unless new event semantics are explicitly approved, because employee
+  recovery metadata is derived from effect mood. The full moving-character
+  integration, save/replay migration and canonical registration are not yet
+  implemented.
 
 - 2026-09-09 current artwork task: author rejected v2's rectangular shading
   and requested curved tonal transitions with cinematic lighting. Active
@@ -801,11 +1120,11 @@
 
 ## Next task and open gates
 
-Current VFX gate: author visual review of
-`LOCAL_REVIEW/aura_wildfire_v15/overview_3.gif` and individual floor00 closeups.
-Three mass-first candidates (30 frames) pass native/pixel/timing/border QA;
-visual acceptance is pending. Rejected v10 is history. Ten-effect expansion
-waits for pilot review; production integration requires a separate request.
+Current VFX gate: engineering integration of the ten v32 effects into the
+canonical 21-effect system is complete. Author visual/gameplay acceptance of
+the ten new designs remains pending at
+`http://127.0.0.1:8000/?floor=floor00`; the v32 source and floor00 review GIFs
+remain under `LOCAL_REVIEW/aura_model_atlas_v32/`.
 Existing unrelated gates:
 
 1. Author-review the 38-item `office_humanball` artwork and confirm the mixed
@@ -814,9 +1133,9 @@ Existing unrelated gates:
    the pre-existing `floor06/ws3` WorkSeat expectation and central-audit
    reference mismatches before calling the repository fully green.
 
-No release archive was rebuilt in this session. The 44-item default popup pool
-is engineering-integrated and the requested gameplay cutover is active; visual
-review of the 38 office items remains acceptance-pending. The other
+No release archive was rebuilt in this session. The 21-effect VFX catalog and
+44-item default popup pool are engineering-integrated; visual review of the
+ten new VFX and 38 office HumanBalls remains acceptance-pending. The other
 cinematic-v3 sprites remain review-only. `main` remains the rollback/reference
 path.
 

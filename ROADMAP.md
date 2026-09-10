@@ -2,7 +2,7 @@
 
 **Project root:** `D:\antigravity\board office`
 **Source of truth:** unpacked project root
-**Updated:** 2026-09-10 (Asia/Bangkok)
+**Updated:** 2026-09-11 (Asia/Bangkok)
 
 Legacy API review host `8765` is retired. Author browser review now uses the
 zero-API static viewer at `http://127.0.0.1:8000/viewer.html`.
@@ -29,6 +29,9 @@ and local raster fallback.
   and dynamic conversational animation frames (M28/M45, M8/M9, happy/sad emotions).
 - [x] Make Zero-API browser mode (`WEB/viewer.html`) the primary production architecture while
   retaining Python as offline data oracle, bundle compiler, and review fallback.
+- [x] Remove the PC animation frame-swap flash by preloading workstation PC
+  frames and retaining the last ready frame during slow image loads; add
+  browser regression coverage and verify the live floor00 canvas.
 - [x] Merge `prototype_living_character_web` into `main` and push to remote.
 
 ### VFX charging-aura visual review — 2026-09-09
@@ -134,6 +137,88 @@ and local raster fallback.
   before expanding to ten styles.
   Native v4 and layered v5 remain rejected history.
 - [ ] Separate production integration request and runtime verification.
+
+### Model-generated atlas review — 2026-09-10
+
+- [x] Produce the combined v22 model atlas and isolate its geometry/extraction
+  issues; keep it review-only.
+- [x] Retire the v23 row-level workaround; use the accepted v22 geometry and
+  rows 01-09 as the frozen reference for a fresh 20-type x 10-frame /
+  200-cell atlas.
+- [x] Generate one combined model source and reject its wrong 22x22 final
+  geometry after finding that later-row artwork spans paired columns.
+- [x] Rebuild rows 10-20 in complete locked per-frame blocks by reassembling
+  paired model columns before extraction; reject the v24 single-column crop.
+- [x] Verify all 200 native cells, exact 330x1300 RGBA atlas dimensions,
+  90/90 frozen reference frames, complete-pose gate, bottom anchoring and zero
+  out-of-bounds cells. Packing containment alone remains insufficient for the
+  separate author visual gate.
+- [x] Replace the rejected mixed-artwork v25 with v26: generate all 20 rows
+  anew, use only the accepted block geometry, correct measured source frame
+  edges, and verify 200 complete new poses with no cross-row fragments.
+- [x] Render all 20 v26 effects in the actual floor00 compositor, producing
+  one named 600x600 / 10-frame / 240ms GIF per effect plus closeup review
+  GIFs, with non-VFX channels frozen to prevent background flicker.
+- [x] Record v26 visual rejection: source artwork can touch the top/side
+  boundary and alpha-bbox normalization turns that into a flat clipped edge.
+- [x] Rebuild once as v27 and once as two independent v28 ten-row batches with
+  explicit final guard bands, 200-cell technical audits and frozen-channel
+  floor00 GIF checks. Both candidates failed the visual gate: the model-owned
+  framed source geometry was not stable, and v28's cleanup/fit made the aura
+  scale and silhouette inconsistent.
+- [ ] Rebuild again with the v22 native-canvas block geometry locked outside
+  the image model; validate one complete 10-row batch against the accepted
+  reference before generating the second batch. Do not use model-drawn frames
+  as geometry and do not normalize an edge-touching alpha bbox.
+- [x] Produce v29 sheet 01-10 using a fixed outer block plus fixed inner-safe
+  envelope and one identical extraction rectangle per cell. Technical audit:
+  100 native cells, ten 10-frame GIFs, 27x58 artwork envelope and zero
+  out-of-bounds cells.
+- [ ] Author visual acceptance of v29 sheet 01-10 before making sheet 11-20.
+- [x] Render v29 sheet 01-10 on floor00 as ten named 600x600 / 10-frame /
+  240ms GIFs with non-VFX channels frozen; add closeup review GIFs.
+- [x] Start v30 replacement plan with one Crimson Inferno 10-frame pilot,
+  fixed row template, fixed safe-area extraction, native review and one
+  floor00 pilot GIF. Pilot technical gate passes; author visual review is
+  pending before making the rest of sheet 01-10.
+- [x] Replace the v30 framed-template pilot with a standalone v31 horizontal
+  10-frame strip, source-edge rejection and contain-fit extraction. Crimson
+  base clipping is absent in the native and floor00 pilot review.
+- [x] Expand the standalone-strip method to one batch of ten effects: 100
+  native 33x65 cells, ten individual effect GIFs and ten floor00 scene GIFs.
+  Each source is edge-gated independently; RGB/black-backed sources are keyed
+  transparent before extraction. Review output is under
+  `LOCAL_REVIEW/aura_model_atlas_v32/`.
+- [x] Update `docs/VFX_CREATION_GUIDE.md` with the approved standalone-strip
+  workflow, edge-gate rules, black-backdrop handling and batch/floor00 QA.
+- [ ] Author visual acceptance of the v32 ten-effect batch.
+- [x] Decide to expand v32 additively from 11 to 21; the original eleven
+  records/assets remain unchanged and review PNGs are not copied directly into
+  runtime.
+- [x] Resolve the v32 alpha policy as binary native alpha using threshold 32;
+  register only the validated canonical 33x65 PNG frames.
+- [x] Build a non-destructive replace-10 test candidate that preserves the
+  11-effect contract, validates the real effect loader in four directions and
+  renders ten floor00 GIFs without modifying canonical/runtime files.
+- [ ] Author visual review of the replace-10 test candidate before any
+  canonical asset or registry change.
+- [x] Diagnose the candidate's frozen employee frames: the floor00 test
+  intentionally freezes character/HumanBall/PC channels to isolate VFX; this
+  is not evidence of live-runtime animation failure.
+- [x] Additive integration approved and completed: migrate the contract and
+  catalog from 11 to 21, register 100 new 33x65 PNG frames, rebuild all
+  browser bundles/manifests, add save/replay catalog-profile migration, and
+  verify a full moving-character floor00 playback before release packaging.
+- [x] Complete the read-only dependency audit for the additive 11-to-21 route:
+  preserve the existing vfx channel, renderer, anchors, timings, direction
+  transforms and old eleven assets; update only the coordinated registry,
+  count contracts, asset/hash manifests, derived bundles, selection tests and
+  save/replay compatibility policy when implementation is approved.
+- [ ] Keep author visual acceptance of the earlier corrected 20-type candidate
+  separate; it is review-only and is not a prerequisite for the approved v32
+  additive route.
+- [x] Complete the separate v32 production integration request and runtime
+  verification; leave final visual/gameplay acceptance as an author gate.
 
 ### Current HumanBall popup review gate
 

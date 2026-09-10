@@ -17,12 +17,12 @@
       "const": "gds_effect_registry_v1"
     },
     "effect_count": {
-      "const": 11
+      "const": 21
     },
     "effect_order": {
       "type": "array",
-      "minItems": 11,
-      "maxItems": 11,
+      "minItems": 21,
+      "maxItems": 21,
       "items": {
         "type": "string"
       }
@@ -35,8 +35,8 @@
     },
     "effects": {
       "type": "object",
-      "minProperties": 11,
-      "maxProperties": 11,
+      "minProperties": 21,
+      "maxProperties": 21,
       "additionalProperties": {
         "type": "object",
         "required": [

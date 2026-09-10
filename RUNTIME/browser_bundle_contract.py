@@ -236,7 +236,7 @@ def validate_bundle(
         raise BundleContractError("visual_catalog.catalog_profile must be non-empty text")
     catalog_ids: dict[str, list[Any]] = {}
     for channel, schema, minimum in (
-        ("vfx", "gds_effect_registry_v1", 11),
+        ("vfx", "gds_effect_registry_v1", 21),
         ("humanball", "gds_humanball_registry_v1", 44),
     ):
         record = _require_mapping(visual_catalog.get(channel), f"visual_catalog.{channel}")

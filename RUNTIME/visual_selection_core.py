@@ -20,6 +20,19 @@ class VisualSelectionCore:
 
     PROFILE_ID = "gds.visual_catalog.v1"
     DEFAULT_HUMANBALL_POOL_SIZE = 44
+    LEGACY_VFX_IDS = frozenset({
+        "fire_original",
+        "speed_wind",
+        "idea_overclock",
+        "coffee_energy",
+        "sunshine_bloom",
+        "heart_burst",
+        "cherry_blossom_swirl",
+        "thunder_cloud",
+        "stock_crash",
+        "low_battery_drain",
+        "static_noise_field",
+    })
     CHANNEL_TO_REGISTRY = {
         "vfx": ("CHARACTER/EFFECTS/gds_effects_v1.json", "effect_order", "gds_effect_registry_v1"),
         "humanball": (
@@ -143,6 +156,46 @@ class VisualSelectionCore:
             "cursor": 0,
             "active_binding": None,
         }
+
+    def migrate_channel_state(self, state: dict[str, Any], channel: str) -> dict[str, Any]:
+        """Migrate a saved VFX bag after the additive catalog expansion.
+
+        The old eleven VFX IDs remain in the new catalog, so an in-flight
+        binding can safely remain visible.  The consumed bag cursor cannot be
+        continued deterministically after the pool changes; restart only that
+        channel's bag while preserving the rest of the actor snapshot.
+        """
+        channel = self._require_channel(channel)
+        if not isinstance(state, dict) or state.get("catalog_profile") == self._catalog_profile:
+            return state
+        if channel != "vfx":
+            return state
+        old_profile = state.get("catalog_profile")
+        if not isinstance(old_profile, str) or not old_profile.startswith(f"{self.PROFILE_ID}:"):
+            return state
+        generation = state.get("generation")
+        cursor = state.get("cursor")
+        if (
+            isinstance(generation, bool)
+            or not isinstance(generation, int)
+            or generation < 0
+            or isinstance(cursor, bool)
+            or not isinstance(cursor, int)
+            or cursor < 0
+            or cursor > len(self.LEGACY_VFX_IDS)
+        ):
+            return state
+        active = state.get("active_binding")
+        if active is not None:
+            if not isinstance(active, dict):
+                return state
+            asset_id = active.get("asset_id")
+            if asset_id not in self.LEGACY_VFX_IDS or asset_id not in self._ids[channel]:
+                return state
+        migrated = self.initial_channel_state(channel)
+        if active is not None:
+            migrated["active_binding"] = copy.deepcopy(active)
+        return migrated
 
     def validate_channel_state(self, state: dict[str, Any], channel: str) -> dict[str, Any]:
         """Validate and return an isolated compact channel state."""

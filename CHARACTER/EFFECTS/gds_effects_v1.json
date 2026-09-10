@@ -1,6 +1,6 @@
 {
   "schema": "gds_effect_registry_v1",
-  "effect_count": 11,
+  "effect_count": 21,
   "effect_order": [
     "fire_original",
     "speed_wind",
@@ -12,7 +12,17 @@
     "thunder_cloud",
     "stock_crash",
     "low_battery_drain",
-    "static_noise_field"
+    "static_noise_field",
+    "crimson_inferno",
+    "tangerine_cyclone",
+    "lemon_crown",
+    "acid_bramble",
+    "emerald_serpent",
+    "turquoise_glacier",
+    "cobalt_volt",
+    "violet_rift",
+    "fuchsia_shockwave",
+    "rose_nebula"
   ],
   "canonical_effect_id": "fire_original",
   "fallback_effect_id": "fire_original",
@@ -692,6 +702,596 @@
         "effect.static_noise_field.frame.07",
         "effect.static_noise_field.frame.08",
         "effect.static_noise_field.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "crimson_inferno": {
+      "effect_id": "crimson_inferno",
+      "title": "Crimson Inferno",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_01",
+        "fire"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.crimson_inferno.frame.00",
+        "effect.crimson_inferno.frame.01",
+        "effect.crimson_inferno.frame.02",
+        "effect.crimson_inferno.frame.03",
+        "effect.crimson_inferno.frame.04",
+        "effect.crimson_inferno.frame.05",
+        "effect.crimson_inferno.frame.06",
+        "effect.crimson_inferno.frame.07",
+        "effect.crimson_inferno.frame.08",
+        "effect.crimson_inferno.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "tangerine_cyclone": {
+      "effect_id": "tangerine_cyclone",
+      "title": "Tangerine Cyclone",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_02",
+        "wind"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.tangerine_cyclone.frame.00",
+        "effect.tangerine_cyclone.frame.01",
+        "effect.tangerine_cyclone.frame.02",
+        "effect.tangerine_cyclone.frame.03",
+        "effect.tangerine_cyclone.frame.04",
+        "effect.tangerine_cyclone.frame.05",
+        "effect.tangerine_cyclone.frame.06",
+        "effect.tangerine_cyclone.frame.07",
+        "effect.tangerine_cyclone.frame.08",
+        "effect.tangerine_cyclone.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "lemon_crown": {
+      "effect_id": "lemon_crown",
+      "title": "Lemon Crown",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_03",
+        "light"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.lemon_crown.frame.00",
+        "effect.lemon_crown.frame.01",
+        "effect.lemon_crown.frame.02",
+        "effect.lemon_crown.frame.03",
+        "effect.lemon_crown.frame.04",
+        "effect.lemon_crown.frame.05",
+        "effect.lemon_crown.frame.06",
+        "effect.lemon_crown.frame.07",
+        "effect.lemon_crown.frame.08",
+        "effect.lemon_crown.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "acid_bramble": {
+      "effect_id": "acid_bramble",
+      "title": "Acid Bramble",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_04",
+        "nature"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.acid_bramble.frame.00",
+        "effect.acid_bramble.frame.01",
+        "effect.acid_bramble.frame.02",
+        "effect.acid_bramble.frame.03",
+        "effect.acid_bramble.frame.04",
+        "effect.acid_bramble.frame.05",
+        "effect.acid_bramble.frame.06",
+        "effect.acid_bramble.frame.07",
+        "effect.acid_bramble.frame.08",
+        "effect.acid_bramble.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "emerald_serpent": {
+      "effect_id": "emerald_serpent",
+      "title": "Emerald Serpent",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_05",
+        "arcane"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.emerald_serpent.frame.00",
+        "effect.emerald_serpent.frame.01",
+        "effect.emerald_serpent.frame.02",
+        "effect.emerald_serpent.frame.03",
+        "effect.emerald_serpent.frame.04",
+        "effect.emerald_serpent.frame.05",
+        "effect.emerald_serpent.frame.06",
+        "effect.emerald_serpent.frame.07",
+        "effect.emerald_serpent.frame.08",
+        "effect.emerald_serpent.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "turquoise_glacier": {
+      "effect_id": "turquoise_glacier",
+      "title": "Turquoise Glacier",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_06",
+        "ice"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.turquoise_glacier.frame.00",
+        "effect.turquoise_glacier.frame.01",
+        "effect.turquoise_glacier.frame.02",
+        "effect.turquoise_glacier.frame.03",
+        "effect.turquoise_glacier.frame.04",
+        "effect.turquoise_glacier.frame.05",
+        "effect.turquoise_glacier.frame.06",
+        "effect.turquoise_glacier.frame.07",
+        "effect.turquoise_glacier.frame.08",
+        "effect.turquoise_glacier.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "cobalt_volt": {
+      "effect_id": "cobalt_volt",
+      "title": "Cobalt Volt",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_07",
+        "lightning"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.cobalt_volt.frame.00",
+        "effect.cobalt_volt.frame.01",
+        "effect.cobalt_volt.frame.02",
+        "effect.cobalt_volt.frame.03",
+        "effect.cobalt_volt.frame.04",
+        "effect.cobalt_volt.frame.05",
+        "effect.cobalt_volt.frame.06",
+        "effect.cobalt_volt.frame.07",
+        "effect.cobalt_volt.frame.08",
+        "effect.cobalt_volt.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "violet_rift": {
+      "effect_id": "violet_rift",
+      "title": "Violet Rift",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_08",
+        "void"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.violet_rift.frame.00",
+        "effect.violet_rift.frame.01",
+        "effect.violet_rift.frame.02",
+        "effect.violet_rift.frame.03",
+        "effect.violet_rift.frame.04",
+        "effect.violet_rift.frame.05",
+        "effect.violet_rift.frame.06",
+        "effect.violet_rift.frame.07",
+        "effect.violet_rift.frame.08",
+        "effect.violet_rift.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "fuchsia_shockwave": {
+      "effect_id": "fuchsia_shockwave",
+      "title": "Fuchsia Shockwave",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "high",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_09",
+        "energy"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.fuchsia_shockwave.frame.00",
+        "effect.fuchsia_shockwave.frame.01",
+        "effect.fuchsia_shockwave.frame.02",
+        "effect.fuchsia_shockwave.frame.03",
+        "effect.fuchsia_shockwave.frame.04",
+        "effect.fuchsia_shockwave.frame.05",
+        "effect.fuchsia_shockwave.frame.06",
+        "effect.fuchsia_shockwave.frame.07",
+        "effect.fuchsia_shockwave.frame.08",
+        "effect.fuchsia_shockwave.frame.09"
+      ],
+      "render": {
+        "anchor": "character_work_origin",
+        "base_offset": [
+          -11,
+          -36
+        ],
+        "layer_mode": "behind_character"
+      }
+    },
+    "rose_nebula": {
+      "effect_id": "rose_nebula",
+      "title": "Rose Nebula",
+      "category": "visual_variant",
+      "mood": "visual_variant",
+      "intensity": "medium",
+      "trigger_tags": [
+        "visual_variant",
+        "model_v32_10",
+        "cosmic"
+      ],
+      "role": {
+        "group": "visual_variant",
+        "is_canonical": false,
+        "is_fallback": false
+      },
+      "canvas": [
+        33,
+        65
+      ],
+      "animation": {
+        "mode": "loop",
+        "source_frames": 10,
+        "output_frames": 10,
+        "frame_ms": 240,
+        "frame_order": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      "frame_asset_ids": [
+        "effect.rose_nebula.frame.00",
+        "effect.rose_nebula.frame.01",
+        "effect.rose_nebula.frame.02",
+        "effect.rose_nebula.frame.03",
+        "effect.rose_nebula.frame.04",
+        "effect.rose_nebula.frame.05",
+        "effect.rose_nebula.frame.06",
+        "effect.rose_nebula.frame.07",
+        "effect.rose_nebula.frame.08",
+        "effect.rose_nebula.frame.09"
       ],
       "render": {
         "anchor": "character_work_origin",

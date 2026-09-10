@@ -34,16 +34,16 @@
           "const": 302
         },
         "canonical_assets": {
-          "const": 157
+          "const": 257
         },
         "character_assets": {
           "const": 53
         },
         "effect_assets": {
-          "const": 104
+          "const": 204
         },
         "effects": {
-          "const": 11
+          "const": 21
         },
         "asset_aliases": {
           "const": 0

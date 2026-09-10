@@ -75,6 +75,7 @@ export class RuntimeCanvasRenderer {
     this.manifest = null;
     this.manifestPromise = null;
     this.imageCache = new Map();
+    this.lastReadyPcFrames = new Map();
     this.state = null;
     this.previousState = null;
     this.stateReceivedAt = 0;
@@ -133,6 +134,11 @@ export class RuntimeCanvasRenderer {
     return entry?.ready ? entry.image : null;
   }
 
+  _queueImagePreload(pending, url) {
+    const entry = this._loadImage(url);
+    if (entry?.promise) pending.push(entry.promise);
+  }
+
   async loadManifest() {
     if (this.manifest) return this.manifest;
     if (this.manifestPromise) return this.manifestPromise;
@@ -147,11 +153,22 @@ export class RuntimeCanvasRenderer {
           throw new Error("runtime render manifest is incomplete");
         }
         this.manifest = manifest;
+        this.lastReadyPcFrames.clear();
         this._setCanvasSize(manifest.canvas.width, manifest.canvas.height);
-        this._loadImage(manifest.static_scene.url);
+        const pending = [];
+        this._queueImagePreload(pending, manifest.static_scene.url);
         for (const overlay of manifest.overlays || []) {
-          if (overlay?.url) this._loadImage(overlay.url);
+          if (overlay?.url) this._queueImagePreload(pending, overlay.url);
         }
+        for (const workstation of Object.values(manifest.workstations || {})) {
+          for (const component of workstation.components || []) {
+            if (component?.url) this._queueImagePreload(pending, component.url);
+          }
+          for (const frame of workstation.pc_frames || []) {
+            if (frame?.url) this._queueImagePreload(pending, frame.url);
+          }
+        }
+        await Promise.all(pending);
         return manifest;
       })
       .catch((error) => {
@@ -323,6 +340,24 @@ export class RuntimeCanvasRenderer {
     return frames[((index % frames.length) + frames.length) % frames.length];
   }
 
+  _pcFrameForRender(workstationId, workstation, row, component) {
+    const selected = this._pcFrame(workstation, row);
+    if (!selected) return component;
+
+    // A seated actor changes the PC record at the animation boundary. Keep
+    // the previous ready frame visible until the requested image is ready so
+    // the canvas clear in render() cannot expose the desk/background for one
+    // or more browser frames.
+    if (row?.render_owner === "work_seat" && row.visible) {
+      if (this._readyImage(selected.url)) {
+        this.lastReadyPcFrames.set(workstationId, selected);
+        return selected;
+      }
+      return this.lastReadyPcFrames.get(workstationId) || component;
+    }
+    return selected;
+  }
+
   _primeEffect(workstation, channel, row) {
     const effect = this.manifest?.effects?.[channel.asset_id];
     if (!effect) return;
@@ -352,7 +387,7 @@ export class RuntimeCanvasRenderer {
       const row = byWorkstation.get(workstationId);
       for (const component of workstation.components || []) {
         const record = component.role === "pc"
-          ? this._pcFrame(workstation, row) || component
+          ? this._pcFrameForRender(workstationId, workstation, row, component)
           : component;
         entries.push({
           layer: integerOr(component.layer),
@@ -667,6 +702,7 @@ export class RuntimeCanvasRenderer {
     this.state = null;
     this.previousState = null;
     this.imageCache.clear();
+    this.lastReadyPcFrames.clear();
     this.manifest = null;
     this.manifestPromise = null;
     this.actorCanvas = null;

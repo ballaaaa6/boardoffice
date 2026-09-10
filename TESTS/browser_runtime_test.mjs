@@ -78,6 +78,9 @@ function visualCatalogFixture() {
         "fire_original", "speed_wind", "idea_overclock", "coffee_energy",
         "sunshine_bloom", "heart_burst", "cherry_blossom_swirl", "thunder_cloud",
         "stock_crash", "low_battery_drain", "static_noise_field",
+        "crimson_inferno", "tangerine_cyclone", "lemon_crown", "acid_bramble",
+        "emerald_serpent", "turquoise_glacier", "cobalt_volt", "violet_rift",
+        "fuchsia_shockwave", "rose_nebula",
       ],
       registry_schema: "gds_effect_registry_v1",
       registry_hash: "0".repeat(64),
@@ -106,9 +109,10 @@ test("seeded random sequence is deterministic and never uses Math.random", () =>
 
 test("browser visual shuffle bags cover every catalog item before repeating", () => {
   const selection = new BrowserVisualSelection({ catalog: visualCatalogFixture() });
+  const effectCount = selection.catalog().vfx.ids.length;
   let state = selection.initialChannelState("vfx");
   const selected = [];
-  for (let index = 0; index < 23; index += 1) {
+  for (let index = 0; index < effectCount * 2 + 1; index += 1) {
     const result = selection.select(state, {
       channel: "vfx",
       simulationSeed: "browser-bag-seed",
@@ -120,8 +124,8 @@ test("browser visual shuffle bags cover every catalog item before repeating", ()
     state = selection.clearActive(result.state, { channel: "vfx", eventId: `event-${index}` });
     selected.push(result.binding.asset_id);
   }
-  assert.equal(new Set(selected.slice(0, 11)).size, 11);
-  assert.equal(new Set(selected.slice(11, 22)).size, 11);
+  assert.equal(new Set(selected.slice(0, effectCount)).size, effectCount);
+  assert.equal(new Set(selected.slice(effectCount, effectCount * 2)).size, effectCount);
 });
 
 test("browser HumanBall bags avoid immediate repeat at generation boundaries", async () => {
@@ -215,6 +219,53 @@ test("runtime snapshot validation checks all synchronized actor channels", () =>
     }),
     /actor ids must match/,
   );
+});
+
+test("browser runtime migrates an old 11-item VFX save atomically", async () => {
+  const bundle = await checkedInBundle();
+  const core = await BrowserRuntimeCore.create({
+    bundle,
+    floorId: "floor02",
+    seed: "browser-vfx-migration-seed",
+  });
+  const snapshot = core.snapshot();
+  for (const actor of Object.values(snapshot.actor_snapshot.actors)) {
+    const employeeId = actor.employee_id;
+    actor.behavior.visual_channels.vfx = {
+      catalog_profile: "gds.visual_catalog.v1:legacy-vfx-profile",
+      generation: 2,
+      cursor: 11,
+      active_binding: {
+        channel: "vfx",
+        asset_id: "speed_wind",
+        event_id: `legacy-vfx:${employeeId}`,
+        employee_id: employeeId,
+        started_at_ms: 0,
+        ends_at_ms: 600,
+        generation: 2,
+        cursor_after: 11,
+      },
+    };
+  }
+
+  core.load({
+    floor_id: "floor02",
+    bundle_revision: "legacy-11-item-bundle-revision",
+    snapshot,
+    sequence: 7,
+    command_history: [],
+  });
+
+  for (const actor of Object.values(core.snapshot().actor_snapshot.actors)) {
+    const state = actor.behavior.visual_channels.vfx;
+    assert.equal(state.catalog_profile, bundle.visual_catalog.catalog_profile);
+    assert.equal(state.generation, 0);
+    assert.equal(state.cursor, 0);
+    assert.equal(state.active_binding.asset_id, "speed_wind");
+  }
+  const stepped = core.step(60);
+  assert.equal(stepped.snapshot.actor_snapshot.clock.simulation_time_ms, 60);
+  core.destroy();
 });
 
 test("fixed clock returns bounded fixed slices", () => {
@@ -587,6 +638,95 @@ test("multi-floor browser index loads and advances all 25 floor bundles cleanly"
     assert.equal(state.actors.length, Object.keys(bundle.employees).length);
     core.destroy();
   }
+});
+
+test("canvas renderer preloads PC frames and keeps the last ready frame during a slow swap", async () => {
+  const { RuntimeCanvasRenderer } = await import("../WEB/runtime_canvas_renderer.js");
+  const requested = [];
+  const fakeContext = {
+    imageSmoothingEnabled: false,
+    clearRect: () => {},
+    drawImage: () => {},
+  };
+  const fakeCanvas = {
+    width: 600,
+    height: 600,
+    getContext: () => fakeContext,
+  };
+  const imageFactory = () => {
+    const image = {
+      complete: false,
+      naturalWidth: 0,
+      width: 0,
+      height: 32,
+      onload: null,
+      onerror: null,
+    };
+    Object.defineProperty(image, "src", {
+      set(value) {
+        requested.push(value);
+        queueMicrotask(() => {
+          image.complete = true;
+          image.naturalWidth = 50;
+          image.width = 50;
+          image.onload?.();
+        });
+      },
+    });
+    return image;
+  };
+  const manifest = {
+    schema: "gds.runtime_render_manifest.v1",
+    canvas: { width: 600, height: 600 },
+    static_scene: { url: "/static.png" },
+    overlays: [{ url: "/overlay.png" }],
+    workstations: {
+      ws1: {
+        components: [
+          { role: "pc", url: "/pc0.png", x_px: 10, y_px: 20, layer: 10 },
+        ],
+        pc_frames: [
+          { frame_index: 0, url: "/pc0.png" },
+          { frame_index: 1, url: "/pc1.png" },
+        ],
+      },
+    },
+  };
+  const renderer = new RuntimeCanvasRenderer({
+    canvas: fakeCanvas,
+    manifestUrl: "http://127.0.0.1/floor00/manifest.json",
+    imageFactory,
+    fetchImpl: async () => ({ ok: true, json: async () => manifest }),
+  });
+
+  await renderer.loadManifest();
+  assert.deepEqual(new Set(requested), new Set([
+    "http://127.0.0.1/static.png",
+    "http://127.0.0.1/overlay.png",
+    "http://127.0.0.1/pc0.png",
+    "http://127.0.0.1/pc1.png",
+  ]));
+  assert.equal(renderer.imageCache.get("http://127.0.0.1/pc0.png").ready, true);
+  assert.equal(renderer.imageCache.get("http://127.0.0.1/pc1.png").ready, true);
+
+  const row = {
+    employee_id: "EMP_TEST_001",
+    visible: true,
+    render_owner: "work_seat",
+    workstation_id: "ws1",
+    channels: { pc: { frame_index: 0 } },
+  };
+  const pcEntry = () => renderer._dynamicEntries([row])
+    .find((entry) => entry.key === "ws1:component:pc");
+
+  assert.equal(pcEntry().record.url, "/pc0.png");
+  renderer.imageCache.get("http://127.0.0.1/pc1.png").ready = false;
+  row.channels.pc.frame_index = 1;
+  assert.equal(pcEntry().record.url, "/pc0.png");
+
+  renderer.imageCache.get("http://127.0.0.1/pc1.png").ready = true;
+  assert.equal(pcEntry().record.url, "/pc1.png");
+  renderer.destroy();
 });
 
 test("canvas renderer occludes walking actors behind seated characters and workstations", async () => {

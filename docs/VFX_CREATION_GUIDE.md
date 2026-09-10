@@ -1,9 +1,9 @@
 # Pixel VFX Creation Guide
 
-This guide documents the repeatable native-pixel workflow used for the
-`core_charge_blue_v4` review asset and its `floor00` scene preview. It is the
-recommended process for creating future VFX without breaking pixel scale,
-runtime contracts or scene composition.
+This guide documents the approved standalone-strip workflow used by the v32
+ten-effect batch. It is the recommended process for creating future VFX with
+an image model without allowing the model to control atlas geometry, cell
+boundaries or runtime placement.
 
 ## 1. Current VFX architecture
 
@@ -25,7 +25,123 @@ Key files:
 The current VFX canvas is `33x65` native pixels. The standard placement uses
 `character_work_origin` and renders the effect behind the character.
 
-## 2. Standard workflow
+## 2. Approved model-strip workflow
+
+The image model creates artwork only. It must never be asked to create the
+final atlas, cell borders or a multi-effect sheet. Geometry belongs to the
+local extraction script.
+
+### A. Lock the output contract first
+
+Use these values before generating any artwork:
+
+| Item | Required value |
+|---|---|
+| Source format | One independent horizontal strip per effect |
+| Source layout | Exactly 10 equal panels, left to right |
+| Native output | 10 RGBA PNG frames, each `33x65` |
+| Animation | 10 unique frames, `240ms/frame`, looping |
+| Background | Transparent; if the model returns black, key near-black to alpha 0 |
+| Cell safety | Complete silhouette inside its source panel; no edge contact |
+| Placement | Contain-fit, centered, with a small transparent moat and intact base |
+| Final review | One combined atlas plus one floor00 GIF per effect |
+
+The source strip is a staging format, not a runtime asset. Keep it in
+`LOCAL_REVIEW/<batch>/sources/` and keep every generated effect in its own
+file. Do not combine effects before extraction.
+
+### B. Generate one standalone strip at a time
+
+For each effect, ask for a complete 10-frame animation strip with:
+
+- one effect only, filling the panel vertically but leaving visible margin on
+  every side;
+- a complete base in every frame, never a crop, fade-in, fade-out or partial
+  charge sequence;
+- clearly different poses and motion between frames;
+- no frame borders, labels, guides, grid, checkerboard or atlas layout;
+- a clean transparent background, or a flat black background that can be
+  safely removed;
+- the requested color and silhouette concept, without copying the style of a
+  review sheet.
+
+If a strip touches a panel edge or the model produces a broken base, reject
+and regenerate that strip. Do not repair it by stretching, padding or cropping
+the artwork into the next cell.
+
+### C. Normalize and edge-gate before cropping
+
+The extraction script must:
+
+1. Convert the source to RGBA.
+2. Key near-black backdrop pixels transparent when the source is RGB/opaque.
+3. Split the strip into ten fixed equal panels using the known source size.
+4. Compute an alpha silhouette for each panel using a fixed threshold.
+5. Reject the entire effect if any silhouette touches the left, top, right or
+   bottom edge of its panel.
+6. Only after the gate passes, crop the silhouette and contain-fit it into the
+   `33x65` cell. Never use a crop to hide an edge violation.
+7. Place the result on a transparent cell with a small bottom safety margin,
+   so the rounded base remains intact and is not forced into a rectangle.
+
+The v32 reference implementation is
+`LOCAL_REVIEW/aura_model_atlas_v32/build_atlas_v32.py`. Its outputs include
+`audit.json`, which must report 100 cells, ten unique frames per effect and no
+source-edge contacts.
+
+### D. Build the review outputs locally
+
+After all ten effects pass independently, generate:
+
+```text
+LOCAL_REVIEW/<batch>/
+  sources/                         # one model strip per effect
+  <id>_<name>/frame_00.png ...     # native frames
+  <id>_<name>/<id>_<name>.gif      # isolated effect GIF
+  atlas_01_10_native.png
+  atlas_01_10_framed_review.png
+  audit.json
+  floor00_gifs/<id>_<name>.gif     # one full-scene GIF per effect
+  <id>_<name>/floor00_closeup.png
+  floor00_scene_index.json
+```
+
+The framed review atlas is for inspection only. Its borders must never be
+included in native frames or GIFs. The native atlas must contain only the
+transparent cells and effect pixels.
+
+### E. Validate the batch before scene rendering
+
+Require all of the following:
+
+- exactly 10 effects and 100 native cells;
+- every frame is exactly `33x65` RGBA;
+- every frame has binary alpha where the runtime contract requires it;
+- ten unique frames per effect;
+- no source silhouette touches a panel edge;
+- no native artwork is outside its cell and no review border is in a frame;
+- every isolated GIF has 10 frames at `240ms/frame`;
+- the native atlas and framed review atlas are visually inspected.
+
+If one source fails, regenerate only that source strip and rerun the batch
+gate. Do not change the cell geometry for later effects to compensate for one
+bad source.
+
+### F. Render floor00 only after native QA
+
+Use the runtime compositor, not a hand-built scene, to create one floor00 GIF
+per effect. Freeze floor, character, HumanBall and PC channels while advancing
+only the VFX frame. Inspect at least one closeup and the full scene for every
+effect. Confirm that the effect stays behind the character, the base is not a
+square cut, and the floor itself does not flicker.
+
+The v32 reference renderer is
+`LOCAL_REVIEW/aura_model_atlas_v32/render_floor00_gifs.py`.
+
+## 3. Manual native-pixel workflow (alternate)
+
+The following workflow remains valid when artwork is authored directly in
+Aseprite. It is not the preferred workflow for model-generated batches.
 
 ### A. Study the existing language first
 
@@ -172,7 +288,7 @@ Check that:
 For unapproved previews, inject the candidate in memory as the full-scene
 review script does. Do not modify the registry just to make a GIF.
 
-## 3. Direction handling
+## 4. Direction handling
 
 The renderer supports `NW`, `SE`, `SW` and `NE`. Usually, author source frames
 for the primary directions and declare derived directions in the registry:
@@ -189,7 +305,7 @@ Use the renderer's established transform rather than inventing a new mirror
 operation in production. Check every direction with a real character because
 asymmetric effects may not mirror cleanly.
 
-## 4. Production integration after approval
+## 5. Production integration after approval
 
 Only integrate after explicit visual approval and a separate integration
 request:
@@ -206,7 +322,7 @@ request:
 Do not treat a good-looking GIF or a passing manifest audit as author approval.
 Visual acceptance and production integration are separate gates.
 
-## 5. Do not do these things
+## 6. Do not do these things
 
 - Do not edit canonical `fire_original` while experimenting.
 - Do not package GIFs or review sheets as runtime assets.
@@ -217,11 +333,15 @@ Visual acceptance and production integration are separate gates.
 - Do not change runtime placement to compensate for an incorrectly anchored asset.
 - Do not close the milestone before explicit visual acceptance.
 
-## 6. Submission checklist
+## 7. Submission checklist
 
 - [ ] Existing effects and reference grammar were inspected.
+- [ ] Each effect was generated as an independent 10-panel strip.
+- [ ] The model was not asked to create the final atlas or cell borders.
 - [ ] Canvas, frame count and timing are locked.
 - [ ] Artwork is native-pixel with binary alpha.
+- [ ] Opaque black backdrops were keyed transparent before edge QA.
+- [ ] Every source panel passed the no-edge-contact gate before cropping.
 - [ ] Core, primary silhouette and secondary currents are present.
 - [ ] Frames change intentionally and loop cleanly.
 - [ ] Aseprite source, pixel payload and drawing source are saved.
@@ -229,4 +349,5 @@ Visual acceptance and production integration are separate gates.
 - [ ] Native and nearest-neighbor enlarged reviews were inspected.
 - [ ] Character-only crop was reviewed.
 - [ ] Full-scene compositor review was completed.
+- [ ] Ten-effect batch audit reports 100 cells and ten floor00 GIFs when batching.
 - [ ] Runtime integration waits for explicit approval.

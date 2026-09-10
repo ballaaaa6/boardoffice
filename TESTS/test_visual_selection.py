@@ -55,7 +55,7 @@ def test_visual_catalog_exposes_all_canonical_ids():
         *office_humanball_registry["office_humanball_order"],
     ]
     assert catalog["humanball"]["ids"] == expected_popup_ids
-    assert len(catalog["vfx"]["ids"]) == 11
+    assert len(catalog["vfx"]["ids"]) == effect_registry["effect_count"] == 21
     assert len(catalog["humanball"]["ids"]) == 44
     assert catalog["humanball"]["pool_mode"] == "canonical_plus_office"
     assert catalog["profile_id"] == "gds.visual_catalog.v1"
@@ -63,15 +63,22 @@ def test_visual_catalog_exposes_all_canonical_ids():
 
 def test_vfx_bag_has_no_repeat_then_refills_deterministically():
     visual = VisualSelectionCore(ROOT)
-    selected = visual_sequence(visual, "vfx", "bag-seed", "EMP_W1_0010", 23)
-    first_generation = selected[:11]
-    second_generation = selected[11:22]
+    effect_count = len(visual.catalog()["vfx"]["ids"])
+    selected = visual_sequence(visual, "vfx", "bag-seed", "EMP_W1_0010", effect_count * 2 + 1)
+    first_generation = selected[:effect_count]
+    second_generation = selected[effect_count:effect_count * 2]
 
-    assert len(set(first_generation)) == 11
-    assert len(set(second_generation)) == 11
+    assert len(set(first_generation)) == effect_count
+    assert len(set(second_generation)) == effect_count
     assert set(first_generation) == set(visual.catalog()["vfx"]["ids"])
     assert set(second_generation) == set(visual.catalog()["vfx"]["ids"])
-    assert selected == visual_sequence(visual, "vfx", "bag-seed", "EMP_W1_0010", 23)
+    assert selected == visual_sequence(
+        visual,
+        "vfx",
+        "bag-seed",
+        "EMP_W1_0010",
+        effect_count * 2 + 1,
+    )
 
 
 def test_popup_bag_covers_all_44_assets_before_repeat():
@@ -181,6 +188,39 @@ def test_invalid_channel_and_invalid_catalog_state_fail_fast():
         )
 
 
+def test_old_eleven_item_vfx_state_migrates_without_touching_other_channels():
+    core = ActorSimulationCore(ROOT)
+    snapshot = core.initial_snapshot("floor02")
+    actor = snapshot["actors"]["EMP_W1_0010"]
+    vfx = actor["behavior"]["visual_channels"]["vfx"]
+    vfx.update(
+        {
+            "catalog_profile": "gds.visual_catalog.v1:legacy-vfx-profile",
+            "generation": 2,
+            "cursor": 11,
+            "active_binding": {
+                "channel": "vfx",
+                "asset_id": "speed_wind",
+                "event_id": "legacy-vfx:EMP_W1_0010",
+                "employee_id": "EMP_W1_0010",
+                "started_at_ms": 0,
+                "ends_at_ms": 600,
+                "generation": 2,
+                "cursor_after": 11,
+            },
+        }
+    )
+    humanball_before = actor["behavior"]["visual_channels"]["humanball"].copy()
+
+    migrated = core.validate_snapshot(snapshot)
+    migrated_vfx = migrated["actors"]["EMP_W1_0010"]["behavior"]["visual_channels"]["vfx"]
+    assert migrated_vfx["catalog_profile"] == core.visual_selection.catalog_profile
+    assert migrated_vfx["generation"] == 0
+    assert migrated_vfx["cursor"] == 0
+    assert migrated_vfx["active_binding"]["asset_id"] == "speed_wind"
+    assert migrated["actors"]["EMP_W1_0010"]["behavior"]["visual_channels"]["humanball"] == humanball_before
+
+
 def test_registry_with_duplicate_ids_is_rejected(tmp_path: Path):
     effect_path = ROOT / "CHARACTER/EFFECTS/gds_effects_v1.json"
     humanball_path = ROOT / "CHARACTER/EFFECTS/humanball_v1.json"
@@ -259,7 +299,8 @@ def test_actor_vfx_events_consume_all_catalog_ids_without_repetition():
     employee = core.employee_registry.get("EMP_W1_0010")
     selected: list[str] = []
 
-    for index in range(11):
+    effect_count = len(core.visual_selection.catalog()["vfx"]["ids"])
+    for index in range(effect_count):
         events: list[dict] = []
         core._start_event(
             snapshot,
@@ -278,7 +319,7 @@ def test_actor_vfx_events_consume_all_catalog_ids_without_repetition():
             events=events,
         )
 
-    assert len(set(selected)) == 11
+    assert len(set(selected)) == effect_count
     assert set(selected) == set(core.visual_selection.catalog()["vfx"]["ids"])
 
 

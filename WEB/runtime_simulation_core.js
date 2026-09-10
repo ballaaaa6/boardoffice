@@ -21,6 +21,19 @@ const DEFAULT_ANCHOR = [16, 31];
 const DEFAULT_CHARACTER_FRAME_MS = 360;
 const DEFAULT_PC_FRAME_MS = 720;
 const COMMAND_HISTORY_LIMIT = 2048;
+const LEGACY_VFX_IDS = new Set([
+  "fire_original",
+  "speed_wind",
+  "idea_overclock",
+  "coffee_energy",
+  "sunshine_bloom",
+  "heart_burst",
+  "cherry_blossom_swirl",
+  "thunder_cloud",
+  "stock_crash",
+  "low_battery_drain",
+  "static_noise_field",
+]);
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -665,6 +678,7 @@ export class BrowserRuntimeCore {
       version: "1.0.0",
       floor_id: this.floorId,
       bundle_revision: this.bundle.bundle_revision,
+      visual_catalog_profile: this.bundle.visual_catalog.catalog_profile,
       seed: this.seed,
       sequence: this.sequence,
       snapshot: this.snapshot(),
@@ -672,18 +686,71 @@ export class BrowserRuntimeCore {
     });
   }
 
+  _migrateVisualCatalogSnapshot(snapshot) {
+    const original = cloneJsonValue(snapshot);
+    const candidate = cloneJsonValue(snapshot);
+    const currentProfile = this.bundle.visual_catalog.catalog_profile;
+    const currentIds = new Set(this.bundle.visual_catalog.vfx?.ids || []);
+    let needsMigration = false;
+    const actors = candidate?.actor_snapshot?.actors;
+    if (!isObject(actors)) return { snapshot: candidate, migrated: false };
+    for (const actor of Object.values(actors)) {
+      const channels = actor?.behavior?.visual_channels;
+      const state = channels?.vfx;
+      if (!isObject(state) || state.catalog_profile === currentProfile) continue;
+      needsMigration = true;
+      if (
+        typeof state.catalog_profile !== "string"
+        || !state.catalog_profile.startsWith("gds.visual_catalog.v1:")
+        || !Number.isSafeInteger(state.generation)
+        || state.generation < 0
+        || !Number.isSafeInteger(state.cursor)
+        || state.cursor < 0
+        || state.cursor > LEGACY_VFX_IDS.size
+      ) continue;
+      const active = state.active_binding;
+      if (
+        active !== null
+        && (
+          !isObject(active)
+          || active.channel !== "vfx"
+          || typeof active.event_id !== "string"
+          || !active.event_id
+          || !LEGACY_VFX_IDS.has(active.asset_id)
+          || !currentIds.has(active.asset_id)
+        )
+      ) continue;
+      channels.vfx = {
+        catalog_profile: currentProfile,
+        generation: 0,
+        cursor: 0,
+        active_binding: active === null ? null : cloneJsonValue(active),
+      };
+    }
+    if (needsMigration) {
+      const unmigrated = Object.values(candidate.actor_snapshot.actors).some((actor) => {
+        const state = actor?.behavior?.visual_channels?.vfx;
+        return isObject(state) && state.catalog_profile !== currentProfile;
+      });
+      if (unmigrated) return { snapshot: original, migrated: false };
+    }
+    return { snapshot: candidate, migrated: needsMigration };
+  }
+
   load(payload) {
     this._assertAlive();
     const parsed = typeof payload === "string" ? JSON.parse(payload) : payload;
     if (!isObject(parsed)) throw new TypeError("runtime save package must be an object");
     if (parsed.floor_id !== this.floorId) throw new TypeError("runtime save floor does not match");
+    const migration = this._migrateVisualCatalogSnapshot(parsed.snapshot);
     if (
       parsed.bundle_revision !== undefined
       && parsed.bundle_revision !== this.bundle.bundle_revision
+      && !migration.migrated
     ) {
       throw new TypeError("runtime save bundle revision does not match");
     }
-    const snapshot = cloneRuntimeSnapshot(parsed.snapshot);
+    const snapshot = cloneRuntimeSnapshot(migration.snapshot);
     const clockMs = snapshot.actor_snapshot.clock.simulation_time_ms;
     const nextClock = new FixedStepClock({
       stepMs: this.bundle.simulation.step_ms,

@@ -8,6 +8,9 @@ class EffectRegistryError(ValueError):
     pass
 
 
+EXPECTED_EFFECT_COUNT = 21
+
+
 class EffectRegistry:
     def __init__(self, core_root: str | Path):
         self.core_root = Path(core_root)
@@ -23,8 +26,10 @@ class EffectRegistry:
             raise EffectRegistryError('Invalid effect registry structure')
         if len(order) != data.get('effect_count') or set(order) != set(effects):
             raise EffectRegistryError('effect_order/effect_count mismatch')
-        if len(order) != 11:
-            raise EffectRegistryError(f'Central Core must contain exactly 11 effects, got {len(order)}')
+        if len(order) != EXPECTED_EFFECT_COUNT:
+            raise EffectRegistryError(
+                f'Central Core must contain exactly {EXPECTED_EFFECT_COUNT} effects, got {len(order)}'
+            )
         canonical = data.get('canonical_effect_id')
         fallback = data.get('fallback_effect_id')
         if canonical not in effects or fallback not in effects:

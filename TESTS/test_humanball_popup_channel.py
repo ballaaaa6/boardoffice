@@ -36,7 +36,7 @@ def test_humanball_registry_keeps_six_source_exact_assets_separate_from_work_vfx
     from CHARACTER.RUNTIME.character_system import CharacterSystem
 
     system = CharacterSystem(ROOT / 'CHARACTER')
-    assert system.list_effects() and len(system.list_effects()) == 11
+    assert system.list_effects() and len(system.list_effects()) == 21
     assert system.list_humanballs() == EXPECTED_IDS
 
     asset_registry = json.loads((ROOT / 'CHARACTER' / 'ASSETS' / 'asset_registry.json').read_text(encoding='utf-8'))
