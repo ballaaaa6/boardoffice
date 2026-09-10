@@ -8,6 +8,8 @@ from tempfile import TemporaryDirectory
 import pytest
 from PIL import Image
 
+from WORLD.RUNTIME.layout_core import LayoutCore
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -100,3 +102,22 @@ def test_occluders_isolated_by_floor_and_export_front_edge():
         assert reception_08["height"] == 80
         assert reception_02["height"] == 55
 
+
+def test_manifest_occluder_mask_keeps_dark_sprite_contours():
+    build_manifest = _builder()
+    with TemporaryDirectory() as output_dir:
+        output = Path(output_dir)
+        manifest = build_manifest(ROOT, floor_id="floor02", output_dir=output)
+        occluder = next(
+            row for row in manifest["occluders"] if row["placement_id"] == "ws3_desk"
+        )
+        source = LayoutCore(ROOT / "WORLD").load_variant(
+            "desk_002.part_01@normal"
+        ).convert("RGBA")
+        mask = Image.open(output / occluder["file"]).convert("RGBA")
+
+        assert mask.getchannel("A").tobytes() == source.getchannel("A").tobytes()
+        assert any(
+            pixel[3] == 255 and max(pixel[:3]) <= 64
+            for pixel in mask.getdata()
+        )

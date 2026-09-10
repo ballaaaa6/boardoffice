@@ -46,7 +46,7 @@ class WalkingDepthCore:
         self.depth_floor_bindings = depth_registry.get('floor_bindings', {})
         self.depth_layout_bindings = depth_registry.get('layout_bindings', {})
         self._occluder_cache: dict[str, list[dict[str, Any]]] = {}
-        self._occluder_visual_cache: dict[tuple[str, bool], Image.Image] = {}
+        self._occluder_visual_cache: dict[str, Image.Image] = {}
 
     def _slot_map(self, floor_id: str) -> dict[str, dict[str, Any]]:
         layout = self.layout.floor_layout(floor_id)
@@ -424,29 +424,19 @@ class WalkingDepthCore:
 
     def _load_occluder_visual(self, row: dict[str, Any]) -> Image.Image:
         placement = row['placement']
-        strip_shadow = not bool(row.get('always_foreground'))
-        cache_key = (placement['variant_id'], strip_shadow)
+        cache_key = placement['variant_id']
         cached = self._occluder_visual_cache.get(cache_key)
         if cached is not None:
             return cached.copy()
 
         image = self.layout.load_variant(placement['variant_id']).convert('RGBA')
-        if strip_shadow:
-            # Furniture ground shadows are already present in the completed floor.
-            # They are encoded as dark, partially-transparent pixels. Re-compositing
-            # those pixels during the walking occlusion pass darkens the floor, so
-            # the dynamic pass keeps the solid/colored visual body while stripping
-            # only shadow-like pixels.
-            cleaned = []
-            # ``Image.get_flattened_data`` is not part of Pillow's public API
-            # and is absent in current supported releases.  ``getdata`` gives
-            # us the same RGBA pixel stream without changing the source image.
-            for r, g, b, a in image.getdata():
-                if a > 0 and max(r, g, b) <= 64:
-                    cleaned.append((r, g, b, 0))
-                else:
-                    cleaned.append((r, g, b, a))
-            image.putdata(cleaned)
+        # This image is used as a destination-out mask, not as a second world
+        # draw.  Its alpha must therefore retain the source visual coverage
+        # exactly.  RGB-based shadow removal is unsafe: the canonical sprites
+        # use dark opaque pixels for real outlines, monitor frames, chair parts
+        # and desk details.  Removing those pixels lets a walking character
+        # show through the object's border.  Semi-transparent ground shadows
+        # already carry their intended partial coverage in the source alpha.
 
         self._occluder_visual_cache[cache_key] = image.copy()
         return image

@@ -2,9 +2,24 @@
 
 **Updated:** 2026-09-11 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow and chair foreground defects are resolved in the live renderer across all 25 office floors (219 workstations and employees). HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is now engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow, chair foreground and walking-occluder source-alpha defects are resolved in the renderer across all 25 office floors (219 workstations and employees); live visual confirmation of the latest occluder correction remains pending. HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is now engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
+
+- 2026-09-11 fixed the walking-through-object transparency defect in the
+  Canvas occlusion path. The previous RGB-based cleanup removed dark pixels
+  indiscriminately, including opaque desk, PC and chair outlines; the source
+  review identified 171,431 removed pixels across 748 occluder instances.
+  `_load_occluder_visual` now preserves source alpha exactly, and all 25 floor
+  bundles were rebuilt. The rebuilt set contains 845 occluder masks with 0
+  source-alpha mismatches. Focused renderer/manifest/state tests passed 36/36;
+  browser runtime tests passed 22/22 and `node --check WEB/viewer_app.js`
+  passed. The full suite is 383 passed with the known pre-existing
+  `floor06/ws3` `foreground_static_present` failure. Room Navigation,
+  Navigation Occupancy, WorkSeat, WorkSeat Lifecycle and F2 gameplay-family
+  audits pass; Phase 6 and Central remain blocked only by their documented
+  pre-existing base/reference/foreground-fragment mismatches. Author visual
+  recheck remains pending.
 
 - 2026-09-11 approved additive VFX integration is complete. The original eleven
   effect IDs and native files remain unchanged; ten v32 designs were appended
@@ -1127,9 +1142,11 @@ the ten new designs remains pending at
 remain under `LOCAL_REVIEW/aura_model_atlas_v32/`.
 Existing unrelated gates:
 
-1. Author-review the 38-item `office_humanball` artwork and confirm the mixed
+1. Author-review the corrected walking occlusion in the live viewer and confirm
+   that dark workstation contours remain solid while actors pass behind them.
+2. Author-review the 38-item `office_humanball` artwork and confirm the mixed
    44-item popup behavior on the target page.
-2. Keep the other 162 cinematic-v3 sprites review-only. Separately, resolve
+3. Keep the other 162 cinematic-v3 sprites review-only. Separately, resolve
    the pre-existing `floor06/ws3` WorkSeat expectation and central-audit
    reference mismatches before calling the repository fully green.
 

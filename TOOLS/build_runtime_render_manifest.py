@@ -33,7 +33,7 @@ from WORLD.RUNTIME.layout_core import LayoutCore
 
 SCHEMA = "gds.runtime_render_manifest.v1"
 VERSION = "1.0.0"
-BUILDER_VERSION = "lean-component-renderer-2026-09-03"
+BUILDER_VERSION = "lean-component-renderer-2026-09-11-occluder-source-alpha"
 DEFAULT_FLOOR_ID = "floor02"
 CANVAS_SIZE = {"width": 600, "height": 600}
 CHARACTER_SIZE = (32, 42)

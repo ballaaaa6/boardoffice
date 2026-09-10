@@ -135,3 +135,22 @@ def test_occlusion_redraw_does_not_double_composite_ground_shadow_pixels():
         ground_anchor_px=(16, 31),
     )
     assert composed.getpixel((wx, wy)) == base.getpixel((wx, wy))
+
+
+def test_occluder_mask_preserves_dark_object_edges_and_source_alpha():
+    depth = WalkingDepthCore(ROOT / 'WORLD')
+    rows = _by_id(depth.resolve_occluders('floor02'))
+    desk = rows['ws3_desk']
+    source = depth.layout.load_variant(desk['variant_id']).convert('RGBA')
+    mask = depth._load_occluder_visual(desk)
+
+    # Dark pixels include the desk's intentional opaque outline.  They must
+    # remain part of the walking mask; otherwise the actor is visible through
+    # the object's border while passing behind it.
+    dark_opaque = next(
+        pixel
+        for pixel in source.getdata()
+        if pixel[3] == 255 and max(pixel[:3]) <= 64
+    )
+    assert dark_opaque[3] == 255
+    assert mask.getchannel('A').tobytes() == source.getchannel('A').tobytes()

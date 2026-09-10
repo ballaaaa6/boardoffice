@@ -5,7 +5,7 @@
     "employee_count": 5,
     "floor_id": "floor00",
     "floor_number": "00",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor00/manifest.json",
     "name": "Floor 00 (Lobby)",
     "workstation_count": 5
@@ -16,7 +16,7 @@
     "employee_count": 7,
     "floor_id": "floor01",
     "floor_number": "01",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor01/manifest.json",
     "name": "Floor 01",
     "workstation_count": 7
@@ -27,7 +27,7 @@
     "employee_count": 9,
     "floor_id": "floor02",
     "floor_number": "02",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor02/manifest.json",
     "name": "Floor 02 (Executive)",
     "workstation_count": 9
@@ -38,7 +38,7 @@
     "employee_count": 9,
     "floor_id": "floor03",
     "floor_number": "03",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor03/manifest.json",
     "name": "Floor 03",
     "workstation_count": 9
@@ -49,7 +49,7 @@
     "employee_count": 9,
     "floor_id": "floor04",
     "floor_number": "04",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor04/manifest.json",
     "name": "Floor 04",
     "workstation_count": 9
@@ -60,7 +60,7 @@
     "employee_count": 9,
     "floor_id": "floor05",
     "floor_number": "05",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor05/manifest.json",
     "name": "Floor 05",
     "workstation_count": 9
@@ -71,7 +71,7 @@
     "employee_count": 9,
     "floor_id": "floor06",
     "floor_number": "06",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor06/manifest.json",
     "name": "Floor 06",
     "workstation_count": 9
@@ -82,7 +82,7 @@
     "employee_count": 9,
     "floor_id": "floor07",
     "floor_number": "07",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor07/manifest.json",
     "name": "Floor 07",
     "workstation_count": 9
@@ -93,7 +93,7 @@
     "employee_count": 9,
     "floor_id": "floor08",
     "floor_number": "08",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor08/manifest.json",
     "name": "Floor 08",
     "workstation_count": 9
@@ -104,7 +104,7 @@
     "employee_count": 9,
     "floor_id": "floor09",
     "floor_number": "09",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor09/manifest.json",
     "name": "Floor 09",
     "workstation_count": 9
@@ -115,7 +115,7 @@
     "employee_count": 9,
     "floor_id": "floor11",
     "floor_number": "11",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor11/manifest.json",
     "name": "Floor 11",
     "workstation_count": 9
@@ -126,7 +126,7 @@
     "employee_count": 9,
     "floor_id": "floor12",
     "floor_number": "12",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor12/manifest.json",
     "name": "Floor 12",
     "workstation_count": 9
@@ -137,7 +137,7 @@
     "employee_count": 9,
     "floor_id": "floor13",
     "floor_number": "13",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor13/manifest.json",
     "name": "Floor 13",
     "workstation_count": 9
@@ -148,7 +148,7 @@
     "employee_count": 9,
     "floor_id": "floor14",
     "floor_number": "14",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor14/manifest.json",
     "name": "Floor 14",
     "workstation_count": 9
@@ -159,7 +159,7 @@
     "employee_count": 9,
     "floor_id": "floor15",
     "floor_number": "15",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor15/manifest.json",
     "name": "Floor 15",
     "workstation_count": 9
@@ -170,7 +170,7 @@
     "employee_count": 9,
     "floor_id": "floor16",
     "floor_number": "16",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor16/manifest.json",
     "name": "Floor 16",
     "workstation_count": 9
@@ -181,7 +181,7 @@
     "employee_count": 9,
     "floor_id": "floor17",
     "floor_number": "17",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor17/manifest.json",
     "name": "Floor 17",
     "workstation_count": 9
@@ -192,7 +192,7 @@
     "employee_count": 9,
     "floor_id": "floor18",
     "floor_number": "18",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor18/manifest.json",
     "name": "Floor 18",
     "workstation_count": 9
@@ -203,7 +203,7 @@
     "employee_count": 9,
     "floor_id": "floor19",
     "floor_number": "19",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor19/manifest.json",
     "name": "Floor 19",
     "workstation_count": 9
@@ -214,7 +214,7 @@
     "employee_count": 9,
     "floor_id": "floor21",
     "floor_number": "21",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor21/manifest.json",
     "name": "Floor 21",
     "workstation_count": 9
@@ -225,7 +225,7 @@
     "employee_count": 9,
     "floor_id": "floor31",
     "floor_number": "31",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor31/manifest.json",
     "name": "Floor 31",
     "workstation_count": 9
@@ -236,7 +236,7 @@
     "employee_count": 9,
     "floor_id": "floor33",
     "floor_number": "33",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor33/manifest.json",
     "name": "Floor 33",
     "workstation_count": 9
@@ -247,7 +247,7 @@
     "employee_count": 9,
     "floor_id": "floor34",
     "floor_number": "34",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor34/manifest.json",
     "name": "Floor 34",
     "workstation_count": 9
@@ -258,7 +258,7 @@
     "employee_count": 9,
     "floor_id": "floor35",
     "floor_number": "35",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor35/manifest.json",
     "name": "Floor 35",
     "workstation_count": 9
@@ -269,7 +269,7 @@
     "employee_count": 9,
     "floor_id": "floor36",
     "floor_number": "36",
-    "manifest_revision": "e7c00ccb35a361253c039d52522d880fa193c72ae77d1052447a4fa73589d34d",
+    "manifest_revision": "f4b4ebc95e1d42124313e22de3f5d2511002e22f206d4b0e0e7e50e389127dfc",
     "manifest_url": "./floors/floor36/manifest.json",
     "name": "Floor 36",
     "workstation_count": 9

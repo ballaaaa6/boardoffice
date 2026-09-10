@@ -34,6 +34,16 @@ and local raster fallback.
   browser regression coverage and verify the live floor00 canvas.
 - [x] Merge `prototype_living_character_web` into `main` and push to remote.
 
+### Walking occluder source-alpha correction — 2026-09-11
+
+- [x] Trace the transparency and disappearing-edge defect to RGB-based dark
+  pixel removal in the destination-out occluder masks.
+- [x] Preserve canonical source alpha, including dark opaque desk, PC and
+  chair contours, and add focused regression coverage.
+- [x] Rebuild all 25 floor bundles and audit 845 exported occluder masks with
+  0 source-alpha mismatches.
+- [ ] Author visual confirmation of walking occlusion in the live viewer.
+
 ### VFX charging-aura visual review — 2026-09-09
 
 - [x] Produce a fresh curved-volume ten-frame native 33x65 review in
