@@ -361,6 +361,44 @@ def test_runtime_renderer_paints_shared_emotion_and_return_window():
     )
 
 
+def test_runtime_humanball_does_not_wrap_after_one_shot_timeline():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    employee_id, _second_employee, _ceo = _ids(core)
+    actor = runtime["actor_snapshot"]["actors"][employee_id]
+    employee = core.employee_metadata.get(employee_id)
+    events: list[dict] = []
+
+    core.actor_simulation._start_event(
+        runtime["actor_snapshot"],
+        actor,
+        employee,
+        "popup",
+        timestamp_ms=0,
+        events=events,
+    )
+    actor["behavior"]["activity_until_ms"] = 4000
+
+    presentation = core.resolve_runtime_presentation(
+        runtime,
+        at_ms=3000,
+        floor_id="floor02",
+        validate=False,
+    )
+    row = presentation["actors"][employee_id]
+    assert row["channels"]["humanball"]["humanball_frame_index"] == 10
+
+    hidden_presentation = copy.deepcopy(presentation)
+    hidden_presentation["actors"][employee_id]["channels"].pop("humanball")
+    renderer = RuntimePresentationRenderer(core)
+    with_popup = renderer.render_presentation(presentation, floor_id="floor02")
+    without_popup = renderer.render_presentation(
+        hidden_presentation,
+        floor_id="floor02",
+    )
+    assert with_popup.tobytes() == without_popup.tobytes()
+
+
 def test_talk_return_seat_entry_transition_owns_pose_until_normal_work():
     core = CentralGameCore(ROOT)
     runtime = _quiet_runtime(core)

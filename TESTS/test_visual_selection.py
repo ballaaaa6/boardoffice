@@ -84,6 +84,49 @@ def test_popup_bag_covers_all_44_assets_before_repeat():
     assert selected[88] in visual.catalog()["humanball"]["ids"]
 
 
+def test_popup_bag_avoids_immediate_repeat_at_generation_boundary():
+    visual = VisualSelectionCore(ROOT)
+    for seed_index in range(64):
+        seed = f"seed-{seed_index}"
+        for employee_id in ("EMP_W1_0010", "EMP_W1_0031", "EMP_W1_0044"):
+            selected = visual_sequence(visual, "humanball", seed, employee_id, 89)
+            assert all(
+                left != right for left, right in zip(selected, selected[1:])
+            ), f"{employee_id} {seed} repeated at a generation boundary"
+
+
+def test_popup_bag_scope_can_be_shared_across_actors():
+    visual = VisualSelectionCore(ROOT)
+    shared_state = visual.initial_channel_state("humanball")
+    first_state, first = visual.select(
+        shared_state,
+        channel="humanball",
+        simulation_seed="shared-popup-seed",
+        employee_id="EMP_W1_0010",
+        bag_employee_id="global_humanball",
+        event_id="shared-event-1",
+        started_at_ms=0,
+        ends_at_ms=60,
+    )
+    first_state = visual.clear_active(
+        first_state,
+        channel="humanball",
+        event_id="shared-event-1",
+    )
+    _second_state, second = visual.select(
+        first_state,
+        channel="humanball",
+        simulation_seed="shared-popup-seed",
+        employee_id="EMP_W1_0011",
+        bag_employee_id="global_humanball",
+        event_id="shared-event-2",
+        started_at_ms=60,
+        ends_at_ms=120,
+    )
+
+    assert first["asset_id"] != second["asset_id"]
+
+
 def test_visual_bags_are_independent_by_actor_and_channel():
     visual = VisualSelectionCore(ROOT)
     vfx_a = visual_sequence(visual, "vfx", "same-seed", "EMP_W1_0010", 1)[0]
@@ -237,3 +280,42 @@ def test_actor_vfx_events_consume_all_catalog_ids_without_repetition():
 
     assert len(set(selected)) == 11
     assert set(selected) == set(core.visual_selection.catalog()["vfx"]["ids"])
+
+
+def test_actor_popup_events_share_one_global_humanball_bag():
+    core = ActorSimulationCore(ROOT)
+    snapshot = core.initial_snapshot("floor02")
+    first_actor = snapshot["actors"]["EMP_W1_0011"]
+    second_actor = snapshot["actors"]["EMP_W1_0030"]
+    first_employee = core.employee_registry.get(first_actor["employee_id"])
+    second_employee = core.employee_registry.get(second_actor["employee_id"])
+
+    core._start_event(
+        snapshot,
+        first_actor,
+        first_employee,
+        "popup",
+        timestamp_ms=0,
+        events=[],
+    )
+    first_asset = first_actor["behavior"]["visual_channels"]["humanball"]["active_binding"]["asset_id"]
+    core._complete_event(
+        snapshot,
+        first_actor,
+        first_employee,
+        timestamp_ms=first_actor["behavior"]["activity_until_ms"],
+        events=[],
+    )
+    core._start_event(
+        snapshot,
+        second_actor,
+        second_employee,
+        "popup",
+        timestamp_ms=6000,
+        events=[],
+    )
+    second_asset = second_actor["behavior"]["visual_channels"]["humanball"]["active_binding"]["asset_id"]
+
+    assert first_asset != second_asset
+    assert snapshot["determinism"]["humanball_global_bag"]["cursor"] == 2
+    assert snapshot["determinism"]["humanball_global_bag"]["active_binding"] is None

@@ -31,6 +31,8 @@ Generated manifests and reports are evidence for a check; their phase labels do 
 - [`FOOTPRINT_SYSTEM_CONTRACT.md`](FOOTPRINT_SYSTEM_CONTRACT.md) — ground footprint rules.
 - [`PHASE6_SPATIAL_METADATA.md`](PHASE6_SPATIAL_METADATA.md) — spatial metadata contract.
 - [`LEAN_RELEASE_POLICY.md`](LEAN_RELEASE_POLICY.md) — package contents and lean-release policy.
+- [`VFX_CREATION_GUIDE.md`](VFX_CREATION_GUIDE.md) — native-pixel VFX creation,
+  QA and full-scene review workflow.
 
 The JSON schemas under `SCHEMA/`, registry files under `WORLD/REGISTRY/` and `CHARACTER/`, and validation scripts under `VALIDATION/` are the machine-readable/runtime companions to these contracts.
 
@@ -56,4 +58,3 @@ Plans and specifications explain decisions; they do not supersede the current ha
 - `history/` — renamed historical state snapshots. These are read-only context, not active handoffs.
 
 Do not add another `HANDOFF*.md`, `STATUS.md`, `TODO.md` or competing roadmap. Update the root `HANDOFF.md` and `ROADMAP.md` instead.
-

@@ -283,6 +283,30 @@ def test_due_behavior_event_emits_one_ordered_start(actor_core: ActorSimulationC
     assert result["snapshot"]["determinism"]["root_event_counter"] == len(result["events"])
 
 
+def test_start_event_rejects_duplicate_active_recovery_event(actor_core: ActorSimulationCore):
+    snapshot = actor_core.initial_snapshot("floor01")
+    actor = snapshot["actors"][ACTOR_ID]
+    employee = actor_core.employee_registry.get(ACTOR_ID)
+    actor_core._start_event(
+        snapshot,
+        actor,
+        employee,
+        "popup",
+        timestamp_ms=0,
+        events=[],
+    )
+
+    with pytest.raises(ActorSimulationError, match="active recovery event"):
+        actor_core._start_event(
+            snapshot,
+            actor,
+            employee,
+            "popup",
+            timestamp_ms=60,
+            events=[],
+        )
+
+
 def test_request_home_retains_owned_workstation_and_is_explicit(actor_core: ActorSimulationCore):
     snapshot = actor_core.initial_snapshot()
     assignment = copy.deepcopy(snapshot["actors"][ACTOR_ID]["assignment"])

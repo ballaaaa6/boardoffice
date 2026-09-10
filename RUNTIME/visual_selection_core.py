@@ -180,7 +180,7 @@ class VisualSelectionCore:
         employee_id: str,
         generation: int,
     ) -> list[str]:
-        return sorted(
+        permutation = sorted(
             self._ids[channel],
             key=lambda asset_id: (
                 self._stable_hash(
@@ -194,6 +194,26 @@ class VisualSelectionCore:
                 asset_id,
             ),
         )
+        if channel == "humanball" and generation > 0 and len(permutation) > 1:
+            previous_permutation = sorted(
+                self._ids[channel],
+                key=lambda asset_id: (
+                    self._stable_hash(
+                        simulation_seed,
+                        "visual-bag",
+                        employee_id,
+                        channel,
+                        generation - 1,
+                        asset_id,
+                    ),
+                    asset_id,
+                ),
+            )
+            if permutation[0] == previous_permutation[-1]:
+                # Keep the next generation a full permutation while preventing
+                # an identical HumanBall at the boundary between bag cycles.
+                permutation[0], permutation[1] = permutation[1], permutation[0]
+        return permutation
 
     def select(
         self,
@@ -205,6 +225,7 @@ class VisualSelectionCore:
         event_id: str,
         started_at_ms: int,
         ends_at_ms: int,
+        bag_employee_id: str | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Consume one item and bind it to the event before rendering."""
         channel = self._require_channel(channel)
@@ -212,6 +233,9 @@ class VisualSelectionCore:
             raise VisualSelectionError("simulation_seed must be a non-empty string")
         if not isinstance(employee_id, str) or not employee_id:
             raise VisualSelectionError("employee_id must be a non-empty string")
+        bag_owner = employee_id if bag_employee_id is None else bag_employee_id
+        if not isinstance(bag_owner, str) or not bag_owner:
+            raise VisualSelectionError("bag_employee_id must be a non-empty string")
         if not isinstance(event_id, str) or not event_id:
             raise VisualSelectionError("event_id must be a non-empty string")
         for value, name in ((started_at_ms, "started_at_ms"), (ends_at_ms, "ends_at_ms")):
@@ -229,7 +253,7 @@ class VisualSelectionCore:
         permutation = self._permutation(
             channel=channel,
             simulation_seed=simulation_seed,
-            employee_id=employee_id,
+            employee_id=bag_owner,
             generation=generation,
         )
         asset_id = permutation[cursor]

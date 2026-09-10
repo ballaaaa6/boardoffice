@@ -1200,6 +1200,31 @@ btnDemoTalk.addEventListener("click", () => {
 });
 
 // Quick Action: Trigger Visual Effects (VFX & HumanBall)
+function startManualVisualEvent(employeeId, event, timestampMs) {
+  const actor = core?.state?.actor_snapshot?.actors?.[employeeId];
+  const employee = core?.bundle?.employees?.[employeeId];
+  if (
+    !actor
+    || !employee
+    || actor.presence !== "present"
+    || actor.activity !== "working"
+    || actor.behavior?.active_event !== null
+    || actor.behavior?.talk !== null
+  ) {
+    return false;
+  }
+  actor.behavior.next_event_due_ms = null;
+  core.actorReducer.startEvent(
+    { snapshot: core.state.actor_snapshot },
+    actor,
+    employee,
+    event,
+    timestampMs,
+    [],
+  );
+  return true;
+}
+
 if (btnDemoEffects) {
   btnDemoEffects.addEventListener("click", () => {
     if (!core || !lastRenderState) return;
@@ -1215,33 +1240,8 @@ if (btnDemoEffects) {
     const remaining = seatedActors.filter((a) => a.employee_id !== actor1Id);
     const actor2Id = remaining.length > 0 ? remaining[0].employee_id : null;
 
-    const actor1 = core.state.actor_snapshot.actors[actor1Id];
-    if (actor1 && actor1.behavior) {
-      actor1.behavior.next_event_due_ms = null;
-      core.actorReducer.startEvent(
-        { snapshot: core.state.actor_snapshot },
-        actor1,
-        core.bundle.employees[actor1Id],
-        "background_effect",
-        nowMs,
-        [],
-      );
-    }
-
-    if (actor2Id) {
-      const actor2 = core.state.actor_snapshot.actors[actor2Id];
-      if (actor2 && actor2.behavior) {
-        actor2.behavior.next_event_due_ms = null;
-        core.actorReducer.startEvent(
-          { snapshot: core.state.actor_snapshot },
-          actor2,
-          core.bundle.employees[actor2Id],
-          "popup",
-          nowMs,
-          [],
-        );
-      }
-    }
+    startManualVisualEvent(actor1Id, "background_effect", nowMs);
+    if (actor2Id) startManualVisualEvent(actor2Id, "popup", nowMs);
   });
 }
 

@@ -103,7 +103,7 @@ export class BrowserVisualSelection {
       throw new TypeError("employeeId must be a non-empty string");
     }
     const generationNumber = integer(generation, "generation");
-    return [...this._ids[channel]].sort((left, right) => {
+    const permutation = [...this._ids[channel]].sort((left, right) => {
       const leftHash = stableHash64(
         simulationSeed,
         "visual-bag",
@@ -124,6 +124,35 @@ export class BrowserVisualSelection {
       if (leftHash > rightHash) return 1;
       return left.localeCompare(right);
     });
+    if (channel === "humanball" && generationNumber > 0 && permutation.length > 1) {
+      const previousPermutation = [...this._ids[channel]].sort((left, right) => {
+        const leftHash = stableHash64(
+          simulationSeed,
+          "visual-bag",
+          employeeId,
+          channel,
+          generationNumber - 1,
+          left,
+        );
+        const rightHash = stableHash64(
+          simulationSeed,
+          "visual-bag",
+          employeeId,
+          channel,
+          generationNumber - 1,
+          right,
+        );
+        if (leftHash < rightHash) return -1;
+        if (leftHash > rightHash) return 1;
+        return left.localeCompare(right);
+      });
+      if (permutation[0] === previousPermutation[previousPermutation.length - 1]) {
+        // Keep the next generation a full permutation while preventing
+        // an identical HumanBall at the boundary between bag cycles.
+        [permutation[0], permutation[1]] = [permutation[1], permutation[0]];
+      }
+    }
+    return permutation;
   }
 
   select(state, {
@@ -133,25 +162,34 @@ export class BrowserVisualSelection {
     eventId,
     startedAtMs,
     endsAtMs,
+    bagEmployeeId = null,
   } = {}) {
     this.requireChannel(channel);
     const current = this.validateChannelState(state, channel);
     if (typeof eventId !== "string" || eventId.length === 0) throw new TypeError("eventId must be a non-empty string");
+    if (typeof employeeId !== "string" || employeeId.length === 0) {
+      throw new TypeError("employeeId must be a non-empty string");
+    }
     const start = integer(startedAtMs, "startedAtMs");
     const end = integer(endsAtMs, "endsAtMs");
     if (end < start) throw new RangeError("endsAtMs must not precede startedAtMs");
+    const bagOwner = bagEmployeeId === null ? employeeId : bagEmployeeId;
+    if (typeof bagOwner !== "string" || bagOwner.length === 0) {
+      throw new TypeError("bagEmployeeId must be a non-empty string");
+    }
     let generation = current.generation;
     let cursor = current.cursor;
     if (cursor === this._ids[channel].length) {
       generation += 1;
       cursor = 0;
     }
-    const assetId = this.permutation({
+    const permutation = this.permutation({
       channel,
       simulationSeed,
-      employeeId,
+      employeeId: bagOwner,
       generation,
-    })[cursor];
+    });
+    const assetId = permutation[cursor];
     const cursorAfter = cursor + 1;
     const binding = {
       channel,

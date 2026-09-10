@@ -248,6 +248,15 @@ export class BrowserActorReducer {
 
   startEvent(context, actor, employee, event, timestampMs, events) {
     if (!WEIGHTED_EVENTS.includes(event)) throw new TypeError(`Unknown weighted recovery event: ${event}`);
+    if (actor.behavior.active_event !== null) {
+      throw new TypeError(`${actor.employee_id}: actor already has an active recovery event`);
+    }
+    if (actor.behavior.talk !== null) {
+      throw new TypeError(`${actor.employee_id}: actor already has an active talk session`);
+    }
+    if (actor.presence !== "present" || actor.activity !== "working") {
+      throw new TypeError(`${actor.employee_id}: recovery event requires a working actor`);
+    }
     const counter = Number(actor.behavior.event_counter || 0) + 1;
     actor.behavior.event_counter = counter;
     actor.behavior.active_event = event;
@@ -270,15 +279,45 @@ export class BrowserActorReducer {
     if (channel) {
       const visualChannels = this.ensureVisualChannels(actor);
       const visualEventId = this.visualEventId(actor, event, counter, timestampMs);
-      const selected = this.visualSelection.select(visualChannels[channel], {
-        channel,
-        simulationSeed: String(context.snapshot.determinism.simulation_seed),
-        employeeId: actor.employee_id,
-        eventId: visualEventId,
-        startedAtMs: Number(timestampMs),
-        endsAtMs: Number(actor.behavior.activity_until_ms),
-      });
-      visualChannels[channel] = selected.state;
+      if (event === "popup") {
+        // Popup order is global because the user sees one stream of
+        // HumanBalls across all employees. Keep the actor channel as the
+        // render-owned binding while advancing the shared persisted bag once.
+        const globalState = isObject(context.snapshot.determinism.humanball_global_bag)
+          ? context.snapshot.determinism.humanball_global_bag
+          : this.visualSelection.initialChannelState("humanball");
+        const selected = this.visualSelection.select(globalState, {
+          channel: "humanball",
+          simulationSeed: String(context.snapshot.determinism.simulation_seed),
+          employeeId: actor.employee_id,
+          bagEmployeeId: "global_humanball",
+          eventId: visualEventId,
+          startedAtMs: Number(timestampMs),
+          endsAtMs: Number(actor.behavior.activity_until_ms),
+        });
+        context.snapshot.determinism.humanball_global_bag = this.visualSelection.clearActive(
+          selected.state,
+          { channel: "humanball", eventId: visualEventId },
+        );
+        const visualState = this.visualSelection.validateChannelState(
+          visualChannels.humanball,
+          "humanball",
+        );
+        visualState.generation = selected.state.generation;
+        visualState.cursor = selected.state.cursor;
+        visualState.active_binding = selected.binding;
+        visualChannels.humanball = visualState;
+      } else {
+        const selected = this.visualSelection.select(visualChannels[channel], {
+          channel,
+          simulationSeed: String(context.snapshot.determinism.simulation_seed),
+          employeeId: actor.employee_id,
+          eventId: visualEventId,
+          startedAtMs: Number(timestampMs),
+          endsAtMs: Number(actor.behavior.activity_until_ms),
+        });
+        visualChannels[channel] = selected.state;
+      }
     }
     this.appendEvent(context, events, actor, timestampMs, "behavior_started", {
       behavior: event,

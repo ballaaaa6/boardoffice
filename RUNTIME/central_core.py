@@ -51,6 +51,9 @@ class CentralGameCoreError(ValueError):
 class CentralGameCore:
     """Phase 5 facade joining character identity/rendering and world layout/direction."""
 
+    HUMANBALL_FRAME_MS = 240
+    HUMANBALL_VISIBLE_FRAME_COUNT = 10
+
     def __init__(self, root: str | Path):
         self.root = Path(root).resolve()
         self.character_root = self.root / 'CHARACTER'
@@ -2083,8 +2086,15 @@ class CentralGameCore:
                     channel_payload['effect_frame_index'] = (elapsed // 240)
                     channel_payload['effect_frame_ms'] = 240
                 elif channel == 'humanball':
-                    channel_payload['humanball_frame_index'] = (elapsed // 240)
-                    channel_payload['humanball_frame_ms'] = 240
+                    # Keep the recovery event alive for stamina/state
+                    # purposes, but make the visual timeline one-shot. A
+                    # longer event must hold on the first hidden frame rather
+                    # than wrapping back to the first icon.
+                    channel_payload['humanball_frame_index'] = min(
+                        elapsed // self.HUMANBALL_FRAME_MS,
+                        self.HUMANBALL_VISIBLE_FRAME_COUNT,
+                    )
+                    channel_payload['humanball_frame_ms'] = self.HUMANBALL_FRAME_MS
                 row['channels'][channel] = channel_payload
         return row
 

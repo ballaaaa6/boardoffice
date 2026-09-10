@@ -533,7 +533,14 @@ class WorkSeatCore:
                     ) from exc
                 if requested_humanball_frame_index < 0:
                     raise WorkSeatError('assignment.humanball_frame_index must be an integer >= 0')
-                popup_index = requested_humanball_frame_index % len(popup.frames)
+                # HumanBall is a one-shot popup timeline. Keep the first
+                # hidden frame as the sentinel for any sample after the ten
+                # visible frames so a long recovery event cannot wrap to the
+                # first icon and replay it.
+                popup_index = min(
+                    requested_humanball_frame_index,
+                    int(popup.visible_frame_count),
+                )
                 popup_frame = popup.frames[popup_index]
                 popup_offset = popup.offsets[popup_index]
                 popup_x = popup_y = None

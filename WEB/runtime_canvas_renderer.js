@@ -536,6 +536,14 @@ export class RuntimeCanvasRenderer {
           : null);
       if (!channel || !workstation || !humanball) continue;
       const frameIndex = integerOr(channel.humanball_frame_index, 0);
+      const visibleFrameCount = Math.max(
+        0,
+        integerOr(humanball.visible_frame_count, 10),
+      );
+      // A recovery event can outlive the 12-frame HumanBall timeline. The
+      // visual must remain hidden after its ten visible frames, never wrap to
+      // the first icon frame while the same event is still active.
+      if (frameIndex >= visibleFrameCount) continue;
       const offsets = workstation.humanball_offsets?.[workstation.direction] || [];
       const offset = offsets[((frameIndex % offsets.length) + offsets.length) % offsets.length];
       if (!offset) continue;

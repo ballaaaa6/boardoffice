@@ -1131,6 +1131,7 @@ class ActorSimulationCore:
             "determinism": {
                 "simulation_seed": "gds-actor-simulation-v1",
                 "root_event_counter": 0,
+                "humanball_global_bag": self.visual_selection.initial_channel_state("humanball"),
             },
             "actors": actors,
         }
@@ -1150,6 +1151,14 @@ class ActorSimulationCore:
 
     def _canonical_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
         result = self._copy(snapshot)
+        determinism = result["determinism"]
+        if "humanball_global_bag" not in determinism:
+            # Older saved snapshots had only per-actor visual cursors.  Start
+            # the new shared popup bag at zero while keeping those snapshots
+            # loadable and deterministic.
+            determinism["humanball_global_bag"] = self.visual_selection.initial_channel_state(
+                "humanball"
+            )
         result["actors"] = {
             employee_id: result["actors"][employee_id]
             for employee_id in sorted(result["actors"])
@@ -1277,6 +1286,15 @@ class ActorSimulationCore:
             current["determinism"]["root_event_counter"],
             "determinism.root_event_counter",
         )
+        try:
+            self.visual_selection.validate_channel_state(
+                current["determinism"]["humanball_global_bag"],
+                "humanball",
+            )
+        except VisualSelectionError as exc:
+            raise ActorSimulationError(
+                f"determinism.humanball_global_bag: {exc}"
+            ) from exc
         seen_characters: set[str] = set()
         seen_slots: set[str] = set()
         for employee_id, actor in current["actors"].items():
@@ -2712,6 +2730,18 @@ class ActorSimulationCore:
     ) -> None:
         if event not in self.WEIGHTED_EVENTS:
             raise ActorSimulationError(f"Unknown weighted recovery event: {event!r}")
+        if actor["behavior"].get("active_event") is not None:
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: actor already has an active recovery event"
+            )
+        if actor["behavior"].get("talk") is not None:
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: actor already has an active talk session"
+            )
+        if actor.get("presence") != "present" or actor.get("activity") != "working":
+            raise ActorSimulationError(
+                f"{actor['employee_id']}: recovery event requires a working actor"
+            )
         counter = int(actor["behavior"]["event_counter"]) + 1
         actor["behavior"]["event_counter"] = counter
         actor["behavior"]["active_event"] = event
@@ -2745,15 +2775,46 @@ class ActorSimulationCore:
                 timestamp_ms=timestamp_ms,
             )
             try:
-                visual_state, _binding = self.visual_selection.select(
-                    actor["behavior"]["visual_channels"][visual_channel],
-                    channel=visual_channel,
-                    simulation_seed=str(snapshot["determinism"]["simulation_seed"]),
-                    employee_id=actor["employee_id"],
-                    event_id=visual_event_id,
-                    started_at_ms=int(timestamp_ms),
-                    ends_at_ms=int(actor["behavior"]["activity_until_ms"]),
-                )
+                selection_state = actor["behavior"]["visual_channels"][visual_channel]
+                if event == "popup":
+                    # Popup order is global because the user sees one stream
+                    # of HumanBalls across all employees.  Keep the actor
+                    # channel as the render-owned binding while advancing the
+                    # shared persisted bag exactly once.
+                    global_state, binding = self.visual_selection.select(
+                        snapshot["determinism"]["humanball_global_bag"],
+                        channel="humanball",
+                        simulation_seed=str(snapshot["determinism"]["simulation_seed"]),
+                        employee_id=actor["employee_id"],
+                        bag_employee_id="global_humanball",
+                        event_id=visual_event_id,
+                        started_at_ms=int(timestamp_ms),
+                        ends_at_ms=int(actor["behavior"]["activity_until_ms"]),
+                    )
+                    snapshot["determinism"]["humanball_global_bag"] = self.visual_selection.clear_active(
+                        global_state,
+                        channel="humanball",
+                        event_id=visual_event_id,
+                    )
+                    visual_state = self.visual_selection.validate_channel_state(
+                        selection_state,
+                        "humanball",
+                    )
+                    visual_state.update({
+                        "generation": global_state["generation"],
+                        "cursor": global_state["cursor"],
+                        "active_binding": binding,
+                    })
+                else:
+                    visual_state, _binding = self.visual_selection.select(
+                        selection_state,
+                        channel=visual_channel,
+                        simulation_seed=str(snapshot["determinism"]["simulation_seed"]),
+                        employee_id=actor["employee_id"],
+                        event_id=visual_event_id,
+                        started_at_ms=int(timestamp_ms),
+                        ends_at_ms=int(actor["behavior"]["activity_until_ms"]),
+                    )
             except VisualSelectionError as exc:
                 raise ActorSimulationError(
                     f"{actor['employee_id']}: cannot select {visual_channel} visual"

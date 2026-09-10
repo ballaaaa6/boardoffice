@@ -32,9 +32,14 @@ def test_floor_humanball_is_hidden_on_frames_10_and_11():
     core = CentralGameCore(ROOT)
     base_assignment = {'workstation_id': 'ws1', 'character': 0, 'subaction': 'normal_work'}
     popup_assignment = {**base_assignment, 'humanball_id': 'controller'}
-    without_popup = core.render_floor_with_work_effects('floor06', [base_assignment], frame_index=10)
-    with_popup = core.render_floor_with_work_effects('floor06', [popup_assignment], frame_index=10)
-    assert with_popup.tobytes() == without_popup.tobytes()
+    for frame_index in (10, 11, 12, 24):
+        without_popup = core.render_floor_with_work_effects(
+            'floor06', [base_assignment], frame_index=frame_index
+        )
+        with_popup = core.render_floor_with_work_effects(
+            'floor06', [popup_assignment], frame_index=frame_index
+        )
+        assert with_popup.tobytes() == without_popup.tobytes()
 
 
 def test_work_vfx_and_humanball_coexist_with_popup_as_final_overlay():

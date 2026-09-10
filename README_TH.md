@@ -30,7 +30,7 @@
 - standing pair ใช้โบนัสตัวเลข deterministic: `sad -1` และ `happy +2` stamina (ภายใน `-1000/+2000` milli) และ clamp ตามขอบเขต
 - ค่า drain/recovery ผ่านการดู gameplay และผู้เขียนอนุมัติเป็นค่ารอบสุดท้ายของ Phase 8E แล้ว
 - `RUNTIME/runtime_persistence.py` และ Central facade มี save/load snapshot กับ deterministic replay จาก step/command ที่ระบุชัดเจน โดยให้แอปภายนอกเป็นเจ้าของ storage
-- เปิดเว็บรีวิวด้วย `python TOOLS/runtime_review_server.py` แล้วเข้า `http://127.0.0.1:8765/` เว็บจะเดิน simulation เองตั้งแต่เปิด: worknormal → critical queue → จบ loop → กลับบ้าน/กลับเข้าที่เดิม พร้อม recovery/talk แบบ staggered ปุ่ม pause/manual และ save/load/replay มีไว้ตรวจจังหวะละเอียด
+- เปิดเว็บ static ด้วย `python TOOLS/static_web_server.py` แล้วเข้า `http://127.0.0.1:8000/` เว็บจะโหลด floor bundle/asset แบบ static และเดิน simulation ใน browser เองโดยไม่ต้องมี `/api/*`
 - Floor00 ผ่าน proof 3 แบบ: near target / distant target / workstation approach และ smoke test ผ่านบน F0/F1/F2/F36
 - reception F1 = 16×20 / 320 cells และ F2/F2+ = 34×22 / 748 cells โดยใช้ world ground anchor คงที่ `[259,376]`; depth ของ F1/F2+ ใช้ front edge แยกจากพื้นที่จอง navigation ส่วน F0 ไม่ผูก profile เพราะฝังอยู่ในภาพ
 - `TOOLS/grid_floor_editor/index.html` — local editor สำหรับคลิก/คลุมแล้วเปิดหรือปิด Room Grid และ Portal Inside/Outside พร้อม validation และ export patch JSON

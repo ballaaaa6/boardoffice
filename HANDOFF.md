@@ -1,10 +1,32 @@
 # GDS Central Game Core — Handoff
 
-**Updated:** 2026-09-09 (Asia/Bangkok)
+**Updated:** 2026-09-10 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow and chair foreground defects are resolved in the live renderer across all 25 office floors (219 workstations and employees). Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow and chair foreground defects are resolved in the live renderer across all 25 office floors (219 workstations and employees). HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
+
+- 2026-09-10 the local host was switched to the zero-API browser viewer:
+  `python TOOLS/static_web_server.py`, with `/` mapped to
+  `WEB/viewer.html` at `http://127.0.0.1:8000/`. Root and direct viewer HTML,
+  module and floor-index health checks passed (HTTP 200) and root/direct HTML
+  are identical; `viewer_app.js` contains zero `/api/` references and
+  `/api/health` returns 404 on the static host. The previous API review host
+  was stopped.
+
+- 2026-09-10 legacy API review host cleanup completed. Removed the review
+  server/page, API polling client, and their review-only test/benchmark files.
+  The dependency audit had found 52 local Python modules and 397 canonical
+  data/image files behind that host; those source/runtime files remain intact.
+  Shared `WEB/runtime_canvas_renderer.js`,
+  `WEB/runtime_render_manifest.json`, `WEB/runtime_assets/`, and browser floor
+  bundles were preserved for the zero-API viewer. Port `8765` is retired; the
+  only author web host is static `8000`. Verification after cleanup: full
+  pytest **375 passed, 1 pre-existing failure** at
+  `TESTS/test_work_seat_floor_integration.py::test_floor06_workstation_seat_resolution_uses_directional_chair_roles`
+  (`foreground_static_present` expectation); browser runtime **16/16**,
+  Node syntax checks **12/12**, static viewer/floor index HTTP **200**, and no
+  `8765` listener or active-source reference remains.
 
 - 2026-09-09 explicit integration request received for the 38 green-selected
   office HumanBall items. The selected PNGs are registered in the office
@@ -27,20 +49,213 @@
   `WORLD/REGISTRY/floor_skins.json` reference hash and placement-count
   mismatches; neither is part of this HumanBall change.
 
-- 2026-09-09 current VFX review: author rejected the smooth blue v2 as too
-  simple and requested a fiercer, more elaborate fire-shaped aura informed by
-  all 11 canonical effects. Inspected all 104 source frames plus an enlarged
-  four-frame fire sheet. Current candidate: `LOCAL_REVIEW/core_charge_inferno_v3/`.
-  Ten fresh 33x65 RGBA frames at 240ms; purple-black/crimson/molten-gold ramp,
-  broad turbulent mass, multiple crowns, dark folds, torn secondary flames,
-  intermittent fissures and embers. Editable Aseprite, individual PNGs,
-  native/6x GIFs, native/4x sheets and equal-scale fire comparison included.
-  `verify_exports.py` passes unique frames, exact source/GIF pixels, alpha
-  and timing. `compare.py` confirms all 104 reference hashes unchanged.
-  Final enlarged sheet visually inspected; author acceptance and in-scene
-  placement review remain pending. Earlier rejected candidates preserved.
-  No runtime/canonical changes or development server started; batch tooling
-  exited. Next: author review of Inferno v3, then scene placement review.
+- 2026-09-10 HumanBall duplicate fix implemented after the diagnostic audit.
+  `RUNTIME/visual_selection_core.py` and
+  `WEB/runtime_simulation_visual_selection.js` now deterministically swap the
+  first two items of a new HumanBall permutation only when its first item would
+  equal the previous generation's last item. Each 44-item generation remains a
+  complete permutation and VFX selection is unchanged. Python and Browser
+  `startEvent` now reject an already-active recovery/talk event, while the
+  manual Effects action validates the actor state before admission. Added
+  boundary and duplicate-admission regressions in both runtimes. Focused
+  Python tests: **32 passed**; browser runtime: **18 passed**; browser parity
+  trace: **8 passed**; full pytest: **377 passed, 1 pre-existing failure** at
+  `TESTS/test_work_seat_floor_integration.py::test_floor06_workstation_seat_resolution_uses_directional_chair_roles`
+  (`foreground_static_present`). Syntax and `git diff --check` pass. Status:
+  engineering fix complete; visual/gameplay acceptance remains a separate
+  author gate. Next task is author review on `http://127.0.0.1:8000/`; the
+  pre-existing floor06 WorkSeat and central-audit mismatches remain blockers to
+  calling the repository fully green.
+
+- 2026-09-10 follow-up diagnostic after the author still observed consecutive
+  identical popups. The current `8000` host serves the updated selector and
+  current 44-item bundle. The 44 HumanBall source pixels and URLs are unique;
+  the browser renderer reads one persisted binding per actor and does not
+  reselect or draw a second HumanBall channel. Same-actor sequential selection
+  was exercised 50 times without a repeat. The remaining reproducible cause is
+  that both Python and Browser shuffle bags are keyed by `employee_id` plus
+  channel, so they guarantee no repeat per actor, not across the global popup
+  stream. With the current catalog and `viewer_seed_test_0`, the first popup
+  choice for `EMP_W1_0031` and `EMP_W1_0044` is the same
+  `office.food_drinks.cake`; if those actors fire consecutively, the UI shows
+  the same HumanBall twice. Restart/floor-switch also reconstructs the same
+  initial snapshot and resets all per-actor cursors. The follow-up fix now
+  persists one shared `humanball_global_bag` in actor determinism, advances it
+  once at each popup admission, and mirrors the resulting binding into the
+  actor-owned render channel. This makes the no-repeat scope global while
+  preserving active-binding rendering and save/load continuity. Focused tests:
+  Python **34 passed**, Browser **19 passed**; parity trace **8 passed**; full
+  pytest **379 passed, 1 pre-existing failure** at
+  `TESTS/test_work_seat_floor_integration.py::test_floor06_workstation_seat_resolution_uses_directional_chair_roles`
+  (`foreground_static_present`). All 25 floor bundles and the root fallback
+  bundle were rebuilt; static HTTP checks remain green.
+
+- 2026-09-10 follow-up trace found the remaining visible duplicate was not an
+  asset-selection collision and not a second `popup` admission. The checked-in
+  HumanBall timeline has 12 logical frames at 240ms each: 10 visible offsets
+  followed by 2 hidden offsets (`CHARACTER/RUNTIME/humanball_renderer.py`), so
+  one presentation lasts 2,880ms. The live popup policy allows a 2–4 second
+  activity window (`CHARACTER/EMPLOYEES/employee_metadata.json`), while the
+  browser presentation previously indexed offsets modulo 12, causing a
+  3,180ms/3,420ms popup to wrap to frame 0 after its hidden frames. The fix
+  now clamps the Browser/Python presentation to the first hidden frame and
+  makes both renderers reject any frame at or beyond the ten visible frames.
+  Added regressions for long popup windows and the Browser canvas path.
+  Focused Python **25 passed**, Browser **20 passed**, parity trace **8 passed**;
+  full pytest **380 passed, 1 pre-existing failure** at
+  `TESTS/test_work_seat_floor_integration.py::test_floor06_workstation_seat_resolution_uses_directional_chair_roles`
+  (`foreground_static_present`).
+
+- 2026-09-09 current VFX task: author rejected v3's jelly-like shading and
+  requested inside-to-outside color plus unpredictable fire-like pixel edges.
+  Active review `LOCAL_REVIEW/organic_aura_native_v4/`: 100 native 33x65
+  frames at 240ms, three-layer Aseprite sources, exact individual/overview
+  GIFs, all-frame sheet, fire/v3/v4 comparison and two actual floor00 GIFs.
+  Edited the native Lua source: stepped dark/color rim follows actual jagged
+  silhouette distance into a luminous center; uneven brush tips, side dabs
+  and bitten-out notches replace smooth contours. Detached particles no
+  longer paint dark specks over the bright interior. Occupancy 1296–1674
+  (mean 1512), main connected mass >=95.91%; fire mean is 1326.
+  Dimensions, binary alpha, uniqueness, Aseprite roundtrip, exact GIF pixels/
+  timing and scale/connectivity checks PASS. No transparent moat claimed.
+  Inspected comparison, all-frame sheet and both scene PNGs. Scene GIFs are
+  quantized and work poses sampled by index, not gameplay-clock parity.
+  Native v4 was rejected for clipped edges and a fog-only appearance;
+  older candidates are retained as review history.
+  On 2026-09-09 the author requested research before another redraw because
+  some aura details are clipped at cell boundaries and the current pass reads
+  as fog-only. Visual research used the official Toei trailer plus reference
+  stills and animation-art guidance: the next candidate must separate a
+  contained diffuse aura volume from contained hard-edged energy shards/
+  lightning, with independent motion and strict per-cell clipping.
+  Author then requested drawing the plan. Current candidate is
+  `LOCAL_REVIEW/core_charge_layered_v5/`: one blue aura, ten 33x65 frames,
+  240ms, editable Aseprite, native PNG/sheet, preview/layer-breakdown GIFs
+  and actual floor00 GIF with all five actors. Native Lua separates darker
+  flowing atmosphere, concave tapered bright tongues and transient filaments.
+  Every authored coordinate is asserted within x=1..31/y=1..63; all ten
+  exported frames have a transparent border. Uniqueness, binary alpha,
+  reopened Aseprite sheet and exact review GIF pixel/timing QA PASS.
+  Inspected layer breakdown and floor00; scene GIF remains quantized and
+  work poses sampled by frame index. Batch processes exited normally.
+  No runtime/canonical edits or server; pytest not run for artwork-only work.
+  Author rejected v5's stiff shapes, limited motion and mismatched fog.
+  Current candidate: `LOCAL_REVIEW/core_charge_unified_v6/`, ten 33x65
+  frames at 240ms in one Aseprite layer. Seven changing tapered flows form
+  one blue energy mass; color bands follow the same silhouette. Includes
+  preview/comparison GIFs, full sheet and actual five-actor floor00 preview.
+  Overscan asserts no occupied pixels outside the safe cell; transparent
+  border, uniqueness, binary alpha, reopened sheet and exact GIF QA PASS.
+  Adjacent changed canvas pixels: v6 22.6-27.9% versus v5 16.2-20.5%,
+  including loop seam. Inspected full sheet and floor00. Batch processes
+  exited; no runtime changes, pytest unnecessary; git diff --check passed.
+  Author accepted v6's approximate silhouette, requesting larger size,
+  brighter on-floor colors and small lightning/particle accents. Current
+  candidate is `LOCAL_REVIEW/core_charge_radiant_v7/`: ten native 33x65
+  frames at 240ms with thicker flows fitted using a fixed animation-wide
+  mapping, brighter cyan midtones and intermittent lightning/motes.
+  Mean occupied pixels 719.7 versus v6 628.5 (+14.5%). Safe-cell overscan,
+  transparent border, uniqueness, binary alpha, reopened sheet and exact
+  sprite/review GIF checks PASS. Comparison and floor00 inspected; includes
+  full scene and 3x actual-scene crop GIFs. Scene GIFs quantized; work poses
+  sampled by frame index. No runtime edits/server; batch process exited.
+  Author requested more size and continuous accent motion after v7.
+  Current candidate: `LOCAL_REVIEW/core_charge_flow_v8/`, ten 33x65 frames
+  at 240ms, single editable Aseprite layer, same bright cyan palette/anchor.
+  Thicker flows increase mean occupied pixels to 908.3 (+26.2% versus v7).
+  Periodic main-tip motion replaces modulo jumps; persistent filaments/motes
+  follow interpolated samples of their own main-flow branches across the loop.
+  Safe-cell overscan, transparent border, uniqueness, reopened sheet and exact
+  native/review GIF QA PASS. Inspected comparison, full sheet and actual
+  floor00 crop; scene GIFs remain quantized with index-sampled work poses.
+  No runtime/canonical changes or server; batch exited, pytest not required.
+  Author subsequently requested ten additional variants in the v8 direction
+  with more gradient shading. Current review: `LOCAL_REVIEW/flow_aura_ten_v9/`.
+  Completed ten hue-shifted variants, 100 native 33x65 frames at 240ms,
+  editable single-layer Aseprite sources, branch-following accents and varied
+  branch count/curvature/taper. Nonlinear inward shading preserves saturated
+  midtones instead of the large flat-white core. Includes animated overview,
+  all-frame sheet, individual GIFs and ten actual five-actor floor00 scenes
+  with closeup GIFs. Native/border/uniqueness/Aseprite roundtrip and exact
+  sprite/overview GIF QA PASS. Overview and purple/gold floor00 PNGs inspected.
+  Scene palette quantization and index-sampled pose caveats still apply.
+  Batch exited; no server or runtime changes; pytest not required.
+  Author rejected v9 as palette changes rather than distinct styles.
+  Current review: `LOCAL_REVIEW/aura_styles_v10/`: ten different flow
+  constructions (torn flame, crescent, branches, radial burst, crown, falling
+  veil, breaking wave, electricity, surging lobes, irregular nebula pockets).
+  Preserved gradients, ten 33x65 frames each at 240ms and tracked accents.
+  Revised tidal/nebula geometry after the first overview inspection to reduce
+  crescent duplication and smooth-ring geometry. Native/border/Aseprite and
+  exact individual/overview GIF QA PASS for all 100 frames. Final overview
+  and tidal/nebula actual floor00 PNGs inspected. Includes ten scene/closeup
+  GIFs with the same quantization/index-sampled-pose caveats. No runtime
+  changes, no server; batch exited; pytest not required for review-only art.
+  Author rejected v10 as thin/worm-like and lacking spectacle, then approved
+  a three-style mass-first pilot before another ten-effect expansion.
+  Current candidate: `LOCAL_REVIEW/aura_mass_pilot_v11/`: Cataclysm,
+  Stormfront and Overcharge; 30 native 33x65 frames at 240ms. Derived from
+  v8 with thicker multi-tip flows, billowing lobes or angular branching,
+  luminous cores, shaded recesses and continuous branch-following accents.
+  Initial mass check caught two 999px frames; increased shoulder/tip mass
+  before final export. All final frames exceed the 1000px occupancy gate;
+  native/border/uniqueness/Aseprite roundtrip and exact GIF QA PASS.
+  Inspected final overview and actual blue floor00 closeup. Includes three
+  actual five-actor floor00 scenes and closeups; prior scene caveats apply.
+  No runtime/server changes; batch exited; pytest unnecessary for art-only work.
+  Author requested visible lateral branches and angular lightning decoration,
+  approving a revision of all three. Current candidate:
+  `LOCAL_REVIEW/aura_lateral_pilot_v12/`: same 30 native 33x65 frames/240ms.
+  Reserved x=1..4 and x=28..31 side lanes by narrowing the central mass;
+  added four primary bolts and four forks with colored sheaths/white cores,
+  persistent left/right identities and periodic eruption-linked motion.
+  Final frames pass >=800px occupancy (some fill replaced by side lanes),
+  transparent border, overscan/accent bounds, uniqueness, Aseprite roundtrip
+  and exact GIF QA. Inspected overview and blue actual floor00 crop; side
+  discharges visibly extend outside the central mass. Three actual floor00
+  GIFs/closeups retain palette-quantization and pose-index caveats.
+  No runtime/canonical changes or server; batch exited; pytest unnecessary.
+  Author accepted v12's general direction, requesting sideward main flames
+  and faceted half-arcs that flash, expand and scatter. Current review:
+  `LOCAL_REVIEW/aura_arc_pilot_v13/`, three styles / 30 native 33x65 frames,
+  240ms. Added filled shoulder/waist side tongues and staggered left/right
+  near-semicircular lightning arcs, expanding during visible ages with
+  bright/dim flashes, outward forks and an invisible reset interval.
+  Native/border/overscan/accent/uniqueness/Aseprite/exact GIF QA PASS;
+  inspected overview and blue actual floor00 closeup. Three full scenes
+  and closeups retain palette-quantization and index-sampled pose caveats.
+  No runtime/canonical edits/server; batch exited; pytest unnecessary.
+  Author clarified that the lightning must be one ring wrapping the FIRE,
+  with rear/front halves, not left/right arcs and not character-layer changes.
+  Current candidate: `LOCAL_REVIEW/aura_wrap_pilot_v14/`, three styles,
+  30 native 33x65 frames at 240ms. Rear half -> unchanged v13 side-flame body
+  -> front half, flattened into one sprite layer; both halves share endpoints,
+  expansion and flash phase. Retained outward forks and invisible reset.
+  Native/border/Aseprite/exact GIF QA and pixel-exact rear/body/front
+  composition checks PASS for all 30 frames. Inspected overview and actual
+  blue floor00 closeup. Actor ordering/anchor remains unchanged; all VFX
+  pixels still use canonical fire placement behind the actor. Scene GIF
+  quantization/index-sampled pose caveats apply. Batch exited, no server,
+  runtime or canonical edits; pytest unnecessary for artwork-only work.
+  Author rejected v14's main mass as too geometric and requested a fierce
+  redraw informed by canonical fire. Current candidate:
+  `LOCAL_REVIEW/aura_wildfire_v15/`, 30 native 33x65 frames at 240ms.
+  Nine unequal authored tongue landmarks replace the regular fan/side spikes;
+  periodic contour distortion, edge bites and curved inward shading replace
+  blocky masses. Three palette/phase candidates, not three new style families.
+  Preserved v14 rear/fire/front wrapping ring and unchanged actor ordering.
+  Initial left-edge overscan failures were corrected by reshaping the curl
+  and fixed x fitting. Final native/border/uniqueness/overscan/Aseprite/exact
+  GIF and render-plane composition QA PASS; >=800 occupied pixels/frame.
+  Inspected overview, blue actual floor00 crop and canonical/v14/v15 comparison.
+  No runtime/canonical edits/server; batch exited; pytest unnecessary.
+  Next: author visual review of v15 fire body before ten-style expansion.
+
+- The author accepted blue-v4's actual floor00 scene preview before requesting
+  the creation guide. Accepted reference remains
+  `LOCAL_REVIEW/core_charge_blue_v4/`; earlier candidates remain history.
+  The English workflow is `docs/VFX_CREATION_GUIDE.md`, linked from
+  `docs/INDEX.md`. Blue-v4 production integration has not been requested.
 
 - 2026-09-09 current artwork task: author rejected v2's rectangular shading
   and requested curved tonal transitions with cinematic lighting. Active
@@ -547,7 +762,7 @@
 - Lean audit → **0 exact duplicates, 21 duplicate function-body groups, 3 shared bootstrap calls, 16 direct CLI candidates, 0 selected Ruff findings**. The remaining function groups are retained domain/test helpers until a safe shared boundary is proven.
 - Central, Conversation, F2 gameplay metadata, Phase 6, Room Navigation, Navigation Occupancy, WorkSeat and WorkSeat lifecycle audits → **PASS**.
 - `git diff --check` → **PASS**.
-- `CONTRACTS/central_contract.json` SHA256 matches its checked-in `checksums.sha256` entry; the single `main` review server on port `8765` was stopped after verification and no duplicate project server remains.
+- `CONTRACTS/central_contract.json` SHA256 matches its checked-in `checksums.sha256` entry; the legacy API review server was stopped and retired, with no duplicate project server remaining.
 - Cleanup and live smoke check → **PASS**: 28 approved cleanup targets were moved to the Recycle Bin; no `__pycache__` directory or `*.pyc` file remains outside the excluded starting-point archive. The main page returned `200`, `/api/health` returned `ok=true` with API `v2` and 25 floors, and `/api/live-start` returned `floor02` with 9 actors using Canvas.
 - The post-cleanup full regression run was started but intentionally stopped after the author accepted the live-page result; no failure had appeared before interruption.
 - Live browser/API recheck → **PASS**: the updated server reports speech snapshot v2 with per-actor slots and physical resource claims. `seated_host` retains visitor `[0, -20]`, while `ceo_front` carries `[0, 0]` for both participants; the Effects demo exposes independent `humanball:controller` and `vfx:low_battery_drain` bindings. The regenerated bundle contains all **11 VFX** and the current **44-item HumanBall popup** pool.
@@ -555,7 +770,7 @@
 - Startup API probe → **PASS**: updated `/api/live-start` at `60ms` returned all nine actors at `100.0/normal`; explicit `/api/demo-critical` still returned `EMP_W1_0010` at `5.0/critical`.
 - CEO bubble-offset probe → **PASS**: `seated_host` remains visitor `-40px`/host `-20px`; updated `ceo_front` plan carries `[0, 0]` for both and renders visitor/CEO at `-20px` each.
 - Walking depth renderer correction → **PASS**: `node --check WEB/runtime_canvas_renderer.js`, browser runtime **15/15**, focused Python renderer/presentation/manifest suite **25 passed**, and live Talk smoke on `http://127.0.0.1:8000/viewer.html?` after reload. Static authored layers are no longer compared directly with walking `groundY`; seated-character front masking is active.
-- Focused conversation/review/bundle tests → **51 passed**: `python -B -m pytest -q TESTS/test_conversation_behavior.py TESTS/test_browser_bundle_contract.py TESTS/test_runtime_review_server.py TESTS/test_runtime_review_web.py`.
+- Focused conversation/browser-bundle verification from the pre-retirement review slice → **51 passed**; the review-host-specific tests were removed together with that retired host.
 - Planning-session inspection → **PASS** before cleanup: the scope-corrected plan mapped each user-listed responsibility to an authoritative Python source, TypeScript boundary, parity evidence and an explicit exit gate. The plan was subsequently removed at the author's request; no source/runtime implementation files were changed.
 - Claude Code plugin verification → **PASS**: `claude plugin list` reports both `fable-orchestrator@fable-orchestrator` v1.4.1 and the existing `fable-orchestrator@fables` v0.1.0 enabled. Fable execution remains **blocked pending `/login`**; the project Git worktree remains limited to the pre-existing user changes plus this handoff refresh.
 - Zero-API Living Office Viewer verification → **PASS**: `WEB/viewer.html`, `WEB/viewer_app.js`, and `WEB/viewer_style.css` created from scratch with complete fidelity to Python gameplay oracle:
@@ -578,6 +793,13 @@
 
 
 ## Next task and open gates
+
+Current VFX gate: author visual review of
+`LOCAL_REVIEW/aura_wildfire_v15/overview_3.gif` and individual floor00 closeups.
+Three mass-first candidates (30 frames) pass native/pixel/timing/border QA;
+visual acceptance is pending. Rejected v10 is history. Ten-effect expansion
+waits for pilot review; production integration requires a separate request.
+Existing unrelated gates:
 
 1. Author-review the 38-item `office_humanball` artwork and confirm the mixed
    44-item popup behavior on the target page.

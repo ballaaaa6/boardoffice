@@ -7,6 +7,9 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+const HUMANBALL_FRAME_MS = 240;
+const HUMANBALL_VISIBLE_FRAME_COUNT = 10;
+
 export class BrowserEffectsReducer {
   constructor({ employees = {}, effects = {}, visualSelection = null } = {}) {
     this.employees = employees;
@@ -26,7 +29,7 @@ export class BrowserEffectsReducer {
       : "shuffle_bag";
     const elapsed = Math.max(
       0,
-      Number(sampleMs) - Number(actor.behavior?.activity_started_ms || sampleMs),
+      Number(sampleMs) - Number(actor.behavior?.activity_started_ms ?? sampleMs),
     );
     if (event === "background_effect") {
       return {
@@ -55,8 +58,14 @@ export class BrowserEffectsReducer {
       action: "work",
       subaction: "normal_work",
       character_frame_ms: 360,
-      humanball_frame_ms: 240,
-      humanball_frame_index: Math.floor(elapsed / 240),
+      humanball_frame_ms: HUMANBALL_FRAME_MS,
+      // HumanBall is a one-shot presentation. Keep the channel active for
+      // the recovery event, but hold it on the first hidden frame after the
+      // ten visible frames instead of wrapping back to frame zero.
+      humanball_frame_index: Math.min(
+        Math.floor(elapsed / HUMANBALL_FRAME_MS),
+        HUMANBALL_VISIBLE_FRAME_COUNT,
+      ),
     };
   }
 

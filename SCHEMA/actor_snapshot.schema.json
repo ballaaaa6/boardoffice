@@ -67,6 +67,9 @@
         "root_event_counter": {
           "type": "integer",
           "minimum": 0
+        },
+        "humanball_global_bag": {
+          "$ref": "#/$defs/visualChannelState"
         }
       }
     },

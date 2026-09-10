@@ -124,6 +124,40 @@ test("browser visual shuffle bags cover every catalog item before repeating", ()
   assert.equal(new Set(selected.slice(11, 22)).size, 11);
 });
 
+test("browser HumanBall bags avoid immediate repeat at generation boundaries", async () => {
+  const bundle = await checkedInBundle();
+  const selection = new BrowserVisualSelection({ catalog: bundle.visual_catalog });
+  for (let seedIndex = 0; seedIndex < 16; seedIndex += 1) {
+    for (const employeeId of ["EMP_W1_0010", "EMP_W1_0031", "EMP_W1_0044"]) {
+      let state = selection.initialChannelState("humanball");
+      const selected = [];
+      for (let index = 0; index < 89; index += 1) {
+        const eventId = `boundary-${seedIndex}-${employeeId}-${index}`;
+        const result = selection.select(state, {
+          channel: "humanball",
+          simulationSeed: `seed-${seedIndex}`,
+          employeeId,
+          eventId,
+          startedAtMs: index * 60,
+          endsAtMs: index * 60 + 1,
+        });
+        selected.push(result.binding.asset_id);
+        state = selection.clearActive(result.state, {
+          channel: "humanball",
+          eventId,
+        });
+      }
+      for (let index = 1; index < selected.length; index += 1) {
+        assert.notEqual(
+          selected[index],
+          selected[index - 1],
+          `${employeeId} seed-${seedIndex} index ${index}`,
+        );
+      }
+    }
+  }
+});
+
 test("browser visual rendering reads an active binding without reselection", async () => {
   const selection = new BrowserVisualSelection({ catalog: visualCatalogFixture() });
   const selected = selection.select(selection.initialChannelState("humanball"), {
@@ -147,6 +181,8 @@ test("browser visual rendering reads an active binding without reselection", asy
   const effects = new BrowserEffectsReducer({ catalog: visualCatalogFixture() });
   assert.equal(effects.presentation(actor, 0).asset_id, selected.binding.asset_id);
   assert.equal(effects.presentation(actor, 240).asset_id, selected.binding.asset_id);
+  assert.equal(effects.presentation(actor, 2880).humanball_frame_index, 10);
+  assert.equal(effects.presentation(actor, 3600).humanball_frame_index, 10);
   const legacyActor = structuredClone(actor);
   legacyActor.behavior.visual_channels.humanball.active_binding = null;
   const legacyPresentation = effects.presentation(legacyActor, 0);
@@ -396,6 +432,87 @@ test("browser actor selects visuals at event admission and clears them at comple
   core.destroy();
 });
 
+test("browser actor rejects a second recovery event while one is active", async () => {
+  const bundle = await checkedInBundle();
+  const core = await BrowserRuntimeCore.create({
+    bundle,
+    floorId: "floor02",
+    seed: "browser-active-event-guard-seed",
+  });
+  const employeeId = "EMP_W1_0031";
+  const actor = core.state.actor_snapshot.actors[employeeId];
+  const employee = core.bundle.employees[employeeId];
+  core.actorReducer.startEvent(
+    { snapshot: core.state.actor_snapshot },
+    actor,
+    employee,
+    "popup",
+    0,
+    [],
+  );
+
+  assert.throws(
+    () => core.actorReducer.startEvent(
+      { snapshot: core.state.actor_snapshot },
+      actor,
+      employee,
+      "popup",
+      60,
+      [],
+    ),
+    /active recovery event/,
+  );
+  assert.equal(actor.behavior.event_counter, 1);
+  assert.equal(actor.behavior.visual_channels.humanball.cursor, 1);
+  core.destroy();
+});
+
+test("browser popup events share one global HumanBall bag across actors", async () => {
+  const bundle = await checkedInBundle();
+  const core = await BrowserRuntimeCore.create({
+    bundle,
+    floorId: "floor02",
+    seed: "browser-global-popup-seed",
+  });
+  const firstId = "EMP_W1_0011";
+  const secondId = "EMP_W1_0030";
+  const firstActor = core.state.actor_snapshot.actors[firstId];
+  const secondActor = core.state.actor_snapshot.actors[secondId];
+  const firstEmployee = core.bundle.employees[firstId];
+  const secondEmployee = core.bundle.employees[secondId];
+
+  core.actorReducer.startEvent(
+    { snapshot: core.state.actor_snapshot },
+    firstActor,
+    firstEmployee,
+    "popup",
+    0,
+    [],
+  );
+  const firstAsset = firstActor.behavior.visual_channels.humanball.active_binding.asset_id;
+  core.actorReducer.completeEvent(
+    { snapshot: core.state.actor_snapshot },
+    firstActor,
+    firstEmployee,
+    firstActor.behavior.activity_until_ms,
+    [],
+  );
+  core.actorReducer.startEvent(
+    { snapshot: core.state.actor_snapshot },
+    secondActor,
+    secondEmployee,
+    "popup",
+    6000,
+    [],
+  );
+  const secondAsset = secondActor.behavior.visual_channels.humanball.active_binding.asset_id;
+
+  assert.notEqual(firstAsset, secondAsset);
+  assert.equal(core.state.actor_snapshot.determinism.humanball_global_bag.cursor, 2);
+  assert.equal(core.state.actor_snapshot.determinism.humanball_global_bag.active_binding, null);
+  core.destroy();
+});
+
 test("browser speech admits independent actor bubbles on the same floor", async () => {
   const bundle = await checkedInBundle();
   const core = await BrowserRuntimeCore.create({
@@ -546,4 +663,55 @@ test("canvas renderer occludes walking actors behind seated characters and works
 
   renderer.render();
   assert.deepEqual(maskedSeated, ["EMP_SEATED"]);
+});
+
+test("canvas renderer keeps HumanBall hidden after its one-shot timeline", async () => {
+  const { RuntimeCanvasRenderer } = await import("../WEB/runtime_canvas_renderer.js");
+  const drawn = [];
+  const fakeContext = {
+    drawImage: (...args) => drawn.push(args),
+    clearRect: () => {},
+    save: () => {},
+    restore: () => {},
+  };
+  const fakeCanvas = {
+    width: 600,
+    height: 600,
+    getContext: () => fakeContext,
+  };
+  const renderer = new RuntimeCanvasRenderer({
+    canvas: fakeCanvas,
+    manifestUrl: "data:application/json,{}",
+  });
+  const offsets = Array.from({ length: 10 }, () => [5, -13]).concat([null, null]);
+  renderer.manifest = {
+    workstations: {
+      ws1: {
+        direction: "SE",
+        character_top_left: [100, 100],
+        humanball_offsets: { SE: offsets },
+      },
+    },
+    humanballs: {
+      controller: { url: "humanball.png", visible_frame_count: 10 },
+    },
+    office_humanballs: {},
+  };
+  renderer._readyImage = () => ({ width: 18, height: 18 });
+  const row = {
+    employee_id: "EMP_TEST_001",
+    visible: true,
+    render_owner: "work_seat",
+    workstation_id: "ws1",
+    channels: {
+      humanball: { asset_id: "controller", humanball_frame_index: 12 },
+    },
+  };
+
+  renderer._drawHumanballChannel(fakeContext, [row], "humanball", "humanballs");
+  assert.equal(drawn.length, 0);
+
+  row.channels.humanball.humanball_frame_index = 9;
+  renderer._drawHumanballChannel(fakeContext, [row], "humanball", "humanballs");
+  assert.equal(drawn.length, 1);
 });

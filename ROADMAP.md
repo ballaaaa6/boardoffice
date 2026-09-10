@@ -2,11 +2,14 @@
 
 **Project root:** `D:\antigravity\board office`
 **Source of truth:** unpacked project root
-**Updated:** 2026-09-09 (Asia/Bangkok)
+**Updated:** 2026-09-10 (Asia/Bangkok)
+
+Legacy API review host `8765` is retired. Author browser review now uses the
+zero-API static viewer at `http://127.0.0.1:8000/viewer.html`.
 
 ## Active milestone — Cloudflare browser runtime / zero simulation API
 
-Planning is approved and implementation is not started. The first slice is
+The browser runtime implementation is active. The first slice is
 the existing `floor02` nine-actor browser bundle. The target is a static
 Cloudflare deployment where the browser advances `BrowserRuntimeCore` locally
 after bootstrap; Python remains the offline oracle, generated-bundle builder
@@ -38,7 +41,98 @@ and local raster fallback.
   (104 frames), emphasizing fire, and draw the fiercer ten-frame candidate
   `LOCAL_REVIEW/core_charge_inferno_v3/`; verify pixels/timing and unchanged
   reference hashes. Previous v1/v2 are rejected visual history.
-- [ ] Author visual acceptance of the revised loop and scene placement.
+- [x] Author rejected the red v3 direction; inspect a blue charging-aura
+  reference and redraw the native ten-frame `LOCAL_REVIEW/core_charge_blue_v4/`
+  with a luminous inner envelope and curved layered blue perimeter.
+  Verify exact pixels, transparent moat, unique frames and GIF timing.
+- [x] Composite blue v4 onto the first character on `floor00` and export a
+  character-only cropped ten-frame GIF plus 6x nearest-neighbor sheet for
+  scene-placement review.
+- [x] Compose the actual `floor00` scene and inject blue v4 for every assigned
+  actor; export and inspect the ten-frame full-scene GIF at 240ms/frame.
+- [x] Record the reusable native-pixel VFX creation, QA, scene-review and
+  integration workflow in `docs/VFX_CREATION_GUIDE.md` and link it from
+  `docs/INDEX.md`.
+- [x] Author visual acceptance of blue v4 and actual floor00 scene placement
+  (accepted before requesting the reusable creation guide).
+- [ ] Separate production integration request and runtime verification.
+
+### Aggressive Energy ten-effect review — 2026-09-09
+
+- [x] Author requested creation of the planned ten distinct effects with
+  cartoon-style color depth and clearly visible ten-frame motion.
+- [x] Draw all 100 native 33x65 frames with hue-shifted cel shading, three
+  editable Aseprite layers per effect and reproducible Lua source under
+  `LOCAL_REVIEW/aggressive_energy_v1/`.
+- [x] Verify native dimensions, binary alpha, border, uniqueness, Aseprite
+  reopen equality and exact GIF pixels/timing; inspect the 100-frame sheet.
+- [x] Produce an animated ten-effect overview and two actual floor00 scene
+  reviews covering all ten effects; inspect both scene PNGs.
+- [x] Author rejected v1 as overly geometric rods/helices; retain as history.
+- [x] Generate and visually inspect a ten-design organic painted concept board
+  at `LOCAL_REVIEW/organic_aura_v2/concept_board.png` with saved prompt.
+- [x] Author accepted moving from organic concepts to native drawing.
+- [x] Reinterpret ten concepts as 100 native frames in
+  `LOCAL_REVIEW/organic_aura_native_v2/`; pixel/timing/Aseprite QA passes,
+  overview and both actual floor00 scene previews inspected.
+- [x] Author rejected native v2 as small clumps; measure fire's occupied
+  pixels and redraw all 100 frames as connected fire-scale native v3 masses.
+  `LOCAL_REVIEW/organic_aura_native_v3/`: pixel/timing/roundtrip and connected
+  mass QA pass; same-scale comparison and actual floor00 previews inspected.
+- [x] Author rejected v3's jelly-like appearance; redraw 100 frames in
+  `LOCAL_REVIEW/organic_aura_native_v4/` with inward-light color bands and
+  asymmetric pixel-dab rims. Pixel/timing/roundtrip/connectivity QA pass;
+  comparison, full-frame sheet and both scene PNGs inspected.
+- [x] Research the author's Dragon Ball-style charging-aura reference before
+  another redraw. The proposed construction is two coordinated layers: a
+  contained diffuse aura volume plus contained hard-edged shards/lightning/
+  particles, with each 33x65 frame treated as its own clipping domain.
+- [x] Redraw the next blue candidate with strict per-cell bounds, a safe
+  interior edge treatment, non-repeating shard silhouettes and separate
+  fog/shard motion; then re-run native/GIF/scene QA. Layered v5 is at
+  `LOCAL_REVIEW/core_charge_layered_v5/`: ten frames, transparent border,
+  Aseprite sheet roundtrip and exact preview GIF checks pass; floor00 reviewed.
+- [x] Author rejected layered v5; draw a unified single-layer blue v6 with
+  larger shape changes, no separate fog, and safe-cell overscan assertions.
+  Native/GIF/reopened-sheet QA passes; ten-frame sheet and floor00 inspected.
+- [x] Author accepted v6's approximate shape; revise size, on-floor brightness
+  and lightning/motes as radiant v7. Ten-frame native/border/GIF QA passes;
+  comparison and floor00 inspected, with a 3x scene crop for review.
+- [x] Revise v7 into flow v8: +26.2% occupied area in the same safe cell,
+  periodic main tips and persistent branch-following filaments/motes.
+  Ten-frame native/border/reopened-sheet/exact GIF QA passes; actual floor00
+  crop and comparison inspected. No production changes.
+- [x] Author requested expansion in the v8 direction with more gradient
+  shading; produce ten variants / 100 frames in `LOCAL_REVIEW/flow_aura_ten_v9/`.
+  Native/border/Aseprite/exact GIF QA passes, with overview and ten floor00
+  scene previews. No production edits.
+- [x] Author rejected v9 as recolor-led; draw ten different construction and
+  motion styles in `LOCAL_REVIEW/aura_styles_v10/`. All 100 native frames,
+  borders, Aseprite roundtrips and exact GIF QA pass; final overview and
+  tidal/nebula actual floor00 stills inspected. Review-only, no integration.
+- [x] Author rejected v10's thin/worm-like forms and approved a three-style
+  mass-first pilot. Created `LOCAL_REVIEW/aura_mass_pilot_v11/` with 30
+  native frames, >=1000 occupied pixels per frame, safe borders, reopened
+  Aseprite and exact GIF QA. Final overview and blue floor00 crop inspected.
+- [x] Revise all three v11 candidates with visible lateral lightning/forks
+  as `LOCAL_REVIEW/aura_lateral_pilot_v12/`. Thirty-frame native/border/
+  reopened-sheet/exact GIF QA passes; overview and blue floor00 crop inspected.
+  Side lanes replace some central fill; total native canvas/anchor unchanged.
+- [x] Author accepted v12's general direction; revise as v13 with filled
+  side flames and flashing/expanding faceted half-arcs plus outward forks.
+  Thirty-frame native/border/Aseprite/exact GIF QA passes; overview and blue
+  actual floor00 closeup inspected. No production changes.
+- [x] Clarified rear/front halves wrap the fire only; produce v14 with one
+  faceted expanding ellipse, rear/fire/front sprite-internal occlusion and
+  unchanged actor ordering. All 30 frames pass native/border/Aseprite/exact
+  GIF and render-plane composition QA; overview and blue floor00 inspected.
+- [x] Redraw v14's rejected geometric fire body as `aura_wildfire_v15` using
+  unequal curled tongue landmarks and torn contour shading informed by
+  canonical fire; preserve wrapping lightning. Thirty-frame native/border/
+  Aseprite/exact GIF/composition QA passes; comparison and floor00 inspected.
+- [ ] Author visual/motion acceptance of v15's fire-body redraw
+  before expanding to ten styles.
+  Native v4 and layered v5 remain rejected history.
 - [ ] Separate production integration request and runtime verification.
 
 ### Current HumanBall popup review gate
@@ -154,6 +248,16 @@ and local raster fallback.
 - [x] Default-merge regression: 32 focused pool/metadata/contract tests and
   37 parity/render tests passed; browser unit suite: 16 passed; all 25 floor
   bundle checks passed.
+- [x] Prevent consecutive HumanBall reuse at the 44-item shuffle-bag
+  generation boundary per actor in Python and Browser JS; guard
+  manual/automatic event admission against overlapping recovery events and add
+  regressions.
+- [x] Enforce no-repeat scope across the global popup stream when different
+  actors fire consecutive HumanBalls, with a persisted shared bag mirrored to
+  the actor-owned render binding and covered by Python/Browser regressions.
+- [x] Prevent a HumanBall presentation from wrapping back to frame 0 when its
+  2–4 second recovery window exceeds the 12-frame / 2,880ms visual timeline;
+  cover the one-shot/termination boundary with Python and Browser regressions.
 - [ ] Author visual acceptance of the 38-item artwork remains open; the
   requested 44-item default gameplay merge is now implemented.
 - [ ] Resolve the pre-existing `floor06/ws3` WorkSeat expectation failure and
@@ -182,7 +286,7 @@ The implementation slice, required verification and original browser review were
 - Required Room Navigation, Navigation Occupancy, WorkSeat, WorkSeat lifecycle, Phase 6 Spatial, Central, gameplay-metadata family and conversation audits → **PASS**.
 - All-floor probe → **25 floors / 219 actors**, zero automatic wander choices.
 - Dialogue reload → **2,009 rows / 1,873 enabled rows**; all enabled office rows render; BB1/2/3/4/6 all observed.
-- Browser host → `http://127.0.0.1:8765/`, API v2, normal Full system demo plus Talk/Effects/Critical controls, no console warning/error in smoke.
+- Browser review → static `http://127.0.0.1:8000/viewer.html`, browser-owned simulation with Talk/Effects/Exhaustion controls and no recurring API requests.
 
 ### Closeout
 
@@ -201,8 +305,8 @@ The previously approved correction is implemented and verified; visual/gameplay 
 - [x] Use one persisted replayable d6 per standing pair with even → `happy` and odd → `sad`.
 - [x] Make the review demo completion gate wait for every participant to finish `seat_entry` and expose `work_seat/work/normal_work`.
 - [x] Fix the newly diagnosed seated in-work BB frame stall: keep the normal-work clock advancing while the bubble is an overlay, preserve routed talk behavior, and add active/post-return frame regression coverage. Engineering verification completed with the actor-clock, stationary-host and routed-return regressions.
-- [x] Verify with `337 passed`, the required navigation/WorkSeat/Phase 6/Central/F2/conversation audits, runtime-presentation QA, and a fresh browser run on port `8765`.
-- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/`.
+- [x] Verify with `337 passed`, the required navigation/WorkSeat/Phase 6/Central/F2/conversation audits, runtime-presentation QA, and a fresh browser run before retiring the legacy review host.
+- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8000/viewer.html`.
 
 The engineering gate for the non-blocking speech overlay is closed. The page was rechecked on 2026-09-02: active BB frames continue to change while stamina/work time advances, routed talks retain their movement/facing contract, and both participants return to `work/normal_work`. Author acceptance remains a separate pending gate.
 
@@ -216,7 +320,7 @@ The long-running full live trace exposed a pending-talk/lifecycle ownership seam
 - [x] Prevent `_arm_live_behavior_timers()` from scheduling a new weighted event while a stationary talk overlay owns the actor.
 - [x] Add multi-actor long-run and noncompact runtime regressions, queue telemetry, and a fresh API/browser stress run; rerun `python -m pytest -q` plus the required navigation/WorkSeat/Phase 6/Central/F2/conversation audits.
 
-Engineering verification result: **348 tests passed**, all required audits and runtime presentation QA passed, and the fresh `floor02` API run reached `137400ms` with 9 work-start bubbles and 0 lifecycle-boundary violations. Author visual/gameplay acceptance at `http://127.0.0.1:8765/` is still pending.
+Engineering verification result: **348 tests passed**, all required audits and runtime presentation QA passed, and the fresh `floor02` API run reached `137400ms` with 9 work-start bubbles and 0 lifecycle-boundary violations. Author visual/gameplay acceptance is now directed to `http://127.0.0.1:8000/viewer.html` after legacy host retirement.
 
 ## Standing-pair orientation correction — 2026-09-03
 
@@ -227,7 +331,7 @@ The attached reference requires the standing pair to occupy the V axis: equal `u
 - [x] Regenerate the deterministic browser bundle and add core/live-route/browser geometry assertions.
 - [x] Align browser transition rounding and persistent-bubble fade sampling with the Python parity oracle exposed by the V-axis route.
 - [x] Verify with full pytest **377 passed**, browser unit tests **10 passed**, focused conversation/browser regression **38 passed**, required navigation/occupancy/WorkSeat/Phase 6/Central/F2/conversation audits **PASS**, and conversation visual QA **PASS**.
-- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/`.
+- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8000/viewer.html`.
 
 ## Lean component-renderer prototype — 2026-09-03
 
@@ -339,7 +443,7 @@ The asset/rendering inventory and BB root-cause audit are complete. The written 
 - [x] Keep same-actor exclusion, atomic participant locks for pair sessions and physical talk-spot/path/crowd collision protection.
 - [x] Mirror the scheduler and visual-bag algorithms in Browser JS with exact Python parity, compact save/load state and one-bootstrap/no-per-event-request behavior.
 - [x] Add same-floor concurrency, VFX/popup coverage, legacy migration, replay/parity and full regression gates before TS/JS migration.
-- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/`.
+- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8000/viewer.html`.
 
 Engineering evidence: full Python suite **403 passed**, browser unit suite **14 passed**, focused conversation/browser regression suite **48 passed**, compile/Ruff/diff checks passed, required runtime audits passed, and the live page showed simultaneous VFX/HumanBall channels plus two actor-owned BBs. This section does not close the existing Canvas/Raster, browser persistence, endurance or Cloudflare gates.
 
@@ -352,7 +456,7 @@ The original behavior correction remains implemented and regenerated for `seated
 - [x] Regenerate the `floor02` browser bundle and verify all **11 VFX** and
   the current **44-item HumanBall popup** pool remain present.
 - [x] Add Python/browser bundle regressions; full Python suite **403 passed**, focused conversation/browser suite **48 passed**, browser unit suite **14 passed**.
-- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8765/`.
+- [ ] Author visual/gameplay acceptance at `http://127.0.0.1:8000/viewer.html`.
 
 ## Combined startup stamina + CEO bubble correction — 2026-09-03
 
