@@ -14,8 +14,9 @@
   bundles were rebuilt. The rebuilt set contains 845 occluder masks with 0
   source-alpha mismatches. Focused renderer/manifest/state tests passed 36/36;
   browser runtime tests passed 22/22 and `node --check WEB/viewer_app.js`
-  passed. The full suite is 383 passed with the known pre-existing
-  `floor06/ws3` `foreground_static_present` failure. Room Navigation,
+  passed. The full suite is now 384 passed after aligning the stale
+  `floor06/ws3` WorkSeat expectation with its static foreground placement.
+  Room Navigation,
   Navigation Occupancy, WorkSeat, WorkSeat Lifecycle and F2 gameplay-family
   audits pass; Phase 6 and Central remain blocked only by their documented
   pre-existing base/reference/foreground-fragment mismatches. Author visual
@@ -1147,8 +1148,8 @@ Existing unrelated gates:
 2. Author-review the 38-item `office_humanball` artwork and confirm the mixed
    44-item popup behavior on the target page.
 3. Keep the other 162 cinematic-v3 sprites review-only. Separately, resolve
-   the pre-existing `floor06/ws3` WorkSeat expectation and central-audit
-   reference mismatches before calling the repository fully green.
+   the remaining central-audit reference mismatches before calling the
+   repository fully green.
 
 No release archive was rebuilt in this session. The 21-effect VFX catalog and
 44-item default popup pool are engineering-integrated; visual review of the

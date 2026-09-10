@@ -7,7 +7,7 @@ from VALIDATION._common import resolve_root
 ROOT = resolve_root(anchor=__file__)
 
 
-def test_floor06_workstation_seat_resolution_uses_directional_chair_roles():
+def test_floor06_workstation_seat_resolution_uses_static_foreground_chair_role():
     from RUNTIME.work_seat_core import WorkSeatCore
 
     core = WorkSeatCore(ROOT)
@@ -24,7 +24,7 @@ def test_floor06_workstation_seat_resolution_uses_directional_chair_roles():
     assert nw['chair_family_id'] == 'chair_006'
     assert nw['chair_asset_id'] == 'chair_006.part_00'
     assert nw['foreground_asset_id'] == 'chair_006.part_03'
-    assert nw['foreground_static_present'] is False
+    assert nw['foreground_static_present'] is True
     assert nw['foreground_slot_id'] == 'ws3_chair_sub'
     assert nw['foreground_layer'] == 570
 
@@ -143,7 +143,7 @@ def test_floor06_se_dynamic_frame_matches_independent_manual_layer_insertion():
     assert actual.tobytes() == expected.tobytes()
 
 
-def test_floor06_nw_dynamic_frame_inserts_recovered_foreground_at_authored_optional_layer():
+def test_floor06_nw_frame_reuses_static_foreground_at_authored_optional_layer():
     from RUNTIME.work_seat_core import WorkSeatCore
     from CHARACTER.RUNTIME.character_system import CharacterSystem
     from WORLD.RUNTIME.layout_core import LayoutCore
@@ -160,22 +160,18 @@ def test_floor06_nw_dynamic_frame_inserts_recovered_foreground_at_authored_optio
     skin = world.floor_skin('floor06')
     expected = world.load_variant(skin['base_variant_id']).copy().convert('RGBA')
     human = chars.render('TP_000', 'work', 'NW', 'normal_work').frames[0].convert('RGBA')
-    front = world.load_asset('chair_006.part_03')
-
     events = []
     for placement in world.resolve_floor_placements('floor06'):
         events.append((placement['layer'], 0, 'static', placement))
         if placement['placement_id'] == 'ws3_chair_main':
             events.append((placement['layer'], 1, 'human', placement))
-    events.append((570, 1, 'foreground', {'x_px': 278, 'y_px': 282}))
-
     for _, _, kind, payload in sorted(events, key=lambda e: (e[0], e[1], e[2])):
         if kind == 'static':
             expected.alpha_composite(world.load_variant(payload['variant_id']), (payload['x_px'], payload['y_px']))
         elif kind == 'human':
             expected.alpha_composite(human, (payload['x_px'] - 10, payload['y_px'] - 6))
         else:
-            expected.alpha_composite(front, (payload['x_px'], payload['y_px']))
+            raise AssertionError(f'Unexpected render event: {kind}')
 
     assert actual.tobytes() == expected.tobytes()
 

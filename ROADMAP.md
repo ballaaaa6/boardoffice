@@ -355,8 +355,10 @@ and local raster fallback.
   cover the one-shot/termination boundary with Python and Browser regressions.
 - [ ] Author visual acceptance of the 38-item artwork remains open; the
   requested 44-item default gameplay merge is now implemented.
-- [ ] Resolve the pre-existing `floor06/ws3` WorkSeat expectation failure and
-  central-audit `floor_skins`/placement-reference mismatches.
+- [x] Align the `floor06/ws3` WorkSeat expectation with its authored static
+  foreground placement.
+- [ ] Resolve the remaining central-audit `floor_skins`/placement-reference
+  mismatches.
 
 ## Completed milestone — Phase 8E runtime review
 
