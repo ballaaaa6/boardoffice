@@ -321,7 +321,7 @@ def test_runtime_renderer_scopes_workstation_occlusion_to_talk_hold(speech_mode)
         'resolved_action': 'idle',
         'subaction': 'idle',
         'resolved_subaction': 'idle',
-        'ground_xy': [288, 329],
+        'ground_xy': [360, 367],
         'dialogue_visible': False,
         'speech_mode': speech_mode,
         'route_phase': 'talk_hold',

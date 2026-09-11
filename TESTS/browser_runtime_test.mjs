@@ -1039,7 +1039,7 @@ test("talk hold leaves workstation components behind walking speakers", async ()
   };
 
   assert.equal(resolveWalkingOcclusionContext(actor), "walking_talk_hold");
-  assert.deepEqual(resolveActorOccluderIds(actor, occluders, "floor_test"), ["overlay"]);
+  assert.deepEqual(resolveActorOccluderIds(actor, occluders, "floor_test"), ["chair_sub", "overlay"]);
   for (const [speech_mode, route_phase] of [
     ["standing_pair", "talk_outbound"],
     ["standing_pair", "talk_return"],
@@ -1065,7 +1065,7 @@ test("talk hold leaves workstation components behind walking speakers", async ()
         occluders,
         "floor_test",
       ),
-      ["overlay"],
+      ["chair_sub", "overlay"],
     );
   }
 });

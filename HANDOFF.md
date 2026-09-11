@@ -48,12 +48,14 @@
 - 2026-09-11 corrected the walking-talk occlusion scope on
   `codex/standing-pair-occlusion-hotfix`. The render-only policy now filters
   workstation masks for `standing_pair`, `seated_host` and `ceo_front` while
-  the actor is in `talk_hold`; normal walking, outbound/return routes and
-  seated work-seat rendering retain the authored depth behavior. The exact
-  floor02 reproduction (`EMP_W1_0010` → `EMP_W1_0011`, visitor at
-  `[360, 367]`) now resolves no `ws8_desk`/PC/chair masks, while foreground
-  overlays remain eligible. Focused Python tests are **42 passed**, browser
-  runtime tests are **27 passed**, and the full suite is **394 passed**.
+  the actor is in `talk_hold`; desk/PC masks are removed but chair masks stay
+  in front. Normal walking, outbound/return routes and seated work-seat
+  rendering retain the authored depth behavior. The exact floor02
+  reproduction (`EMP_W1_0010` → `EMP_W1_0011`, visitor at `[360, 367]`) now
+  resolves no `ws8_desk`/PC masks while retaining `ws8_chair_main` /
+  `ws8_chair_sub` and keeping foreground overlays eligible. Focused Python
+  tests are **42 passed**, browser runtime tests are **27 passed**, and the
+  full suite is **394 passed**.
   No asset, table, navigation or manifest change was made. Phase 6/Central
   retain their documented pre-existing reference mismatches; author visual
   acceptance remains pending on the local and hosted previews.

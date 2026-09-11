@@ -24,7 +24,7 @@ class WalkingDepthCore:
     """
 
     FOOTPRINT_TYPES = frozenset({'desk', 'chair', 'reception'})
-    WORKSTATION_OCCLUDER_TYPES = frozenset({'desk', 'pc', 'chair', 'chair_sub'})
+    TALK_HOLD_REMOVED_OCCLUDER_TYPES = frozenset({'desk', 'pc'})
     TALK_HOLD_MODES = frozenset({'standing_pair', 'seated_host', 'ceo_front'})
     WALKING_TALK_HOLD_CONTEXT = 'walking_talk_hold'
 
@@ -298,11 +298,11 @@ class WalkingDepthCore:
 
         The authored furniture depth remains the default everywhere.  A pair
         that has arrived at its conversation endpoint is the one deliberate
-        exception: workstation components should stay behind the walking
-        speaker so the conversation pose is readable.  ``route_phase`` makes
-        the rule self-reverting as soon as the return route starts.  The host
-        in ``seated_host`` remains a work-seat render and never enters this
-        walking mask path.
+        exception: desk and PC components should stay behind the walking
+        speaker so the conversation pose is readable, while the chair remains
+        in front as authored.  ``route_phase`` makes the rule self-reverting
+        as soon as the return route starts.  The host in ``seated_host``
+        remains a work-seat render and never enters this walking mask path.
         """
         if speech_mode in cls.TALK_HOLD_MODES and route_phase == 'talk_hold':
             return cls.WALKING_TALK_HOLD_CONTEXT
@@ -321,8 +321,8 @@ class WalkingDepthCore:
         This is intentionally layered on top of :meth:`occluders_in_front`:
         Normal walkers, outbound motion and return motion retain the exact
         existing depth result.  A walking actor in any authored conversation
-        hold removes workstation component masks; foreground overlays and
-        reception remain eligible to occlude as authored.
+        hold removes desk and PC masks but keeps chair masks; foreground
+        overlays and reception remain eligible to occlude as authored.
         """
         selected = self.occluders_in_front(floor_id, character_ground)
         if self.resolve_occlusion_context(
@@ -333,7 +333,7 @@ class WalkingDepthCore:
         return [
             row
             for row in selected
-            if row.get('object_type') not in self.WORKSTATION_OCCLUDER_TYPES
+            if row.get('object_type') not in self.TALK_HOLD_REMOVED_OCCLUDER_TYPES
         ]
 
     def actor_draws_over_reception(

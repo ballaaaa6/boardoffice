@@ -65,7 +65,7 @@ def test_occluder_selection_uses_character_ground_depth_not_static_layer():
     assert 'ws3_pc' not in front_ids
 
 
-def test_talk_hold_filters_only_workstation_occluders():
+def test_talk_hold_filters_desk_and_pc_but_keeps_chairs():
     depth = WalkingDepthCore(ROOT / 'WORLD')
     ground = (288, 329)
     normal_ids = [
@@ -91,7 +91,9 @@ def test_talk_hold_filters_only_workstation_occluders():
     for hold_ids in hold_ids_by_mode.values():
         assert 'ws6_desk' not in hold_ids
         assert 'ws6_pc' not in hold_ids
-        assert 'ws6_chair_main' not in hold_ids
+        assert 'ws6_chair_main' in hold_ids
+        if 'ws6_chair_sub' in normal_ids:
+            assert 'ws6_chair_sub' in hold_ids
         assert 'reception' in hold_ids
         assert {'foreground_overlay_00', 'foreground_overlay_01', 'foreground_overlay_02'} <= set(hold_ids)
 
@@ -111,7 +113,7 @@ def test_talk_hold_filters_only_workstation_occluders():
         ] == normal_ids
 
 
-def test_talk_hold_preserves_actor_pixels_over_workstation_mask():
+def test_talk_hold_preserves_actor_pixels_over_desk_and_pc_masks():
     depth = WalkingDepthCore(ROOT / 'WORLD')
     sprite = Image.new('RGBA', (32, 42), (255, 0, 255, 255))
     ground = (288, 329)
@@ -132,7 +134,7 @@ def test_talk_hold_preserves_actor_pixels_over_workstation_mask():
             speech_mode=mode,
             route_phase='talk_hold',
         )
-        assert hold.getchannel('A').getextrema() == (255, 255)
+        assert hold.getchannel('A').getextrema()[0] == 0
 
 
 def test_composite_character_redraws_selected_real_asset_occluders():

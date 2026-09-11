@@ -60,7 +60,7 @@ function validGround(value) {
     && Number.isFinite(Number(value[1]));
 }
 
-const WORKSTATION_OCCLUDER_TYPES = new Set(["desk", "pc", "chair", "chair_sub"]);
+const TALK_HOLD_REMOVED_OCCLUDER_TYPES = new Set(["desk", "pc"]);
 const TALK_HOLD_MODES = new Set(["standing_pair", "seated_host", "ceo_front"]);
 
 export function resolveWalkingOcclusionContext(actor) {
@@ -113,7 +113,7 @@ export function resolveActorOccluderIds(
   const ids = [];
 
   for (const occluder of occluders || []) {
-    if (walkingTalkHold && WORKSTATION_OCCLUDER_TYPES.has(occluder?.object_type)) {
+    if (walkingTalkHold && TALK_HOLD_REMOVED_OCCLUDER_TYPES.has(occluder?.object_type)) {
       continue;
     }
     let inFront = false;
