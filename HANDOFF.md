@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-11 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture remains active on `main`; the render-only standing-pair occlusion hotfix is implemented on `codex/standing-pair-occlusion-hotfix` but is not ready for merge because the live viewer's manual Talk path still reproduces the defect. The server is serving the branch files correctly; the reproduction is `seated_host`, while the hotfix currently filters only `standing_pair`/`talk_hold`. An owner-private Sites preview is deployed at `https://boardoffice-occlusion-hotfix.ramet-ball05.chatgpt.site` for author review; the follow-up scope correction remains pending. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture remains active on `main`; the render-only walking-talk occlusion correction is implemented on `codex/standing-pair-occlusion-hotfix` and is ready for author visual review. The local server and owner-private Sites preview serve the corrected branch files. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
@@ -45,28 +45,18 @@
   HumanBall/VFX channel pixels. Browser coverage is **23/23** and the full
   pytest suite is **388 passed**; live visual acceptance remains pending.
 
-- 2026-09-11 implemented the standing-pair workstation-occlusion hotfix on
-  `codex/standing-pair-occlusion-hotfix`, then confirmed the remaining defect
-  on both the live hosted preview and an exact Node runtime trace. `8001` runs
-  from `D:\antigravity\board office` and its HTTP `runtime_render_depth.js`
-  contains the new resolver, so this is not a stale server or browser-cache
-  issue. The viewer's `#btnDemoTalk` handler prefers the `seated_host` plan
-  whenever it exists; floor02's first pair (`EMP_W1_0010` → `EMP_W1_0011`) has
-  both plans, so the actual visitor is rendered as
-  `render_owner=walking_depth`, `speech_mode=seated_host`,
-  `route_phase=talk_hold` at `[360, 367]`. The current resolver returns
-  `ws8_desk`, `ws8_pc`, `ws8_chair_main` and `ws8_chair_sub`; those masks
-  overlap the visitor box and Canvas applies them with `destination-out`, so
-  the desk/PC/chair pixels still carve the visitor away. The same pose under
-  `standing_pair` returns no workstation masks. This is the confirmed reason
-  the hosted page and port 8001 still look unchanged. The follow-up should
-  scope the render-only rule to a walking visitor at `talk_hold` in
-  `seated_host` (and explicitly decide whether the analogous `ceo_front`
-  visitor is in scope), then rerun the existing tests and live visual gate.
-  Existing focused/browser/full test results remain **40**, **27** and **392
-  passed**; Phase 6/Central still have their documented pre-existing
-  reference mismatches. No asset, table, navigation or manifest change has
-  been made for this diagnosis.
+- 2026-09-11 corrected the walking-talk occlusion scope on
+  `codex/standing-pair-occlusion-hotfix`. The render-only policy now filters
+  workstation masks for `standing_pair`, `seated_host` and `ceo_front` while
+  the actor is in `talk_hold`; normal walking, outbound/return routes and
+  seated work-seat rendering retain the authored depth behavior. The exact
+  floor02 reproduction (`EMP_W1_0010` → `EMP_W1_0011`, visitor at
+  `[360, 367]`) now resolves no `ws8_desk`/PC/chair masks, while foreground
+  overlays remain eligible. Focused Python tests are **42 passed**, browser
+  runtime tests are **27 passed**, and the full suite is **394 passed**.
+  No asset, table, navigation or manifest change was made. Phase 6/Central
+  retain their documented pre-existing reference mismatches; author visual
+  acceptance remains pending on the local and hosted previews.
 
 - 2026-09-11 motion-smoothness diagnostic completed without source/runtime
   changes. The live viewer's RAF trace was approximately 6.7–7.1ms per frame

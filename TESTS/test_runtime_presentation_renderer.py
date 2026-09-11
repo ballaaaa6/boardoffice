@@ -303,7 +303,8 @@ def test_runtime_renderer_reuses_seated_base_composition_without_aliasing_overla
     assert first.tobytes() == second.tobytes()
 
 
-def test_runtime_renderer_scopes_workstation_occlusion_to_standing_pair_hold():
+@pytest.mark.parametrize('speech_mode', ['standing_pair', 'seated_host', 'ceo_front'])
+def test_runtime_renderer_scopes_workstation_occlusion_to_talk_hold(speech_mode):
     core = CentralGameCore(ROOT)
     runtime = _quiet_runtime(core)
     first_employee, _second_employee, _ceo = _ids(core)
@@ -322,7 +323,7 @@ def test_runtime_renderer_scopes_workstation_occlusion_to_standing_pair_hold():
         'resolved_subaction': 'idle',
         'ground_xy': [288, 329],
         'dialogue_visible': False,
-        'speech_mode': 'standing_pair',
+        'speech_mode': speech_mode,
         'route_phase': 'talk_hold',
     })
     hold_presentation = copy.deepcopy(presentation)

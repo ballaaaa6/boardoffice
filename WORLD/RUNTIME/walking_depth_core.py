@@ -25,7 +25,8 @@ class WalkingDepthCore:
 
     FOOTPRINT_TYPES = frozenset({'desk', 'chair', 'reception'})
     WORKSTATION_OCCLUDER_TYPES = frozenset({'desk', 'pc', 'chair', 'chair_sub'})
-    STANDING_PAIR_HOLD_CONTEXT = 'standing_pair_hold'
+    TALK_HOLD_MODES = frozenset({'standing_pair', 'seated_host', 'ceo_front'})
+    WALKING_TALK_HOLD_CONTEXT = 'walking_talk_hold'
 
     def __init__(
         self,
@@ -293,16 +294,18 @@ class WalkingDepthCore:
         speech_mode: str | None = None,
         route_phase: str | None = None,
     ) -> str:
-        """Resolve the render-only exception for a stationary standing pair.
+        """Resolve the render-only exception for a stationary talk visitor.
 
         The authored furniture depth remains the default everywhere.  A pair
         that has arrived at its conversation endpoint is the one deliberate
-        exception: workstation components should stay behind both speakers so
-        the conversation pose is readable.  ``route_phase`` makes the rule
-        self-reverting as soon as the return route starts.
+        exception: workstation components should stay behind the walking
+        speaker so the conversation pose is readable.  ``route_phase`` makes
+        the rule self-reverting as soon as the return route starts.  The host
+        in ``seated_host`` remains a work-seat render and never enters this
+        walking mask path.
         """
-        if speech_mode == 'standing_pair' and route_phase == 'talk_hold':
-            return cls.STANDING_PAIR_HOLD_CONTEXT
+        if speech_mode in cls.TALK_HOLD_MODES and route_phase == 'talk_hold':
+            return cls.WALKING_TALK_HOLD_CONTEXT
         return 'normal'
 
     def occluders_for_render(
@@ -316,16 +319,16 @@ class WalkingDepthCore:
         """Return world occluders for one render row.
 
         This is intentionally layered on top of :meth:`occluders_in_front`:
-        normal walkers, seated-host talks, CEO-front talks, outbound motion
-        and return motion retain the exact existing depth result.  Only the
-        standing-pair hold removes workstation component masks; foreground
-        overlays and reception remain eligible to occlude as authored.
+        Normal walkers, outbound motion and return motion retain the exact
+        existing depth result.  A walking actor in any authored conversation
+        hold removes workstation component masks; foreground overlays and
+        reception remain eligible to occlude as authored.
         """
         selected = self.occluders_in_front(floor_id, character_ground)
         if self.resolve_occlusion_context(
             speech_mode=speech_mode,
             route_phase=route_phase,
-        ) != self.STANDING_PAIR_HOLD_CONTEXT:
+        ) != self.WALKING_TALK_HOLD_CONTEXT:
             return selected
         return [
             row

@@ -992,7 +992,7 @@ test("canvas renderer keeps HumanBall hidden after its one-shot timeline", async
   assert.equal(drawn.length, 1);
 });
 
-test("standing-pair hold leaves workstation components behind the speakers", async () => {
+test("talk hold leaves workstation components behind walking speakers", async () => {
   const { resolveActorOccluderIds, resolveWalkingOcclusionContext } = await import(
     "../WEB/runtime_render_depth.js"
   );
@@ -1038,13 +1038,11 @@ test("standing-pair hold leaves workstation components behind the speakers", asy
     route_phase: "talk_hold",
   };
 
-  assert.equal(resolveWalkingOcclusionContext(actor), "standing_pair_hold");
+  assert.equal(resolveWalkingOcclusionContext(actor), "walking_talk_hold");
   assert.deepEqual(resolveActorOccluderIds(actor, occluders, "floor_test"), ["overlay"]);
   for (const [speech_mode, route_phase] of [
     ["standing_pair", "talk_outbound"],
     ["standing_pair", "talk_return"],
-    ["seated_host", "talk_hold"],
-    ["ceo_front", "talk_hold"],
   ]) {
     assert.equal(resolveWalkingOcclusionContext({ speech_mode, route_phase }), "normal");
     assert.deepEqual(
@@ -1054,6 +1052,20 @@ test("standing-pair hold leaves workstation components behind the speakers", asy
         "floor_test",
       ),
       ["desk", "chair_sub", "overlay"],
+    );
+  }
+  for (const speech_mode of ["seated_host", "ceo_front"]) {
+    assert.equal(
+      resolveWalkingOcclusionContext({ ...actor, speech_mode, route_phase: "talk_hold" }),
+      "walking_talk_hold",
+    );
+    assert.deepEqual(
+      resolveActorOccluderIds(
+        { ...actor, speech_mode, route_phase: "talk_hold" },
+        occluders,
+        "floor_test",
+      ),
+      ["overlay"],
     );
   }
 });

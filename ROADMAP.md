@@ -92,16 +92,16 @@ and local raster fallback.
   **40 passed**, browser **27 passed**, full pytest **392 passed**, and the
   relevant navigation/WorkSeat/conversation/depth audits pass. The existing
   Phase 6/Central reference mismatches remain unrelated.
-- [ ] Extend the render-only policy to the actual live-preview reproduction:
-  the walking visitor in `seated_host`/`talk_hold` (and explicitly decide
-  whether the analogous `ceo_front` visitor is in scope). The current
-  `#btnDemoTalk` handler prefers `seated_host`, so the existing
-  `standing_pair_hold` patch does not affect the observed visitor.
-- [x] Confirm the mismatch with the deployed preview and an exact runtime
-  trace: floor02's first Talk pair selects `seated_host`; at the hold point
-  the walking visitor still receives the overlapping `ws8_desk`, `ws8_pc`,
-  `ws8_chair_main` and `ws8_chair_sub` masks. This is a render-policy scope
-  issue, not a stale port/cache or table-asset issue.
+- [x] Extend the render-only policy to the actual live-preview reproduction:
+  walking actors in `seated_host`/`talk_hold` and the analogous `ceo_front`
+  visitor now share the workstation-mask exception with `standing_pair`.
+  Normal walking, outbound/return routes and seated work-seat rendering are
+  unchanged.
+- [x] Confirm the correction with the exact floor02 runtime trace: the first
+  Talk pair selects `seated_host`; at the hold point the walking visitor no
+  longer receives the overlapping `ws8_desk`, `ws8_pc`, `ws8_chair_main` and
+  `ws8_chair_sub` masks. Focused Python **42**, browser **27**, and full pytest
+  **394** pass.
 - [ ] Author visual acceptance from the branch preview and decide whether to
   merge into `main`. An owner-private Sites preview is available at
   `https://boardoffice-occlusion-hotfix.ramet-ball05.chatgpt.site`.

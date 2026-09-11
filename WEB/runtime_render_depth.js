@@ -61,10 +61,11 @@ function validGround(value) {
 }
 
 const WORKSTATION_OCCLUDER_TYPES = new Set(["desk", "pc", "chair", "chair_sub"]);
+const TALK_HOLD_MODES = new Set(["standing_pair", "seated_host", "ceo_front"]);
 
 export function resolveWalkingOcclusionContext(actor) {
-  if (actor?.speech_mode === "standing_pair" && actor?.route_phase === "talk_hold") {
-    return "standing_pair_hold";
+  if (TALK_HOLD_MODES.has(actor?.speech_mode) && actor?.route_phase === "talk_hold") {
+    return "walking_talk_hold";
   }
   return "normal";
 }
@@ -108,11 +109,11 @@ export function resolveActorOccluderIds(
   const right = left + width;
   const bottom = top + height;
   const depthFrontEdges = DEPTH_PROFILES_BY_FLOOR[floorId] || DEPTH_PROFILES_DEFAULT;
-  const standingPairHold = resolveWalkingOcclusionContext(actor) === "standing_pair_hold";
+  const walkingTalkHold = resolveWalkingOcclusionContext(actor) === "walking_talk_hold";
   const ids = [];
 
   for (const occluder of occluders || []) {
-    if (standingPairHold && WORKSTATION_OCCLUDER_TYPES.has(occluder?.object_type)) {
+    if (walkingTalkHold && WORKSTATION_OCCLUDER_TYPES.has(occluder?.object_type)) {
       continue;
     }
     let inFront = false;
