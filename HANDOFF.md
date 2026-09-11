@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-11 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture remains active on `main`; the follow-up NW-only walking-talk occlusion correction is implemented on `codex/nw-only-occlusion` and is ready for author visual review. The local server serves the corrected branch files. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture remains active on `main`; the NW-only walking-talk occlusion correction is merged into `main` and its temporary feature branch has been removed. The local server serves the corrected files. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
