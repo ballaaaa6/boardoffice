@@ -85,8 +85,8 @@
   the smooth 4x backing surface. Browser runtime tests are **26/26**,
   `node --check` passes for the
   changed viewer/render modules, `python -m pytest -q` is **388 passed**, and
-  `git diff --check` passes. A branch-isolated preview server is running as
-  project PID `26880` on port `8001`; live review is available at
+  `git diff --check` passes. The preview server is running as project PID
+  `26880` on port `8001` and now serves the merged `main`; live review is available at
   `http://127.0.0.1:8001/?floor=floor06&motion=smooth&renderScale=4&preview=branch`.
   Author visual acceptance and merge decision are complete; the 2x URL remains
   an optional lower-cost comparison/fallback.
