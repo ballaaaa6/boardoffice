@@ -62,6 +62,7 @@ function validGround(value) {
 
 const TALK_HOLD_REMOVED_OCCLUDER_TYPES = new Set(["desk", "pc"]);
 const TALK_HOLD_MODES = new Set(["standing_pair", "seated_host", "ceo_front"]);
+const TALK_HOLD_TARGET_WORKSTATION_DIRECTION = "NW";
 
 export function resolveWalkingOcclusionContext(actor) {
   if (TALK_HOLD_MODES.has(actor?.speech_mode) && actor?.route_phase === "talk_hold") {
@@ -113,7 +114,11 @@ export function resolveActorOccluderIds(
   const ids = [];
 
   for (const occluder of occluders || []) {
-    if (walkingTalkHold && TALK_HOLD_REMOVED_OCCLUDER_TYPES.has(occluder?.object_type)) {
+    if (
+      walkingTalkHold
+      && TALK_HOLD_REMOVED_OCCLUDER_TYPES.has(occluder?.object_type)
+      && occluder?.interaction_direction === TALK_HOLD_TARGET_WORKSTATION_DIRECTION
+    ) {
       continue;
     }
     let inFront = false;

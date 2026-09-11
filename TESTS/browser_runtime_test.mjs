@@ -1000,6 +1000,19 @@ test("talk hold leaves workstation components behind walking speakers", async ()
     {
       placement_id: "desk",
       object_type: "desk",
+      interaction_direction: "NW",
+      x_px: 84,
+      y_px: 100,
+      width: 32,
+      height: 42,
+      depth_anchor_y_px: 150,
+      depth_front_edge_world_px: null,
+      always_foreground: false,
+    },
+    {
+      placement_id: "se_desk",
+      object_type: "desk",
+      interaction_direction: "SE",
       x_px: 84,
       y_px: 100,
       width: 32,
@@ -1011,6 +1024,7 @@ test("talk hold leaves workstation components behind walking speakers", async ()
     {
       placement_id: "chair_sub",
       object_type: "chair_sub",
+      interaction_direction: "NW",
       x_px: 84,
       y_px: 100,
       width: 32,
@@ -1039,7 +1053,7 @@ test("talk hold leaves workstation components behind walking speakers", async ()
   };
 
   assert.equal(resolveWalkingOcclusionContext(actor), "walking_talk_hold");
-  assert.deepEqual(resolveActorOccluderIds(actor, occluders, "floor_test"), ["chair_sub", "overlay"]);
+  assert.deepEqual(resolveActorOccluderIds(actor, occluders, "floor_test"), ["se_desk", "chair_sub", "overlay"]);
   for (const [speech_mode, route_phase] of [
     ["standing_pair", "talk_outbound"],
     ["standing_pair", "talk_return"],
@@ -1051,7 +1065,7 @@ test("talk hold leaves workstation components behind walking speakers", async ()
         occluders,
         "floor_test",
       ),
-      ["desk", "chair_sub", "overlay"],
+      ["desk", "se_desk", "chair_sub", "overlay"],
     );
   }
   for (const speech_mode of ["seated_host", "ceo_front"]) {
@@ -1065,7 +1079,7 @@ test("talk hold leaves workstation components behind walking speakers", async ()
         occluders,
         "floor_test",
       ),
-      ["chair_sub", "overlay"],
+      ["se_desk", "chair_sub", "overlay"],
     );
   }
 });

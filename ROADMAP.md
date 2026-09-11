@@ -102,9 +102,13 @@ and local raster fallback.
   longer receives the overlapping `ws8_desk`/`ws8_pc` masks but still receives
   `ws8_chair_main`/`ws8_chair_sub`. Focused Python **42**, browser **27**, and
   full pytest **394** pass.
-- [x] Author visual acceptance from the branch preview; the correction was
-  merged into `main` and the temporary feature branch was deleted. The
-  owner-private Sites preview remains available at
+- [x] Implement the follow-up NW-only correction: remove desk/PC masks only
+  for NW-facing workstations while restoring authored SE depth; rebuild the
+  25 floor manifests and add NW-vs-SE regressions.
+- [x] Validate on `codex/nw-only-occlusion`: focused Python **42 passed**,
+  browser **27 passed**, and full pytest **394 passed**.
+- [ ] Author visual acceptance from the NW/SE branch preview before merging
+  into `main`. The owner-private Sites preview remains available at
   `https://boardoffice-occlusion-hotfix.ramet-ball05.chatgpt.site`.
 
 ### VFX charging-aura visual review — 2026-09-09

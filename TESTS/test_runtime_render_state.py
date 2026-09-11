@@ -101,7 +101,7 @@ def test_projector_uses_conversation_aware_walking_occluders():
     row = {
         "employee_id": "EMP_TEST_001",
         "render_owner": "walking_depth",
-        "ground_xy": [288, 329],
+        "ground_xy": [360, 367],
     }
 
     normal_ids = projector._occluder_ids("floor02", row)
@@ -111,8 +111,12 @@ def test_projector_uses_conversation_aware_walking_occluders():
     })
     hold_ids = projector._occluder_ids("floor02", row)
 
+    assert "ws8_desk" in normal_ids
+    assert "ws8_pc" in normal_ids
     assert "ws6_desk" in normal_ids
     assert "ws6_pc" in normal_ids
-    assert "ws6_desk" not in hold_ids
-    assert "ws6_pc" not in hold_ids
+    assert "ws8_desk" not in hold_ids
+    assert "ws8_pc" not in hold_ids
+    assert "ws6_desk" in hold_ids
+    assert "ws6_pc" in hold_ids
     assert {"reception", "foreground_overlay_00"} <= set(hold_ids)

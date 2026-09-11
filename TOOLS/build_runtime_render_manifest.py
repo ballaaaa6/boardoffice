@@ -402,6 +402,8 @@ def build_manifest(
         occluders.append({
             "placement_id": placement_id,
             "object_type": str(row["object_type"]),
+            "workstation_id": row.get("workstation_id"),
+            "interaction_direction": row.get("interaction_direction"),
             "x_px": int(placement["x_px"]),
             "y_px": int(placement["y_px"]),
             "layer": int(row["authored_layer"]),
