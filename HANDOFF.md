@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-11 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow, chair foreground, walking-occluder source-alpha and cross-depth channel composition defects are resolved in engineering across all 25 office floors (219 workstations and employees); live visual confirmation of the latest occlusion corrections remains pending. HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture remains active on `main`; the render-only standing-pair occlusion hotfix is implemented on `codex/standing-pair-occlusion-hotfix` and is awaiting author review before merge. It filters only workstation masks during `standing_pair`/`talk_hold`, leaving authored table/chair assets, depth anchors, navigation and all other routes unchanged. HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
@@ -44,6 +44,22 @@
   reproduction (`EMP_W1_0011` front vs `EMP_W1_0019` rear) now changes 0 opaque
   HumanBall/VFX channel pixels. Browser coverage is **23/23** and the full
   pytest suite is **388 passed**; live visual acceptance remains pending.
+
+- 2026-09-11 implemented the standing-pair workstation-occlusion hotfix on
+  `codex/standing-pair-occlusion-hotfix`. `WalkingDepthCore` now derives a
+  render-only `standing_pair_hold` context from the existing `speech_mode` and
+  `route_phase`, filters only `desk`, `pc`, `chair` and `chair_sub` masks, and
+  keeps reception/foreground overlays eligible. The Python raster renderer,
+  metadata projector and browser Canvas resolver use the same rule; normal,
+  outbound, return, `seated_host` and `ceo_front` depth behavior is unchanged.
+  Latest focused Python tests are **40 passed**, browser tests **27 passed**,
+  and the full Python suite is **392 passed**. Room Navigation, Navigation
+  Occupancy, WorkSeat, WorkSeat Lifecycle, F2 gameplay-family, conversation
+  and walking-depth-profile audits pass. Phase 6 and Central still report the
+  documented pre-existing `floor_skins`/placement/reference and foreground-
+  fragment mismatches. Live floor02 review after reloading the branch code at
+  normal/accelerated/zoomed playback showed the standing pair visible over the
+  workstation area; final author visual acceptance and merge remain pending.
 
 - 2026-09-11 motion-smoothness diagnostic completed without source/runtime
   changes. The live viewer's RAF trace was approximately 6.7–7.1ms per frame
@@ -1220,10 +1236,19 @@ Existing unrelated gates:
    the remaining central-audit reference mismatches before calling the
    repository fully green.
 
+Diagnostic review on 2026-09-11: the supplied crop and live
+`http://127.0.0.1:8001/?floor=floor02` Canvas viewer showed the gray foreground
+shape belongs to the chair/foreground-chair family. The root cause is the
+intersection of fine-grid talk spacing (4 V cells = 8x4 screen pixels), 32x42
+character bounds and intentional Y-depth/source-alpha furniture masking—not a
+globally oversized desk sprite. The follow-up policy is now implemented only
+on the branch above; no canonical asset, floor manifest, navigation or table
+depth data changed.
+
 No release archive was rebuilt in this session. The 21-effect VFX catalog and
 44-item default popup pool are engineering-integrated; visual review of the
 ten new VFX and 38 office HumanBalls remains acceptance-pending. The other
 cinematic-v3 sprites remain review-only. `main` remains the rollback/reference
-path.
+path; the hotfix branch is the review candidate and has not been merged.
 
 **Active handoff:** this file only. `ROADMAP.md` is the single active milestone plan.

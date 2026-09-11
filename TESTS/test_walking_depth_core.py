@@ -65,6 +65,74 @@ def test_occluder_selection_uses_character_ground_depth_not_static_layer():
     assert 'ws3_pc' not in front_ids
 
 
+def test_standing_pair_hold_filters_only_workstation_occluders():
+    depth = WalkingDepthCore(ROOT / 'WORLD')
+    ground = (288, 329)
+    normal_ids = [
+        row['placement_id']
+        for row in depth.occluders_for_render('floor02', ground)
+    ]
+    hold_ids = [
+        row['placement_id']
+        for row in depth.occluders_for_render(
+            'floor02',
+            ground,
+            speech_mode='standing_pair',
+            route_phase='talk_hold',
+        )
+    ]
+
+    assert 'ws6_desk' in normal_ids
+    assert 'ws6_pc' in normal_ids
+    assert 'ws6_chair_main' in normal_ids
+    assert 'ws6_desk' not in hold_ids
+    assert 'ws6_pc' not in hold_ids
+    assert 'ws6_chair_main' not in hold_ids
+    assert 'reception' in hold_ids
+    assert {'foreground_overlay_00', 'foreground_overlay_01', 'foreground_overlay_02'} <= set(hold_ids)
+
+    for speech_mode, route_phase in (
+        ('standing_pair', 'talk_outbound'),
+        ('standing_pair', 'talk_return'),
+        ('seated_host', 'talk_hold'),
+        ('ceo_front', 'talk_hold'),
+        (None, None),
+    ):
+        assert [
+            row['placement_id']
+            for row in depth.occluders_for_render(
+                'floor02',
+                ground,
+                speech_mode=speech_mode,
+                route_phase=route_phase,
+            )
+        ] == normal_ids
+
+
+def test_standing_pair_hold_preserves_actor_pixels_over_workstation_mask():
+    depth = WalkingDepthCore(ROOT / 'WORLD')
+    sprite = Image.new('RGBA', (32, 42), (255, 0, 255, 255))
+    ground = (288, 329)
+
+    normal = depth._mask_character_by_world_occluders(
+        'floor02',
+        sprite,
+        ground,
+        ground_anchor_px=(16, 31),
+    )
+    hold = depth._mask_character_by_world_occluders(
+        'floor02',
+        sprite,
+        ground,
+        ground_anchor_px=(16, 31),
+        speech_mode='standing_pair',
+        route_phase='talk_hold',
+    )
+
+    assert min(normal.getchannel('A').getdata()) == 0
+    assert hold.getchannel('A').getextrema() == (255, 255)
+
+
 def test_composite_character_redraws_selected_real_asset_occluders():
     depth = WalkingDepthCore(ROOT / 'WORLD')
     rows = _by_id(depth.resolve_occluders('floor00'))

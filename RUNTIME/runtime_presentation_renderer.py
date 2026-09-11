@@ -366,6 +366,8 @@ class RuntimePresentationRenderer:
                 sprite,
                 (float(ground[0]), float(ground[1])),
                 ground_anchor_px=self.CHARACTER_ANCHOR_PX,
+                speech_mode=row.get("speech_mode"),
+                route_phase=row.get("route_phase"),
             )
         except Exception as exc:
             raise RuntimePresentationRenderError(

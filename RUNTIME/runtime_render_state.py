@@ -149,7 +149,12 @@ class RuntimeRenderStateProjector:
         try:
             return [
                 str(item["placement_id"])
-                for item in self.core.walking_depth.occluders_in_front(floor_id, ground)
+                for item in self.core.walking_depth.occluders_for_render(
+                    floor_id,
+                    ground,
+                    speech_mode=row.get("speech_mode"),
+                    route_phase=row.get("route_phase"),
+                )
                 if isinstance(item, dict) and item.get("placement_id")
             ]
         except Exception as exc:

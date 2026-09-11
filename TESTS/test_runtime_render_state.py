@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from RUNTIME.central_core import CentralGameCore
+from RUNTIME.runtime_render_state import RuntimeRenderStateProjector
 from RUNTIME.runtime_presentation_renderer import RuntimePresentationLoop
 
 
@@ -92,3 +93,26 @@ def test_projector_emits_small_json_state_without_runtime_or_image_fields(monkey
     assert all("runtime_snapshot" not in actor for actor in state["actors"])
     json.dumps(state, ensure_ascii=False, sort_keys=True)
     assert len(json.dumps(state, ensure_ascii=False, separators=(",", ":"))) < 20_000
+
+
+def test_projector_uses_conversation_aware_walking_occluders():
+    core = CentralGameCore(ROOT)
+    projector = RuntimeRenderStateProjector(core)
+    row = {
+        "employee_id": "EMP_TEST_001",
+        "render_owner": "walking_depth",
+        "ground_xy": [288, 329],
+    }
+
+    normal_ids = projector._occluder_ids("floor02", row)
+    row.update({
+        "speech_mode": "standing_pair",
+        "route_phase": "talk_hold",
+    })
+    hold_ids = projector._occluder_ids("floor02", row)
+
+    assert "ws6_desk" in normal_ids
+    assert "ws6_pc" in normal_ids
+    assert "ws6_desk" not in hold_ids
+    assert "ws6_pc" not in hold_ids
+    assert {"reception", "foreground_overlay_00"} <= set(hold_ids)

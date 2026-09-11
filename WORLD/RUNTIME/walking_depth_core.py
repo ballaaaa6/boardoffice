@@ -24,6 +24,8 @@ class WalkingDepthCore:
     """
 
     FOOTPRINT_TYPES = frozenset({'desk', 'chair', 'reception'})
+    WORKSTATION_OCCLUDER_TYPES = frozenset({'desk', 'pc', 'chair', 'chair_sub'})
+    STANDING_PAIR_HOLD_CONTEXT = 'standing_pair_hold'
 
     def __init__(
         self,
@@ -284,6 +286,53 @@ class WalkingDepthCore:
                 selected.append(row)
         return selected
 
+    @classmethod
+    def resolve_occlusion_context(
+        cls,
+        *,
+        speech_mode: str | None = None,
+        route_phase: str | None = None,
+    ) -> str:
+        """Resolve the render-only exception for a stationary standing pair.
+
+        The authored furniture depth remains the default everywhere.  A pair
+        that has arrived at its conversation endpoint is the one deliberate
+        exception: workstation components should stay behind both speakers so
+        the conversation pose is readable.  ``route_phase`` makes the rule
+        self-reverting as soon as the return route starts.
+        """
+        if speech_mode == 'standing_pair' and route_phase == 'talk_hold':
+            return cls.STANDING_PAIR_HOLD_CONTEXT
+        return 'normal'
+
+    def occluders_for_render(
+        self,
+        floor_id: str,
+        character_ground: float | tuple[float, float] | list[float],
+        *,
+        speech_mode: str | None = None,
+        route_phase: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Return world occluders for one render row.
+
+        This is intentionally layered on top of :meth:`occluders_in_front`:
+        normal walkers, seated-host talks, CEO-front talks, outbound motion
+        and return motion retain the exact existing depth result.  Only the
+        standing-pair hold removes workstation component masks; foreground
+        overlays and reception remain eligible to occlude as authored.
+        """
+        selected = self.occluders_in_front(floor_id, character_ground)
+        if self.resolve_occlusion_context(
+            speech_mode=speech_mode,
+            route_phase=route_phase,
+        ) != self.STANDING_PAIR_HOLD_CONTEXT:
+            return selected
+        return [
+            row
+            for row in selected
+            if row.get('object_type') not in self.WORKSTATION_OCCLUDER_TYPES
+        ]
+
     def actor_draws_over_reception(
         self,
         floor_id: str,
@@ -340,6 +389,8 @@ class WalkingDepthCore:
         ground_xy: tuple[float, float],
         *,
         ground_anchor_px: tuple[int, int],
+        speech_mode: str | None = None,
+        route_phase: str | None = None,
     ) -> Image.Image:
         """Return the actor with front-world pixels removed from actor alpha.
 
@@ -350,7 +401,12 @@ class WalkingDepthCore:
         actor = sprite.convert('RGBA').copy()
         actor_alpha = actor.getchannel('A')
         ax0, ay0, ax1, ay1 = self._actor_bbox(actor, ground_xy, ground_anchor_px)
-        for row in self.occluders_in_front(floor_id, ground_xy):
+        for row in self.occluders_for_render(
+            floor_id,
+            ground_xy,
+            speech_mode=speech_mode,
+            route_phase=route_phase,
+        ):
             placement = row['placement']
             occluder = self._load_occluder_visual(row)
             ox0 = int(placement['x_px'])

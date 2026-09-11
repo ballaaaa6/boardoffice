@@ -303,6 +303,43 @@ def test_runtime_renderer_reuses_seated_base_composition_without_aliasing_overla
     assert first.tobytes() == second.tobytes()
 
 
+def test_runtime_renderer_scopes_workstation_occlusion_to_standing_pair_hold():
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    first_employee, _second_employee, _ceo = _ids(core)
+    presentation = core.resolve_runtime_presentation(
+        runtime,
+        at_ms=0,
+        floor_id='floor02',
+        validate=False,
+    )
+    row = copy.deepcopy(presentation['actors'][first_employee])
+    row.update({
+        'render_owner': 'walking_depth',
+        'action': 'idle',
+        'resolved_action': 'idle',
+        'subaction': 'idle',
+        'resolved_subaction': 'idle',
+        'ground_xy': [288, 329],
+        'dialogue_visible': False,
+        'speech_mode': 'standing_pair',
+        'route_phase': 'talk_hold',
+    })
+    hold_presentation = copy.deepcopy(presentation)
+    hold_presentation['actors'] = {first_employee: row}
+    hold_presentation['paint_order']['characters'] = [first_employee]
+
+    normal_presentation = copy.deepcopy(hold_presentation)
+    normal_presentation['actors'][first_employee]['speech_mode'] = None
+    normal_presentation['actors'][first_employee]['route_phase'] = 'talk_return'
+
+    renderer = RuntimePresentationRenderer(core)
+    normal = renderer.render_presentation(normal_presentation, floor_id='floor02')
+    hold = renderer.render_presentation(hold_presentation, floor_id='floor02')
+
+    assert normal.tobytes() != hold.tobytes()
+
+
 def test_runtime_renderer_paints_shared_emotion_and_return_window():
     core = CentralGameCore(ROOT)
     runtime = _quiet_runtime(core)

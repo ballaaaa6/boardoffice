@@ -77,6 +77,24 @@ and local raster fallback.
   0 source-alpha mismatches.
 - [ ] Author visual confirmation of walking occlusion in the live viewer.
 
+### Standing-pair workstation occlusion hotfix — 2026-09-11
+
+- [x] Trace the standing-pair overlap to the render-time workstation alpha
+  mask, without changing table/chair assets, authored depth anchors, talk
+  spacing or navigation geometry.
+- [x] Add a render-only `standing_pair_hold` policy that filters only `desk`,
+  `pc`, `chair` and `chair_sub` occluders for both standing speakers while
+  retaining reception/foreground overlays and the normal depth rule elsewhere.
+- [x] Mirror the policy in the Python raster renderer, lean metadata projector
+  and browser Canvas resolver; cover hold, outbound, return and other talk
+  modes with regression tests.
+- [x] Validate on `codex/standing-pair-occlusion-hotfix`: focused Python
+  **40 passed**, browser **27 passed**, full pytest **392 passed**, and the
+  relevant navigation/WorkSeat/conversation/depth audits pass. The existing
+  Phase 6/Central reference mismatches remain unrelated.
+- [ ] Author visual acceptance from the branch preview and decide whether to
+  merge into `main`.
+
 ### VFX charging-aura visual review — 2026-09-09
 
 - [x] Produce a fresh curved-volume ten-frame native 33x65 review in
