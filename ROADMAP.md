@@ -102,8 +102,9 @@ and local raster fallback.
   longer receives the overlapping `ws8_desk`/`ws8_pc` masks but still receives
   `ws8_chair_main`/`ws8_chair_sub`. Focused Python **42**, browser **27**, and
   full pytest **394** pass.
-- [ ] Author visual acceptance from the branch preview and decide whether to
-  merge into `main`. An owner-private Sites preview is available at
+- [x] Author visual acceptance from the branch preview; the correction was
+  merged into `main` and the temporary feature branch was deleted. The
+  owner-private Sites preview remains available at
   `https://boardoffice-occlusion-hotfix.ramet-ball05.chatgpt.site`.
 
 ### VFX charging-aura visual review — 2026-09-09
