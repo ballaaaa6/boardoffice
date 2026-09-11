@@ -7,16 +7,15 @@ import pytest
 from PIL import Image
 
 from RUNTIME.central_core import CentralGameCore
-from RUNTIME.runtime_presentation_renderer import (
-    RuntimePresentationLoop,
-    RuntimePresentationRenderError,
-    RuntimePresentationRenderer,
-)
 from RUNTIME.runtime_presentation_host import (
     RuntimePresentationHostAdapter,
     RuntimePresentationHostError,
 )
-
+from RUNTIME.runtime_presentation_renderer import (
+    RuntimePresentationLoop,
+    RuntimePresentationRenderer,
+    RuntimePresentationRenderError,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -397,6 +396,125 @@ def test_runtime_humanball_does_not_wrap_after_one_shot_timeline():
         floor_id="floor02",
     )
     assert with_popup.tobytes() == without_popup.tobytes()
+
+
+@pytest.mark.parametrize(
+    ("channel_name", "asset_id", "assignment_key"),
+    [
+        ("humanball", "controller", "humanball_id"),
+        ("office_humanball", "office.food_drinks.pizza", "humanball_id"),
+        ("vfx", "low_battery_drain", "effect_id"),
+    ],
+)
+def test_runtime_renderer_keeps_front_workseat_channels_above_rear_walker(
+    channel_name: str,
+    asset_id: str,
+    assignment_key: str,
+):
+    """A rear walker must not overwrite an active front owner's channel alpha."""
+    core = CentralGameCore(ROOT)
+    runtime = _quiet_runtime(core)
+    presentation = core.resolve_runtime_presentation(
+        runtime,
+        at_ms=0,
+        floor_id="floor02",
+        validate=False,
+    )
+    owner_id = "EMP_W1_0011"
+    walker_id = "EMP_W1_0019"
+    owner = presentation["actors"][owner_id]
+    is_humanball = channel_name in {"humanball", "office_humanball"}
+    channel_frame_key = "humanball_frame_index" if is_humanball else "effect_frame_index"
+    channel = {"asset_id": asset_id, channel_frame_key: 0}
+
+    without_walker = copy.deepcopy(presentation)
+    without_walker["actors"][owner_id]["channels"] = {channel_name: channel}
+
+    with_walker = copy.deepcopy(without_walker)
+    rear_walker = copy.deepcopy(with_walker["actors"][walker_id])
+    rear_walker.update({
+        "render_owner": "walking_depth",
+        "action": "idle",
+        "resolved_action": "idle",
+        "subaction": "idle",
+        "resolved_subaction": "idle",
+        "ground_xy": [341, 332],
+        "channels": {},
+        "dialogue": {"visible": False, "text": ""},
+    })
+    with_walker["actors"][walker_id] = rear_walker
+    with_walker["paint_order"]["characters"] = [walker_id]
+
+    renderer = RuntimePresentationRenderer(core)
+    base_image = renderer.render_presentation(without_walker, floor_id="floor02")
+    rear_image = renderer.render_presentation(with_walker, floor_id="floor02")
+
+    assignment = {
+        "workstation_id": "ws8",
+        "character_id": owner["character_id"],
+        "subaction": "normal_work",
+        "character_frame_index": 0,
+        assignment_key: asset_id,
+        channel_frame_key: 0,
+    }
+    by_workstation, _rendered = core.work_seats._resolve_floor_assignment_data(
+        "floor02",
+        [assignment],
+        frame_index=0,
+        character_frame_index=0,
+        effect_frame_index=0,
+        humanball_frame_index=0,
+    )
+    data = by_workstation["ws8"]
+    if is_humanball:
+        channel_image = data["humanball"]
+        channel_x = data["humanball_x_px"]
+        channel_y = data["humanball_y_px"]
+    else:
+        channel_image = data["effect"]
+        channel_x = data["effect_x_px"]
+        channel_y = data["effect_y_px"]
+
+    opaque_pixels = [
+        (channel_x + x, channel_y + y)
+        for y in range(channel_image.height)
+        for x in range(channel_image.width)
+        if channel_image.getpixel((x, y))[3] == 255
+    ]
+    assert opaque_pixels
+    assert [
+        point
+        for point in opaque_pixels
+        if base_image.getpixel(point) != rear_image.getpixel(point)
+    ] == []
+
+
+def test_runtime_channel_mask_only_applies_when_channel_owner_is_closer():
+    core = CentralGameCore(ROOT)
+    renderer = RuntimePresentationRenderer(core)
+    sprite = Image.new("RGBA", (4, 4), (255, 0, 0, 255))
+    channel = Image.new("RGBA", (4, 4), (0, 255, 0, 255))
+    layer = {
+        "channel": "humanball",
+        "owner_ground_y": 101,
+        "image": channel,
+        "box": (84, 69, 88, 73),
+    }
+
+    masked = renderer._mask_walking_sprite_by_channel_layers(
+        sprite,
+        (100, 100),
+        [layer],
+    )
+    assert masked.getchannel("A").getbbox() is None
+
+    layer["owner_ground_y"] = 99
+    visible = renderer._mask_walking_sprite_by_channel_layers(
+        sprite,
+        (100, 100),
+        [layer],
+    )
+    assert visible.getchannel("A").getbbox() == (0, 0, 4, 4)
 
 
 def test_talk_return_seat_entry_transition_owns_pose_until_normal_work():

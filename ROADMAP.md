@@ -27,6 +27,11 @@ and local raster fallback.
 - [x] Implement 25-floor dynamic switcher with zero page reloads and instant simulation reset.
 - [x] Complete dialogue bubble fitting enforcement (<= 63px safe rect, fixed 9px font, no clipping)
   and dynamic conversational animation frames (M28/M45, M8/M9, happy/sad emotions).
+- [x] Diagnose the reported walking jitter at the presentation boundary: live
+  RAF pacing is stable (~145Hz, no >20ms gaps or long tasks); the remaining
+  perceived unevenness is attributable to fixed 60ms state timing, integer
+  walker placement after interpolation, a two-pose walk cycle and fractional
+  pixel-art CSS scaling. No implementation change was made in this diagnostic.
 - [x] Make Zero-API browser mode (`WEB/viewer.html`) the primary production architecture while
   retaining Python as offline data oracle, bundle compiler, and review fallback.
 - [x] Remove the PC animation frame-swap flash by preloading workstation PC
@@ -353,6 +358,19 @@ and local raster fallback.
 - [x] Prevent a HumanBall presentation from wrapping back to frame 0 when its
   2–4 second recovery window exceeds the 12-frame / 2,880ms visual timeline;
   cover the one-shot/termination boundary with Python and Browser regressions.
+- [x] Define the cross-channel depth rule: VFX, canonical HumanBall and office
+  HumanBall inherit their work-seat owner's ground depth; larger ground Y is
+  closer/front, the rear walker cannot erase a closer channel, and equal-depth
+  behavior keeps the existing tie rule.
+- [x] Implement browser/Python parity by resolving active channel layers as
+  alpha descriptors and applying destination-out/alpha subtraction only to a
+  walking actor buffer when the channel owner is closer. Retain authored
+  workstation layers and avoid comparing raw ground Y with component layers.
+- [x] Add floor02 front-owner/rear-walker regressions for VFX, canonical and
+  office HumanBall, hidden frames, reverse depth and mirrored/transparent VFX;
+  browser coverage is 23/23 and the full Python suite is 388 passed.
+- [ ] Complete the all-floor visual scan and author visual acceptance of the
+  cross-depth correction alongside the existing occluder/VFX/HumanBall review.
 - [ ] Author visual acceptance of the 38-item artwork remains open; the
   requested 44-item default gameplay merge is now implemented.
 - [x] Align the `floor06/ws3` WorkSeat expectation with its authored static

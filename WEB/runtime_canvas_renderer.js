@@ -38,6 +38,15 @@ function validPoint(value) {
     && Number.isFinite(Number(value[1]));
 }
 
+function boxesOverlap(left, right) {
+  return !(
+    left[2] <= right[0]
+    || left[0] >= right[2]
+    || left[3] <= right[1]
+    || left[1] >= right[3]
+  );
+}
+
 function interpolatePoint(previous, current, progress) {
   if (!validPoint(previous) || !validPoint(current)) return current;
   return [
@@ -436,30 +445,51 @@ export class RuntimeCanvasRenderer {
     return true;
   }
 
-  _drawEffect(context, entry) {
-    const effect = this.manifest?.effects?.[entry.channel?.asset_id];
-    if (!effect) return false;
-    const direction = String(entry.row?.resolved_direction || entry.workstation.direction || "NW").toUpperCase();
-    const frames = effect.frames?.[direction] || effect.frames?.NW || [];
-    if (!frames.length) return false;
-    const index = integerOr(entry.channel?.effect_frame_index, 0);
-    const frame = frames[((index % frames.length) + frames.length) % frames.length];
-    const image = this._readyImage(frame.url);
-    if (!image) return false;
-    const topLeft = this._characterTopLeft(entry.row, entry.workstation);
-    const offset = entry.workstation.effect_world_offset || [0, 0];
-    const x = topLeft[0] + integerOr(offset[0]);
-    const y = topLeft[1] + integerOr(offset[1]);
-    if (!frame.mirror_x) {
-      context.drawImage(image, x, y);
+  _drawLayerDescriptor(context, descriptor, offsetX = 0, offsetY = 0) {
+    if (!descriptor?.image) return false;
+    const x = numberOr(descriptor.x) + numberOr(offsetX);
+    const y = numberOr(descriptor.y) + numberOr(offsetY);
+    if (!descriptor.mirrorX) {
+      context.drawImage(descriptor.image, x, y);
       return true;
     }
     context.save();
-    context.translate(x + image.width, y);
+    context.translate(x + descriptor.image.width, y);
     context.scale(-1, 1);
-    context.drawImage(image, 0, 0);
+    context.drawImage(descriptor.image, 0, 0);
     context.restore();
     return true;
+  }
+
+  _effectDescriptor(row, workstation, channel) {
+    const effect = this.manifest?.effects?.[channel?.asset_id];
+    if (!effect) return null;
+    const direction = String(row?.resolved_direction || workstation.direction || "NW").toUpperCase();
+    const frames = effect.frames?.[direction] || effect.frames?.NW || [];
+    if (!frames.length) return null;
+    const index = integerOr(channel?.effect_frame_index, 0);
+    const frame = frames[((index % frames.length) + frames.length) % frames.length];
+    const image = this._readyImage(frame.url);
+    if (!image) return null;
+    const topLeft = this._characterTopLeft(row, workstation);
+    if (!topLeft) return null;
+    const offset = workstation.effect_world_offset || [0, 0];
+    const x = topLeft[0] + integerOr(offset[0]);
+    const y = topLeft[1] + integerOr(offset[1]);
+    return {
+      channel: "vfx",
+      ownerGroundY: this._workSeatGroundY(row, workstation, topLeft),
+      image,
+      x,
+      y,
+      mirrorX: Boolean(frame.mirror_x),
+      box: [x, y, x + image.width, y + image.height],
+    };
+  }
+
+  _drawEffect(context, entry) {
+    const descriptor = this._effectDescriptor(entry.row, entry.workstation, entry.channel);
+    return this._drawLayerDescriptor(context, descriptor);
   }
 
   _characterTopLeft(row, workstation = null) {
@@ -474,6 +504,13 @@ export class RuntimeCanvasRenderer {
     return null;
   }
 
+  _workSeatGroundY(row, workstation = null, topLeft = null) {
+    const resolvedTopLeft = topLeft || this._characterTopLeft(row, workstation);
+    if (!resolvedTopLeft) return null;
+    const anchorY = integerOr(row?.anchor_xy?.[1], DEFAULT_ANCHOR[1]);
+    return numberOr(resolvedTopLeft[1]) + anchorY;
+  }
+
   _ensureActorCanvas() {
     if (this.actorCanvas) return;
     const documentRef = this.canvas.ownerDocument || globalThis.document;
@@ -486,7 +523,7 @@ export class RuntimeCanvasRenderer {
     this.actorCtx.imageSmoothingEnabled = false;
   }
 
-  _drawWalkingActor(context, row, seatedRows = []) {
+  _drawWalkingActor(context, row, seatedRows = [], channelOccluders = []) {
     if (!row?.visible || row.render_owner !== "walking_depth") return false;
     const topLeft = this._characterTopLeft(row);
     if (!topLeft) return false;
@@ -544,6 +581,22 @@ export class RuntimeCanvasRenderer {
       }
     }
 
+    // Work-seat VFX and HumanBall channels are already present on the main
+    // canvas, but walking actors are composited afterward. Remove only the
+    // channel alpha belonging to a closer work-seat owner from this actor
+    // buffer so the existing main-canvas channel remains in front.
+    for (const channel of channelOccluders) {
+      if (!channel || channel.ownerGroundY == null) continue;
+      if (numberOr(channel.ownerGroundY) <= walkingGroundY) continue;
+      if (!boxesOverlap(walkingBox, channel.box)) continue;
+      this._drawLayerDescriptor(
+        this.actorCtx,
+        channel,
+        -topLeft[0],
+        -topLeft[1],
+      );
+    }
+
     this.actorCtx.restore();
     context.save();
     context.globalAlpha = clamp(numberOr(row.visibility_alpha, 1), 0, 1);
@@ -560,34 +613,73 @@ export class RuntimeCanvasRenderer {
     this._drawHumanballChannel(context, rows, "office_humanball", "office_humanballs");
   }
 
+  _humanballDescriptor(row, channelName, manifestKey) {
+    const channel = row?.channels?.[channelName];
+    const workstation = this.manifest?.workstations?.[row?.workstation_id];
+    const humanball = this.manifest?.[manifestKey]?.[channel?.asset_id]
+      || (channelName === "humanball"
+        ? this.manifest?.office_humanballs?.[channel?.asset_id]
+        : null);
+    if (!channel || !workstation || !humanball) return null;
+    const frameIndex = integerOr(channel.humanball_frame_index, 0);
+    const visibleFrameCount = Math.max(
+      0,
+      integerOr(humanball.visible_frame_count, 10),
+    );
+    // A recovery event can outlive the 12-frame HumanBall timeline. The
+    // visual must remain hidden after its ten visible frames, never wrap to
+    // the first icon frame while the same event is still active.
+    if (frameIndex >= visibleFrameCount) return null;
+    const offsets = workstation.humanball_offsets?.[workstation.direction] || [];
+    if (!offsets.length) return null;
+    const offset = offsets[((frameIndex % offsets.length) + offsets.length) % offsets.length];
+    if (!offset) return null;
+    const image = this._readyImage(humanball.url);
+    if (!image) return null;
+    const topLeft = this._characterTopLeft(row, workstation);
+    if (!topLeft) return null;
+    const x = topLeft[0] + integerOr(offset[0]);
+    const y = topLeft[1] + integerOr(offset[1]);
+    return {
+      channel: channelName,
+      ownerGroundY: this._workSeatGroundY(row, workstation, topLeft),
+      image,
+      x,
+      y,
+      mirrorX: false,
+      box: [x, y, x + image.width, y + image.height],
+    };
+  }
+
   _drawHumanballChannel(context, rows, channelName, manifestKey) {
     for (const row of rows) {
       if (!row?.visible || row.render_owner !== "work_seat") continue;
-      const channel = row.channels?.[channelName];
-      const workstation = this.manifest?.workstations?.[row.workstation_id];
-      const humanball = this.manifest?.[manifestKey]?.[channel?.asset_id]
-        || (channelName === "humanball"
-          ? this.manifest?.office_humanballs?.[channel?.asset_id]
-          : null);
-      if (!channel || !workstation || !humanball) continue;
-      const frameIndex = integerOr(channel.humanball_frame_index, 0);
-      const visibleFrameCount = Math.max(
-        0,
-        integerOr(humanball.visible_frame_count, 10),
-      );
-      // A recovery event can outlive the 12-frame HumanBall timeline. The
-      // visual must remain hidden after its ten visible frames, never wrap to
-      // the first icon frame while the same event is still active.
-      if (frameIndex >= visibleFrameCount) continue;
-      const offsets = workstation.humanball_offsets?.[workstation.direction] || [];
-      const offset = offsets[((frameIndex % offsets.length) + offsets.length) % offsets.length];
-      if (!offset) continue;
-      const image = this._readyImage(humanball.url);
-      if (!image) continue;
-      const topLeft = this._characterTopLeft(row, workstation);
-      if (!topLeft) continue;
-      context.drawImage(image, topLeft[0] + integerOr(offset[0]), topLeft[1] + integerOr(offset[1]));
+      const descriptor = this._humanballDescriptor(row, channelName, manifestKey);
+      this._drawLayerDescriptor(context, descriptor);
     }
+  }
+
+  _activeChannelOccluders(rows) {
+    const result = [];
+    for (const row of rows) {
+      if (!row?.visible || row.render_owner !== "work_seat") continue;
+      const workstation = this.manifest?.workstations?.[row.workstation_id];
+      if (!workstation) continue;
+      const effect = row.channels?.vfx;
+      if (effect?.asset_id) {
+        const descriptor = this._effectDescriptor(row, workstation, effect);
+        if (descriptor) result.push(descriptor);
+      }
+      const humanball = this._humanballDescriptor(row, "humanball", "humanballs");
+      if (humanball) result.push(humanball);
+      const officeHumanball = this._humanballDescriptor(
+        row,
+        "office_humanball",
+        "office_humanballs",
+      );
+      if (officeHumanball) result.push(officeHumanball);
+    }
+    return result;
   }
 
   _bubbleSpec(dialogue) {
@@ -668,6 +760,7 @@ export class RuntimeCanvasRenderer {
     const rows = this._stateRows(nowMs);
     const dynamicEntries = this._dynamicEntries(rows);
     const seatedRows = rows.filter((row) => row?.visible && row.render_owner === "work_seat");
+    const channelOccluders = this._activeChannelOccluders(rows);
     const byId = new Map(rows.map((row) => [row.employee_id, row]));
     const orderedIds = [
       ...(this.state.paint_order?.characters || []),
@@ -688,7 +781,7 @@ export class RuntimeCanvasRenderer {
     // ground-Y ordered by the browser core, while static entries above retain
     // their authored manifest layers.
     for (const employeeId of orderedIds) {
-      this._drawWalkingActor(context, byId.get(employeeId), seatedRows);
+      this._drawWalkingActor(context, byId.get(employeeId), seatedRows, channelOccluders);
     }
     for (const overlay of this.manifest.overlays || []) {
       this._drawRecord(context, overlay, overlay.x_px, overlay.y_px);

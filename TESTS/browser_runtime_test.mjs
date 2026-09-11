@@ -805,6 +805,142 @@ test("canvas renderer occludes walking actors behind seated characters and works
   assert.deepEqual(maskedSeated, ["EMP_SEATED"]);
 });
 
+test("canvas renderer masks rear walkers behind active seated VFX and HumanBall channels", async () => {
+  const { RuntimeCanvasRenderer } = await import("../WEB/runtime_canvas_renderer.js");
+  const calls = [];
+  const makeContext = (name) => {
+    const state = { globalCompositeOperation: "source-over", globalAlpha: 1 };
+    const stack = [];
+    return {
+      get globalCompositeOperation() {
+        return state.globalCompositeOperation;
+      },
+      set globalCompositeOperation(value) {
+        state.globalCompositeOperation = value;
+      },
+      get globalAlpha() {
+        return state.globalAlpha;
+      },
+      set globalAlpha(value) {
+        state.globalAlpha = value;
+      },
+      imageSmoothingEnabled: false,
+      clearRect: () => {},
+      drawImage: (image, ...args) => calls.push({
+        target: name,
+        source: image?.name,
+        operation: state.globalCompositeOperation,
+        args,
+      }),
+      save: () => stack.push({ ...state }),
+      restore: () => {
+        const previous = stack.pop();
+        if (previous) Object.assign(state, previous);
+      },
+      translate: () => {},
+      scale: () => {},
+    };
+  };
+  const mainContext = makeContext("main");
+  const actorContext = makeContext("actor");
+  const fakeCanvas = {
+    width: 600,
+    height: 600,
+    getContext: () => mainContext,
+    ownerDocument: {
+      createElement: () => ({
+        width: 32,
+        height: 42,
+        getContext: () => actorContext,
+      }),
+    },
+  };
+  const renderer = new RuntimeCanvasRenderer({
+    canvas: fakeCanvas,
+    manifestUrl: "http://127.0.0.1/render.json",
+    imageFactory: () => ({ complete: true, naturalWidth: 1, width: 1, height: 1 }),
+  });
+  renderer._readyImage = (url) => ({
+    name: url,
+    width: url === "vfx.png" ? 33 : url.endsWith("humanball.png") ? 18 : 600,
+    height: url === "vfx.png" ? 65 : url.endsWith("humanball.png") ? 18 : 600,
+  });
+  renderer._drawCharacter = () => true;
+  renderer._drawDialogue = () => {};
+  renderer.manifest = {
+    frame_profile: { canvas: [32, 42] },
+    static_scene: { url: "static.png" },
+    overlays: [],
+    workstations: {
+      ws_front: {
+        direction: "NW",
+        character_layer: 400,
+        effect_layer: 399,
+        character_top_left: [100, 300],
+        effect_world_offset: [0, 0],
+        humanball_offsets: { NW: [[5, 5]] },
+        components: [],
+      },
+    },
+    effects: {
+      test_effect: { frames: { NW: [{ url: "vfx.png", mirror_x: false }] } },
+    },
+    humanballs: {
+      test_popup: { url: "humanball.png", visible_frame_count: 1 },
+    },
+    office_humanballs: {
+      test_office_popup: { url: "office-humanball.png", visible_frame_count: 1 },
+    },
+  };
+  const seated = {
+    employee_id: "EMP_SEATED_FRONT",
+    visible: true,
+    render_owner: "work_seat",
+    workstation_id: "ws_front",
+    character_id: "TP_SEATED",
+    frame_id: "M1",
+    anchor_xy: [16, 31],
+    channels: {
+      vfx: { asset_id: "test_effect", effect_frame_index: 0 },
+      humanball: { asset_id: "test_popup", humanball_frame_index: 0 },
+      office_humanball: { asset_id: "test_office_popup", humanball_frame_index: 0 },
+    },
+  };
+  const walker = {
+    employee_id: "EMP_WALKER_REAR",
+    visible: true,
+    render_owner: "walking_depth",
+    character_id: "TP_WALKER",
+    frame_id: "M1",
+    action: "idle",
+    direction: "NW",
+    ground_xy: [100, 310],
+    anchor_xy: [16, 31],
+  };
+  renderer.state = {
+    schema: "gds.runtime_render_state.v1",
+    floor_id: "floor_test",
+    sequence: 1,
+    clock_ms: 60,
+    actors: [seated, walker],
+    paint_order: { characters: [walker.employee_id] },
+  };
+
+  renderer.render();
+  const rearMaskSources = calls
+    .filter((call) => call.target === "actor" && call.operation === "destination-out")
+    .map((call) => call.source);
+  assert.deepEqual(rearMaskSources, ["vfx.png", "humanball.png", "office-humanball.png"]);
+
+  calls.length = 0;
+  renderer.state.actors[1] = { ...walker, ground_xy: [100, 350] };
+  renderer.render();
+  const frontMaskSources = calls
+    .filter((call) => call.target === "actor" && call.operation === "destination-out")
+    .map((call) => call.source);
+  assert.deepEqual(frontMaskSources, []);
+});
+
 test("canvas renderer keeps HumanBall hidden after its one-shot timeline", async () => {
   const { RuntimeCanvasRenderer } = await import("../WEB/runtime_canvas_renderer.js");
   const drawn = [];

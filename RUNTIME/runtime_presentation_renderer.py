@@ -18,9 +18,9 @@ No simulation snapshot is mutated by this renderer.
 """
 
 import copy
-from typing import Any, Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
-from PIL import Image
+from PIL import Image, ImageChops
 
 from RUNTIME.runtime_render_state import RuntimeRenderStateProjector
 
@@ -37,7 +37,7 @@ class RuntimePresentationRenderer:
 
     CHARACTER_ANCHOR_PX = (16, 31)
 
-    def __init__(self, core: "CentralGameCore"):
+    def __init__(self, core: CentralGameCore):
         self.core = core
         self._sprite_cache: dict[tuple[str, str, str | None, str | None], Any] = {}
         # Live review samples usually reuse the same seated/PC frame for
@@ -136,6 +136,11 @@ class RuntimePresentationRenderer:
                     vfx.get("effect_frame_index", 0)
                 )
             humanball = channels.get("humanball")
+            if not isinstance(humanball, dict) or not humanball.get("asset_id"):
+                # The explicit office channel uses the same WorkSeat render
+                # contract; CharacterSystem routes the selected ID to the
+                # appropriate canonical registry.
+                humanball = channels.get("office_humanball")
             if isinstance(humanball, dict) and humanball.get("asset_id"):
                 assignment["humanball_id"] = str(humanball["asset_id"])
                 assignment["humanball_frame_index"] = int(
@@ -143,14 +148,16 @@ class RuntimePresentationRenderer:
                 )
         return assignment
 
-    def _base_floor(self, floor_id: str, actors: dict[str, dict[str, Any]]) -> Image.Image:
-        assignments = [
+    def _work_assignments(self, actors: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        return [
             self._work_assignment(row)
             for row in actors.values()
             if row.get("visible")
             and row.get("render_owner") == "work_seat"
             and row.get("action") == "work"
         ]
+
+    def _base_floor(self, floor_id: str, assignments: list[dict[str, Any]]) -> Image.Image:
         assignment_key = tuple(
             (
                 str(assignment.get("workstation_id")),
@@ -208,11 +215,137 @@ class RuntimePresentationRenderer:
             self._base_floor_cache.pop(evicted, None)
         return canvas
 
+    @staticmethod
+    def _boxes_overlap(left: tuple[int, int, int, int], right: tuple[int, int, int, int]) -> bool:
+        return not (
+            left[2] <= right[0]
+            or left[0] >= right[2]
+            or left[3] <= right[1]
+            or left[1] >= right[3]
+        )
+
+    def _active_channel_layers(
+        self,
+        floor_id: str,
+        assignments: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Resolve active work-seat channels as world-space alpha layers.
+
+        ``render_floor_with_work_effects`` remains the source of the completed
+        seated scene. This companion resolution exposes only the channel
+        images needed to mask a later walking actor, so the whole base floor
+        is never treated as a depth occluder.
+        """
+        if not any(
+            "effect_id" in assignment or "humanball_id" in assignment
+            for assignment in assignments
+        ):
+            return []
+        try:
+            by_workstation, _rendered = self.core.work_seats._resolve_floor_assignment_data(
+                floor_id,
+                assignments,
+                frame_index=0,
+                character_frame_index=0,
+                effect_frame_index=0,
+                humanball_frame_index=0,
+            )
+        except Exception as exc:
+            raise RuntimePresentationRenderError(
+                f"{floor_id}: cannot resolve work-seat channel layers"
+            ) from exc
+
+        layers: list[dict[str, Any]] = []
+        for data in by_workstation.values():
+            owner_ground_y = int(data["human_y_px"]) + self.CHARACTER_ANCHOR_PX[1]
+            effect = data.get("effect")
+            if (
+                isinstance(effect, Image.Image)
+                and data.get("effect_x_px") is not None
+                and data.get("effect_y_px") is not None
+            ):
+                effect = effect.convert("RGBA")
+                effect_x = int(data["effect_x_px"])
+                effect_y = int(data["effect_y_px"])
+                layers.append({
+                    "channel": "vfx",
+                    "owner_ground_y": owner_ground_y,
+                    "image": effect,
+                    "box": (
+                        effect_x,
+                        effect_y,
+                        effect_x + effect.width,
+                        effect_y + effect.height,
+                    ),
+                })
+
+            humanball = data.get("humanball")
+            if (
+                isinstance(humanball, Image.Image)
+                and data.get("humanball_x_px") is not None
+                and data.get("humanball_y_px") is not None
+            ):
+                humanball = humanball.convert("RGBA")
+                humanball_x = int(data["humanball_x_px"])
+                humanball_y = int(data["humanball_y_px"])
+                layers.append({
+                    "channel": "humanball",
+                    "owner_ground_y": owner_ground_y,
+                    "image": humanball,
+                    "box": (
+                        humanball_x,
+                        humanball_y,
+                        humanball_x + humanball.width,
+                        humanball_y + humanball.height,
+                    ),
+                })
+        return layers
+
+    def _mask_walking_sprite_by_channel_layers(
+        self,
+        sprite: Image.Image,
+        ground: tuple[float, float] | list[float],
+        channel_layers: list[dict[str, Any]],
+    ) -> Image.Image:
+        actor = sprite.convert("RGBA").copy()
+        actor_alpha = actor.getchannel("A")
+        gx, gy = float(ground[0]), float(ground[1])
+        ax0 = round(gx - self.CHARACTER_ANCHOR_PX[0])
+        ay0 = round(gy - self.CHARACTER_ANCHOR_PX[1])
+        actor_box = (ax0, ay0, ax0 + actor.width, ay0 + actor.height)
+        for layer in channel_layers:
+            if float(layer["owner_ground_y"]) <= gy:
+                continue
+            channel_box = layer["box"]
+            if not self._boxes_overlap(actor_box, channel_box):
+                continue
+            ix0 = max(actor_box[0], channel_box[0])
+            iy0 = max(actor_box[1], channel_box[1])
+            ix1 = min(actor_box[2], channel_box[2])
+            iy1 = min(actor_box[3], channel_box[3])
+            actor_crop_box = (ix0 - ax0, iy0 - ay0, ix1 - ax0, iy1 - ay0)
+            channel_crop_box = (
+                ix0 - channel_box[0],
+                iy0 - channel_box[1],
+                ix1 - channel_box[0],
+                iy1 - channel_box[1],
+            )
+            actor_crop = actor_alpha.crop(actor_crop_box)
+            channel_alpha = layer["image"].getchannel("A").crop(channel_crop_box)
+            inverse_channel = ImageChops.invert(channel_alpha)
+            actor_alpha.paste(
+                ImageChops.multiply(actor_crop, inverse_channel),
+                actor_crop_box,
+            )
+        actor.putalpha(actor_alpha)
+        return actor
+
     def _paint_walking_actor(
         self,
         canvas: Image.Image,
         floor_id: str,
         row: dict[str, Any],
+        channel_layers: list[dict[str, Any]] | None = None,
     ) -> None:
         if not row.get("visible") or row.get("render_owner") != "walking_depth":
             return
@@ -224,7 +357,7 @@ class RuntimePresentationRenderer:
         if alpha < 1.0:
             sprite = sprite.copy()
             channel = sprite.getchannel("A").point(
-                lambda value: int(round(value * alpha))
+                lambda value: round(value * alpha)
             )
             sprite.putalpha(channel)
         try:
@@ -238,16 +371,21 @@ class RuntimePresentationRenderer:
             raise RuntimePresentationRenderError(
                 f"{row.get('employee_id', '<actor>')}: walking-depth mask failed"
             ) from exc
-        x = int(round(float(ground[0]) - self.CHARACTER_ANCHOR_PX[0]))
-        y = int(round(float(ground[1]) - self.CHARACTER_ANCHOR_PX[1]))
+        sprite = self._mask_walking_sprite_by_channel_layers(
+            sprite,
+            ground,
+            channel_layers or [],
+        )
+        x = round(float(ground[0]) - self.CHARACTER_ANCHOR_PX[0])
+        y = round(float(ground[1]) - self.CHARACTER_ANCHOR_PX[1])
         canvas.alpha_composite(sprite, (x, y))
 
     def _bubble_actor_top_left(self, row: dict[str, Any]) -> tuple[int, int]:
         ground = row.get("ground_xy")
         if isinstance(ground, (list, tuple)) and len(ground) == 2:
             return (
-                int(round(float(ground[0]) - self.CHARACTER_ANCHOR_PX[0])),
-                int(round(float(ground[1]) - self.CHARACTER_ANCHOR_PX[1])),
+                round(float(ground[0]) - self.CHARACTER_ANCHOR_PX[0]),
+                round(float(ground[1]) - self.CHARACTER_ANCHOR_PX[1]),
             )
         if row.get("render_owner") != "work_seat":
             raise RuntimePresentationRenderError(
@@ -317,7 +455,7 @@ class RuntimePresentationRenderer:
         if opacity < 1.0:
             image = image.copy()
             alpha = image.getchannel("A").point(
-                lambda value: int(round(value * opacity))
+                lambda value: round(value * opacity)
             )
             image.putalpha(alpha)
         canvas.alpha_composite(
@@ -357,12 +495,19 @@ class RuntimePresentationRenderer:
             floor_key = next(iter(floors))
         else:
             floor_key = str(floor_id)
-        canvas = self._base_floor(floor_key, actors)
+        assignments = self._work_assignments(actors)
+        channel_layers = self._active_channel_layers(floor_key, assignments)
+        canvas = self._base_floor(floor_key, assignments)
         order = presentation.get("paint_order", {}).get("characters", [])
         ordered_ids = [employee_id for employee_id in order if employee_id in actors]
         ordered_ids.extend(employee_id for employee_id in sorted(actors) if employee_id not in ordered_ids)
         for employee_id in ordered_ids:
-            self._paint_walking_actor(canvas, floor_key, actors[employee_id])
+            self._paint_walking_actor(
+                canvas,
+                floor_key,
+                actors[employee_id],
+                channel_layers,
+            )
         bubble_order = presentation.get("paint_order", {}).get("dialogue_bubbles", [])
         ordered_bubbles = [employee_id for employee_id in bubble_order if employee_id in actors]
         ordered_bubbles.extend(
@@ -407,7 +552,7 @@ class RuntimePresentationLoop:
 
     def __init__(
         self,
-        core: "CentralGameCore",
+        core: CentralGameCore,
         *,
         runtime_snapshot: dict[str, Any] | None = None,
         floor_id: str | None = None,

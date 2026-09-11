@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-11 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow, chair foreground and walking-occluder source-alpha defects are resolved in the renderer across all 25 office floors (219 workstations and employees); live visual confirmation of the latest occluder correction remains pending. HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is now engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow, chair foreground, walking-occluder source-alpha and cross-depth channel composition defects are resolved in engineering across all 25 office floors (219 workstations and employees); live visual confirmation of the latest occlusion corrections remains pending. HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. A separate 2026-09-11 motion-smoothness diagnostic found stable browser frame pacing but presentation-level pixel quantization; no motion fix was applied. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
@@ -13,8 +13,8 @@
   `_load_occluder_visual` now preserves source alpha exactly, and all 25 floor
   bundles were rebuilt. The rebuilt set contains 845 occluder masks with 0
   source-alpha mismatches. Focused renderer/manifest/state tests passed 36/36;
-  browser runtime tests passed 22/22 and `node --check WEB/viewer_app.js`
-  passed. The full suite is now 384 passed after aligning the stale
+  browser runtime tests passed 23/23 and `node --check WEB/viewer_app.js`
+  passed. The full suite is now 388 passed after aligning the stale
   `floor06/ws3` WorkSeat expectation with its static foreground placement.
   Room Navigation,
   Navigation Occupancy, WorkSeat, WorkSeat Lifecycle and F2 gameplay-family
@@ -33,6 +33,31 @@
   mirror contract. The unified registry is 301 assets (248 effect assets).
   The existing VFX channel and automatic event flow were retained; no new
   floor, character, anchor or gameplay channel was introduced.
+
+- 2026-09-11 fixed the cross-depth composition defect in both render paths.
+  `WEB/runtime_canvas_renderer.js` now resolves active VFX, canonical
+  HumanBall and office HumanBall layers as world-space alpha descriptors and
+  applies `destination-out` only to a walking actor buffer when the channel
+  owner is closer. `RUNTIME/runtime_presentation_renderer.py` applies the
+  equivalent PIL alpha subtraction after world occlusion. Authored workstation
+  layers, static assets and gameplay channels were not changed. The floor02
+  reproduction (`EMP_W1_0011` front vs `EMP_W1_0019` rear) now changes 0 opaque
+  HumanBall/VFX channel pixels. Browser coverage is **23/23** and the full
+  pytest suite is **388 passed**; live visual acceptance remains pending.
+
+- 2026-09-11 motion-smoothness diagnostic completed without source/runtime
+  changes. The live viewer's RAF trace was approximately 6.7–7.1ms per frame
+  (~145Hz), with no gap over 20ms, no long tasks and no console errors, so the
+  symptom is not currently explained by a renderer deadline miss. The likely
+  presentation cause is the combination of a 60ms fixed simulation step,
+  interpolation followed by `Math.round()` when placing the 32x42 walking
+  buffer, a two-pose distance-based walk cycle, and non-integer CSS pixel-art
+  scaling (`scale=1.35` by default; the reviewed user tab was at `3.5`).
+  Focused Python movement/presentation/runtime tests passed **41**, Browser
+  runtime tests passed **22**. Implementation and author smoothness acceptance
+  remain pending; the later fix must choose between crisp integer-pixel
+  rendering and genuinely subpixel-smooth motion rather than treating this as
+  a CPU/FPS failure.
 
 - 2026-09-11 rebuilt the root and all 25 browser floor bundles/manifests after
   the canonical source hash update. Bundle contract validation is **25/25**;
@@ -1135,6 +1160,19 @@
 
 
 ## Next task and open gates
+
+Cross-depth compositor gate: engineering implementation and regression are
+complete for browser and Python fallback. Active VFX/HumanBall layers inherit
+the owner's ground depth; only closer-channel alpha is removed from the walker
+buffer, equal-depth behavior is preserved, and the WorkSeat authored-layer
+compositor remains unchanged. The floor02 overlap is clean in automated pixel
+checks. Live visual/gameplay acceptance of the correction remains pending.
+
+Motion-smoothness diagnostic gate: diagnostic complete, implementation
+intentionally pending author direction. The candidate decision is whether to
+preserve crisp pixel-art snapping with an integer zoom/pixel policy, or permit
+subpixel walker placement (and potentially add more walk poses) for smoother
+perceived motion; current evidence does not point to a machine-side FPS limit.
 
 Current VFX gate: engineering integration of the ten v32 effects into the
 canonical 21-effect system is complete. Author visual/gameplay acceptance of
