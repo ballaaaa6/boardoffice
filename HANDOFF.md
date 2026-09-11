@@ -46,22 +46,27 @@
   pytest suite is **388 passed**; live visual acceptance remains pending.
 
 - 2026-09-11 implemented the standing-pair workstation-occlusion hotfix on
-  `codex/standing-pair-occlusion-hotfix`, but the live preview diagnosed a
-  scope mismatch. `8001` runs from `D:\antigravity\board office` and its HTTP
-  `runtime_render_depth.js` contains the new resolver, so this is not a stale
-  server or browser-cache issue. The viewer's `#btnDemoTalk` handler prefers
-  the `seated_host` plan whenever it exists; floor02's first pair has both
-  plans, so the visitor standing beside the desk is rendered as
-  `seated_host`/`talk_hold`. At the reproduced point the resolver correctly
-  returns no workstation masks for `standing_pair`, but still returns
-  `ws6_chair_main`, `ws6_desk` and `ws6_pc` for `seated_host`, which explains
-  why port 8001 still looked unchanged. The follow-up should scope the
-  render-only rule to the walking visitor in `seated_host` (with any
-  `ceo_front` decision made explicitly), then rerun the existing tests and
-  live visual gate. Existing focused/browser/full test results remain **40**,
-  **27** and **392 passed**; Phase 6/Central still have their documented
-  pre-existing reference mismatches. No asset, table, navigation or manifest
-  change has been made for this diagnosis.
+  `codex/standing-pair-occlusion-hotfix`, then confirmed the remaining defect
+  on both the live hosted preview and an exact Node runtime trace. `8001` runs
+  from `D:\antigravity\board office` and its HTTP `runtime_render_depth.js`
+  contains the new resolver, so this is not a stale server or browser-cache
+  issue. The viewer's `#btnDemoTalk` handler prefers the `seated_host` plan
+  whenever it exists; floor02's first pair (`EMP_W1_0010` → `EMP_W1_0011`) has
+  both plans, so the actual visitor is rendered as
+  `render_owner=walking_depth`, `speech_mode=seated_host`,
+  `route_phase=talk_hold` at `[360, 367]`. The current resolver returns
+  `ws8_desk`, `ws8_pc`, `ws8_chair_main` and `ws8_chair_sub`; those masks
+  overlap the visitor box and Canvas applies them with `destination-out`, so
+  the desk/PC/chair pixels still carve the visitor away. The same pose under
+  `standing_pair` returns no workstation masks. This is the confirmed reason
+  the hosted page and port 8001 still look unchanged. The follow-up should
+  scope the render-only rule to a walking visitor at `talk_hold` in
+  `seated_host` (and explicitly decide whether the analogous `ceo_front`
+  visitor is in scope), then rerun the existing tests and live visual gate.
+  Existing focused/browser/full test results remain **40**, **27** and **392
+  passed**; Phase 6/Central still have their documented pre-existing
+  reference mismatches. No asset, table, navigation or manifest change has
+  been made for this diagnosis.
 
 - 2026-09-11 motion-smoothness diagnostic completed without source/runtime
   changes. The live viewer's RAF trace was approximately 6.7–7.1ms per frame

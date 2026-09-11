@@ -97,6 +97,11 @@ and local raster fallback.
   whether the analogous `ceo_front` visitor is in scope). The current
   `#btnDemoTalk` handler prefers `seated_host`, so the existing
   `standing_pair_hold` patch does not affect the observed visitor.
+- [x] Confirm the mismatch with the deployed preview and an exact runtime
+  trace: floor02's first Talk pair selects `seated_host`; at the hold point
+  the walking visitor still receives the overlapping `ws8_desk`, `ws8_pc`,
+  `ws8_chair_main` and `ws8_chair_sub` masks. This is a render-policy scope
+  issue, not a stale port/cache or table-asset issue.
 - [ ] Author visual acceptance from the branch preview and decide whether to
   merge into `main`. An owner-private Sites preview is available at
   `https://boardoffice-occlusion-hotfix.ramet-ball05.chatgpt.site`.
