@@ -98,7 +98,8 @@ and local raster fallback.
   `#btnDemoTalk` handler prefers `seated_host`, so the existing
   `standing_pair_hold` patch does not affect the observed visitor.
 - [ ] Author visual acceptance from the branch preview and decide whether to
-  merge into `main`.
+  merge into `main`. An owner-private Sites preview is available at
+  `https://boardoffice-occlusion-hotfix.ramet-ball05.chatgpt.site`.
 
 ### VFX charging-aura visual review — 2026-09-09
 
