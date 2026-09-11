@@ -1,3 +1,9 @@
+import { RenderTimeline, sampleRenderRows } from "./runtime_render_timeline.js";
+import {
+  resolveActorOccluderIds,
+  sortCharacterPaintOrder,
+} from "./runtime_render_depth.js";
+
 const DEFAULT_MANIFEST_URL = "/runtime_render_manifest.json";
 const DEFAULT_ANCHOR = [16, 31];
 const DEFAULT_CHARACTER_SIZE = [32, 42];
@@ -22,15 +28,6 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-function sameFloor(left, right) {
-  return Boolean(left && right && left.floor_id === right.floor_id);
-}
-
-function sequential(left, right) {
-  return sameFloor(left, right)
-    && integerOr(right.sequence, -1) === integerOr(left.sequence, -2) + 1;
-}
-
 function validPoint(value) {
   return Array.isArray(value)
     && value.length === 2
@@ -47,14 +44,6 @@ function boxesOverlap(left, right) {
   );
 }
 
-function interpolatePoint(previous, current, progress) {
-  if (!validPoint(previous) || !validPoint(current)) return current;
-  return [
-    numberOr(previous[0]) + (numberOr(current[0]) - numberOr(previous[0])) * progress,
-    numberOr(previous[1]) + (numberOr(current[1]) - numberOr(previous[1])) * progress,
-  ];
-}
-
 function imageIsReady(image) {
   return Boolean(image && image.complete && (image.naturalWidth || image.width));
 }
@@ -66,6 +55,8 @@ export class RuntimeCanvasRenderer {
     imageFactory = () => new Image(),
     fetchImpl = globalThis.fetch?.bind(globalThis),
     now = () => globalThis.performance?.now?.() ?? Date.now(),
+    motionMode = "pixel",
+    renderResolutionScale = 1,
   } = {}) {
     if (!canvas || typeof canvas.getContext !== "function") {
       throw new TypeError("RuntimeCanvasRenderer requires a canvas element");
@@ -81,6 +72,11 @@ export class RuntimeCanvasRenderer {
     this.imageFactory = imageFactory;
     this.fetchImpl = fetchImpl;
     this.now = now;
+    this.motionMode = motionMode === "smooth" ? "smooth" : "pixel";
+    this.renderResolutionScale = Math.max(1, Math.trunc(numberOr(renderResolutionScale, 1)));
+    this.logicalWidth = DEFAULT_CANVAS_SIZE[0];
+    this.logicalHeight = DEFAULT_CANVAS_SIZE[1];
+    this.timeline = new RenderTimeline({ now: this.now });
     this.manifest = null;
     this.manifestPromise = null;
     this.imageCache = new Map();
@@ -93,15 +89,42 @@ export class RuntimeCanvasRenderer {
     this.lastError = null;
     this.actorCanvas = null;
     this.actorCtx = null;
+    this.renderRows = [];
+    this.renderPaintOrder = null;
     this._setCanvasSize(...DEFAULT_CANVAS_SIZE);
   }
 
   _setCanvasSize(width, height) {
     const targetWidth = integerOr(width, DEFAULT_CANVAS_SIZE[0]);
     const targetHeight = integerOr(height, DEFAULT_CANVAS_SIZE[1]);
-    if (this.canvas.width !== targetWidth) this.canvas.width = targetWidth;
-    if (this.canvas.height !== targetHeight) this.canvas.height = targetHeight;
+    this.logicalWidth = targetWidth;
+    this.logicalHeight = targetHeight;
+    const backingWidth = targetWidth * this.renderResolutionScale;
+    const backingHeight = targetHeight * this.renderResolutionScale;
+    if (this.canvas.width !== backingWidth) this.canvas.width = backingWidth;
+    if (this.canvas.height !== backingHeight) this.canvas.height = backingHeight;
+    if (this.canvas.style) {
+      this.canvas.style.width = `${targetWidth}px`;
+      this.canvas.style.height = `${targetHeight}px`;
+    }
     this.ctx.imageSmoothingEnabled = false;
+  }
+
+  _resetContextTransform(context) {
+    if (typeof context?.setTransform === "function") context.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  _applyLogicalTransform(context) {
+    if (typeof context?.setTransform === "function") {
+      context.setTransform(
+        this.renderResolutionScale,
+        0,
+        0,
+        this.renderResolutionScale,
+        0,
+        0,
+      );
+    }
   }
 
   _absoluteUrl(url) {
@@ -188,7 +211,7 @@ export class RuntimeCanvasRenderer {
     return this.manifestPromise;
   }
 
-  setState(nextState) {
+  setState(nextState, options = {}) {
     if (this.destroyed) return false;
     if (!nextState || nextState.schema !== "gds.runtime_render_state.v1") {
       throw new TypeError("unsupported runtime render state");
@@ -196,16 +219,14 @@ export class RuntimeCanvasRenderer {
     if (this.manifest && nextState.floor_id !== this.manifest.floor_id) {
       throw new Error(`render state floor mismatch: ${nextState.floor_id}`);
     }
-    const nextSequence = integerOr(nextState.sequence, -1);
-    if (this.state && nextSequence <= integerOr(this.state.sequence, -1)) return false;
-    const previous = this.state;
-    const canInterpolate = sequential(previous, nextState);
-    this.previousState = canInterpolate ? previous : null;
+    const accepted = this.timeline.push(nextState, options);
+    if (!accepted) return false;
+    const previous = this.timeline.previousState;
+    const canInterpolate = Boolean(previous);
+    this.previousState = previous;
     this.state = nextState;
-    this.stateReceivedAt = this.now();
-    this.interpolationDurationMs = canInterpolate
-      ? Math.max(1, integerOr(nextState.clock_ms, 0) - integerOr(previous.clock_ms, 0))
-      : 1;
+    this.stateReceivedAt = this.timeline.stateReceivedAt;
+    this.interpolationDurationMs = canInterpolate ? this.timeline.interpolationDurationMs : 1;
     for (const actor of nextState.actors || []) {
       if (actor?.character_id && actor?.frame_id) this._primeCharacter(actor);
       const workstation = this.manifest?.workstations?.[actor.workstation_id];
@@ -224,20 +245,47 @@ export class RuntimeCanvasRenderer {
   }
 
   _stateRows(nowMs) {
-    if (!this.state) return [];
-    const currentRows = Array.isArray(this.state.actors) ? this.state.actors : [];
-    const previousById = new Map(
-      (this.previousState?.actors || []).map((row) => [row.employee_id, row]),
+    const sampled = sampleRenderRows(
+      this.state,
+      this.previousState,
+      nowMs,
+      this.stateReceivedAt,
+      this.interpolationDurationMs,
     );
-    const progress = this.previousState
-      ? clamp((numberOr(nowMs) - numberOr(this.stateReceivedAt)) / this.interpolationDurationMs, 0, 1)
-      : 1;
-    return currentRows.map((row) => {
-      const previous = previousById.get(row.employee_id);
-      if (!previous || !validPoint(previous.ground_xy) || !validPoint(row.ground_xy)) return row;
-      if (row.render_owner !== "walking_depth" || previous.render_owner !== "walking_depth") return row;
-      return { ...row, ground_xy: interpolatePoint(previous.ground_xy, row.ground_xy, progress) };
+    const occluders = this.manifest?.occluders;
+    if (!Array.isArray(occluders)) return sampled;
+    return sampled.map((row) => {
+      if (row?.render_owner !== "walking_depth" || !validPoint(row.ground_xy)) return row;
+      return {
+        ...row,
+        occluder_placement_ids: resolveActorOccluderIds(
+          row,
+          occluders,
+          this.manifest?.floor_id,
+          {
+            snapActorBox: this.motionMode !== "smooth",
+          },
+        ),
+      };
     });
+  }
+
+  getRenderRows(nowMs = this.now()) {
+    return this._stateRows(nowMs);
+  }
+
+  getRenderRow(employeeId, nowMs = this.now()) {
+    return this.getRenderRows(nowMs).find((row) => row.employee_id === employeeId) || null;
+  }
+
+  resetState() {
+    this.timeline.reset();
+    this.state = null;
+    this.previousState = null;
+    this.stateReceivedAt = 0;
+    this.interpolationDurationMs = 1;
+    this.renderRows = [];
+    this.renderPaintOrder = null;
   }
 
   _characterRecord(row) {
@@ -529,10 +577,14 @@ export class RuntimeCanvasRenderer {
     if (!topLeft) return false;
     this._ensureActorCanvas();
     const [width, height] = this.manifest.frame_profile?.canvas || DEFAULT_CHARACTER_SIZE;
-    if (this.actorCanvas.width !== width) this.actorCanvas.width = width;
-    if (this.actorCanvas.height !== height) this.actorCanvas.height = height;
+    const backingWidth = width * this.renderResolutionScale;
+    const backingHeight = height * this.renderResolutionScale;
+    if (this.actorCanvas.width !== backingWidth) this.actorCanvas.width = backingWidth;
+    if (this.actorCanvas.height !== backingHeight) this.actorCanvas.height = backingHeight;
+    this._resetContextTransform(this.actorCtx);
+    this.actorCtx.clearRect(0, 0, this.actorCanvas.width, this.actorCanvas.height);
+    this._applyLogicalTransform(this.actorCtx);
     this.actorCtx.imageSmoothingEnabled = false;
-    this.actorCtx.clearRect(0, 0, width, height);
     if (!this._drawCharacter(this.actorCtx, row, 0, 0)) return false;
     this.actorCtx.save();
     this.actorCtx.globalCompositeOperation = "destination-out";
@@ -575,8 +627,8 @@ export class RuntimeCanvasRenderer {
         this._drawCharacter(
           this.actorCtx,
           seated,
-          Math.round(seatedTopLeft[0] - topLeft[0]),
-          Math.round(seatedTopLeft[1] - topLeft[1]),
+          seatedTopLeft[0] - topLeft[0],
+          seatedTopLeft[1] - topLeft[1],
         );
       }
     }
@@ -600,7 +652,19 @@ export class RuntimeCanvasRenderer {
     this.actorCtx.restore();
     context.save();
     context.globalAlpha = clamp(numberOr(row.visibility_alpha, 1), 0, 1);
-    context.drawImage(this.actorCanvas, Math.round(topLeft[0]), Math.round(topLeft[1]));
+    const drawX = this.motionMode === "smooth" ? topLeft[0] : Math.round(topLeft[0]);
+    const drawY = this.motionMode === "smooth" ? topLeft[1] : Math.round(topLeft[1]);
+    context.drawImage(
+      this.actorCanvas,
+      0,
+      0,
+      this.actorCanvas.width,
+      this.actorCanvas.height,
+      drawX,
+      drawY,
+      width,
+      height,
+    );
     context.restore();
     return true;
   }
@@ -689,7 +753,9 @@ export class RuntimeCanvasRenderer {
 
   _drawDialogue(context, rows) {
     const byId = new Map(rows.map((row) => [row.employee_id, row]));
-    const order = this.state?.paint_order?.dialogue_bubbles || [];
+    const order = this.renderPaintOrder?.dialogue_bubbles
+      || this.state?.paint_order?.dialogue_bubbles
+      || [];
     const ordered = [...order, ...rows.map((row) => row.employee_id)]
       .filter((id, index, source) => source.indexOf(id) === index)
       .map((id) => byId.get(id))
@@ -752,17 +818,25 @@ export class RuntimeCanvasRenderer {
     const staticImage = this._readyImage(this.manifest.static_scene.url);
     if (!staticImage) return false;
     const context = this.ctx;
-    const width = this.canvas.width;
-    const height = this.canvas.height;
+    const width = this.logicalWidth;
+    const height = this.logicalHeight;
+    this._resetContextTransform(context);
+    context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this._applyLogicalTransform(context);
     context.imageSmoothingEnabled = false;
-    context.clearRect(0, 0, width, height);
     context.drawImage(staticImage, 0, 0);
     const rows = this._stateRows(nowMs);
+    this.renderRows = rows;
+    this.renderPaintOrder = {
+      characters: sortCharacterPaintOrder(rows),
+      dialogue_bubbles: this.state.paint_order?.dialogue_bubbles || [],
+    };
     const dynamicEntries = this._dynamicEntries(rows);
     const seatedRows = rows.filter((row) => row?.visible && row.render_owner === "work_seat");
     const channelOccluders = this._activeChannelOccluders(rows);
     const byId = new Map(rows.map((row) => [row.employee_id, row]));
     const orderedIds = [
+      ...(this.renderPaintOrder.characters || []),
       ...(this.state.paint_order?.characters || []),
       ...rows.map((row) => row.employee_id),
     ].filter((id, index, source) => source.indexOf(id) === index);
@@ -792,6 +866,7 @@ export class RuntimeCanvasRenderer {
 
   destroy() {
     this.destroyed = true;
+    this.timeline.reset();
     this.state = null;
     this.previousState = null;
     this.imageCache.clear();
@@ -800,5 +875,7 @@ export class RuntimeCanvasRenderer {
     this.manifestPromise = null;
     this.actorCanvas = null;
     this.actorCtx = null;
+    this.renderRows = [];
+    this.renderPaintOrder = null;
   }
 }

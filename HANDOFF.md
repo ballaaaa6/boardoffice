@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-11 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow, chair foreground, walking-occluder source-alpha and cross-depth channel composition defects are resolved in engineering across all 25 office floors (219 workstations and employees); live visual confirmation of the latest occlusion corrections remains pending. HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. A separate 2026-09-11 motion-smoothness diagnostic found stable browser frame pacing but presentation-level pixel quantization; no motion fix was applied. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture active on `main`. Character crop/shadow, chair foreground, walking-occluder source-alpha and cross-depth channel composition defects are resolved in engineering across all 25 office floors (219 workstations and employees); live visual confirmation of the latest occlusion corrections remains pending. HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
@@ -54,10 +54,42 @@
   buffer, a two-pose distance-based walk cycle, and non-integer CSS pixel-art
   scaling (`scale=1.35` by default; the reviewed user tab was at `3.5`).
   Focused Python movement/presentation/runtime tests passed **41**, Browser
-  runtime tests passed **22**. Implementation and author smoothness acceptance
-  remain pending; the later fix must choose between crisp integer-pixel
-  rendering and genuinely subpixel-smooth motion rather than treating this as
-  a CPU/FPS failure.
+  runtime tests passed **22**. The implementation experiment is now isolated
+  on `codex/walking-presentation-smooth`; the diagnostic still indicates this
+  is a presentation choice between crisp integer-pixel rendering and genuinely
+  subpixel-smooth motion, not a CPU/FPS failure.
+
+- 2026-09-11 plan-only architecture survey completed for the smoother-motion
+  option. Recommended direction is a presentation-layer change, not a
+  gameplay or WebGL rewrite: retain the deterministic 60ms simulation, sample
+  a render-time float pose, resolve paint order and occluders from that same
+  pose, and test a 2x/4x logical-coordinate Canvas backing surface with
+  pixel-art nearest-neighbor settings. The final actor blit, current-state
+  depth metadata, follow-camera double smoothing, hit-testing and Python
+  raster fallback all need explicit compatibility coverage. The experiment is
+  being evaluated on an isolated branch with a pixel-mode fallback and a live
+  visual gate; it does not change gameplay state or canonical assets.
+
+- 2026-09-11 implemented the first smooth walking-presentation experiment on
+  `codex/walking-presentation-smooth`, then merged the author-approved 4x
+  configuration to `main`. `WEB/runtime_render_timeline.js` samples
+  float walking poses between accepted fixed-step states;
+  `WEB/runtime_render_depth.js` keeps paint order and walking occluders tied to
+  that same sampled pose; `WEB/runtime_canvas_renderer.js` supports smooth or
+  legacy pixel mode plus a 1x/2x/4x logical-coordinate backing surface; and
+  `WEB/viewer_app.js` uses the render pose for Follow Camera and logical
+  hit-testing. No world, character, manifest, bundle or gameplay source was
+  changed. A branch-vs-`main` audit found no changed font declaration, UI font
+  CSS, world/character/contract asset, manifest or browser bundle; the visible
+  dialogue-text difference is the expected rasterization effect of drawing on
+  the smooth 4x backing surface. Browser runtime tests are **26/26**,
+  `node --check` passes for the
+  changed viewer/render modules, `python -m pytest -q` is **388 passed**, and
+  `git diff --check` passes. A branch-isolated preview server is running as
+  project PID `26880` on port `8001`; live review is available at
+  `http://127.0.0.1:8001/?floor=floor06&motion=smooth&renderScale=4&preview=branch`.
+  Author visual acceptance and merge decision are complete; the 2x URL remains
+  an optional lower-cost comparison/fallback.
 
 - 2026-09-11 rebuilt the root and all 25 browser floor bundles/manifests after
   the canonical source hash update. Bundle contract validation is **25/25**;
@@ -1168,11 +1200,10 @@ buffer, equal-depth behavior is preserved, and the WorkSeat authored-layer
 compositor remains unchanged. The floor02 overlap is clean in automated pixel
 checks. Live visual/gameplay acceptance of the correction remains pending.
 
-Motion-smoothness diagnostic gate: diagnostic complete, implementation
-intentionally pending author direction. The candidate decision is whether to
-preserve crisp pixel-art snapping with an integer zoom/pixel policy, or permit
-subpixel walker placement (and potentially add more walk poses) for smoother
-perceived motion; current evidence does not point to a machine-side FPS limit.
+Motion-smoothness gate: author selected the Smooth 4x presentation and approved
+the implementation merge to `main`. The deterministic 60ms simulation remains
+unchanged; 2x is retained as an optional lower-cost fallback, and current
+evidence still does not point to a machine-side FPS limit.
 
 Current VFX gate: engineering integration of the ten v32 effects into the
 canonical 21-effect system is complete. Author visual/gameplay acceptance of

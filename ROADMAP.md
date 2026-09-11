@@ -32,12 +32,40 @@ and local raster fallback.
   perceived unevenness is attributable to fixed 60ms state timing, integer
   walker placement after interpolation, a two-pose walk cycle and fractional
   pixel-art CSS scaling. No implementation change was made in this diagnostic.
+- [x] Survey the design for a smoother walking presentation without changing
+  gameplay simulation: keep the 60ms deterministic core, introduce an explicit
+  render-time pose/timeline, preserve one coherent depth resolver from the
+  interpolated pose, and evaluate a higher-resolution logical-coordinate Canvas
+  surface before considering a separate layer or WebGL rewrite. The first
+  implementation is isolated on `codex/walking-presentation-smooth`; it keeps
+  gameplay, canonical assets and the Python fallback unchanged and remains
+  author-acceptance pending.
 - [x] Make Zero-API browser mode (`WEB/viewer.html`) the primary production architecture while
   retaining Python as offline data oracle, bundle compiler, and review fallback.
 - [x] Remove the PC animation frame-swap flash by preloading workstation PC
   frames and retaining the last ready frame during slow image loads; add
   browser regression coverage and verify the live floor00 canvas.
 - [x] Merge `prototype_living_character_web` into `main` and push to remote.
+
+### Smooth walking presentation experiment — 2026-09-11
+
+- [x] Add a render-time timeline that interpolates only walking poses between
+  accepted 60ms simulation states, with a legacy pixel-mode fallback.
+- [x] Resolve character paint order and walking occluders from the same sampled
+  pose so interpolation does not desynchronize depth metadata.
+- [x] Add a logical-coordinate Canvas backing surface with configurable 1x/2x/4x
+  resolution, fractional walker placement in smooth mode, and nearest-neighbor
+  pixel-art settings.
+- [x] Keep Follow Camera and Canvas hit-testing on logical/render coordinates;
+  remove the second CSS camera transition.
+- [x] Add Browser regression coverage; `node TESTS/browser_runtime_test.mjs`
+  passes **26/26**, syntax checks pass, and `python -m pytest -q` passes
+  **388 tests**.
+- [x] Author selected the Smooth 4x presentation after live branch-preview
+  review of the walking scene, with the deterministic simulation unchanged.
+- [x] Compare against the pixel fallback and merge the approved Smooth 4x
+  presentation to `main`; retain 2x as an optional lower-cost fallback and
+  leave the Python raster fallback unchanged.
 
 ### Walking occluder source-alpha correction — 2026-09-11
 

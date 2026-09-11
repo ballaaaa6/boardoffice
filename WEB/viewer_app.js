@@ -1,5 +1,6 @@
 import { BrowserRuntimeCore } from "./runtime_simulation_core.js";
 import { RuntimeCanvasRenderer } from "./runtime_canvas_renderer.js";
+import { resolveActorOccluderIds, sortCharacterPaintOrder } from "./runtime_render_depth.js";
 
 // DOM Elements
 const canvas = document.getElementById("livingCanvas");
@@ -57,6 +58,16 @@ let currentLocale = "th"; // default to Thai
 let selectedActorId = null;
 let isFollowingActor = false;
 let lastRenderState = null;
+
+// Presentation experiment switches. The simulation and its deterministic
+// 60ms clock remain unchanged; only the browser-side renderer changes.
+const renderQuery = new URLSearchParams(window.location.search);
+const renderMotionMode = renderQuery.get("motion") === "pixel" ? "pixel" : "smooth";
+const requestedRenderScale = Number.parseInt(renderQuery.get("renderScale"), 10);
+const renderResolutionScale = renderMotionMode === "smooth"
+  && (requestedRenderScale === 2 || requestedRenderScale === 4)
+  ? requestedRenderScale
+  : renderMotionMode === "smooth" ? 4 : 1;
 
 // Canonical Speech Bubble Sprite Sheet & Presets (from CHARACTER/ASSETS/dialogue/fukidashi_base.png & bubble_presets.json)
 const FUKIDASHI_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAAoBAMAAABa5ejbAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAhUExURf///+Lt4vX39bO8s+ry6u707vj4+HuOfPL/8uzz7fD08H2BqFwAAAABdFJOUwBA5thmAAAACXBIWXMAAA7DAAAOwwHHb6hkAAABpElEQVRIx82VsWrDMBiEDzx4dlVK1iQvIEVJlGQr6RuEPkAolIwGDZ5NoHTP1Dlbn7JuCrWkSr8iFUNu+zlOJw36P6CQEQEIehyePGyJKiKOIugxX55b5xcPrxExiKC3554865/cdYlJTGN5FzaZJz/mhfnCIQpE/0LMogUTSXhTX964EcPqPSpJeEdf3irYfEYlCe/syxtPnmLxHJUkvJ0vb9zoPEyB4WP9EZUkvNOaDpwwf4pKEt52Tge2ENHzH+V92GSCDjDo2CqqWEOsK6XpgEIxipw/6nZRGzJb/jdvBlqOUjrbqnJmpqBFwN/L+je/r4zA8mfufKBxtvnhxZ5VjVKH/KbPL9/swGVuvhd2Y2ul7Lm7A8qQb3j6aAcuMzzSNUiF/FLRc2/Q54f9OjAXV0OYI0viagizrPO9TBUBAGc9IIGR7CYLZgkQnuYUrBIgfMwp2CRA+JxTsEhg5O4mC9YJED7lFMwTILzN+gcJEM76BzoBwiprF42uhnCbtYv8TBUeBF8AmyGXyQ6EDQQ3eTwoHSY7EDYQjEGkawyr8p/5LxspvhDRdGCxAAAAAElFTkSuQmCC";
@@ -201,114 +212,6 @@ function startLiveSimulation() {
     return result;
   };
 
-  // Canonical walking-depth front-edge profiles across floors (from walking_depth_profiles.json)
-  const DEPTH_PROFILES_BY_FLOOR = {
-    floor00: {
-      ceo_desk_cell2: [
-        [226, 306],
-        [240, 313],
-        [276, 295],
-      ],
-      ceo_pc: [
-        [226, 306],
-        [240, 313],
-        [276, 295],
-      ],
-    },
-    floor01: {
-      reception: [
-        [215, 382],
-        [241, 395],
-        [269, 381],
-      ],
-      ceo_desk_cell2: [
-        [261, 282],
-        [275, 289],
-        [311, 271],
-      ],
-      ceo_pc: [
-        [261, 282],
-        [275, 289],
-        [311, 271],
-      ],
-    },
-  };
-
-  const DEPTH_PROFILES_DEFAULT = {
-    reception: [
-      [209, 381],
-      [267, 410],
-      [297, 395],
-    ],
-    ceo_desk_cell2: [
-      [293, 263],
-      [329, 281],
-      [343, 274],
-    ],
-    ceo_pc: [
-      [293, 263],
-      [329, 281],
-      [343, 274],
-    ],
-  };
-
-  function frontEdgeYAtX(frontEdge, worldX) {
-    const points = [...frontEdge].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-    const x = Math.min(Math.max(worldX, points[0][0]), points[points.length - 1][0]);
-    for (let i = 0; i < points.length - 1; i++) {
-      const [x0, y0] = points[i];
-      const [x1, y1] = points[i + 1];
-      if (x0 <= x && x <= x1) {
-        if (x1 === x0) return Math.max(y0, y1);
-        const progress = (x - x0) / (x1 - x0);
-        return y0 + (y1 - y0) * progress;
-      }
-    }
-    return points[points.length - 1][1];
-  }
-
-  function resolveActorOccluderIds(actor, occluders) {
-    if (actor.render_owner !== "walking_depth") return [];
-    if (!actor.ground_xy || actor.ground_xy.length !== 2) return [];
-    const [gx, gy] = actor.ground_xy;
-    const ax0 = Math.round(gx - 16);
-    const ay0 = Math.round(gy - 31);
-    const ax1 = ax0 + 32;
-    const ay1 = ay0 + 42;
-
-    const depthFrontEdges = DEPTH_PROFILES_BY_FLOOR[currentFloorId] || DEPTH_PROFILES_DEFAULT;
-
-    const ids = [];
-    for (const occ of occluders) {
-      // 1. Exact depth test matching Python WalkingDepthCore.occluders_in_front
-      let inFront = false;
-      if (occ.always_foreground) {
-        inFront = true;
-      } else {
-        const edge = occ.depth_front_edge_world_px || depthFrontEdges[occ.placement_id];
-        const anchorY = edge ? frontEdgeYAtX(edge, gx) : occ.depth_anchor_y_px;
-        if (anchorY != null && anchorY > gy) {
-          inFront = true;
-        }
-      }
-      if (!inFront) continue;
-
-      // 2. Bounding box overlap test matching Python WalkingDepthCore._mask_character_by_world_occluders
-      const ox0 = occ.x_px;
-      const oy0 = occ.y_px;
-      const ox1 = ox0 + occ.width;
-      const oy1 = oy0 + occ.height;
-      const ix0 = Math.max(ax0, ox0);
-      const iy0 = Math.max(ay0, oy0);
-      const ix1 = Math.min(ax1, ox1);
-      const iy1 = Math.min(ay1, oy1);
-      if (ix0 < ix1 && iy0 < iy1) {
-        ids.push(occ.placement_id);
-      }
-    }
-    return ids;
-  }
-
   // Wrap renderState to compute dynamic occluder IDs and ground-Y paint_order
   // Matching Python CentralGameCore and WalkingDepthCore exactly
   const originalRenderState = core.renderState.bind(core);
@@ -317,28 +220,17 @@ function startLiveSimulation() {
     const occluders = manifestData?.occluders || [];
 
     for (const actor of state.actors || []) {
-      actor.occluder_placement_ids = resolveActorOccluderIds(actor, occluders);
+      actor.occluder_placement_ids = resolveActorOccluderIds(
+        actor,
+        occluders,
+        currentFloorId,
+      );
     }
 
     // Exact Python CentralGameCore paint_order (sorts walking actors by ground Y)
     const actorsList = state.actors || [];
     state.paint_order = {
-      characters: [...actorsList]
-        .sort((a, b) => {
-          const aGround = a.ground_xy;
-          const bGround = b.ground_xy;
-          const aHas = aGround ? 0 : 1;
-          const bHas = bGround ? 0 : 1;
-          if (aHas !== bHas) return aHas - bHas;
-          const ay = aGround ? aGround[1] : 0;
-          const by = bGround ? bGround[1] : 0;
-          if (ay !== by) return ay - by;
-          const aOrder = a.assignment_order ?? 0;
-          const bOrder = b.assignment_order ?? 0;
-          if (aOrder !== bOrder) return aOrder - bOrder;
-          return String(a.employee_id).localeCompare(String(b.employee_id));
-        })
-        .map((a) => a.employee_id),
+      characters: sortCharacterPaintOrder(actorsList),
       dialogue_bubbles: [...actorsList]
         .filter((a) => a.dialogue?.visible)
         .sort((a, b) => (
@@ -535,8 +427,7 @@ async function switchFloor(floorId) {
     renderer.manifest = null;
     renderer.manifestPromise = null;
     renderer.manifestUrl = manifestUrl;
-    renderer.previousState = null;
-    renderer.state = null;
+    renderer.resetState();
     await renderer.loadManifest();
 
     // Update URL query parameter
@@ -549,8 +440,8 @@ async function switchFloor(floorId) {
 
     // Initial frame
     const initialResult = core.step(STEP_MS);
-    lastRenderState = core.renderState();
-    renderer.setState(lastRenderState);
+    lastRenderState = initialResult.renderState || core.renderState();
+    renderer.setState(lastRenderState, { receivedAtMs: performance.now() });
     renderer.render(performance.now());
 
     // Reset pan/zoom and update HUD
@@ -641,6 +532,8 @@ async function init() {
     renderer = new RuntimeCanvasRenderer({
       canvas,
       manifestUrl,
+      motionMode: renderMotionMode,
+      renderResolutionScale,
     });
     await renderer.loadManifest();
 
@@ -654,7 +547,9 @@ async function init() {
     // Override _drawDialogue to render authentic fukidashi_base pixel sprites and #0c45fb text
     renderer._drawDialogue = function (context, rows) {
       const byId = new Map(rows.map((row) => [row.employee_id, row]));
-      const order = this.state?.paint_order?.dialogue_bubbles || [];
+      const order = this.renderPaintOrder?.dialogue_bubbles
+        || this.state?.paint_order?.dialogue_bubbles
+        || [];
       const ordered = [...order, ...rows.map((row) => row.employee_id)]
         .filter((id, index, source) => source.indexOf(id) === index)
         .map((id) => byId.get(id))
@@ -746,8 +641,8 @@ async function init() {
 
     // Step first tick to populate initial frame
     const initialResult = core.step(STEP_MS);
-    lastRenderState = core.renderState();
-    renderer.setState(lastRenderState);
+    lastRenderState = initialResult.renderState || core.renderState();
+    renderer.setState(lastRenderState, { receivedAtMs: performance.now() });
     renderer.render(performance.now());
 
     // Hide Loading Screen
@@ -845,13 +740,10 @@ function simulationLoop(now) {
         }
       }
 
-      core.step(STEP_MS, { actorCommands });
+      const stepResult = core.step(STEP_MS, { actorCommands });
+      lastRenderState = stepResult.renderState || core.renderState();
+      renderer.setState(lastRenderState, { receivedAtMs: now });
       accumulatorMs -= STEP_MS;
-    }
-
-    lastRenderState = core.renderState();
-    if (lastRenderState) {
-      renderer.setState(lastRenderState);
     }
   }
 
@@ -861,7 +753,7 @@ function simulationLoop(now) {
 
   updateHUD();
   updateInspector();
-  updateFollowCamera();
+  updateFollowCamera(now);
 }
 
 // Virtual Clock & HUD updates
@@ -890,8 +782,10 @@ function updateHUD() {
 // Character Hit-detection on Canvas
 function getCanvasCoords(event) {
   const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
+  const logicalWidth = renderer?.logicalWidth || canvas.width;
+  const logicalHeight = renderer?.logicalHeight || canvas.height;
+  const scaleX = logicalWidth / rect.width;
+  const scaleY = logicalHeight / rect.height;
   return {
     x: (event.clientX - rect.left) * scaleX,
     y: (event.clientY - rect.top) * scaleY,
@@ -993,10 +887,11 @@ function updateInspector(forceUpdateAvatar = false) {
 }
 
 // Camera Follow Mode
-function updateFollowCamera() {
+function updateFollowCamera(nowMs = performance.now()) {
   if (!isFollowingActor || !selectedActorId || !lastRenderState) return;
 
-  const actor = (lastRenderState.actors || []).find((a) => a.employee_id === selectedActorId);
+  const actor = renderer?.getRenderRow(selectedActorId, nowMs)
+    || (lastRenderState.actors || []).find((a) => a.employee_id === selectedActorId);
   if (!actor || !actor.ground_xy) return;
 
   // Target center in canvas pixels: center of stage is (300, 300)

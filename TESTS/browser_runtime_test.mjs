@@ -991,3 +991,175 @@ test("canvas renderer keeps HumanBall hidden after its one-shot timeline", async
   renderer._drawHumanballChannel(fakeContext, [row], "humanball", "humanballs");
   assert.equal(drawn.length, 1);
 });
+
+test("render timeline interpolates walking poses without mutating source states", async () => {
+  const { RenderTimeline } = await import("../WEB/runtime_render_timeline.js");
+  const previous = {
+    schema: "gds.runtime_render_state.v1",
+    floor_id: "floor_test",
+    sequence: 1,
+    clock_ms: 60,
+    actors: [{
+      employee_id: "EMP_TEST_001",
+      visible: true,
+      render_owner: "walking_depth",
+      ground_xy: [100, 310],
+    }],
+  };
+  const current = {
+    ...previous,
+    sequence: 2,
+    clock_ms: 120,
+    actors: [{
+      ...previous.actors[0],
+      ground_xy: [101, 311],
+    }],
+  };
+  const timeline = new RenderTimeline({ now: () => 0 });
+  assert.equal(timeline.push(previous, { receivedAtMs: 0 }), true);
+  assert.equal(timeline.push(current, { receivedAtMs: 60 }), true);
+  const sampled = timeline.rows(90);
+  assert.deepEqual(sampled[0].ground_xy, [100.5, 310.5]);
+  assert.deepEqual(previous.actors[0].ground_xy, [100, 310]);
+  assert.deepEqual(current.actors[0].ground_xy, [101, 311]);
+});
+
+test("smooth canvas mode preserves fractional walker placement on a high-resolution backing surface", async () => {
+  const { RuntimeCanvasRenderer } = await import("../WEB/runtime_canvas_renderer.js");
+  const calls = [];
+  const makeContext = (name) => ({
+    imageSmoothingEnabled: false,
+    setTransform: (...args) => calls.push({ target: name, type: "transform", args }),
+    clearRect: (...args) => calls.push({ target: name, type: "clear", args }),
+    drawImage: (image, ...args) => calls.push({ target: name, type: "draw", image, args }),
+    save: () => {},
+    restore: () => {},
+  });
+  const mainContext = makeContext("main");
+  const actorContext = makeContext("actor");
+  const fakeCanvas = {
+    width: 600,
+    height: 600,
+    style: {},
+    getContext: () => mainContext,
+    ownerDocument: {
+      createElement: () => ({
+        width: 32,
+        height: 42,
+        getContext: () => actorContext,
+      }),
+    },
+  };
+  const renderer = new RuntimeCanvasRenderer({
+    canvas: fakeCanvas,
+    manifestUrl: "http://127.0.0.1/render.json",
+    motionMode: "smooth",
+    renderResolutionScale: 4,
+    now: () => 0,
+  });
+  renderer.manifest = {
+    schema: "gds.runtime_render_manifest.v1",
+    floor_id: "floor_test",
+    canvas: { width: 600, height: 600 },
+    frame_profile: { canvas: [32, 42] },
+    static_scene: { url: "static.png" },
+    overlays: [],
+    occluders: [],
+    workstations: {},
+  };
+  renderer._readyImage = (url) => ({ name: url, width: 600, height: 600 });
+  renderer._drawCharacter = () => true;
+  const row = {
+    employee_id: "EMP_TEST_001",
+    visible: true,
+    render_owner: "walking_depth",
+    character_id: "TP_TEST",
+    frame_id: "M1",
+    ground_xy: [100, 310],
+    anchor_xy: [16, 31],
+  };
+  renderer.setState({
+    schema: "gds.runtime_render_state.v1",
+    floor_id: "floor_test",
+    sequence: 1,
+    clock_ms: 60,
+    actors: [row],
+    paint_order: { characters: [row.employee_id] },
+  }, { receivedAtMs: 0 });
+  renderer.setState({
+    schema: "gds.runtime_render_state.v1",
+    floor_id: "floor_test",
+    sequence: 2,
+    clock_ms: 120,
+    actors: [{ ...row, ground_xy: [101, 311] }],
+    paint_order: { characters: [row.employee_id] },
+  }, { receivedAtMs: 60 });
+
+  renderer.render(90);
+  assert.equal(fakeCanvas.width, 2400);
+  assert.equal(fakeCanvas.height, 2400);
+  assert.equal(fakeCanvas.style.width, "600px");
+  const actorDraw = calls.find((call) => (
+    call.target === "main" && call.type === "draw" && call.image === renderer.actorCanvas
+  ));
+  assert.ok(actorDraw);
+  assert.deepEqual(actorDraw.args, [0, 0, 128, 168, 84.5, 279.5, 32, 42]);
+});
+
+test("smooth canvas mode resolves walking occluders from the interpolated pose", async () => {
+  const { RuntimeCanvasRenderer } = await import("../WEB/runtime_canvas_renderer.js");
+  const fakeContext = {
+    imageSmoothingEnabled: false,
+    clearRect: () => {},
+    drawImage: () => {},
+  };
+  const renderer = new RuntimeCanvasRenderer({
+    canvas: { width: 600, height: 600, getContext: () => fakeContext },
+    manifestUrl: "data:application/json,{}",
+    motionMode: "smooth",
+    now: () => 0,
+  });
+  renderer.manifest = {
+    floor_id: "floor_test",
+    occluders: [{
+      placement_id: "front_object",
+      x_px: 84,
+      y_px: 100,
+      width: 32,
+      height: 42,
+      depth_anchor_y_px: 150,
+      depth_front_edge_world_px: null,
+      always_foreground: false,
+    }],
+  };
+  const baseActor = {
+    employee_id: "EMP_TEST_001",
+    visible: true,
+    render_owner: "walking_depth",
+    ground_xy: [100, 160],
+    anchor_xy: [16, 31],
+    occluder_placement_ids: [],
+  };
+  renderer.setState({
+    schema: "gds.runtime_render_state.v1",
+    floor_id: "floor_test",
+    sequence: 1,
+    clock_ms: 60,
+    actors: [baseActor],
+  }, { receivedAtMs: 0 });
+  renderer.setState({
+    schema: "gds.runtime_render_state.v1",
+    floor_id: "floor_test",
+    sequence: 2,
+    clock_ms: 120,
+    actors: [{
+      ...baseActor,
+      ground_xy: [100, 140],
+      occluder_placement_ids: ["front_object"],
+    }],
+  }, { receivedAtMs: 60 });
+
+  const sampled = renderer.getRenderRows(90);
+  assert.deepEqual(sampled[0].ground_xy, [100, 150]);
+  assert.deepEqual(sampled[0].occluder_placement_ids, []);
+});
