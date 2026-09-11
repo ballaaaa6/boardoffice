@@ -100,11 +100,10 @@
   the smooth 4x backing surface. Browser runtime tests are **26/26**,
   `node --check` passes for the
   changed viewer/render modules, `python -m pytest -q` is **388 passed**, and
-  `git diff --check` passes. The preview server is running as project PID
-  `26880` on port `8001` and now serves the merged `main`; live review is available at
-  `http://127.0.0.1:8001/?floor=floor06&motion=smooth&renderScale=4&preview=branch`.
-  Author visual acceptance and merge decision are complete; the 2x URL remains
-  an optional lower-cost comparison/fallback.
+  `git diff --check` passes. The temporary preview server was retired after
+  the experiment; the sole active review server is port `8000`.
+  Author visual acceptance and merge decision are complete; the 2x configuration
+  remains an optional lower-cost comparison/fallback on the main server.
 
 - 2026-09-11 rebuilt the root and all 25 browser floor bundles/manifests after
   the canonical source hash update. Bundle contract validation is **25/25**;
@@ -1236,7 +1235,7 @@ Existing unrelated gates:
    repository fully green.
 
 Diagnostic review on 2026-09-11: the supplied crop and live
-`http://127.0.0.1:8001/?floor=floor02` Canvas viewer showed the gray foreground
+`http://127.0.0.1:8000/?floor=floor02` Canvas viewer showed the gray foreground
 shape belongs to the chair/foreground-chair family. The root cause is the
 intersection of fine-grid talk spacing (4 V cells = 8x4 screen pixels), 32x42
 character bounds and intentional Y-depth/source-alpha furniture masking—not a

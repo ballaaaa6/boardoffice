@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -36,16 +35,11 @@ class StaticViewerHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT)
-    args = parser.parse_args()
-    if args.port <= 0 or args.port > 65535:
-        raise SystemExit("--port must be between 1 and 65535")
     if not WEB_ROOT.is_dir():
         raise SystemExit(f"Missing WEB directory: {WEB_ROOT}")
 
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), StaticViewerHandler)
-    print(f"Static Living Office viewer: http://127.0.0.1:{args.port}/", flush=True)
+    server = ThreadingHTTPServer(("127.0.0.1", DEFAULT_PORT), StaticViewerHandler)
+    print(f"Static Living Office viewer: http://127.0.0.1:{DEFAULT_PORT}/", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
