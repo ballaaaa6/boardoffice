@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-11 (Asia/Bangkok)
 **Project root:** `D:\antigravity\board office`
-**Status:** Zero-API Client-Side Browser Simulation Architecture remains active on `main`; the render-only standing-pair occlusion hotfix is implemented on `codex/standing-pair-occlusion-hotfix` and is awaiting author review before merge. It filters only workstation masks during `standing_pair`/`talk_hold`, leaving authored table/chair assets, depth anchors, navigation and all other routes unchanged. HumanBall selection scope, animation lifecycle and manual event-overlap cases are fixed and regression-covered. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
+**Status:** Zero-API Client-Side Browser Simulation Architecture remains active on `main`; the render-only standing-pair occlusion hotfix is implemented on `codex/standing-pair-occlusion-hotfix` but is not ready for merge because the live viewer's manual Talk path still reproduces the defect. The server is serving the branch files correctly; the reproduction is `seated_host`, while the hotfix currently filters only `standing_pair`/`talk_hold`. Author review and a follow-up scope correction remain pending. The additive VFX catalog is engineering-integrated at 21 effects; visual acceptance of the ten new designs remains pending. The 2026-09-11 smooth walking-presentation experiment was author-approved at 4x and merged to `main`; the temporary branch was then removed. Python remains offline data oracle, bundle compiler (`TOOLS/build_all_floors.py`), and review fallback.
 
 ## Current state
 
@@ -46,20 +46,22 @@
   pytest suite is **388 passed**; live visual acceptance remains pending.
 
 - 2026-09-11 implemented the standing-pair workstation-occlusion hotfix on
-  `codex/standing-pair-occlusion-hotfix`. `WalkingDepthCore` now derives a
-  render-only `standing_pair_hold` context from the existing `speech_mode` and
-  `route_phase`, filters only `desk`, `pc`, `chair` and `chair_sub` masks, and
-  keeps reception/foreground overlays eligible. The Python raster renderer,
-  metadata projector and browser Canvas resolver use the same rule; normal,
-  outbound, return, `seated_host` and `ceo_front` depth behavior is unchanged.
-  Latest focused Python tests are **40 passed**, browser tests **27 passed**,
-  and the full Python suite is **392 passed**. Room Navigation, Navigation
-  Occupancy, WorkSeat, WorkSeat Lifecycle, F2 gameplay-family, conversation
-  and walking-depth-profile audits pass. Phase 6 and Central still report the
-  documented pre-existing `floor_skins`/placement/reference and foreground-
-  fragment mismatches. Live floor02 review after reloading the branch code at
-  normal/accelerated/zoomed playback showed the standing pair visible over the
-  workstation area; final author visual acceptance and merge remain pending.
+  `codex/standing-pair-occlusion-hotfix`, but the live preview diagnosed a
+  scope mismatch. `8001` runs from `D:\antigravity\board office` and its HTTP
+  `runtime_render_depth.js` contains the new resolver, so this is not a stale
+  server or browser-cache issue. The viewer's `#btnDemoTalk` handler prefers
+  the `seated_host` plan whenever it exists; floor02's first pair has both
+  plans, so the visitor standing beside the desk is rendered as
+  `seated_host`/`talk_hold`. At the reproduced point the resolver correctly
+  returns no workstation masks for `standing_pair`, but still returns
+  `ws6_chair_main`, `ws6_desk` and `ws6_pc` for `seated_host`, which explains
+  why port 8001 still looked unchanged. The follow-up should scope the
+  render-only rule to the walking visitor in `seated_host` (with any
+  `ceo_front` decision made explicitly), then rerun the existing tests and
+  live visual gate. Existing focused/browser/full test results remain **40**,
+  **27** and **392 passed**; Phase 6/Central still have their documented
+  pre-existing reference mismatches. No asset, table, navigation or manifest
+  change has been made for this diagnosis.
 
 - 2026-09-11 motion-smoothness diagnostic completed without source/runtime
   changes. The live viewer's RAF trace was approximately 6.7–7.1ms per frame

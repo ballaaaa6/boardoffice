@@ -92,6 +92,11 @@ and local raster fallback.
   **40 passed**, browser **27 passed**, full pytest **392 passed**, and the
   relevant navigation/WorkSeat/conversation/depth audits pass. The existing
   Phase 6/Central reference mismatches remain unrelated.
+- [ ] Extend the render-only policy to the actual live-preview reproduction:
+  the walking visitor in `seated_host`/`talk_hold` (and explicitly decide
+  whether the analogous `ceo_front` visitor is in scope). The current
+  `#btnDemoTalk` handler prefers `seated_host`, so the existing
+  `standing_pair_hold` patch does not affect the observed visitor.
 - [ ] Author visual acceptance from the branch preview and decide whether to
   merge into `main`.
 
